@@ -14,7 +14,7 @@
 # Local-only development workspaces
 /commands/
 /scratchpad/
-/plugins/as-usual/
+/plugins/as-usual
 
 # Local test run logs
 docs/test/

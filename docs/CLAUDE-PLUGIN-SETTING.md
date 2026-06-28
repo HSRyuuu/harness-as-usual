@@ -7,7 +7,7 @@ This document describes how to clone AsUsual and install it as a Claude Code loc
 - Claude Code is installed and `claude plugin --help` works.
 - `git` is installed.
 - Use `jq` for JSON validation. If `jq` is unavailable, use `python3 -m json.tool <file>`.
-- Public repository URL: `https://github.com/HSRyuuu/as-usual.git`.
+- Public repository URL: `https://github.com/HSRyuuu/harness-as-usual.git`.
 
 ## Install From Git
 
@@ -16,14 +16,14 @@ Choose where to place the local plugin.
 ```bash
 mkdir -p "$HOME/dev"
 cd "$HOME/dev"
-git clone https://github.com/HSRyuuu/as-usual.git
-export AS_USUAL_REPO="$HOME/dev/as-usual"
+git clone https://github.com/HSRyuuu/harness-as-usual.git
+export AS_USUAL_REPO="$HOME/dev/harness-as-usual"
 ```
 
 If the repository already exists:
 
 ```bash
-export AS_USUAL_REPO="$HOME/dev/as-usual"
+export AS_USUAL_REPO="$HOME/dev/harness-as-usual"
 cd "$AS_USUAL_REPO"
 git pull --ff-only
 ```
@@ -188,7 +188,7 @@ Give Claude Code this prompt.
 
 ```text
 Clone and install the public AsUsual Claude plugin.
-Repository URL: https://github.com/HSRyuuu/as-usual.git
+Repository URL: https://github.com/HSRyuuu/harness-as-usual.git
 Follow docs/CLAUDE-PLUGIN-SETTING.md exactly.
 Set AS_USUAL_REPO to the cloned repository path.
 Do not overwrite unrelated settings; register as-usual-local in ~/.claude/settings.json.

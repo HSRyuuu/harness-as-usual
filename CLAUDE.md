@@ -125,7 +125,7 @@ Plugin development requests are classified as plugin development even when they 
 - Non-trivial implementation goes through `requirements.md` and `plan.md` gates inside the topic folder.
 - `topic.md` is an agent-first, human-readable, low-churn resume document for initial request, topic boundary, durable notes, and artifact orientation. Do not maintain it as a current snapshot or task list.
 - `audit.jsonl` is the canonical append-only event log. Current phase, next action, blockers, approvals, and verification are derived with `scripts/topic-log.py status --json`.
-- Public docs use `https://github.com/HSRyuuu/as-usual.git` and `AS_USUAL_REPO`. Do not put private absolute paths such as `/Users/...` in public install docs.
+- Public docs use `https://github.com/HSRyuuu/harness-as-usual.git` and `AS_USUAL_REPO`. Do not put private absolute paths such as `/Users/...` in public install docs.
 - Do not commit draft/probe skills. Keep only stable skills in `skills/`.
 - When committing, stage paths explicitly. Avoid broad `git add .`.
 
