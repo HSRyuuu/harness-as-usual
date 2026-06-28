@@ -51,6 +51,8 @@ Run the same smoke tests repeatedly after AsUsual harness changes.
 | `skills/cleanup-code/*.md`                    | runtime code cleanup prompts  |
 | `skills/finalize/SKILL.md`                          | runtime finalization skill        |
 | `skills/git-action/SKILL.md`                        | runtime selected git action skill |
+| `skills/manage-self-improvement/SKILL.md`           | runtime finalize-triggered self-improvement skill |
+| `skills/search-long-term-memory/SKILL.md`           | runtime long-term memory recall utility |
 | `templates/question.md`                            | question artifact template        |
 | `templates/requirements.md`                                 | requirements artifact template            |
 | `templates/plan.md`                                 | plan artifact template            |

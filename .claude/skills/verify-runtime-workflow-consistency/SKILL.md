@@ -372,7 +372,7 @@ FAIL:
 Run:
 
 ```bash
-rg -n 'manage-self-improvement|search-long-term-memory|memory\.candidate|memory\.recorded|skill\.created|skill\.candidate|record-memory-candidate|record-memory|record-skill-created|record-skill-candidate|3000|recalled memory|UNTRUSTED RECALLED CONTEXT|\.as-usual/memory|MEMORY\.md' \
+rg -n 'manage-self-improvement|search-long-term-memory|memory\.candidate|memory\.recorded|skill\.created|skill\.candidate|record-memory-candidate|record-memory|record-skill --state created|record-skill --state candidate|3000|recalled memory|UNTRUSTED RECALLED CONTEXT|\.as-usual/memory|MEMORY\.md' \
   as-usual-rules/core-workflow.md \
   skills/using-as-usual/SKILL.md \
   skills/define-requirements/SKILL.md \
