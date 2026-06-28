@@ -73,27 +73,17 @@ When no active topic exists and the user is starting a new topic:
 5. Tell the user the topic path in one line so they can correct the slug or topic if needed.
 6. Continue to `start-work`.
 
-## Workflow Summary
+## Phase Handoff
 
-### Define Requirements
+After activation and first reads, use the phase router and Required Skills section in `as-usual-rules/core-workflow.md`.
 
-Requirements definition is owned by `define-requirements`.
+This skill should not duplicate phase procedures. Its job is to hand off to the owning skill:
 
-If the request is ambiguous or requires a user decision that could change requirements, plan, implementation, risk, or verification, create the next `question-cN.md` from `templates/question.md`, record it through `scripts/topic-log.py artifact` and a `question.created` audit event, tell the user which file to answer, and stop.
-
-When the user returns saying they answered, reread `question-c1.md`, `question-c2.md`, ... from disk. If answers validate, write or update `requirements.md` from `templates/requirements.md`, run the local reviewer prompt, run `scripts/topic-log.py complete-requirements`, ask the user to review `requirements.md` before plan approval, and stop.
-
-### Plan
-
-Plan writing is owned by `writing-plan`. When the user approves moving from completed requirements to plan, confirm `requirements.md` is current and derived status or `audit.jsonl` shows `requirements.completed`, then invoke `writing-plan`.
-
-### Execute
-
-Plan execution is owned by `executing-plan`. When the user explicitly approves or requests execution, invoke `executing-plan`. It rereads `topic.md`, `audit.jsonl`, `requirements.md`, and `plan.md`, critically reviews the plan, executes tasks in the approved `inline`, `subagent-driven`, or `mixed` mode, records audit events for progress, task review loops, sweeps, and verification, and invokes `review-execution` after execution completion.
-
-### Review, Code Cleanup, Finalize
-
-Execution review is mandatory after execution completes. `review-execution` reviews actual changed code and recorded evidence against `requirements.md` and `plan.md`, records findings, then asks whether to run optional code cleanup. If code cleanup is skipped or complete, `finalize` closes the topic and asks which post-close git action to run.
+- `start-work` for route selection after first reads.
+- `define-requirements` for question files, answer validation, requirements writing, review, and plan approval prompt.
+- `writing-plan` for dependency analysis, plan writing, review, and execution approval prompt.
+- `executing-plan` for approved execution and task-level evidence.
+- `review-execution`, `cleanup-code`, `finalize`, and `git-action` for post-execution gates.
 
 ## Topic Log And Audit
 

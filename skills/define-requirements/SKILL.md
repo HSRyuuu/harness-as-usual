@@ -223,29 +223,15 @@ Do not force this exact domain or wording. Use it as a shape: domain heading plu
 
 ## Self Review
 
-Before running the reviewer prompt, check and fix:
+Before running the reviewer prompt, use `requirements-document-reviewer-prompt.md` as the canonical checklist and fix obvious issues in `requirements.md`.
 
-Blocking rows must be backed by concrete evidence before marking pass; Advisory rows may pass on a clear-enough judgment.
+Do not maintain a second copy of the review criteria in this skill. The reviewer prompt owns:
 
-| Check | Tier | Pass Criteria |
-| --- | --- | --- |
-| Completeness | Blocking | Required template sections are filled with concrete content. No `TBD`, unexplained `TODO`, `<...>` placeholder, leftover example trace, or empty required section remains |
-| Human readability | Advisory | A human can scan the domain requirements list and understand the behavior and constraints |
-| Agent readiness | Advisory | A planner can derive plan tasks, affected surfaces, and verification direction from `requirements.md` alone |
-| Source traceability | Blocking | Initial request comes from `topic.md#Initial Request` and `topic.created`; user decisions trace to answered question files or `decision.recorded` events |
-| Question coverage | Blocking | Every answered question is reflected as a decision, requirement, risk, constraint, or non-blocking open question |
-| Domain rule clarity | Blocking | Domain rules are concrete, grouped, and not hidden inside generic prose |
-| Constraint coverage | Blocking | Important validation, state, side-effect, data, risk, and verification constraints are explicit |
-| Consistency | Blocking | Scope, domain rules, functional requirements, risks, and acceptance criteria do not conflict |
-| Technical decision consistency | Blocking | Requirements do not mix two incompatible mechanisms for the same behavior; if the repository reveals a technical constraint that changes the requirement meaning, record it as a requirement, risk, or focused clarification before planning |
-| Material ambiguity | Blocking | No unresolved user decision could change implementation, risk, verification, or plan scope |
-| Assumptions | Blocking | Any assumption appears in `Assumptions` with source and risk; no unlabeled assumption is embedded in other sections |
-| Affected surface | Advisory | `Affected Surface` is filled when the work is code-facing and knowable, or explicitly none/N/A with a concrete reason |
-| Plan readiness | Blocking | A planner can infer likely files/areas, dependencies, constraints, and verification direction from `requirements.md` alone |
-| Boundary clarity | Blocking | Out-of-scope prevents accidental expansion |
-| None / N/A handling | Advisory | Optional empty sections use explicit none/N/A statements in the user's language instead of invented content |
-| User-language consistency | Advisory | User-facing prose follows the user's preferred language |
-| YAGNI | Advisory | The requirements do not add unrequested features or process beyond the topic |
+- the Blocking vs Advisory checklist,
+- the evidence required to pass each check,
+- the `Review Status` output shape,
+- the mapping from `passed` or `issues-fixed` to `Status: requirements-complete`,
+- the mapping from unresolved blocking issues to `Status: blocked`.
 
 Follow Clarification Routing in `core-workflow.md` for any decision discovered here.
 

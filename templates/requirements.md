@@ -81,35 +81,12 @@
 - Reviewer Result: not-run | passed | issues-fixed | blocked
 - Review Notes:
 
-### Requirements Review Checks
+<!--
+Requirements Review Checks (Blocking/Advisory), Review Findings, and Review Actions Taken
+are written into this section by define-requirements review.
 
-#### Blocking
+The canonical check item list, the evidence required to pass each check, and the exact
+output shape are owned by skills/define-requirements/requirements-document-reviewer-prompt.md
+(Output Format). Do not maintain a second copy of the check items in this template.
+-->
 
-- [ ] Completeness — 근거:
-- [ ] Source traceability — 근거:
-- [ ] Question coverage — 근거:
-- [ ] Domain rule clarity — 근거:
-- [ ] Constraint coverage — 근거:
-- [ ] Consistency — 근거:
-- [ ] Technical decision consistency — 근거:
-- [ ] Material ambiguity — 근거:
-- [ ] Assumptions — 근거:
-- [ ] Plan readiness — 근거:
-- [ ] Boundary clarity — 근거:
-
-#### Advisory
-
-- [ ] Human readability:
-- [ ] Agent readiness:
-- [ ] Affected surface:
-- [ ] None / N/A handling:
-- [ ] User-language consistency:
-- [ ] YAGNI:
-
-### Requirements Review Findings
-
-- 없음
-
-### Requirements Review Actions Taken
-
-- 없음

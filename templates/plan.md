@@ -148,42 +148,11 @@ questionFiles: []
 - Reviewer Result: not-run | passed | issues-fixed | blocked
 - Review Notes:
 
-### Plan Review Checks
+<!--
+Plan Review Checks (Blocking/Advisory), Review Findings, and Review Actions Taken
+are written into this section by writing-plan review.
 
-#### Blocking
-
-- [ ] Requirements coverage — 근거:
-- [ ] Requirements-plan consistency — 근거:
-- [ ] Acceptance criteria matrix — 근거:
-- [ ] Decision contract clarity — 근거:
-- [ ] Dependency ordering — 근거:
-- [ ] No placeholders — 근거:
-- [ ] File surface — 근거:
-- [ ] Interface consistency — 근거:
-- [ ] Execution surface — 근거:
-- [ ] Safety gate coverage — 근거:
-- [ ] Test strategy fit — 근거:
-- [ ] Verification evidence mapping — 근거:
-- [ ] Verification surface — 근거:
-- [ ] Executor readiness — 근거:
-- [ ] Policy restraint — 근거:
-
-#### Advisory
-
-- [ ] Execution mode fit:
-- [ ] Source traceability:
-- [ ] Approval quality:
-- [ ] Execution task index:
-- [ ] Progress-ledger restraint:
-- [ ] Single-plan scope:
-- [ ] User-language readability:
-- [ ] User-language consistency:
-- [ ] YAGNI:
-
-### Plan Review Findings
-
-- 없음
-
-### Plan Review Actions Taken
-
-- 없음
+The canonical check item list, the evidence required to pass each check, and the exact
+output shape are owned by skills/writing-plan/plan-document-reviewer-prompt.md
+(Output Format). Do not maintain a second copy of the check items in this template.
+-->

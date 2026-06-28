@@ -236,36 +236,15 @@ Do not silently decide test, CI, commit, PR, release, or deploy policy unless th
 
 ## Self Review
 
-After writing the complete plan, review it against the requirements with fresh eyes and fix issues inline:
+After writing the complete plan, use `plan-document-reviewer-prompt.md` as the canonical checklist and fix obvious issues in `plan.md`.
 
-Blocking rows must be backed by concrete evidence before marking pass; Advisory rows may pass on a clear-enough judgment.
+Do not maintain a second copy of the review criteria in this skill. The reviewer prompt owns:
 
-| Check | Tier | Pass Criteria |
-| --- | --- | --- |
-| Requirements coverage | Blocking | Every acceptance criterion in `requirements.md` maps to at least one task. |
-| Requirements-plan consistency | Blocking | The plan does not silently replace or reinterpret a requirements mechanism. Implementation discoveries that change requirement meaning are routed back or recorded as requirements/risk/clarification before completion. |
-| Acceptance criteria matrix | Blocking | Every acceptance criterion has a row mapping it to task, test/review/manual evidence, and exact assertion or evidence; no unresolved gap remains. |
-| Decision contract clarity | Blocking | Classification, parser, dispatch, logging, state transition, retry, idempotency, and malformed/unknown-input behavior use precise tables, token sets, allowed values, or examples when prose would be ambiguous. |
-| Dependency ordering | Blocking | Prerequisites, interfaces, produced artifacts, migrations, and verification dependencies are identified before task order is finalized. |
-| No placeholders | Blocking | No vague instruction or undefined reference remains (see No Placeholders). |
-| File surface | Blocking | Each task names executable files/areas. |
-| Interface consistency | Blocking | Every `Consumes` name matches an earlier task's `Produces`; types and signatures agree across tasks. |
-| Execution mode fit | Advisory | `Execution Design` chooses `inline`, `subagent-driven`, or `mixed`; task-level execution modes are compatible with task boundaries and host fallback notes. |
-| Execution surface | Blocking | If the plan introduces or changes an execution entrypoint, external dependency, time-based behavior, state changes outside the normal request/response path, or runtime metadata/resource dependency, `Execution Surface` specifies invocation, required configuration/inputs, external dependencies, test environment, time control when applicable, success/failure signals, idempotency/retry behavior, and metadata/config/annotation/route verification when relevant. If none apply, the section explicitly says `None`. |
-| Safety gate coverage | Blocking | Each task has a Safety section; high-risk operations are explicit; reversibility, separate approval, and rollback/recovery notes are concrete. |
-| Test strategy fit | Blocking | Each task uses `tdd`, or has a human-approved `approved-tdd-exception` with an allowed category and approval source. |
-| Verification evidence mapping | Blocking | Each task names a `Test target` and the evidence execution should record through `verification.recorded` or `task.completed` events. |
-| Source traceability | Advisory | Initial request comes from `topic.md#Initial Request` and `topic.created`; user decisions trace to answered question files or `decision.recorded` events. |
-| Approval quality | Advisory | High-risk work has planned approval points so execution can record approval events with operation description, approver, and rollback. |
-| Verification surface | Blocking | Each task has a runnable command and an expected result. |
-| Execution task index | Advisory | `Execution Task Index` exists, maps 1:1 to detailed `## Task N` sections, summarizes outcome/dependency/surface/gate/verification, and contains no progress ledger fields. |
-| Executor readiness | Blocking | A separate executor can implement the tasks in order from `plan.md` alone, without chat memory and without editing the plan for progress. |
-| Policy restraint | Blocking | No test/commit/PR/release/deploy policy is decided beyond what the requirements/plan already decided. |
-| Progress-ledger restraint | Advisory | Task identity is the `## Task N: <name>` heading, and the plan does not use per-task status fields as a progress ledger. |
-| Single-plan scope | Advisory | One topic produces one `plan.md`, and the plan does not tell the reader to split the topic into multiple plan files. |
-| User-language readability | Advisory | User-facing plan prose follows the user's current or clearly preferred language, while canonical headings and technical identifiers stay stable. |
-| User-language consistency | Advisory | Section-internal helper labels, explanations, expected results, rollback notes, review notes, findings, actions, and check result values follow the user's preferred language unless they are canonical status, mode, risk, command, path, or code values. |
-| YAGNI | Advisory | The plan does not add tasks or process beyond the requirements scope. |
+- the Blocking vs Advisory checklist,
+- the evidence required to pass each check,
+- the `Review Status` output shape,
+- the mapping from `passed` or `issues-fixed` to `Status: plan-complete`,
+- the mapping from unresolved blocking issues to `Status: blocked`.
 
 Follow Clarification Routing in `core-workflow.md` for any decision discovered here.
 

@@ -280,7 +280,7 @@ IF topic is execution-complete:
 
 IF topic is review-fixes-needed AND next action is address-review-findings:
     invoke review-execution skill to handle review follow-up
-    Critical and Important findings must be fixed, marked blocked, or explicitly accepted by the user before code cleanup or finalize
+    Critical and Important findings must be fixed and re-reviewed, rejected with technical reason and re-reviewed to passed, or marked blocked before code cleanup or finalize
     record the disposition through scripts/topic-log.py and STOP or route back to executing-plan/writing-plan/define-requirements as needed
 
 IF topic is review-complete AND next action is decide-code-cleanup:
@@ -300,7 +300,7 @@ IF topic is finalized AND next action is git-action-decision AND user chooses a 
 
 Purpose: remove ambiguities that could change requirements, plan, implementation, risk, or verification.
 
-Hard gate invariants:
+Hard gate invariants, owned by `define-requirements`:
 
 - Do not continue workflow questions only in chat. Write them to files.
 - After creating or updating a question file, stop and have the user fill in the `[Answer]:` fields directly.
@@ -314,12 +314,7 @@ Hard gate invariants:
 - If an option selection conflicts with the added explanation, create a contradiction-focused next question cycle.
 - After 3 requirements question cycles, if material ambiguity still remains, summarize it and ask the user whether to run another question cycle or to allow an assumption-based requirements draft. Only when the user explicitly chooses the assumption-based path may `define-requirements` record assumptions, and each must carry its text, source (such as `question-c3.md escalation`), and the risk if it is wrong. Do not silently put material ambiguity into the requirements as an unlabeled assumption.
 
-Delegation:
-
-- Follow `templates/question.md` for question file shape, front matter fields, option structure, and `[Answer]:`.
-- Put question cycle metadata in YAML front matter and keep visible question files focused on user decisions. Do not include agent-only template instructions such as `Agent format rules` or `Agent Notes` in generated `question-cN.md` files.
-- In question files, use the user-facing subsection headings defined by `templates/question.md` under each question, including the emoji-enhanced Korean headings when the user's preferred language is Korean. Keep `[Answer]:` and option letters stable so answers remain machine-readable.
-- Follow the `define-requirements` skill for question writing, answer validation, and next-cycle decisions.
+Question file shape and detailed validation behavior are owned by `templates/question.md` plus `skills/define-requirements/SKILL.md`. Do not maintain a second detailed question-format contract here.
 
 ## 7. Requirements Rules
 
@@ -342,23 +337,11 @@ Requirements phase invariants:
 - Required sections must not be empty. Optional sections (`Non-Functional Requirements`, `Risks`, `Affected Surface`, `Assumptions`) may be explicitly none rather than invented; do not add fake content only to fill the template.
 - Assumptions are allowed only through the define-requirements 3-cycle escalation path, and each must carry its text, source, and risk. Unlabeled assumptions are not allowed.
 
-Self-review and reviewer pass are owned by `define-requirements`. Run its self-review and the local reviewer prompt before requesting user review. Follow Clarification Routing for any decision discovered in this phase.
+Review ownership:
 
-Reviewer prompt rules:
-
-1. Follow `skills/define-requirements/SKILL.md` for detailed requirements writing and self-review rules.
-2. After self-review passes, follow `skills/define-requirements/requirements-document-reviewer-prompt.md`.
-3. Do not require a platform-specific subagent for requirements review.
-4. If the reviewer finds fixable issues, update `requirements.md` directly and rerun the relevant checks.
-5. Follow Clarification Routing for any decision the reviewer raises.
-
-After writing, self-reviewing, and reviewer-prompt checking requirements:
-
-1. Fill the `requirements.md` `Review Status` area, setting `Status` to `requirements-complete`.
-2. Fill `Requirements Review Checks` as a markdown checkbox list, using `[x]` for passed checks and `[ ]` for unresolved checks.
-3. Run `scripts/topic-log.py complete-requirements --topic-dir <topic-dir> --summary "<summary>"`.
-4. Confirm `scripts/topic-log.py status --topic-dir <topic-dir> --json` derives phase `requirements-complete` and next action `approve-plan`.
-5. Tell the user the requirements are complete and ask them to review `requirements.md` before approving the move to plan, then stop. `define-requirements` owns the exact message; respond in the user's current conversation language.
+- `skills/define-requirements/SKILL.md` owns requirements authoring, local self-review flow, completion recording, and the user approval prompt.
+- `skills/define-requirements/requirements-document-reviewer-prompt.md` is the canonical requirements review checklist and output format.
+- Do not duplicate the review checklist in this core workflow. This file defines phase gates; the reviewer prompt defines review criteria.
 
 ## 8. Plan Rules
 
@@ -374,27 +357,18 @@ Plan invariants:
 
 - One topic produces one `plan.md`. Do not split a topic into multiple plan files; decompose it into ordered `## Task N` sections instead.
 - `plan.md` is a reviewed execution contract, not a per-step progress ledger. Execution progress belongs in `audit.jsonl` through `scripts/topic-log.py`.
-- `plan.md` records input provenance in YAML front matter (`topic`, `requirements`, `topicFile`, `audit`, `statusCommand`, and `questionFiles`) instead of a visible `Overview > Inputs` subsection.
-- `Execution Task Index` is a navigation summary that maps 1:1 to detailed `## Task N: <name>` sections. It improves executor orientation but does not replace detailed task contracts or `Steps`.
-- Task identity is the `## Task N: <name>` heading. Do not track task completion with per-task status fields inside `plan.md`.
-- Do not use checkboxes, status fields, completion marks, or progress notes in `Execution Task Index`; progress belongs in `audit.jsonl`.
-- `Execution Design` declares `inline`, `subagent-driven`, or `mixed`, with a fallback note when subagents are unavailable.
-- Analyze dependencies (prerequisites, interfaces, produced artifacts, migrations, build/test order) before fixing task order.
-- If the plan introduces or changes an execution entrypoint, external dependency, time-based behavior, state changes outside the normal request/response path, or runtime metadata/resource dependency, `Execution Surface` must specify how it is invoked, configured, tested, judged successful or failed, and safely retried or rerun. If none apply, say so explicitly.
-- Every task names its execution mode, files/areas, interfaces (`Consumes`/`Produces`), test strategy, steps, and a verification command with an expected result.
-- Every task records risk level, high-risk operations, reversibility, separate approval required, and rollback or recovery notes.
-- Per-task test strategy is part of task success design. TDD is mandatory for implementation tasks: write one minimal failing test for the next behavior, verify RED, implement the smallest passing change, verify GREEN, then refactor. If testing looks impossible, treat it as a design/testability signal first and simplify the API, boundary, dependency injection, or unit. The only non-TDD mode is `approved-tdd-exception`, and it requires human approval plus category `throwaway-prototype`, `generated-code`, or `configuration`. Do not silently decide broader test, CI, commit, PR, release, or deploy policy that the requirements/plan has not already decided. Verification commands that are part of task success checks are allowed.
+- The plan records input provenance, dependency order, execution mode, execution surface when applicable, task safety, task test strategy, runnable verification, and acceptance-criteria coverage.
+- Task identity lives in the `## Task N: <name>` heading and optional `Execution Task Index` row; do not add per-task completion status fields.
+- High-risk operations must be explicit in task Safety and still require fresh approval during execution.
+- Per-task test strategy is part of task success design. TDD is mandatory for implementation tasks unless the user approved an allowed `approved-tdd-exception` category.
+- Do not silently decide broader test, CI, commit, PR, release, or deploy policy that the requirements/plan has not already decided. Verification commands that are part of task success checks are allowed.
 
-Shape: `templates/plan.md` is the single source of truth for the plan's section list and order. `writing-plan` owns per-section authoring, dependency analysis, self-review, and the plan reviewer prompt.
+Review ownership:
 
-After writing or updating the plan, `writing-plan`:
-
-1. Fills `Plan Review Checks` as a markdown checkbox list, using `[x]` for passed checks and `[ ]` for unresolved checks.
-2. Runs `scripts/topic-log.py complete-plan --topic-dir <topic-dir> --summary "<summary>"`.
-3. Confirms `scripts/topic-log.py status --topic-dir <topic-dir> --json` derives phase `plan-review` and next action `approve-execute`.
-4. Asks the user to review `plan.md` and approve execution, then stops.
-
-Plan revision before execute approval: if a requested change is non-material (wording, clearer steps, exact path correction, ordering clarification), `writing-plan` absorbs it, reruns self-review and reviewer checks, refreshes `Review Status`, records the revision through `scripts/topic-log.py`, and stops at `plan-review`. For any other decision discovered in this phase, follow Clarification Routing.
+- `templates/plan.md` is the single source of truth for the plan's section list and order.
+- `skills/writing-plan/SKILL.md` owns per-section authoring, dependency analysis, local self-review flow, completion recording, revision routing before execute approval, and the user approval prompt.
+- `skills/writing-plan/plan-document-reviewer-prompt.md` is the canonical plan review checklist and output format.
+- Do not duplicate the review checklist in this core workflow. This file defines phase gates; the reviewer prompt defines review criteria.
 
 ## 9. Execute Rules
 
@@ -410,9 +384,9 @@ Execute invariants:
 
 - Re-read `topic.md`, `audit.jsonl`, `requirements.md`, and `plan.md` from disk before editing implementation.
 - Use `Execution Task Index` as a quick orientation map, then read the full detailed `## Task N: <name>` section before starting each task. If the index conflicts with a detailed task section, stop and return to `writing-plan` before executing.
-- Critically review the plan first. Stop before executing if the `Execution Task Index` is missing, contradicts detailed task sections, or contains progress ledger fields; if a task has a missing dependency, file/area, interface, test strategy, step, or verification; or if the plan contradicts the requirements or the latest request.
+- Critically review the plan first. Stop before executing when it lacks the task contract required by `writing-plan`, contradicts the requirements, or conflicts with the user's latest request.
 - Execute tasks in plan order. Use the plan-approved execution mode: `inline`, `subagent-driven`, or `mixed`. The main agent remains the controller and owns task order, audit events, verification, and user-facing claims.
-- For subagent-driven tasks, dispatch one fresh bounded implementer per task, pass only the task brief plus relevant requirements/plan/files, record `task.dispatched`, and run task-level requirements review before task-level quality review. Task review findings must have stable finding IDs so `task.fix_completed` can resolve them. Do not dispatch multiple implementation subagents in parallel for the same task sequence.
+- For subagent-driven tasks, dispatch one fresh bounded implementer per task, pass only bounded task context, record `task.dispatched`, and keep the controller responsible for diff inspection, task review, verification, and completion claims.
 - Before editing, inspect nearby files for naming, formatting, error handling, testing, and integration style, then follow the surrounding project conventions.
 - Before executing any high-risk operation, confirm the plan marks it correctly, ask for fresh user approval using a compact approval block, and record approval plus rollback/recovery notes through `scripts/topic-log.py`. If the operation was not planned, stop and return to `writing-plan` or `define-requirements` as needed before asking for approval.
 - Do not mutate `plan.md` as a progress ledger. Record task start, progress, blockers, commands, and outcomes in `audit.jsonl` through `scripts/topic-log.py`.
@@ -422,16 +396,7 @@ Execute invariants:
 - If the same verification or repair loop fails 3 times, stop and follow the Failure Handling circuit breaker.
 - Do not automatically enter commit, PR, release, deploy, or retrospective behavior after execution.
 
-Execution completion claim rule:
-
-Do not say execution is complete until these items are recorded in `audit.jsonl`:
-
-- completed work
-- verification performed
-- task dispatch/review/fix evidence when subagents or task-level review loops were used
-- final sweep evidence required by the plan
-- verification not performed and why
-- remaining issues
+Execution completion claim rule: do not say execution is complete until `audit.jsonl` records completed work, verification performed or skipped with reason, task dispatch/review/fix evidence when applicable, final sweep evidence required by the plan, and remaining issues.
 
 ## 10. Review Execution Rules
 
@@ -447,27 +412,14 @@ Review execution invariants:
 
 - Review actual changed code and recorded evidence, not only the implementer's summary.
 - Check requirements/plan alignment, correctness bugs, regression risk, test gaps, code quality, secret leaks, prompt-injection risks, high-risk operation approval evidence, and production readiness.
-- Prefer a separate code-review agent or subagent when the host supports it, passing only topic files, diff/range, and execution evidence needed for review.
 - Record review findings by severity through `scripts/topic-log.py`.
 - If the review finds any Critical, Important, or Minor finding, create `code-review-report.md` from `templates/code-review-report.md`, record finding details and disposition status there, and include it in the audit event artifacts. If the review finds no issues, do not create an empty report; record "no findings" in `audit.jsonl`.
-- `code-review-report.md` records review input provenance in YAML front matter and keeps the visible body focused on findings, dispositions, verification after fixes, silent failure assessment, remaining risk, and review status.
-- Review is mandatory after `executing-plan` completion. Critical findings must be fixed, blocked, or explicitly accepted by the user before the topic can be finalized. Important findings should be fixed before commit/PR unless the user explicitly accepts the risk.
+- Review is mandatory after `executing-plan` completion. Critical and Important findings must be fixed and re-reviewed, rejected with technical reason and re-reviewed to passed, or route finalization to `blocked` under the current helper validation model.
 - After review is recorded, ask whether to run optional code cleanup only when Critical and Important findings have a recorded disposition. Put workflow status and the cleanup/finalize choice at the bottom of the user-facing response. Do not run code cleanup automatically.
 
-Code cleanup invariants:
+Detailed review prompt behavior is owned by `skills/review-execution/SKILL.md` and `skills/review-execution/code-reviewer-prompt.md`.
 
-- Treat code cleanup as optional cleanup/optimization after correctness review.
-- Use the AsUsual `cleanup-code` skill when the user approves. Do not call a host slash command such as Claude Code `/simplify`.
-- Code cleanup is not a correctness bug review. Use it for reuse of existing helpers, simplification, efficiency, and abstraction-level cleanup.
-- Run four cleanup reviews: reuse, simplification, efficiency, and abstraction level. Use parallel subagents when the host supports them; otherwise run the four reviews sequentially.
-- Apply only safe, behavior-preserving cleanup within the approved change surface.
-- If code cleanup changes files, rerun relevant verification or record why it cannot be rerun.
-- Record the code cleanup decision and result through `scripts/topic-log.py`.
-
-After review and code cleanup decision:
-
-1. If code cleanup is pending, record phase `review-complete` and next action `decide-code-cleanup`.
-2. If code cleanup is skipped or complete, record next action `finalize`.
+Code cleanup invariants: treat cleanup as optional cleanup/optimization after correctness review, use `cleanup-code` only when the user approves, apply only safe behavior-preserving cleanup within the approved change surface, rerun relevant verification when cleanup changes files, and record the decision/result through `scripts/topic-log.py`.
 
 ## 11. Finalize Rules
 
@@ -484,7 +436,7 @@ Finalize invariants:
 
 - Do not implement new work, run code review, run git commands, release, deploy, create a PR, or commit automatically.
 - Set final topic status to `complete`, `follow-up-needed`, or `blocked`.
-- Create or update `report.md` from `templates/report.md` as the concise user-facing handoff summary. Include implemented changes, decisions/constraints, verification commands/results, execution review result, code review report link or "None", code cleanup decision, remaining issues, and git action status. Include it in the audit event artifacts.
+- Create or update `report.md` from `templates/report.md` as the concise user-facing handoff summary and include it in the audit event artifacts.
 - Run `scripts/topic-log.py finalize-topic --topic-dir <topic-dir> --status <complete|follow-up-needed|blocked> --summary "<summary>" --report report.md`.
 - Confirm `scripts/topic-log.py status --topic-dir <topic-dir> --json` derives phase `finalized` and next action `git-action-decision`.
 - Ask the user whether to run `none`, `commit`, `commit + push`, or `commit + push + PR`, then stop. If the user later chooses a git action, invoke `git-action`.
@@ -510,9 +462,7 @@ Git action invariants:
 
 - Do not choose a git action for the user.
 - Do not run git commands before the selected action is explicit.
-- Use git-master commit discipline: inspect recent commit style, split commits by concern when needed, and stage paths explicitly.
-- Do not use broad `git add .`.
-- Do not stage unrelated changes.
+- Follow explicit staging and commit discipline from `skills/git-action/SKILL.md`: inspect recent commit style, split commits by concern when needed, stage paths explicitly, do not use broad `git add .`, and do not stage unrelated changes.
 - Do not commit `.as-usual/` artifacts unless project policy or the user explicitly says to include them.
 - Do not push `main` or `master`, force-push, create a PR, release, or deploy without explicit user approval for that action.
 - Record selected action, commands, commit SHAs, push result, PR URL or blocker, and remaining issues through `scripts/topic-log.py`.
