@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>🧭 AsUsual</h1>
+<h1>AsUsual</h1>
 
 <p><strong><em>Controlled</em> AI-assisted development — from requirements to tests to done, in one workflow.</strong></p>
 
@@ -13,12 +13,10 @@
 </p>
 
 <p>
+  <a href="#-install"><b>Install</b></a> ·
   <a href="#-why-asusual"><b>Why</b></a> ·
   <a href="#-how-it-works"><b>Workflow</b></a> ·
-  <a href="#-topic-artifacts"><b>Artifacts</b></a> ·
-  <a href="#-install"><b>Install</b></a> ·
-  <a href="#-smoke-test"><b>Smoke Test</b></a> ·
-  <a href="#-project-layout"><b>Layout</b></a>
+  <a href="#-topic-artifacts"><b>Artifacts</b></a>
 </p>
 
 </div>
@@ -37,6 +35,31 @@ AsUsual is designed for <strong>controlled AI-assisted development</strong> on w
 > The harness succeeds when you can understand **what was decided, why, what changed, what was verified, what risk remains, and what action is still waiting.**
 >
 > See [`PROJECT_IDENTITY.md`](PROJECT_IDENTITY.md) for the full project identity and design principles.
+
+<br>
+
+## 🚀 Install
+
+**Just paste this to your coding agent (Claude Code or Codex) — it does the rest:**
+
+```text
+This project, "AsUsual", is an agent harness for controlled AI-assisted development —
+it moves one work topic through requirements → plan → execute → review → finalize.
+Please install it for me on this machine:
+
+  1. git clone https://github.com/HSRyuuu/harness-as-usual.git
+  2. cd harness-as-usual && bash docs/INSTALL.sh
+  3. Run the smoke test in docs/DEVELOPMENT.md, report the result,
+     and tell me to restart my Claude Code / Codex session.
+```
+
+Prefer to do it by hand? Follow [`docs/INSTALL.md`](docs/INSTALL.md) — remove later with [`docs/UNINSTALL.md`](docs/UNINSTALL.md).
+
+<table>
+<tr><th align="left">Host</th><th align="left">Setup detail &amp; troubleshooting</th></tr>
+<tr><td>🤖 <b>Claude Code</b></td><td><a href="docs/CLAUDE-PLUGIN-SETTING.md"><code>docs/CLAUDE-PLUGIN-SETTING.md</code></a></td></tr>
+<tr><td>🧠 <b>Codex</b></td><td><a href="docs/CODEX-PLUGIN-SETTING.md"><code>docs/CODEX-PLUGIN-SETTING.md</code></a></td></tr>
+</table>
 
 <br>
 
@@ -64,56 +87,26 @@ AsUsual is designed for <strong>controlled AI-assisted development</strong> on w
 
 The runtime workflow rules live in [`as-usual-rules/core-workflow.md`](as-usual-rules/core-workflow.md) — read by the agent on disk, **never copied into target projects**.
 
-```mermaid
-flowchart LR
-    H([SessionStart hook]):::hook --> U[using-as-usual]:::entry
-    U --> S[start-work]:::entry
-    S --> R{route}:::gate
-    R --> D[define-requirements]:::phase
-    R --> W[writing-plan]:::phase
-    R --> X[executing-plan]:::phase
-    R --> Z[direct-execute]:::phase
-    D --> W --> X
-    X --> RE[review-execution]:::phase
-    Z --> RE
-    RE --> C["cleanup-code<br/>(optional)"]:::opt
-    C --> F[finalize]:::phase
-    RE --> F
-    F --> G["git-action<br/>(optional)"]:::opt
+<div align="center">
+<sub><code>SessionStart</code> → <code>using-as-usual</code> → <code>start-work</code> → <b>route</b> → <code>review-execution</code> → <code>finalize</code> → <code>git-action</code></sub>
+</div>
 
-    classDef hook fill:#1E40AF,stroke:#1E3A8A,color:#fff;
-    classDef entry fill:#2563EB,stroke:#1E40AF,color:#fff;
-    classDef phase fill:#3B82F6,stroke:#2563EB,color:#fff;
-    classDef gate fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A;
-    classDef opt fill:#EFF6FF,stroke:#93C5FD,color:#1E3A8A,stroke-dasharray: 4 3;
-```
+<table>
+<thead>
+<tr><th align="center" width="48">#</th><th align="left" width="190">Stage</th><th align="left">What happens</th></tr>
+</thead>
+<tbody>
+<tr><td align="center">1</td><td><code>define-requirements</code></td><td>Write <code>question-cN.md</code> only when material ambiguity exists; you answer in <code>[Answer]:</code> fields; the agent synthesizes a single <code>requirements.md</code>.</td></tr>
+<tr><td align="center">2</td><td><code>writing-plan</code></td><td>Produce one <code>plan.md</code> from the approved requirements.</td></tr>
+<tr><td align="center">3</td><td><code>executing-plan</code></td><td>Implement via <code>inline</code>, <code>subagent-driven</code>, or <code>mixed</code> mode (or <code>direct-execute</code> for trivial work); the main agent stays the controller for order, evidence, and completion claims.</td></tr>
+<tr><td align="center">4</td><td><code>review-execution</code></td><td>Mandatory review of real changes against the recorded evidence.</td></tr>
+<tr><td align="center">5</td><td><code>cleanup-code</code> &nbsp;<sub><i>optional</i></sub></td><td>User-approved code cleanup after review.</td></tr>
+<tr><td align="center">6</td><td><code>finalize</code></td><td>Close the topic record.</td></tr>
+<tr><td align="center">7</td><td><code>git-action</code> &nbsp;<sub><i>optional</i></sub></td><td>Pick a post-finalize git action — commit, push, PR, release, or deploy.</td></tr>
+</tbody>
+</table>
 
-<details>
-<summary><b>📖 Step-by-step (text fallback)</b></summary>
-
-<br>
-
-```text
-SessionStart hook
-  → using-as-usual
-  → start-work
-  → define-requirements | writing-plan | executing-plan | direct-execute
-  → review-execution
-  → optional cleanup-code
-  → finalize
-  → optional git-action
-```
-
-1. **define-requirements** — write `question-cN.md` only when material ambiguity exists; you answer in `[Answer]:` fields; the agent synthesizes a single `requirements.md`.
-2. **writing-plan** — produce one `plan.md` from the approved requirements.
-3. **executing-plan** — implement via `inline`, `subagent-driven`, or `mixed` mode; the main agent stays the controller for order, evidence, and completion claims.
-4. **review-execution** — mandatory review of real changes against recorded evidence.
-5. **cleanup-code** — optional, user-approved code cleanup.
-6. **finalize** — close the topic record and pick a post-finalize git action.
-
-For the full architecture, stages, and prompt/template path map, see [`docs/ARCHITECTURE-WORKFLOW.md`](docs/ARCHITECTURE-WORKFLOW.md).
-
-</details>
+<sub>For the full architecture, stages, and prompt/template path map, see <a href="docs/ARCHITECTURE-WORKFLOW.md"><code>docs/ARCHITECTURE-WORKFLOW.md</code></a>.</sub>
 
 <br>
 
@@ -140,53 +133,6 @@ In target projects, create **only** topic artifacts under `.as-usual/topic/yyyy-
 
 <br>
 
-## 🚀 Install
-
-<table>
-<tr>
-<th align="left">Host</th>
-<th align="left">Guide</th>
-</tr>
-<tr>
-<td>🤖 <b>Claude Code</b></td>
-<td><a href="docs/CLAUDE-PLUGIN-SETTING.md"><code>docs/CLAUDE-PLUGIN-SETTING.md</code></a></td>
-</tr>
-<tr>
-<td>🧠 <b>Codex</b></td>
-<td><a href="docs/CODEX-PLUGIN-SETTING.md"><code>docs/CODEX-PLUGIN-SETTING.md</code></a></td>
-</tr>
-</table>
-
-For local Codex marketplace development, create the symlink `plugins/as-usual -> ..` as described in [`docs/CODEX-PLUGIN-SETTING.md`](docs/CODEX-PLUGIN-SETTING.md).
-
-<br>
-
-## ✅ Smoke Test
-
-```bash
-claude plugin details as-usual@as-usual-local
-codex plugin list | grep -E 'as-usual|as-usual-local'
-CLAUDE_PLUGIN_ROOT="$PWD" hooks/run-hook.cmd session-start | jq .
-```
-
-<br>
-
-## 🗂 Project Layout
-
-```text
-as-usual/
-├── as-usual-rules/core-workflow.md   # canonical runtime workflow (read on disk)
-├── .agents/                          # Codex marketplace + maintainer-only skills
-├── .claude-plugin/                   # Claude plugin + local marketplace manifest
-├── .codex-plugin/                    # Codex plugin manifest
-├── hooks/                            # SessionStart hook + shared runner
-├── skills/                           # stable public runtime skills
-├── docs/                             # install + architecture guides
-└── templates/                        # topic artifact templates
-```
-
-<br>
-
 <div align="center">
-<sub>Built as an agent harness for <b>Claude Code</b> and <b>Codex</b> · Licensed under <a href="https://github.com/HSRyuuu/harness-as-usual">MIT</a></sub>
+<sub><a href="docs/DEVELOPMENT.md">Development &amp; smoke test</a> · Built as an agent harness for <b>Claude Code</b> and <b>Codex</b> · Licensed under <a href="https://github.com/HSRyuuu/harness-as-usual">MIT</a></sub>
 </div>
