@@ -18,8 +18,9 @@ Use it only after `using-as-usual` has completed activation and first reads, `ex
 | `cleanup-code` | Apply approved cleanup and rerun relevant verification |
 | `finalize` | Close the topic record and ask which git action to run |
 | `git-action` | Run the selected post-finalize git action |
+| `manage-self-improvement` | Analyze the topic and, after finalize gathers approval, record memory and create/patch skills |
 
-`finalize` does not implement new work, run code review, run git commands, decide git policy alone, create PRs, release, deploy, or rewrite prior audit history.
+`finalize` does not implement new work, run code review, run git commands, decide git policy alone, create PRs, release, deploy, or rewrite prior audit history. `finalize` gathers user approval for self-improvement candidates but delegates the actual memory record and skill create/patch to `manage-self-improvement`. The "no new work" rule applies to topic implementation, not to delegated self-improvement meta-artifacts.
 
 ## Preconditions
 
@@ -31,6 +32,7 @@ Before finalizing, confirm:
 - Review result is recorded.
 - Code cleanup was either skipped or completed.
 - Remaining issues and skipped verification are explicit.
+- The self-improvement pass has been run via `manage-self-improvement`, and its result is recorded (applied, skipped with reason, or "no candidates").
 
 If execution review or code cleanup decision is missing, return to `review-execution`. Do not close the topic optimistically.
 
@@ -46,6 +48,22 @@ Read and use these sources in this order:
 6. Current git status and diff summary, when git is available
 
 ## Workflow
+
+### Step 0: Self-Improvement Pass
+
+Before closing the record, trigger the `manage-self-improvement` skill (prefer a
+subagent; inline fallback):
+
+1. Pass 1 (propose, read-only): it returns proposed memory additions, skill
+   create/patch candidates, and ambiguous items.
+2. Approval: present the proposal item-by-item; ask the user directly about ambiguous
+   items. finalize does not write self-improvement artifacts itself.
+3. Pass 2 (apply): `manage-self-improvement` records approved memory (`record-memory`)
+   and creates/patches skills (`record-skill --state created`), recording deferred
+   candidates as `record-skill --state candidate`.
+
+If nothing survives, record a "no candidates" note. Do not proceed to close without a
+recorded self-improvement result.
 
 ### Step 1: Final Record Check
 
@@ -139,3 +157,6 @@ Append facts to `audit.jsonl`; do not rewrite old events into a summary.
 - Asking a broad "what next?" instead of the git action decision.
 - Running git commands, creating a PR, releasing, or deploying from `finalize`.
 - Treating `commit`, `push`, or `PR` as selected before the user chooses an action.
+- Closing the topic without running the self-improvement pass.
+- Writing memory or creating skills directly from `finalize` instead of delegating to `manage-self-improvement`.
+- Reflecting candidates without explicit user approval.
