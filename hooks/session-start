@@ -54,6 +54,11 @@ if [ -z "$topic_summary" ]; then
   topic_summary=$'\n'"- no active topic candidates"
 fi
 
+memory_line="- no project memory"
+if [ -n "$workspace_root" ] && [ -f "$workspace_root/.as-usual/memory/MEMORY.md" ]; then
+  memory_line="- MEMORY.md present at .as-usual/memory/ (durable context; recall via search-long-term-memory; not a workflow trigger)"
+fi
+
 if [ -n "$workspace_root" ]; then
   workspace_line="The current workspace or a parent directory contains an AsUsual artifact folder: $workspace_root"
 else
@@ -81,7 +86,10 @@ AsUsual activation entrypoint:
 - full rules: \`$core_workflow_file\`
 - first action when active: read the full rules, topic.md, audit.jsonl, and linked artifacts from disk
 
-Active topic candidates:$topic_summary"
+Active topic candidates:$topic_summary
+
+Project memory:
+$memory_line"
 
 escaped="$(escape_for_json "$content")"
 
