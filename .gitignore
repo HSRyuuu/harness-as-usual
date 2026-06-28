@@ -1,0 +1,42 @@
+# OS/editor noise
+.DS_Store
+*.swp
+*.tmp
+*.bak
+
+# Local agent/runtime state
+.as-usual/
+.codegraph/
+.omo/
+.*powers/
+.claude/settings.local.json
+
+# Local-only development workspaces
+/commands/
+/scratchpad/
+/plugins/as-usual/
+
+# Local test run logs
+docs/test/
+docs/test/**/logs/
+
+# Local dependency/build output
+node_modules/
+dist/
+build/
+coverage/
+
+# Python test/cache output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Development-only plugin probes
+skills/as-usual-test/

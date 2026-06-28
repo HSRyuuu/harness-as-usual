@@ -1,0 +1,38 @@
+{
+  "name": "as-usual",
+  "version": "0.1.0",
+  "description": "An agent harness that helps coding agents follow a team's usual workflow through topic-level questions, requirements, plans, and state.",
+  "author": {
+    "name": "Happy Hsryu"
+  },
+  "homepage": "https://github.com/HSRyuuu/as-usual",
+  "repository": "https://github.com/HSRyuuu/as-usual",
+  "license": "MIT",
+  "keywords": [
+    "agent-harness",
+    "workflow",
+    "requirements",
+    "plan",
+    "hooks"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks-codex.json",
+  "interface": {
+    "displayName": "AsUsual",
+    "shortDescription": "Follow the team's usual workflow through a core workflow plus topic-level questions, requirements, plans, and state.",
+    "longDescription": "AsUsual adds a session-start hook and workspace templates so requests detected as AsUsual work move through a topic-level question cycle, written requirements, implementation plan, and state record before execution.",
+    "developerName": "Happy Hsryu",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Hooks",
+      "Context Injection",
+      "Workflow"
+    ],
+    "defaultPrompt": [
+      "Initialize AsUsual in this workspace.",
+      "Use AsUsual to clarify this request and write the requirements and plan."
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
+}

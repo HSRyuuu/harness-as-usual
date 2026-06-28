@@ -1,0 +1,4 @@
+interface:
+  display_name: "Analyze E2E Results"
+  short_description: "Find issues in AsUsual E2E reports."
+  default_prompt: "Use $analyze-e2e-results to review this AsUsual sandbox E2E report directory and identify the most important issues."
