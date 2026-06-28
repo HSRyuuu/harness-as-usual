@@ -47,8 +47,10 @@ any ambiguous-flagged item.
 For approved items only:
 1. Update memory per `references/memory-update.md` (simplify/consolidate/dedup, budget
    3000). If `.as-usual/memory/MEMORY.md` does not exist yet, create
-   `.as-usual/memory/` and initialize `MEMORY.md` from `templates/MEMORY.md` first.
-   Record `record-memory`.
+   `.as-usual/memory/` and initialize `MEMORY.md` from the AsUsual plugin template
+   at `<as-usual-plugin-root>/templates/MEMORY.md` first. If the template file is
+   unavailable, recreate the same section shape from the installed skill/template
+   instructions before adding entries. Record with `record-memory --summary ... --files ...`.
 2. Create new skill or patch existing skill in the project-local skills dir per
    `references/skill-improvement.md` (writing-skills conventions). Record `record-skill --state created`.
 3. Record user-deferred skill candidates with `record-skill --state candidate`.

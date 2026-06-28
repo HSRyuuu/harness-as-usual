@@ -216,7 +216,7 @@ skill 후보 brief(분석·승인·기록 공통 포맷):
 - `rationale`: 3-of-5 중 충족 항목
 - `kind`: `new` | `patch`
 - `patchTarget`: patch면 기존 skill 이름, 아니면 null
-- `briefOutline`: trigger / 핵심 절차 / 검증
+- `brief`: trigger / 핵심 절차 / 검증 (`record-skill --brief`)
 - `dest`: project-local 목적지
 
 ### skill 목적지 (project-local)

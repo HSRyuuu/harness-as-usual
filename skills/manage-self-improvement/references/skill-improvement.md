@@ -42,4 +42,7 @@ use; direct creation is the default. Not enforced routing.
 ## skill.candidate brief fields
 
 `summary`, `rationale` (which of 3-of-5), `kind` (new|patch), `patchTarget`,
-`briefOutline` (trigger / steps / verification), `dest`.
+`brief` (trigger / steps / verification), `dest`.
+
+When recording the candidate, pass the outline through the `record-skill --brief`
+argument. Do not invent a separate audit key for the outline.
