@@ -290,6 +290,19 @@ Example — non-material (absorb here): "Task 순서 설명을 더 분명히", "
 
 Example — material (route out): "DB 마이그레이션 방식을 in-memory H2에서 공유 스테이징으로 변경" (changes risk + acceptance + verification). → ask focused clarification; route to define-requirements if requirements change.
 
+## Long-Term Memory Capture
+
+If the user states an explicit long-term rule during this phase ("always X", "in this
+project always Y"), do not break the current flow and do not write memory now. Capture
+it only as an audit candidate:
+
+```bash
+python3 <plugin-root>/scripts/topic-log.py record-memory-candidate \
+  --topic-dir <topic-dir> --summary "<rule>" --source-phase writing-plan --proposed-target memory
+```
+
+The actual review/approval/write happens later via `manage-self-improvement` at finalize.
+
 ## Anti-Patterns
 
 - Executing work instead of stopping at `plan-review`.

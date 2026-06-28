@@ -273,6 +273,19 @@ Example — non-material (absorb here): "체크인 안내 문구 오타 수정",
 
 Example — material (route out): "예약을 PENDING 대신 즉시 확정으로 바꾸자" (changes domain behavior + verification). → ask focused clarification or open question-cN.md, do not silently edit.
 
+## Long-Term Memory Capture
+
+If the user states an explicit long-term rule during this phase ("always X", "in this
+project always Y"), do not break the current flow and do not write memory now. Capture
+it only as an audit candidate:
+
+```bash
+python3 <plugin-root>/scripts/topic-log.py record-memory-candidate \
+  --topic-dir <topic-dir> --summary "<rule>" --source-phase define-requirements --proposed-target memory
+```
+
+The actual review/approval/write happens later via `manage-self-improvement` at finalize.
+
 ## Anti-Patterns
 
 - Creating both `spec.md` and `requirements.md` for one topic.

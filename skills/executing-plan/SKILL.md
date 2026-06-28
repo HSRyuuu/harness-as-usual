@@ -288,6 +288,19 @@ Execution progress, task starts, task completion, verification commands, blocker
 
 Prefer macro commands when they match the transition. Do not hand-edit `audit.jsonl`; if the helper cannot express an unusual transition, stop and report the missing helper capability.
 
+## Long-Term Memory Capture
+
+If the user states an explicit long-term rule during this phase ("always X", "in this
+project always Y"), do not break the current flow and do not write memory now. Capture
+it only as an audit candidate:
+
+```bash
+python3 <plugin-root>/scripts/topic-log.py record-memory-candidate \
+  --topic-dir <topic-dir> --summary "<rule>" --source-phase executing --proposed-target memory
+```
+
+The actual review/approval/write happens later via `manage-self-improvement` at finalize.
+
 ## Anti-Patterns
 
 - Executing without explicit user approval.
