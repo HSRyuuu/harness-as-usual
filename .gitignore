@@ -5,7 +5,9 @@
 *.bak
 
 # Local agent/runtime state
-.as-usual/
+.as-usual/*
+!.as-usual/memory/
+!.as-usual/memory/**
 .codegraph/
 .omo/
 .*powers/

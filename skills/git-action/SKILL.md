@@ -140,6 +140,13 @@ Record:
 - PR URL or blocker,
 - remaining issues.
 
+## Invariants
+
+- `.as-usual/memory/*` (long-term memory) is a commit target: stage it explicitly when
+  the selected action commits. Keep `.as-usual/topic/` artifacts excluded unless project
+  policy or the user says otherwise. Never use broad `git add .`. (`.gitignore` re-includes
+  `.as-usual/memory/` via the `.as-usual/*` + `!.as-usual/memory/**` pattern.)
+
 ## Anti-Patterns
 
 - Running without an explicit selected action.
