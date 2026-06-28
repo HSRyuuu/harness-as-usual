@@ -112,24 +112,30 @@ The runtime workflow rules live in [`as-usual-rules/core-workflow.md`](as-usual-
 
 ## 📂 Topic Artifacts
 
-In target projects, create **only** topic artifacts under `.as-usual/topic/yyyy-MM-dd-<topic>/`:
+AsUsual uses two branches inside `.as-usual/`: `topic/` for per-work-unit artifacts and `memory/` for curated cross-topic durable knowledge.
 
 ```text
 .as-usual/
-└── topic/
-    └── yyyy-MM-dd-<topic>/
-        ├── topic.md              # agent-first, low-churn resume document
-        ├── audit.jsonl           # canonical append-only event log
-        ├── question-c1.md        # define-requirements clarification cycle
-        ├── question-c2.md
-        ├── requirements.md       # single synthesized requirements doc
-        ├── plan.md               # single execution contract
-        ├── code-review-report.md
-        └── report.md
+├── topic/
+│   └── yyyy-MM-dd-<topic>/
+│       ├── topic.md              # agent-first, low-churn resume document
+│       ├── audit.jsonl           # canonical append-only event log
+│       ├── question-c1.md        # define-requirements clarification cycle
+│       ├── question-c2.md
+│       ├── requirements.md       # single synthesized requirements doc
+│       ├── plan.md               # single execution contract
+│       ├── code-review-report.md
+│       └── report.md
+└── memory/
+    ├── MEMORY.md                 # curated cross-topic knowledge; 3000-char budget
+    └── *_MEMORY.md               # optional domain-specific memory files
 ```
 
 > [!NOTE]
 > `topic.md` is a low-churn resume document — not a task list. Current phase and next action are **derived** with `scripts/topic-log.py status --json`, not maintained by hand.
+
+> [!NOTE]
+> `topic/` artifacts are not committed by default. `.as-usual/memory/` is a commit target — it accumulates durable knowledge across topics and is updated at `finalize` by the `manage-self-improvement` skill.
 
 <br>
 

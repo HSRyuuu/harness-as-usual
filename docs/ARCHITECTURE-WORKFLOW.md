@@ -34,35 +34,41 @@ as-usual/
 │   ├── review-execution/
 │   ├── cleanup-code/
 │   ├── finalize/
-│   └── git-action/
+│   ├── git-action/
+│   ├── manage-self-improvement/   # finalize 트리거; cross-topic 교훈을 memory에 기록
+│   └── search-long-term-memory/   # read-only recall util; .as-usual/memory/ 조회
 ├── templates/
 │   ├── question.md
 │   ├── requirements.md
 │   ├── plan.md
 │   ├── topic.md
 │   ├── code-review-report.md
-│   └── report.md
+│   ├── report.md
+│   └── MEMORY.md                  # .as-usual/memory/MEMORY.md baseline shape
 └── scripts/
     └── topic-log.py
 ```
 
 ## Runtime Artifact Model
 
-Target project에는 runtime prompt를 복사하지 않는다. AsUsual이 활성화되면 target project에는 topic artifact만 생성한다.
+Target project에는 runtime prompt를 복사하지 않는다. AsUsual이 활성화되면 target project의 `.as-usual/`은 두 갈래로 나뉜다: `topic/`(작업 단위)과 `memory/`(topic을 가로지르는 지속 지식).
 
 ```text
 <target-project>/
 └── .as-usual/
-    └── topic/
-        └── yyyy-MM-dd-<topic>/
-            ├── topic.md
-            ├── audit.jsonl
-            ├── question-c1.md
-            ├── question-c2.md
-            ├── requirements.md
-            ├── plan.md
-            ├── code-review-report.md
-            └── report.md
+    ├── topic/
+    │   └── yyyy-MM-dd-<topic>/
+    │       ├── topic.md
+    │       ├── audit.jsonl
+    │       ├── question-c1.md
+    │       ├── question-c2.md
+    │       ├── requirements.md
+    │       ├── plan.md
+    │       ├── code-review-report.md
+    │       └── report.md
+    └── memory/
+        ├── MEMORY.md           # curated cross-topic 지식; 3000자 budget; 커밋 대상
+        └── *_MEMORY.md         # 선택적 도메인별 memory 파일
 ```
 
 | Artifact | 역할 |
@@ -336,7 +342,8 @@ Finalize 후 사용자가 명시적으로 고른 git action만 수행한다.
 - 사용자가 고르기 전에 git action을 선택하지 않는다.
 - broad `git add .`를 피하고 path를 명시적으로 stage한다.
 - unrelated changes를 stage하지 않는다.
-- `.as-usual/` artifact는 project policy나 사용자 명시 요청이 없으면 commit하지 않는다.
+- `.as-usual/topic/` artifact는 project policy나 사용자 명시 요청이 없으면 commit하지 않는다.
+- `.as-usual/memory/`는 커밋 대상이다. `manage-self-improvement`가 `MEMORY.md`를 갱신하면 git action 시 명시적으로 stage한다.
 - push, PR, release, deploy는 명시 승인 없이 하지 않는다.
 
 Prompt 위치:
@@ -374,6 +381,9 @@ Topic log helper:
 | Finalize | `skills/finalize/SKILL.md` |
 | Final report template | `templates/report.md` |
 | Git action | `skills/git-action/SKILL.md` |
+| Self-improvement (finalize trigger) | `skills/manage-self-improvement/SKILL.md` |
+| Long-term memory recall | `skills/search-long-term-memory/SKILL.md` |
+| Memory template | `templates/MEMORY.md` |
 | Topic context template | `templates/topic.md` |
 | Topic/audit helper | `scripts/topic-log.py` |
 
