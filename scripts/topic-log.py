@@ -1005,6 +1005,53 @@ def cmd_select_git_action(args: argparse.Namespace) -> None:
     )
 
 
+def cmd_record_memory_candidate(args: argparse.Namespace) -> None:
+    topic = require_existing_topic_dir(args.topic_dir)
+    append_audit(
+        topic,
+        event="memory.candidate",
+        actor=args.actor,
+        summary=args.summary,
+        status="success",
+        data={
+            "sourcePhase": args.source_phase or None,
+            "proposedTarget": args.proposed_target or "undecided",
+        },
+    )
+
+
+def cmd_record_memory(args: argparse.Namespace) -> None:
+    topic = require_existing_topic_dir(args.topic_dir)
+    files = split_csv(args.files) if args.files else []
+    append_audit(
+        topic,
+        event="memory.recorded",
+        actor=args.actor,
+        summary=args.summary,
+        status="success",
+        data={"memoryFiles": files},
+    )
+
+
+def cmd_record_skill(args: argparse.Namespace) -> None:
+    topic = require_existing_topic_dir(args.topic_dir)
+    event = "skill.created" if args.state == "created" else "skill.candidate"
+    append_audit(
+        topic,
+        event=event,
+        actor=args.actor,
+        summary=args.summary,
+        status="success",
+        data={
+            "kind": args.kind,
+            "patchTarget": args.patch_target or None,
+            "dest": args.dest or None,
+            "rationale": args.rationale or None,
+            "brief": args.brief or None,
+        },
+    )
+
+
 def cmd_note(args: argparse.Namespace) -> None:
     validate_enum("actor", args.actor, ACTORS)
     topic = require_existing_topic_dir(args.topic_dir)
@@ -1379,6 +1426,33 @@ def build_parser() -> argparse.ArgumentParser:
     select_git_action.add_argument("--actor", default="user")
     select_git_action.add_argument("--timestamp", default="")
     select_git_action.set_defaults(func=cmd_select_git_action)
+
+    rec_mem_cand = sub.add_parser("record-memory-candidate")
+    rec_mem_cand.add_argument("--topic-dir", required=True)
+    rec_mem_cand.add_argument("--summary", required=True)
+    rec_mem_cand.add_argument("--source-phase", default="")
+    rec_mem_cand.add_argument("--proposed-target", choices=["memory", "skill", "undecided"], default="undecided")
+    rec_mem_cand.add_argument("--actor", default="codex")
+    rec_mem_cand.set_defaults(func=cmd_record_memory_candidate)
+
+    rec_mem = sub.add_parser("record-memory")
+    rec_mem.add_argument("--topic-dir", required=True)
+    rec_mem.add_argument("--summary", required=True)
+    rec_mem.add_argument("--files", default="")
+    rec_mem.add_argument("--actor", default="codex")
+    rec_mem.set_defaults(func=cmd_record_memory)
+
+    rec_skill = sub.add_parser("record-skill")
+    rec_skill.add_argument("--topic-dir", required=True)
+    rec_skill.add_argument("--state", choices=["created", "candidate"], required=True)
+    rec_skill.add_argument("--summary", required=True)
+    rec_skill.add_argument("--kind", choices=["new", "patch"], required=True)
+    rec_skill.add_argument("--patch-target", default="")
+    rec_skill.add_argument("--dest", default="")
+    rec_skill.add_argument("--rationale", default="")
+    rec_skill.add_argument("--brief", default="")
+    rec_skill.add_argument("--actor", default="codex")
+    rec_skill.set_defaults(func=cmd_record_skill)
 
     note = sub.add_parser("note", help="Append note event.")
     note.add_argument("--topic-dir", required=True)
