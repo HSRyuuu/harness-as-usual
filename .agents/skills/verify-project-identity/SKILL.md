@@ -42,10 +42,13 @@ Verify that broad AsUsual changes are reflected in the durable project documents
 | `skills/cleanup-code/SKILL.md` | Public runtime optional cleanup skill |
 | `skills/finalize/SKILL.md` | Public runtime finalization skill |
 | `skills/git-action/SKILL.md` | Public runtime post-finalize git action skill |
+| `skills/manage-self-improvement/SKILL.md` | Public runtime self-improvement skill triggered during finalize |
+| `skills/search-long-term-memory/SKILL.md` | Public runtime long-term memory recall utility |
 | `templates/question.md` | Runtime question artifact template |
 | `templates/requirements.md` | Runtime requirements artifact template |
 | `templates/plan.md` | Runtime plan artifact template |
 | `templates/topic.md` | Runtime topic resume artifact template |
+| `templates/MEMORY.md` | Runtime long-term memory baseline template |
 | `.agents/skills/manage-skills/SKILL.md` | Registered verification skill list |
 | `.agents/skills/verify-implementation/SKILL.md` | Aggregate verification skill list |
 | `.agents/skills/verify-project-identity/SKILL.md` | This verification skill |
@@ -60,8 +63,8 @@ These files are the durable project identity surface. When broad workflow, artif
 | Maintainer knowledge bases | `AGENTS.md`, `CLAUDE.md` |
 | Public overview and architecture | `README.md`, `docs/ARCHITECTURE-WORKFLOW.md` |
 | Runtime contract | `as-usual-rules/core-workflow.md` |
-| Public runtime skills | `skills/using-as-usual/SKILL.md`, `skills/start-work/SKILL.md`, `skills/define-requirements/SKILL.md`, `skills/writing-plan/SKILL.md`, `skills/executing-plan/SKILL.md`, `skills/review-execution/SKILL.md`, `skills/cleanup-code/SKILL.md`, `skills/finalize/SKILL.md`, `skills/git-action/SKILL.md` |
-| Runtime templates | `templates/question.md`, `templates/requirements.md`, `templates/plan.md`, `templates/topic.md` |
+| Public runtime skills | `skills/using-as-usual/SKILL.md`, `skills/start-work/SKILL.md`, `skills/define-requirements/SKILL.md`, `skills/writing-plan/SKILL.md`, `skills/executing-plan/SKILL.md`, `skills/review-execution/SKILL.md`, `skills/cleanup-code/SKILL.md`, `skills/finalize/SKILL.md`, `skills/git-action/SKILL.md`, `skills/manage-self-improvement/SKILL.md`, `skills/search-long-term-memory/SKILL.md` |
+| Runtime templates | `templates/question.md`, `templates/requirements.md`, `templates/plan.md`, `templates/topic.md`, `templates/MEMORY.md` |
 | Verification registries | `.agents/skills/manage-skills/SKILL.md`, `.agents/skills/verify-implementation/SKILL.md` |
 | This skill and mirror | `.agents/skills/verify-project-identity/SKILL.md`, `.claude/skills/verify-project-identity/SKILL.md` |
 
@@ -250,7 +253,7 @@ Fix:
 Run:
 
 ```bash
-rg -n 'define-requirements|question-cN\.md|requirements\.md|plan\.md|review-execution|cleanup-code|finalize|git-action|post-finalize' \
+rg -n 'define-requirements|question-cN\.md|requirements\.md|plan\.md|review-execution|cleanup-code|finalize|git-action|post-finalize|\.as-usual/memory|memory/MEMORY\.md|manage-self-improvement|search-long-term-memory|memory commit exception' \
   AGENTS.md \
   CLAUDE.md \
   README.md \
@@ -264,6 +267,7 @@ PASS:
 - Durable documents agree that `define-requirements` owns file-backed questions plus requirements writing/review.
 - Durable documents agree that non-trivial implementation requires completed requirements and an approved plan.
 - Durable documents agree that execution review is mandatory, code cleanup is optional/user-approved, and git actions happen only after finalization and explicit user selection.
+- When the artifact model or self-improvement surface changes, durable documents agree that `.as-usual/` has both `topic/` and `memory/` branches; `manage-self-improvement` and `search-long-term-memory` are the self-improvement and recall skills; and `.as-usual/memory/*` is the memory commit exception while topic artifacts remain excluded by default.
 
 FAIL:
 

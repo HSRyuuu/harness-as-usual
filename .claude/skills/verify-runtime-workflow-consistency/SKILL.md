@@ -16,6 +16,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 5. Confirm assumption, open-question, and affected-surface rules are not contradictory.
 6. Confirm high-risk operations, prompt-injection boundaries, secret protection, and review follow-up routing stay aligned.
 7. Confirm stale phase names, removed gates, and old topic paths do not return to active runtime rules.
+8. Confirm the self-improvement memory surface is aligned across workflow rules, runtime skills, templates, and audit helpers.
 
 ## When To Run
 
@@ -48,12 +49,15 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 | `skills/cleanup-code/abstraction-reviewer-prompt.md` | abstraction cleanup reviewer prompt |
 | `skills/finalize/SKILL.md` | topic finalization and git action decision prompt |
 | `skills/git-action/SKILL.md` | selected post-finalize git action handling |
+| `skills/manage-self-improvement/SKILL.md` | finalize-triggered self-improvement proposal/application skill |
+| `skills/search-long-term-memory/SKILL.md` | read-only long-term memory recall utility |
 | `templates/question.md` | question artifact shape |
 | `templates/requirements.md` | canonical requirements artifact shape |
 | `templates/plan.md` | canonical plan artifact shape |
 | `templates/topic.md` | low-churn topic resume artifact shape |
 | `templates/code-review-report.md` | conditional code review findings report shape |
 | `templates/report.md` | final topic handoff report shape |
+| `templates/MEMORY.md` | baseline shape for `.as-usual/memory/MEMORY.md` |
 | `scripts/topic-log.py init` | creates `topic.md`, creates the topic `audit.jsonl` stream, and records the initial request |
 | `scripts/topic-log.py` | helper script referenced by runtime skills for routine topic/audit updates and derived status |
 
@@ -84,12 +88,15 @@ for f in \
   skills/cleanup-code/abstraction-reviewer-prompt.md \
   skills/finalize/SKILL.md \
   skills/git-action/SKILL.md \
+  skills/manage-self-improvement/SKILL.md \
+  skills/search-long-term-memory/SKILL.md \
   templates/question.md \
   templates/requirements.md \
   templates/plan.md \
   templates/topic.md \
   templates/code-review-report.md \
   templates/report.md \
+  templates/MEMORY.md \
   scripts/topic-log.py
 do
   test -s "$f" || echo "MISSING_OR_EMPTY: $f"
@@ -360,7 +367,42 @@ FAIL:
 - execution review mode is not machine-readable.
 - runtime instructions allow generic `agent` actor for host audit events.
 
-### Step 8: Audit-First Stale Runtime Surface Check
+### Step 8: Self-Improvement And Memory Surface Check
+
+Run:
+
+```bash
+rg -n 'manage-self-improvement|search-long-term-memory|memory\.candidate|memory\.recorded|skill\.created|skill\.candidate|record-memory-candidate|record-memory|record-skill-created|record-skill-candidate|3000|recalled memory|UNTRUSTED RECALLED CONTEXT|\.as-usual/memory|MEMORY\.md' \
+  as-usual-rules/core-workflow.md \
+  skills/using-as-usual/SKILL.md \
+  skills/define-requirements/SKILL.md \
+  skills/writing-plan/SKILL.md \
+  skills/executing-plan/SKILL.md \
+  skills/finalize/SKILL.md \
+  skills/manage-self-improvement/SKILL.md \
+  skills/manage-self-improvement/references/memory-update.md \
+  skills/manage-self-improvement/references/skill-improvement.md \
+  skills/search-long-term-memory/SKILL.md \
+  templates/MEMORY.md \
+  scripts/topic-log.py
+```
+
+PASS:
+
+- `manage-self-improvement`, `search-long-term-memory`, the finalize self-improvement delegation, the `memory.candidate`/`memory.recorded`/`skill.created`/`skill.candidate` audit events, the 3000-char `MEMORY.md` budget, and the recalled-memory trust boundary are described consistently across `core-workflow.md`, the runtime skills, and `templates/MEMORY.md`.
+- `define-requirements`, `writing-plan`, and `executing-plan` all carry the explicit `memory.candidate` capture rule for durable long-term rules that appear during those phases.
+- `topic-log.py` exposes structured helpers for memory/skill candidate and application events without changing phase/status derivation.
+- Recalled memory is treated as untrusted context and cannot override user instructions, topic artifacts, workflow rules, or safety policy.
+
+FAIL:
+
+- Any runtime file describes `manage-self-improvement` as a separate workflow phase instead of a finalize-triggered self-improvement pass.
+- A phase skill writes `.as-usual/memory/*` immediately when it should only record a `memory.candidate` for finalize review.
+- `MEMORY.md` can grow without the 3000-character budget, consolidation-first dedup, or domain split rule.
+- `search-long-term-memory` returns recalled memory without an explicit untrusted-context boundary.
+- Required memory/skill audit events exist in one surface but are missing from `core-workflow.md`, `topic-log.py`, or the owning runtime skill.
+
+### Step 9: Audit-First Stale Runtime Surface Check
 
 **Tool:** Bash
 
@@ -421,6 +463,7 @@ Fix: update active runtime files to use `.as-usual/topic/yyyy-MM-dd-<topic>/`, `
 | Ambiguity and assumptions | PASS/FAIL | ... |
 | Safety gates and review follow-up | PASS/FAIL | ... |
 | Structured approval/review evidence | PASS/FAIL | ... |
+| Self-improvement and memory surface | PASS/FAIL | ... |
 | Removed runtime surface | PASS/FAIL | ... |
 
 ### Findings
