@@ -15,6 +15,8 @@ EXPECTED_RUNTIME_SKILLS = {
     "cleanup-code",
     "finalize",
     "git-action",
+    "manage-self-improvement",
+    "search-long-term-memory",
 }
 
 
