@@ -13,7 +13,8 @@ claude_model="sonnet"
 claude_setting_sources="project"
 claude_plugin_dir="$as_usual_repo"
 claude_preflight="true"
-test_name="priority-e2e"
+scenario="scenario_1_priority"
+test_name=""
 reset_sandbox="true"
 allow_dirty_baseline="false"
 preclean_sandbox="true"
@@ -29,10 +30,11 @@ pre_run_topic_archived="false"
 usage() {
   cat <<'USAGE'
 Usage:
-  run-sandbox-e2e.sh [--test-name NAME] [--host codex|claude] [--claude-model MODEL] [--claude-setting-sources SOURCES] [--claude-plugin-dir PATH] [--skip-claude-preflight] [--no-reset] [--no-preclean] [--allow-dirty-baseline] [--idle-timeout SECONDS] [--max-step-timeout SECONDS] [--progress-interval SECONDS]
+  run-sandbox-e2e.sh [--scenario NAME] [--test-name NAME] [--host codex|claude] [--claude-model MODEL] [--claude-setting-sources SOURCES] [--claude-plugin-dir PATH] [--skip-claude-preflight] [--no-reset] [--no-preclean] [--allow-dirty-baseline] [--idle-timeout SECONDS] [--max-step-timeout SECONDS] [--progress-interval SECONDS]
 
 Defaults:
-  --test-name priority-e2e
+  --scenario scenario_1_priority
+  --test-name <scenario>
   --host codex
   --claude-model sonnet
   --claude-setting-sources project
@@ -44,6 +46,10 @@ Defaults:
   --progress-interval 30
 
 Notes:
+  - Scenarios:
+    scenario_1_priority           Existing task priority E2E baseline.
+    scenario_2_complex_workflow   More complex scheduling/status workflow.
+    scenario_3_self_improvement   Self-improvement memory candidate/finalize path.
   - The sandbox path is intentionally hardcoded:
     /Users/happyhsryu/dev/personal/as-usual-test-project
   - Existing sandbox changes are snapshotted into the report directory before precleaning.
@@ -55,6 +61,13 @@ USAGE
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
+    --scenario)
+      shift || {
+        usage >&2
+        exit 2
+      }
+      scenario="$1"
+      ;;
     --test-name)
       shift || {
         usage >&2
@@ -159,6 +172,27 @@ if [ "$host" = "claude" ] && [ "$idle_timeout_user_set" = "false" ]; then
   idle_timeout_seconds=600
 fi
 
+case "$scenario" in
+  1|scenario_1|scenario_1_priority)
+    scenario="scenario_1_priority"
+    ;;
+  2|scenario_2|scenario_2_complex|scenario_2_complex_workflow)
+    scenario="scenario_2_complex_workflow"
+    ;;
+  3|scenario_3|scenario_3_self_improvement)
+    scenario="scenario_3_self_improvement"
+    ;;
+  *)
+    echo "[ERROR] Unsupported scenario: $scenario" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
+
+if [ -z "$test_name" ]; then
+  test_name="$scenario"
+fi
+
 if [ ! -d "$sandbox_repo" ]; then
   echo "[ERROR] Sandbox project not found: $sandbox_repo" >&2
   exit 1
@@ -191,6 +225,7 @@ exec > >(tee "$report_dir/logs/run.log") 2>&1
 echo "[INFO] AsUsual repo: $as_usual_repo"
 echo "[INFO] Sandbox repo: $sandbox_repo"
 echo "[INFO] Host: $host"
+echo "[INFO] Scenario: $scenario"
 if [ "$host" = "claude" ]; then
   echo "[INFO] Claude model: $claude_model"
   echo "[INFO] Claude setting sources: $claude_setting_sources"
@@ -696,7 +731,7 @@ find_topic_dir() {
 
 fill_question_answers() {
   local topic="$1"
-  python3 "$script_dir/fill-question-answers.py" "$topic"
+  python3 "$script_dir/fill-question-answers.py" --scenario "$scenario" "$topic"
 }
 
 topic_log_prompt_contract() {
@@ -736,7 +771,7 @@ AsUsual sandbox runner contract:
 - If a topic-log command exits nonzero, fix the command and rerun it before moving on. Avoid leaving recoverable helper-usage failures in the transcript.
 - During plan writing, choose `subagent-driven` for isolated bounded tasks when the host exposes subagent tools. If the host cannot dispatch a fresh bounded subagent, use `mixed` and make at least one implementation task `subagent-driven`; only fall back to pure `inline` after recording the host limitation as a blocker.
 - During execute, verify the subagent path by recording at least one `task.dispatched` event with mode `subagent-driven`, followed by task-level requirements and quality review events.
-- During execute, every implementation task must use `complete-task --mode tdd` with non-empty `--test-target`, `--red-evidence`, and `--green-evidence`; do not use `approved-tdd-exception` for this sandbox priority scenario.
+- During execute, every implementation task must use `complete-task --mode tdd` with non-empty `--test-target`, `--red-evidence`, and `--green-evidence`; do not use `approved-tdd-exception` for this sandbox scenario.
 - During execute, record at least one `complete-task` verification containing both `Final command:` and the exact substrings `mvn test` and `npm run build`, and make sure the matching command actually exits 0.
 - Before finalizing, run `validate` and ensure `status --json` derives phase `finalized`, next action `git-action-decision`, and a `topic.finalized` event.
 
@@ -792,6 +827,7 @@ write_report() {
   SANDBOX_REPO="$sandbox_repo" \
   HOST="$host" \
   TEST_NAME="$test_name" \
+  SCENARIO="$scenario" \
   RUN_ID="$run_id" \
   TOPIC_DIR="${latest_topic:-}" \
   AGENT_FAILED="$agent_failed" \
@@ -812,6 +848,7 @@ topic_dir_value = os.environ.get("TOPIC_DIR", "")
 topic_dir = pathlib.Path(topic_dir_value) if topic_dir_value else None
 host = os.environ["HOST"]
 test_name = os.environ["TEST_NAME"]
+scenario = os.environ["SCENARIO"]
 run_id = os.environ["RUN_ID"]
 agent_failed = os.environ["AGENT_FAILED"] == "true"
 pre_run_topic_archived = os.environ["PRE_RUN_TOPIC_ARCHIVED"] == "true"
@@ -1087,6 +1124,7 @@ report.append(f"# {test_name} Sandbox E2E Report")
 report.append("")
 report.append("```yaml")
 report.append(f"provider: {host}")
+report.append(f"scenario: {scenario}")
 report.append(f"sandboxProject: {sandbox_repo}")
 report.append(f"asUsualRepo: {as_usual_repo}")
 report.append(f"startedAt: {run_id}")
@@ -1194,6 +1232,7 @@ report.append("- Logs: `logs/`")
 report.append("- Terminal logs: `logs/terminal/`")
 report.append(f"- Agent transcript logs: `logs/{host}/`")
 report.append("- Topic snapshot: `logs/artifacts/copied-topic-files/`")
+report.append("- Memory snapshot: `logs/artifacts/copied-memory-files/` when `.as-usual/memory/` exists")
 report.append("- Sandbox preclean status: `logs/artifacts/sandbox-status-before-preclean.txt`")
 report.append("- Sandbox diff: `logs/artifacts/sandbox.diff`")
 report.append("- Backend logs: `logs/backend/`")
@@ -1245,6 +1284,8 @@ for path in sorted(agent_logs_dir.glob("*-last-message.md")):
 evidence = []
 evidence.append(f"# {test_name} Sandbox E2E Evidence")
 evidence.append("")
+evidence.append(f"- Scenario: `{scenario}`")
+evidence.append("")
 evidence.append("## Step Durations And Exit Codes")
 evidence.append("")
 evidence.extend(fenced("text", step_summary_text or "No step summaries captured."))
@@ -1295,6 +1336,7 @@ improvement_plan.append(f"# {test_name} Sandbox E2E Improvement Plan")
 improvement_plan.append("")
 improvement_plan.append("```yaml")
 improvement_plan.append(f"provider: {host}")
+improvement_plan.append(f"scenario: {scenario}")
 improvement_plan.append(f"runId: {run_id}")
 improvement_plan.append(f"sourceReport: report.md")
 improvement_plan.append(f"sourceEvidence: evidence.md")
@@ -1349,6 +1391,12 @@ collect_outputs() {
     copy_if_exists "$latest_topic" "$report_dir/logs/artifacts/copied-topic-files"
   fi
 
+  if [ -d "$sandbox_repo/.as-usual/memory" ]; then
+    mkdir -p "$report_dir/logs/artifacts"
+    rm -rf "$report_dir/logs/artifacts/copied-memory-files"
+    copy_if_exists "$sandbox_repo/.as-usual/memory" "$report_dir/logs/artifacts/copied-memory-files"
+  fi
+
   if [ -d "$sandbox_repo/backend/logs" ]; then
     mkdir -p "$report_dir/logs/backend"
     find "$sandbox_repo/backend/logs" -maxdepth 1 -type f -name 'as-usual-backend-*.log' -exec cp {} "$report_dir/logs/backend/" \;
@@ -1370,6 +1418,93 @@ collect_outputs() {
     linter_args+=(--allow-dirty-baseline)
   fi
   python3 "$script_dir/e2e-report-linter.py" "${linter_args[@]}" || true
+}
+
+scenario_start_prompt() {
+  case "$scenario" in
+    scenario_1_priority)
+      cat <<'EOF'
+AsUsual로 task priority를 추가하는 작업을 시작해.
+EOF
+      ;;
+    scenario_2_complex_workflow)
+      cat <<'EOF'
+AsUsual로 더 복잡한 task scheduling/status workflow를 추가하는 작업을 시작해.
+
+목표는 task에 due date, reminder flag, overdue 표시, status 전환 규칙을 추가해서 backend/API/frontend가 함께 바뀌는 복합 변경을 검증하는 거야. 요구사항 질문 단계에서 scope, data model, default behavior, overdue 계산 기준, frontend 표시/검증 범위를 명확히 물어봐.
+EOF
+      ;;
+    scenario_3_self_improvement)
+      cat <<'EOF'
+AsUsual로 task note/source label을 추가하는 작업을 시작해. 이 E2E는 자기개선 경로도 검증해야 해.
+
+작업 중 사용자가 명시한 장기 규칙을 `memory.candidate`로 포착하고, finalize에서 `manage-self-improvement`가 승인된 memory를 `.as-usual/memory/MEMORY.md`에 기록하는지 확인해.
+
+장기 규칙: 이 sandbox project의 E2E report에는 앞으로 항상 scenario id와 scenario 목적을 남긴다.
+EOF
+      ;;
+  esac
+}
+
+scenario_requirements_prompt() {
+  cat <<'EOF'
+답변했어. AsUsual topic의 question-c1.md를 디스크에서 다시 읽고, 답변을 바탕으로 requirements.md를 작성해. requirements 작성과 리뷰 상태 기록까지 완료하고 plan 승인 요청 단계에서 멈춰. plan 작성이나 구현은 아직 하지마.
+EOF
+}
+
+scenario_plan_prompt() {
+  case "$scenario" in
+    scenario_1_priority)
+      cat <<'EOF'
+requirements을 승인해. AsUsual workflow에 따라 requirements.md를 다시 읽고 plan.md를 작성해. 이번 E2E는 execute 단계의 subagent-driven + TDD 동작을 검증해야 하므로, host가 fresh bounded subagent dispatch를 지원하면 plan의 Execution Mode를 subagent-driven으로 두고, 지원 여부가 애매하면 mixed로 두되 최소 1개 구현 task는 subagent-driven으로 지정해. 모든 구현 task의 Test Strategy는 tdd로 작성하고 RED/GREEN evidence를 기록할 test target과 verification command를 구체화해. plan review 상태와 실행 승인 요청을 audit.jsonl에 기록하고 멈춰. 아직 구현하지마.
+EOF
+      ;;
+    scenario_2_complex_workflow)
+      cat <<'EOF'
+requirements을 승인해. AsUsual workflow에 따라 requirements.md를 다시 읽고 plan.md를 작성해. 이번 복합 workflow E2E는 backend data model/API/service/frontend 표시와 status rule을 여러 task로 나누는 계획을 검증해야 해. host가 fresh bounded subagent dispatch를 지원하면 plan의 Execution Mode를 subagent-driven으로 두고, 지원 여부가 애매하면 mixed로 두되 최소 1개 구현 task는 subagent-driven으로 지정해. 모든 구현 task의 Test Strategy는 tdd로 작성하고, due date/reminder/status/overdue 각각의 RED/GREEN evidence를 기록할 test target과 verification command를 구체화해. plan review 상태와 실행 승인 요청을 audit.jsonl에 기록하고 멈춰. 아직 구현하지마.
+EOF
+      ;;
+    scenario_3_self_improvement)
+      cat <<'EOF'
+requirements을 승인해. AsUsual workflow에 따라 requirements.md를 다시 읽고 plan.md를 작성해. 이번 E2E는 구현뿐 아니라 self-improvement memory candidate 경로도 검증해야 하므로, plan에는 일반 구현 task와 함께 "명시된 장기 규칙을 memory.candidate로 포착했는지 확인"하는 검증 관점을 포함해. host가 fresh bounded subagent dispatch를 지원하면 plan의 Execution Mode를 subagent-driven으로 두고, 지원 여부가 애매하면 mixed로 두되 최소 1개 구현 task는 subagent-driven으로 지정해. 모든 구현 task의 Test Strategy는 tdd로 작성하고 RED/GREEN evidence를 기록할 test target과 verification command를 구체화해. plan review 상태와 실행 승인 요청을 audit.jsonl에 기록하고 멈춰. 아직 구현하지마.
+EOF
+      ;;
+  esac
+}
+
+scenario_execute_prompt() {
+  case "$scenario" in
+    scenario_1_priority)
+      cat <<'EOF'
+plan을 승인해. 이 sandbox E2E 테스트를 집도하는 runner/agent로서, 테스트용 프로젝트에 한해 plan에 포함된 task priority 관련 high-risk schema operation도 지금 fresh approval 한다: TaskPriority enum 추가, Task.priority persisted field/default/mapping 추가, DTO priority field 추가, service mapping, seed/default behavior, controller test expectation 변경을 승인한다. 롤백은 해당 backend/frontend 변경 파일을 되돌리고, 실제 persistent DB가 연결된 경우 tasks.priority 컬럼을 DB migration 정책에 따라 제거/롤백하는 방식이다. AsUsual workflow에 따라 plan.md를 다시 읽고 구현을 실행해. 이번 execute 검증의 핵심은 subagent-driven + TDD다. subagent task는 fresh bounded implementer로 dispatch하고 task.dispatched를 기록해. 구현 task는 RED 실패 테스트 evidence를 먼저 기록한 뒤 최소 구현으로 GREEN evidence를 기록하고, complete-task --mode tdd에 test target, red evidence, green evidence를 남겨. subagent 결과는 controller가 직접 diff와 검증을 확인하고 task-level requirements review와 quality review를 기록해. 백엔드 테스트와 프론트 빌드 같은 검증을 수행하고 audit.jsonl에 evidence를 기록해. 실행 완료 후 mandatory review-execution까지 수행하고, optional code cleanup 여부를 물어보는 단계에서 멈춰.
+EOF
+      ;;
+    scenario_2_complex_workflow)
+      cat <<'EOF'
+plan을 승인해. 이 sandbox E2E 테스트를 집도하는 runner/agent로서, 테스트용 프로젝트에 한해 plan에 포함된 scheduling/status 관련 high-risk schema operation도 지금 fresh approval 한다: Task dueDate/reminder/status/overdue 계산에 필요한 backend field/default/mapping 추가, DTO/API 변경, service rule 변경, controller/service test expectation 변경, frontend form/list 표시 변경을 승인한다. 롤백은 해당 backend/frontend 변경 파일을 되돌리고, 실제 persistent DB가 연결된 경우 추가 컬럼을 DB migration 정책에 따라 제거/롤백하는 방식이다. AsUsual workflow에 따라 plan.md를 다시 읽고 구현을 실행해. 이번 execute 검증의 핵심은 복합 변경을 task 단위로 나누고 subagent-driven + TDD evidence를 남기는 것이다. subagent task는 fresh bounded implementer로 dispatch하고 task.dispatched를 기록해. 구현 task는 RED 실패 테스트 evidence를 먼저 기록한 뒤 최소 구현으로 GREEN evidence를 기록하고, complete-task --mode tdd에 test target, red evidence, green evidence를 남겨. subagent 결과는 controller가 직접 diff와 검증을 확인하고 task-level requirements review와 quality review를 기록해. 백엔드 테스트와 프론트 빌드 같은 검증을 수행하고 audit.jsonl에 evidence를 기록해. 실행 완료 후 mandatory review-execution까지 수행하고, optional code cleanup 여부를 물어보는 단계에서 멈춰.
+EOF
+      ;;
+    scenario_3_self_improvement)
+      cat <<'EOF'
+plan을 승인해. 이 sandbox E2E 테스트를 집도하는 runner/agent로서, 테스트용 프로젝트에 한해 plan에 포함된 task note/source label 관련 backend/frontend 변경과 필요한 test expectation 변경을 지금 fresh approval 한다. 롤백은 해당 backend/frontend 변경 파일을 되돌리는 방식이다. AsUsual workflow에 따라 plan.md를 다시 읽고 구현을 실행해. 이번 execute 검증의 핵심은 subagent-driven + TDD와 self-improvement 후보 포착이다. 사용자가 명시한 장기 규칙("이 sandbox project의 E2E report에는 앞으로 항상 scenario id와 scenario 목적을 남긴다")을 아직 `memory.candidate`로 기록하지 않았다면 구현 흐름을 깨지 말고 audit에 candidate로 기록해. subagent task는 fresh bounded implementer로 dispatch하고 task.dispatched를 기록해. 구현 task는 RED 실패 테스트 evidence를 먼저 기록한 뒤 최소 구현으로 GREEN evidence를 기록하고, complete-task --mode tdd에 test target, red evidence, green evidence를 남겨. subagent 결과는 controller가 직접 diff와 검증을 확인하고 task-level requirements review와 quality review를 기록해. 백엔드 테스트와 프론트 빌드 같은 검증을 수행하고 audit.jsonl에 evidence를 기록해. 실행 완료 후 mandatory review-execution까지 수행하고, optional code cleanup 여부를 물어보는 단계에서 멈춰.
+EOF
+      ;;
+  esac
+}
+
+scenario_finalize_prompt() {
+  case "$scenario" in
+    scenario_3_self_improvement)
+      cat <<'EOF'
+optional code cleanup은 생략해. AsUsual workflow에 따라 code cleanup decision을 audit.jsonl에 기록하고 finalize까지 진행해. finalize의 self-improvement pass에서 memory 후보가 제안되면, "이 sandbox project의 E2E report에는 앞으로 항상 scenario id와 scenario 목적을 남긴다" 항목은 승인된 것으로 처리해 `manage-self-improvement` apply pass로 `.as-usual/memory/MEMORY.md`에 기록해. 보류할 skill 후보가 있으면 audit에 candidate로만 남겨. commit, PR, push, deploy 같은 git action은 하지 말고 git action decision requested 상태에서 멈춰.
+EOF
+      ;;
+    *)
+      cat <<'EOF'
+optional code cleanup은 생략해. AsUsual workflow에 따라 code cleanup decision을 audit.jsonl에 기록하고 finalize까지 진행해. commit, PR, push, deploy 같은 git action은 하지 말고 git action decision requested 상태에서 멈춰.
+EOF
+      ;;
+  esac
 }
 
 finish_report() {
@@ -1415,7 +1550,7 @@ if [ "$allow_dirty_baseline" != "true" ] && [ -s "$report_dir/logs/artifacts/san
   exit 1
 fi
 
-run_agent_step "01-start-topic" "AsUsual로 task priority를 추가하는 작업을 시작해."
+run_agent_step "01-start-topic" "$(scenario_start_prompt)"
 
 topic_dir="$(find_topic_dir)"
 if [ -n "$topic_dir" ]; then
@@ -1425,13 +1560,13 @@ else
   echo "[WARN] Topic dir not found after start step"
 fi
 
-run_agent_step "02-write-requirements" "답변했어. AsUsual topic의 question-c1.md를 디스크에서 다시 읽고, 답변을 바탕으로 requirements.md를 작성해. requirements 작성과 리뷰 상태 기록까지 완료하고 plan 승인 요청 단계에서 멈춰. plan 작성이나 구현은 아직 하지마."
+run_agent_step "02-write-requirements" "$(scenario_requirements_prompt)"
 
-run_agent_step "03-write-plan" "requirements을 승인해. AsUsual workflow에 따라 requirements.md를 다시 읽고 plan.md를 작성해. 이번 E2E는 execute 단계의 subagent-driven + TDD 동작을 검증해야 하므로, host가 fresh bounded subagent dispatch를 지원하면 plan의 Execution Mode를 subagent-driven으로 두고, 지원 여부가 애매하면 mixed로 두되 최소 1개 구현 task는 subagent-driven으로 지정해. 모든 구현 task의 Test Strategy는 tdd로 작성하고 RED/GREEN evidence를 기록할 test target과 verification command를 구체화해. plan review 상태와 실행 승인 요청을 audit.jsonl에 기록하고 멈춰. 아직 구현하지마."
+run_agent_step "03-write-plan" "$(scenario_plan_prompt)"
 
-run_agent_step "04-execute" "plan을 승인해. 이 sandbox E2E 테스트를 집도하는 runner/agent로서, 테스트용 프로젝트에 한해 plan에 포함된 task priority 관련 high-risk schema operation도 지금 fresh approval 한다: TaskPriority enum 추가, Task.priority persisted field/default/mapping 추가, DTO priority field 추가, service mapping, seed/default behavior, controller test expectation 변경을 승인한다. 롤백은 해당 backend/frontend 변경 파일을 되돌리고, 실제 persistent DB가 연결된 경우 tasks.priority 컬럼을 DB migration 정책에 따라 제거/롤백하는 방식이다. AsUsual workflow에 따라 plan.md를 다시 읽고 구현을 실행해. 이번 execute 검증의 핵심은 subagent-driven + TDD다. subagent task는 fresh bounded implementer로 dispatch하고 task.dispatched를 기록해. 구현 task는 RED 실패 테스트 evidence를 먼저 기록한 뒤 최소 구현으로 GREEN evidence를 기록하고, complete-task --mode tdd에 test target, red evidence, green evidence를 남겨. subagent 결과는 controller가 직접 diff와 검증을 확인하고 task-level requirements review와 quality review를 기록해. 백엔드 테스트와 프론트 빌드 같은 검증을 수행하고 audit.jsonl에 evidence를 기록해. 실행 완료 후 mandatory review-execution까지 수행하고, optional code cleanup 여부를 물어보는 단계에서 멈춰."
+run_agent_step "04-execute" "$(scenario_execute_prompt)"
 
-run_agent_step "05-finalize" "optional code cleanup은 생략해. AsUsual workflow에 따라 code cleanup decision을 audit.jsonl에 기록하고 finalize까지 진행해. commit, PR, push, deploy 같은 git action은 하지 말고 git action decision requested 상태에서 멈춰."
+run_agent_step "05-finalize" "$(scenario_finalize_prompt)"
 
 topic_dir="$(find_topic_dir)"
 collect_outputs "$topic_dir"
