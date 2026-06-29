@@ -64,6 +64,31 @@ class FillQuestionAnswersTests(unittest.TestCase):
             text = question_file.read_text(encoding="utf-8")
             self.assertIn("[Answer]: A) Full stack", text)
 
+    def test_fills_scenario_specific_answers(self):
+        helper = load_helper()
+        with tempfile.TemporaryDirectory() as tmp:
+            topic = Path(tmp)
+            question_file = topic / "question-c1.md"
+            question_file.write_text(
+                "# Demo 질문 c1\n\n"
+                "## Question 3: Memory?\n\n"
+                "### ✍️ Answer\n\n"
+                "[Answer]:\n",
+                encoding="utf-8",
+            )
+
+            changed = helper.fill_answers(topic, "scenario_3_self_improvement")
+
+            self.assertEqual(changed, [question_file])
+            text = question_file.read_text(encoding="utf-8")
+            self.assertIn("장기 규칙", text)
+            self.assertIn("scenario id", text)
+
+    def test_rejects_unknown_scenario(self):
+        helper = load_helper()
+        with self.assertRaises(ValueError):
+            helper.normalize_scenario("missing")
+
 
 if __name__ == "__main__":
     unittest.main()
