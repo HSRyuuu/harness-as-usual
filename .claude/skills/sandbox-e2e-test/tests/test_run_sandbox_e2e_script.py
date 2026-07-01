@@ -14,6 +14,15 @@ class RunSandboxE2EScriptTests(unittest.TestCase):
     def test_runner_accepts_claude_host(self):
         text = RUNNER_PATH.read_text(encoding="utf-8")
         self.assertIn("--host codex|claude", text)
+        self.assertIn("--scenario NAME", text)
+        self.assertIn('scenario="scenario_1_priority"', text)
+        self.assertIn("scenario_2_complex_workflow", text)
+        self.assertIn("scenario_3_self_improvement", text)
+        self.assertIn('test_name="$scenario"', text)
+        self.assertIn('echo "[INFO] Scenario: $scenario"', text)
+        self.assertIn('SCENARIO="$scenario"', text)
+        self.assertIn('scenario = os.environ["SCENARIO"]', text)
+        self.assertIn("copied-memory-files", text)
         self.assertIn('[ "$host" != "codex" ] && [ "$host" != "claude" ]', text)
         self.assertIn('idle_timeout_user_set="false"', text)
         self.assertIn('if [ "$host" = "claude" ] && [ "$idle_timeout_user_set" = "false" ]; then', text)
@@ -60,7 +69,9 @@ class RunSandboxE2EScriptTests(unittest.TestCase):
         self.assertIn("--name <artifactName> --value <file>", text)
         self.assertIn("--operation-id <id> --description <description>", text)
         self.assertIn("run_claude_step()", text)
-        self.assertIn('run_agent_step "05-finalize"', text)
+        self.assertIn("scenario_start_prompt()", text)
+        self.assertIn("scenario_execute_prompt()", text)
+        self.assertIn('run_agent_step "05-finalize" "$(scenario_finalize_prompt)"', text)
         self.assertNotIn("Only --host codex is currently supported", text)
 
 

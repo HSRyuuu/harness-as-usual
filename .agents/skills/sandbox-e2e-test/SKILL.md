@@ -44,9 +44,19 @@ Claude reports use the same shape with a `-claude` suffix:
 docs/test/yyyy-MM-dd-<test-name>-claude/
 ```
 
-## What The Automation Tests
+## Scenarios
 
-The default scenario asks AsUsual to add task priority support to the sandbox app.
+The runner supports named scenarios. Scenario names follow `scenario_N_<topic>`.
+
+| Scenario | Purpose |
+| --- | --- |
+| `scenario_1_priority` | Existing baseline: add task priority support to the sandbox app. |
+| `scenario_2_complex_workflow` | More complex workflow: due date, reminder flag, overdue/status behavior, and frontend display. |
+| `scenario_3_self_improvement` | Self-improvement path: capture a memory candidate and apply approved memory during finalize. |
+
+The default scenario is `scenario_1_priority`.
+
+## What The Automation Tests
 
 The runner verifies that the agent can:
 
@@ -59,7 +69,8 @@ The runner verifies that the agent can:
 7. Execute the approved plan.
 8. Run post-execution review/finalize flow as far as the harness permits.
 9. Leave analyzable topic artifacts, backend logs, and sandbox diffs.
-10. Write a report under `docs/test/`.
+10. For self-improvement scenarios, leave analyzable `.as-usual/memory/` evidence.
+11. Write a report under `docs/test/`.
 
 ## Quick Run
 
@@ -72,7 +83,10 @@ Run from the AsUsual repository root:
 Useful options:
 
 ```bash
-.agents/skills/sandbox-e2e-test/scripts/run-sandbox-e2e.sh --test-name priority-e2e
+.agents/skills/sandbox-e2e-test/scripts/run-sandbox-e2e.sh --scenario scenario_1_priority
+.agents/skills/sandbox-e2e-test/scripts/run-sandbox-e2e.sh --scenario scenario_2_complex_workflow
+.agents/skills/sandbox-e2e-test/scripts/run-sandbox-e2e.sh --scenario scenario_3_self_improvement
+.agents/skills/sandbox-e2e-test/scripts/run-sandbox-e2e.sh --scenario scenario_1_priority --test-name priority-e2e
 .agents/skills/sandbox-e2e-test/scripts/run-sandbox-e2e.sh --host codex
 .agents/skills/sandbox-e2e-test/scripts/run-sandbox-e2e.sh --host claude
 .agents/skills/sandbox-e2e-test/scripts/run-sandbox-e2e.sh --host claude --claude-model sonnet
@@ -101,7 +115,7 @@ The runner:
    - runs `git restore --worktree --staged .`
    - runs `git clean -fd`
    - removes sandbox `.as-usual/` and stale backend AsUsual logs
-6. Runs staged host prompts:
+6. Runs the selected scenario's staged host prompts:
    - start topic and create questions
    - resume after automated question answers and write requirements
    - approve requirements and write plan
@@ -119,7 +133,7 @@ noise; it disables precleaning.
 
 The automated fixture fills each question by question number rather than copying one broad answer into every `[Answer]:` field.
 
-The default priority scenario intentionally exercises:
+`scenario_1_priority` intentionally exercises:
 
 - a recommended option match for full-stack scope
 - a recommended option match for `LOW`, `MEDIUM`, `HIGH`
@@ -128,6 +142,11 @@ The default priority scenario intentionally exercises:
 - a display-only list behavior decision
 
 Reports should treat repeated identical answer bodies across all questions as a fixture-quality warning.
+
+`scenario_2_complex_workflow` uses answers that push the agent through a broader
+backend/API/frontend behavior change. `scenario_3_self_improvement` includes an
+explicit long-term rule so the runtime can record a `memory.candidate` and apply
+approved memory during finalize.
 
 ## Timeout Policy
 
@@ -250,6 +269,7 @@ docs/test/yyyy-MM-dd-<test-name>-codex/
 │   │   └── as-usual-backend-20260624-163500.log
 │   ├── artifacts/
 │   │   ├── copied-topic-files/
+│   │   ├── copied-memory-files/
 │   │   ├── sandbox-status-before-preclean.txt
 │   │   ├── sandbox-status-after-preclean.txt
 │   │   ├── sandbox-status-before.txt
@@ -264,6 +284,7 @@ Report metadata must include:
 
 ```yaml
 provider: codex
+scenario: scenario_1_priority
 sandboxProject: /Users/happyhsryu/dev/personal/as-usual-test-project
 asUsualRepo: /Users/happyhsryu/dev/personal/as-usual
 startedAt: <run-id>
@@ -289,6 +310,7 @@ Each report should include:
 - Requirements/plan/review/finalize evidence
 - Sandbox diff summary
 - Backend AOP log evidence when available
+- Copied memory evidence for self-improvement scenarios when available
 - Problems found
 - Suggested AsUsual improvements
 
@@ -348,7 +370,7 @@ Expected:
 Then run the actual sandbox E2E test when a real harness verification is desired:
 
 ```bash
-.agents/skills/sandbox-e2e-test/scripts/run-sandbox-e2e.sh --test-name priority-e2e
+.agents/skills/sandbox-e2e-test/scripts/run-sandbox-e2e.sh --scenario scenario_1_priority
 ```
 
 Use `--allow-dirty-baseline` only when intentionally preserving an existing sandbox diff as baseline noise.
