@@ -3,93 +3,11 @@
 
 set -euo pipefail
 
-find_workspace_root() {
-  local dir="${PWD:-.}"
-  dir="$(cd "$dir" 2>/dev/null && pwd)"
-
-  while [ "$dir" != "/" ]; do
-    if [ -d "$dir/.as-usual" ]; then
-      printf '%s\n' "$dir"
-      return 0
-    fi
-    dir="$(dirname "$dir")"
-  done
-
-  return 1
-}
-
 escape_for_json() {
   printf '%s' "$1" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read())[1:-1], end="")'
 }
 
-script_dir="$(cd "$(dirname "$0")" && pwd)"
-plugin_root="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-$(dirname "$script_dir")}}"
-workspace_root="$(find_workspace_root || true)"
-
-topic_summary=""
-if [ -n "$workspace_root" ] && [ -d "$workspace_root/.as-usual/topic" ]; then
-  topics_dir="$workspace_root/.as-usual/topic"
-  while IFS= read -r dir; do
-    rel="${dir#$workspace_root/}"
-    status=""
-    if [ -x "$plugin_root/scripts/topic-log.py" ] || [ -f "$plugin_root/scripts/topic-log.py" ]; then
-      status="$(python3 "$plugin_root/scripts/topic-log.py" status --topic-dir "$dir" 2>/dev/null | tr '\n' ', ' | sed 's/, $//' || true)"
-    fi
-    if [ -n "$status" ]; then
-      topic_summary+=$'\n'"- $rel ($status)"
-    else
-      topic_summary+=$'\n'"- $rel"
-    fi
-  done < <(
-    for dir in "$topics_dir"/*; do
-      [ -d "$dir" ] || continue
-      [ -f "$dir/topic.md" ] || continue
-      [ -f "$dir/audit.jsonl" ] || continue
-      printf '%s\n' "$dir"
-    done | sort | tail -n 12
-  )
-fi
-
-if [ -z "$topic_summary" ]; then
-  topic_summary=$'\n'"- no active topic candidates"
-fi
-
-memory_line="- no project memory"
-if [ -n "$workspace_root" ] && [ -f "$workspace_root/.as-usual/memory/MEMORY.md" ]; then
-  memory_line="- MEMORY.md present at .as-usual/memory/ (durable context; recall via search-long-term-memory; not a workflow trigger)"
-fi
-
-if [ -n "$workspace_root" ]; then
-  workspace_line="The current workspace or a parent directory contains an AsUsual artifact folder: $workspace_root"
-else
-  workspace_line="The current workspace or parent directories do not contain a .as-usual artifact folder yet."
-fi
-
-core_workflow_file="$plugin_root/as-usual-rules/core-workflow.md"
-
-content="# AsUsual Harness Rules
-
-Harness rule source: $core_workflow_file
-$workspace_line
-
-This hook does not force the AsUsual workflow onto every request. Handle ordinary work normally.
-
-This hook intentionally does not inject the full core workflow. If AsUsual activates, use the \`using-as-usual\` skill, read the full rule source above, then read topic artifacts before making workflow decisions.
-
-1. The user explicitly asks for \`as-usual\` or \`AsUsual\`.
-2. The user mentions \`.as-usual/\`, question/requirements/plan/topic.md/audit.jsonl files, or an active topic.
-3. The user asks to resume an active topic with phrasing like \"I answered\", \"write the requirements\", \"write the plan\", or \"continue\".
-
-AsUsual activation entrypoint:
-
-- skill: \`using-as-usual\`
-- full rules: \`$core_workflow_file\`
-- first action when active: read the full rules, topic.md, audit.jsonl, and linked artifacts from disk
-
-Active topic candidates:$topic_summary
-
-Project memory:
-$memory_line"
+content="AsUsual is available: for explicit AsUsual work, AsUsual topic/artifact resumes, or feature-development work that should use the AsUsual workflow, use the \`using-as-usual\` skill first; otherwise handle the request normally."
 
 escaped="$(escape_for_json "$content")"
 

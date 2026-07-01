@@ -30,12 +30,13 @@ Treat the request as AsUsual work when any of these is true:
 - The user explicitly says `as-usual` or `AsUsual`.
 - The user mentions `.as-usual/`, `topic.md`, `audit.jsonl`, `question-cN.md`, `requirements.md`, `plan.md`, or topic artifacts.
 - The user asks to resume an active topic with phrasing like "I answered", "write the requirements", "write the plan", or "continue".
+- The user asks for feature-development work that should use the AsUsual workflow.
 
 ## Required First Reads
 
 When the request is AsUsual work, before answering or executing:
 
-1. Read the full `as-usual-rules/core-workflow.md` from the plugin root path announced by the SessionStart hook.
+1. Read the full `as-usual-rules/core-workflow.md`. Prefer a path announced by the SessionStart hook when present; otherwise resolve it from the AsUsual plugin root, which is the parent directory of the `skills/` directory containing this skill.
 2. Locate the active topic under `.as-usual/topic/`.
 3. For an existing topic, read `topic.md` first for durable resume context.
 4. Read `audit.jsonl`.
