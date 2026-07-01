@@ -33,7 +33,7 @@ Current verification skills registered for this project. Update this list when c
 | verify-runtime-surface | Verifies that runtime-facing surfaces do not contain maintainer/plugin-development guidance | `hooks/**`, `as-usual-rules/**`, public `skills/**`, `templates/**`, `README.md`, `docs/**`, `.agents/skills/**`, `AGENTS.md` |
 | verify-as-usual-harness | Verifies runtime workflow, hook injection, and plugin manifest smoke tests   | `as-usual-rules/**`, `hooks/**`, `.claude-plugin/**`, `.codex-plugin/**`, `.agents/plugins/**`, `templates/**`, public `skills/**` |
 | verify-runtime-workflow-consistency | Verifies runtime workflow rules, public runtime skills, requirements/plan templates, and reviewer prompt consistency | `as-usual-rules/**`, public `skills/**`, `templates/**`, `hooks/session-start`, `README.md`, `docs/**` |
-| verify-project-identity | Verifies durable project identity and maintainer docs reflect broad workflow, artifact, and verification changes | `PROJECT_IDENTITY.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/ARCHITECTURE-WORKFLOW.md`, `as-usual-rules/**`, public `skills/**`, `templates/**`, `.agents/skills/**` |
+| verify-project-identity | Verifies durable project identity and maintainer docs reflect broad workflow, artifact, and verification changes | `PROJECT_IDENTITY.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/ARCHITECTURE-WORKFLOW.md`, `as-usual-rules/**`, public `skills/**`, `templates/**`, `.agents/skills/**`, `.claude/skills/**` |
 
 `verify-as-usual-harness` is a registered verification skill responsible for harness contract smoke tests.
 

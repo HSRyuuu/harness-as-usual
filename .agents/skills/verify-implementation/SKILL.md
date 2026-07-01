@@ -33,7 +33,7 @@ This is the registry of available verification skills. By default, run only the 
 | 1   | verify-runtime-surface | Verifies that runtime-facing surfaces do not contain maintainer/plugin-development guidance | `hooks/**`, `as-usual-rules/**`, public `skills/**`, `templates/**`, `scripts/**`, public docs |
 | 2   | verify-as-usual-harness | Verifies runtime workflow, hook injection, and plugin manifest smoke tests   | `as-usual-rules/**`, `hooks/**`, `.claude-plugin/**`, `.codex-plugin/**`, `.agents/plugins/**`, `templates/**`, public `skills/**`, `scripts/**` |
 | 3   | verify-runtime-workflow-consistency | Verifies runtime workflow rules, public runtime skills, requirements/plan templates, and reviewer prompt consistency | `as-usual-rules/**`, public `skills/**`, `templates/**`, `scripts/**`, `hooks/session-start`, public docs |
-| 4   | verify-project-identity | Verifies durable project identity and maintainer docs reflect broad workflow, artifact, and verification changes | `PROJECT_IDENTITY.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/ARCHITECTURE-WORKFLOW.md`, `as-usual-rules/**`, public `skills/**`, `templates/**`, `.agents/skills/**` |
+| 4   | verify-project-identity | Verifies durable project identity and maintainer docs reflect broad workflow, artifact, and verification changes | `PROJECT_IDENTITY.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/ARCHITECTURE-WORKFLOW.md`, `as-usual-rules/**`, public `skills/**`, `templates/**`, `.agents/skills/**`, `.claude/skills/**` |
 | 5   | sandbox-e2e-test | Verifies sandbox E2E runner and report linter behavior | `.agents/skills/sandbox-e2e-test/**`, `docs/test/**` |
 
 ## Workflow

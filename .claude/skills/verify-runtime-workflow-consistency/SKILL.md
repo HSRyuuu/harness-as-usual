@@ -10,13 +10,14 @@ description: Verifies that AsUsual runtime workflow rules, public runtime skills
 Verify the runtime workflow contract across the files that jointly define AsUsual topic progression.
 
 1. Confirm phase routing is consistent from activation through requirements definition, plan, execute, execution review, finalize, and git action.
-2. Confirm `define-requirements` remains the single owner of file-backed questions, requirements synthesis, and review.
-3. Confirm `templates/requirements.md`, `define-requirements`, and the requirements reviewer prompt use the same review/status vocabulary.
-4. Confirm `templates/plan.md`, `writing-plan`, and the plan reviewer prompt use the same review/status vocabulary.
-5. Confirm assumption, open-question, and affected-surface rules are not contradictory.
-6. Confirm high-risk operations, prompt-injection boundaries, secret protection, and review follow-up routing stay aligned.
-7. Confirm stale phase names, removed gates, and old topic paths do not return to active runtime rules.
-8. Confirm the self-improvement memory surface is aligned across workflow rules, runtime skills, templates, and audit helpers.
+2. Confirm SessionStart hook activation guidance and `using-as-usual` activation rules stay semantically aligned.
+3. Confirm `define-requirements` remains the single owner of file-backed questions, requirements synthesis, and review.
+4. Confirm `templates/requirements.md`, `define-requirements`, and the requirements reviewer prompt use the same review/status vocabulary.
+5. Confirm `templates/plan.md`, `writing-plan`, and the plan reviewer prompt use the same review/status vocabulary.
+6. Confirm assumption, open-question, and affected-surface rules are not contradictory.
+7. Confirm high-risk operations, prompt-injection boundaries, secret protection, and review follow-up routing stay aligned.
+8. Confirm stale phase names, removed gates, and old topic paths do not return to active runtime rules.
+9. Confirm the self-improvement memory surface is aligned across workflow rules, runtime skills, templates, and audit helpers.
 
 ## When To Run
 
@@ -32,6 +33,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 
 | File | Purpose |
 | --- | --- |
+| `hooks/session-start` | one-sentence SessionStart activation guidance |
 | `as-usual-rules/core-workflow.md` | canonical runtime workflow contract |
 | `skills/using-as-usual/SKILL.md` | runtime activation and first-read behavior |
 | `skills/start-work/SKILL.md` | route selection after activation |
@@ -167,6 +169,36 @@ FAIL:
 - A next action that means approval to execute uses stale `execute-plan` wording instead of `approve-execute`.
 
 Fix: keep phase ownership in `core-workflow.md` and mirror the same boundary in the responsible skill.
+
+### Step 2a: Hook And Activation Alignment Check
+
+**Tools:** Read, Bash
+
+Run:
+
+```bash
+rg -n 'AsUsual is available|using-as-usual|explicit AsUsual work|topic/artifact resumes|feature-development work that should use the AsUsual workflow|otherwise handle the request normally|The user asks for feature-development work that should use the AsUsual workflow|Read the full `as-usual-rules/core-workflow.md`' \
+  hooks/session-start \
+  skills/using-as-usual/SKILL.md \
+  AGENTS.md \
+  CLAUDE.md \
+  docs/ARCHITECTURE-WORKFLOW.md
+```
+
+PASS:
+
+- `hooks/session-start` injects one concise activation sentence that points to `using-as-usual`.
+- The hook sentence and `skills/using-as-usual/SKILL.md` agree on activation categories: explicit AsUsual work, topic/artifact references or resumes, and feature-development work that should use the AsUsual workflow.
+- `skills/using-as-usual/SKILL.md` owns rule and topic discovery when the hook no longer announces the core workflow path or active topic candidates.
+- Durable maintainer docs describe the same hook/activation boundary without reintroducing full workflow injection.
+
+FAIL:
+
+- The hook mentions an activation category that `using-as-usual` does not recognize.
+- `using-as-usual` requires the hook to announce a core workflow path or active topic candidates before it can perform first reads.
+- Durable docs still say the hook injects the full rule path, active topic candidates, memory content, or detailed workflow sections.
+
+Fix: align `hooks/session-start`, `skills/using-as-usual/SKILL.md`, and durable docs so the hook remains a one-sentence entrypoint and `using-as-usual` owns file-backed discovery.
 
 ### Step 3: Requirements Template And Reviewer Vocabulary Check
 
@@ -459,6 +491,7 @@ Fix: update active runtime files to use `.as-usual/topic/yyyy-MM-dd-<topic>/`, `
 | --- | --- | --- |
 | Required files | PASS/FAIL | ... |
 | Route ownership | PASS/FAIL | ... |
+| Hook/activation alignment | PASS/FAIL | ... |
 | Requirements review vocabulary | PASS/FAIL | ... |
 | Ambiguity and assumptions | PASS/FAIL | ... |
 | Safety gates and review follow-up | PASS/FAIL | ... |
