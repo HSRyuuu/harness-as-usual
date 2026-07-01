@@ -133,8 +133,8 @@ Run the hook directly from the installed plugin cache.
 
 ```bash
 PLUGIN_ROOT="$HOME/.codex/plugins/cache/as-usual-local/as-usual/0.1.0" \
-  "$HOME/.codex/plugins/cache/as-usual-local/as-usual/0.1.0/hooks/run-hook.cmd" session-start \
-  | jq '{event: .hookSpecificOutput.hookEventName, injected: (.hookSpecificOutput.additionalContext | contains("AsUsual Harness Rules"))}'
+  bash "$HOME/.codex/plugins/cache/as-usual-local/as-usual/0.1.0/hooks/run-hook.cmd" session-start \
+  | jq '{event: .hookSpecificOutput.hookEventName, hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), hasNoFullCore: (.hookSpecificOutput.additionalContext | contains("## 8. Plan Rules") | not)}'
 ```
 
 Expected result:
@@ -142,7 +142,8 @@ Expected result:
 ```json
 {
   "event": "SessionStart",
-  "injected": true
+  "hasUsingSkill": true,
+  "hasNoFullCore": true
 }
 ```
 
@@ -232,13 +233,13 @@ Check:
 - `hooks/session-start` and `hooks/run-hook.cmd` are executable.
 - The plugin cache contains `as-usual-rules/core-workflow.md`.
 
-The hook does not force the AsUsual workflow onto every request. It injects a short capability summary, the full rule file path, the `using-as-usual` entrypoint, and active topic candidates. The agent reads the full rules only when the user mentions `as-usual`, `AsUsual`, `.as-usual/` artifacts, or resuming an active topic. Active topic state uses the `.as-usual/topic/yyyy-MM-dd-<topic>/state.json` format.
+The hook does not force the AsUsual workflow onto every request. It injects only a one-sentence capability summary with the `using-as-usual` entrypoint. The agent reads the full rules only when the user mentions `as-usual`, `AsUsual`, `.as-usual/` artifacts, resuming an active topic, or feature-development work that should use the AsUsual workflow. Active topic state is derived from `.as-usual/topic/yyyy-MM-dd-<topic>/topic.md` and `audit.jsonl`.
 
 Manual check:
 
 ```bash
 PLUGIN_ROOT="$HOME/.codex/plugins/cache/as-usual-local/as-usual/0.1.0" \
-  "$HOME/.codex/plugins/cache/as-usual-local/as-usual/0.1.0/hooks/run-hook.cmd" session-start \
+  bash "$HOME/.codex/plugins/cache/as-usual-local/as-usual/0.1.0/hooks/run-hook.cmd" session-start \
   | jq .
 ```
 

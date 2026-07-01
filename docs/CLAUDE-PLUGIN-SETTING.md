@@ -108,8 +108,8 @@ Run the hook directly from the installed plugin repository.
 
 ```bash
 cd "$AS_USUAL_REPO"
-CLAUDE_PLUGIN_ROOT="$AS_USUAL_REPO" hooks/run-hook.cmd session-start \
-  | jq '{event: .hookSpecificOutput.hookEventName, injected: (.hookSpecificOutput.additionalContext | contains("AsUsual Harness Rules"))}'
+CLAUDE_PLUGIN_ROOT="$AS_USUAL_REPO" bash hooks/run-hook.cmd session-start \
+  | jq '{event: .hookSpecificOutput.hookEventName, hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), hasNoFullCore: (.hookSpecificOutput.additionalContext | contains("## 8. Plan Rules") | not)}'
 ```
 
 Expected result:
@@ -117,7 +117,8 @@ Expected result:
 ```json
 {
   "event": "SessionStart",
-  "injected": true
+  "hasUsingSkill": true,
+  "hasNoFullCore": true
 }
 ```
 
@@ -157,9 +158,9 @@ If `claude plugin details as-usual@as-usual-local` appears in the CLI but the cu
 
 ### Hook Does Not Inject Harness Context
 
-The hook injects a short AsUsual capability summary, the installed `as-usual-rules/core-workflow.md` path, the `using-as-usual` entrypoint, and active topic candidates. It does not inject the full core workflow. The target project should not contain a runtime workflow prompt file.
+The hook injects only a one-sentence AsUsual capability summary with the `using-as-usual` entrypoint. It does not inject the full core workflow, topic candidates, or memory content. The target project should not contain a runtime workflow prompt file.
 
-The hook does not force the AsUsual workflow onto every request. It tells the agent to read the full rules and topic artifacts only when the user mentions `as-usual`, `AsUsual`, `.as-usual/` artifacts, or resuming an active topic. Active topic state uses the `.as-usual/topic/yyyy-MM-dd-<topic>/state.json` format.
+The hook does not force the AsUsual workflow onto every request. It tells the agent to read the full rules and topic artifacts only when the user mentions `as-usual`, `AsUsual`, `.as-usual/` artifacts, resuming an active topic, or feature-development work that should use the AsUsual workflow. Active topic state is derived from `.as-usual/topic/yyyy-MM-dd-<topic>/topic.md` and `audit.jsonl`.
 
 ### JSON Merge Breaks Settings
 
