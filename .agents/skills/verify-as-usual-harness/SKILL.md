@@ -12,7 +12,7 @@ Run the same smoke tests repeatedly after AsUsual harness changes.
 
 1. Verify that JSON manifests and hook configs are valid.
 2. Verify that `as-usual-rules/core-workflow.md` is the canonical runtime workflow.
-3. Verify that the SessionStart hook injects a short AsUsual capability summary, full workflow file path, runtime entrypoint, and active topic candidates without injecting the full core workflow or static artifact rules.
+3. Verify that the SessionStart hook injects only a one-sentence AsUsual capability summary with the runtime entrypoint, without injecting the full core workflow, rule path, topic candidates, memory content, or static artifact rules.
 4. Verify that old paths or removed workflow skills do not remain on the runtime surface.
 
 ## When To Run
@@ -113,13 +113,14 @@ Fix:
 Run:
 
 ```bash
-CLAUDE_PLUGIN_ROOT="$PWD" hooks/run-hook.cmd session-start \
+CLAUDE_PLUGIN_ROOT="$PWD" bash hooks/run-hook.cmd session-start \
   | jq '{
       event: .hookSpecificOutput.hookEventName,
-      hasHarnessRules: (.hookSpecificOutput.additionalContext | contains("AsUsual Harness Rules")),
-      hasRuleSource: (.hookSpecificOutput.additionalContext | contains("Harness rule source:")),
       hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")),
-      hasActiveCandidates: (.hookSpecificOutput.additionalContext | contains("Active topic candidates:")),
+      isOneSentence: (.hookSpecificOutput.additionalContext | split(".") | length <= 2),
+      hasNoRuleSource: (.hookSpecificOutput.additionalContext | contains("Harness rule source:") | not),
+      hasNoActiveCandidates: (.hookSpecificOutput.additionalContext | contains("Active topic candidates:") | not),
+      hasNoMemoryContent: (.hookSpecificOutput.additionalContext | contains("Project memory:") | not),
       hasNoArtifactRules: (.hookSpecificOutput.additionalContext | contains("AsUsual artifact rules") | not),
       hasNoFullCore: (.hookSpecificOutput.additionalContext | contains("## 8. Plan Rules") | not),
       oldPath: (.hookSpecificOutput.additionalContext | contains(".as-usual/topics/yyyyMMdd-<topic>/"))
@@ -129,10 +130,11 @@ CLAUDE_PLUGIN_ROOT="$PWD" hooks/run-hook.cmd session-start \
 PASS:
 
 - `event` is `SessionStart`.
-- `hasHarnessRules` is `true`.
-- `hasRuleSource` is `true`.
 - `hasUsingSkill` is `true`.
-- `hasActiveCandidates` is `true`.
+- `isOneSentence` is `true`.
+- `hasNoRuleSource` is `true`.
+- `hasNoActiveCandidates` is `true`.
+- `hasNoMemoryContent` is `true`.
 - `hasNoArtifactRules` is `true`.
 - `hasNoFullCore` is `true`.
 - `oldPath` is `false`.
@@ -142,11 +144,12 @@ FAIL:
 - hook output is not valid JSON.
 - required bootstrap markers are false.
 - `hasNoFullCore` is false, which means the hook is injecting detailed core workflow sections again.
+- `hasNoRuleSource`, `hasNoActiveCandidates`, or `hasNoMemoryContent` is false, which means the hook is again doing file-backed bootstrap work that belongs in `using-as-usual`.
 - `oldPath` is true.
 
 Fix:
 
-- update `hooks/session-start` so hook output stays short and points to `as-usual-rules/core-workflow.md`, `using-as-usual`, and active topic candidates.
+- update `hooks/session-start` so hook output stays to one sentence that points to `using-as-usual`, while `using-as-usual` owns rule and topic discovery.
 
 ### Step 4: Removed Surface Check
 

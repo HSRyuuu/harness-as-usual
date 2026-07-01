@@ -70,7 +70,7 @@ Run:
 
 ```bash
 tmp_file="$(mktemp)"
-CLAUDE_PLUGIN_ROOT="$PWD" hooks/run-hook.cmd session-start \
+CLAUDE_PLUGIN_ROOT="$PWD" bash hooks/run-hook.cmd session-start \
   | jq -r '.hookSpecificOutput.additionalContext' > "$tmp_file"
 if rg -n 'AGENTS\.md|dev-as-usual|plugin development|AsUsual plugin itself|hook, manifest, docs, skill, install, reload|install, reload|diagnose requests|repository' "$tmp_file"; then
   echo "FAIL: maintainer guidance leaked into hook output"
