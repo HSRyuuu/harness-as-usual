@@ -104,7 +104,7 @@ SessionStart hook
 
 ### 1. Hook Bootstrap
 
-SessionStart hook은 AsUsual capability, core workflow path, entrypoint skill, active topic 후보만 짧게 주입한다. Full workflow prompt는 주입하지 않는다.
+SessionStart hook은 AsUsual capability와 `using-as-usual` entrypoint를 한 문장으로만 주입한다. Full workflow prompt, active topic 후보, memory 내용은 주입하지 않는다.
 
 | 항목 | 위치 |
 | --- | --- |
@@ -119,7 +119,7 @@ SessionStart hook은 AsUsual capability, core workflow path, entrypoint skill, a
 `using-as-usual`은 다음을 수행한다.
 
 - full `as-usual-rules/core-workflow.md`를 읽는다.
-- `.as-usual/topic/` 아래 active topic 후보를 찾는다.
+- AsUsual이 활성화되면 `using-as-usual`이 `.as-usual/topic/` 아래 active topic 후보를 찾는다.
 - 기존 topic이면 `topic.md`를 먼저 읽고 `audit.jsonl`, derived status, 연결된 artifact를 읽는다.
 - 새 topic이면 `yyyy-MM-dd-<topic>` folder를 만들고 `scripts/topic-log.py init`으로 `topic.md`와 `audit.jsonl`을 초기화한다.
 

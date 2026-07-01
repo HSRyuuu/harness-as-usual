@@ -65,13 +65,14 @@ Basic cycle:
 
 ## HOOK ACTIVATION MODEL
 
-The SessionStart hook briefly announces the AsUsual capability, `as-usual-rules/core-workflow.md` path, `using-as-usual` entrypoint, and active topic candidates. It does not inject the full core workflow; when AsUsual activates, the agent reads the full file from disk. The fact that this hook injected context does not force every request into the workflow.
+The SessionStart hook announces only the AsUsual capability and the `using-as-usual` entrypoint in one sentence. It does not inject the full core workflow, topic candidates, or memory content; when AsUsual activates, `using-as-usual` finds and reads files from disk. The fact that this hook injected context does not force every request into the workflow.
 
 Signals that count as AsUsual work:
 
 1. The user explicitly says `as-usual` or `AsUsual`.
 2. The user mentions `.as-usual/`, question/requirements/plan/topic.md/audit.jsonl, or a specific topic artifact.
 3. The user asks to resume an active topic with phrasing like "I answered", "write the requirements", "write the plan", or "continue", and there are in-progress topic artifacts and derived status under `.as-usual/topic/`.
+4. The user asks for feature-development work that should use the AsUsual workflow.
 
 Plugin development requests are classified as plugin development even when they include the signals above. Apply the runtime workflow only if the user explicitly says to run plugin development itself as an AsUsual topic.
 
@@ -80,7 +81,7 @@ Plugin development requests are classified as plugin development even when they 
 | Task | Location | Notes |
 | --- | --- | --- |
 | Runtime workflow rules | `as-usual-rules/core-workflow.md` | canonical AsUsual workflow read when AsUsual activates |
-| Hook context injection | `hooks/session-start`, `hooks/run-hook.cmd`, `hooks/hooks.json`, `hooks/hooks-codex.json` | injects capability summary, core workflow path, entrypoint skill, and active topic candidates |
+| Hook context injection | `hooks/session-start`, `hooks/run-hook.cmd`, `hooks/hooks.json`, `hooks/hooks-codex.json` | injects a one-sentence capability summary and entrypoint skill |
 | Artifact templates | `templates/question.md`, `templates/requirements.md`, `templates/plan.md`, `templates/topic.md`, `templates/MEMORY.md` | file shapes created under `.as-usual/topic/yyyy-MM-dd-<topic>/`; `topic.md` and `audit.jsonl` are initialized by `scripts/topic-log.py init`; `MEMORY.md` is the template for `.as-usual/memory/MEMORY.md` |
 | Runtime activation skill | `skills/using-as-usual/SKILL.md` | reads core workflow and topic artifacts when AsUsual signals are detected |
 | Requirements definition skill | `skills/define-requirements/SKILL.md` | handles question files and `requirements.md` synthesis/review |
@@ -102,7 +103,7 @@ Plugin development requests are classified as plugin development even when they 
 | Surface | Type | Location | Role |
 | --- | --- | --- | --- |
 | Core workflow | Markdown prompt | `as-usual-rules/core-workflow.md` | runtime contract the agent follows while working in a target project |
-| SessionStart hook | shell + JSON | `hooks/session-start` | detects `.as-usual/topic/` candidates and injects lightweight bootstrap context |
+| SessionStart hook | shell + JSON | `hooks/session-start` | injects one-sentence lightweight bootstrap context for `using-as-usual` |
 | Hook config | JSON | `hooks/hooks.json`, `hooks/hooks-codex.json` | runs the hook runner on Claude/Codex SessionStart |
 | Topic log helper | Python | `scripts/topic-log.py` | initializes `topic.md`/`audit.jsonl`, appends audit events, and derives current status |
 | Activation skill | Skill | `skills/using-as-usual/SKILL.md` | AsUsual work classification, first reads, artifact gate progress |
@@ -163,8 +164,8 @@ jq empty hooks/hooks.json hooks/hooks-codex.json
 jq '.skills,.hooks' .codex-plugin/plugin.json
 
 # Hook smoke verification
-CLAUDE_PLUGIN_ROOT="$PWD" hooks/run-hook.cmd session-start \
-  | jq '{event: .hookSpecificOutput.hookEventName, hasHarnessRules: (.hookSpecificOutput.additionalContext | contains("AsUsual Harness Rules")), hasRuleSource: (.hookSpecificOutput.additionalContext | contains("Harness rule source:")), hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), hasActiveCandidates: (.hookSpecificOutput.additionalContext | contains("Active topic candidates:")), hasNoArtifactRules: (.hookSpecificOutput.additionalContext | contains("AsUsual artifact rules") | not), hasNoFullCore: (.hookSpecificOutput.additionalContext | contains("## 8. Plan Rules") | not)}'
+CLAUDE_PLUGIN_ROOT="$PWD" bash hooks/run-hook.cmd session-start \
+  | jq '{event: .hookSpecificOutput.hookEventName, hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), isOneSentence: (.hookSpecificOutput.additionalContext | split(".") | length <= 2), hasNoRuleSource: (.hookSpecificOutput.additionalContext | contains("Harness rule source:") | not), hasNoActiveCandidates: (.hookSpecificOutput.additionalContext | contains("Active topic candidates:") | not), hasNoFullCore: (.hookSpecificOutput.additionalContext | contains("## 8. Plan Rules") | not)}'
 
 # Check that public surface does not include draft/cache content
 git ls-tree -r --name-only HEAD | rg '^(commands/|skills/as-usual-(interview|execute|test)/)' || true
