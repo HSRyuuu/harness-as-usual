@@ -614,40 +614,18 @@ Avoid these behaviors.
 
 ## 16. Required Skills
 
-When AsUsual is active, use the `using-as-usual` skill first.
+When AsUsual is active, use `using-as-usual` first. The canonical runtime workflow is this `core-workflow.md`; each skill file owns its own detailed behavior.
 
-`using-as-usual` is the activation and first-read helper. The canonical runtime workflow is this `core-workflow.md`.
-
-After first reads, use the `start-work` skill when starting a new topic or when the next phase is unclear.
-
-`start-work` is the gate routing helper. It does not replace activation decisions, first reads, or full requirements/plan authoring.
-
-Use the `define-requirements` skill when the route is `requirements`, when answered question files need validation, or when the user asks to write/update requirements.
-
-`define-requirements` handles question file creation/update, answer validation, next-cycle decisions, and requirements writing/review. It does not replace activation decisions, first reads, route selection, or the Requirements Rules.
-
-`define-requirements` writes or updates `requirements.md`, runs the local reviewer prompt, marks the topic `requirements-complete`, asks for plan approval, and stops. It absorbs requirements revisions requested before plan approval and routes artifact-changing answers through requirements review again. Follows Clarification Routing. It does not write `plan.md`.
-
-Use the `writing-plan` skill when the user approves moving from completed requirements to plan, or asks to write or update `plan.md`.
-
-`writing-plan` analyzes dependencies, writes or updates one `plan.md` as a reviewed execution contract, runs its self-review and the local plan reviewer prompt, records phase `plan-review` and next action `approve-execute`, asks for execution approval, and stops. It routes requirements-changing answers back to `define-requirements`. Follows Clarification Routing. It does not execute work.
-
-Use the `executing-plan` skill when `requirements.md` and `plan.md` are current and the user explicitly approves or requests execution.
-
-`executing-plan` re-reads topic context, audit history, requirements, and plan, critically reviews the plan, executes tasks in order using the approved `inline`, `subagent-driven`, or `mixed` mode, records progress, task review loops, final sweeps, and verification through `scripts/topic-log.py`, and stops at blockers, unresolved task findings, repeated verification failure, new material user decisions, missing high-risk approvals, or requirements/plan contradictions. When a material user decision appears during execution, it routes back to `writing-plan` or `define-requirements` if artifacts must change. Follows Clarification Routing. It does not use `plan.md` as a progress ledger, keeps the main agent as controller even when subagents implement/review bounded tasks, and invokes `review-execution` after execution completion instead of entering commit/PR/release/deploy behavior.
-
-Use the `review-execution` skill when `executing-plan` has completed or when the topic is waiting for the optional code cleanup decision.
-
-`review-execution` reviews actual changed code and recorded execution evidence against `requirements.md` and `plan.md`, records findings through `scripts/topic-log.py`, handles review follow-up dispositions for Critical and Important findings, ends the user-facing response by asking whether to run optional code cleanup or skip cleanup and finalize only after those dispositions are clear, handles a decline by routing to `finalize`, and invokes `cleanup-code` when the user approves. It does not treat code cleanup as correctness review.
-
-Use the `cleanup-code` skill after `review-execution` records review completion and the user approves code cleanup.
-
-`cleanup-code` runs four cleanup reviews for reuse, simplification, efficiency, and abstraction level; applies only safe behavior-preserving cleanup within the approved change surface; reruns relevant verification when files change; records the code cleanup result through `scripts/topic-log.py`; and routes to `finalize`.
-
-Use the `finalize` skill after execution review and the code cleanup decision are recorded, or when the user explicitly abandons the topic (`cancelled`).
-
-`finalize` checks the topic record, sets final status to `complete`, `follow-up-needed`, `blocked`, or `cancelled`, records finalization through `scripts/topic-log.py`, asks which git action to run, and stops. It does not run git commands, create a PR, release, or deploy.
-
-Use the `git-action` skill after topic finalization when the user chooses `none`, `commit`, `commit + push`, or `commit + push + PR`.
-
-`git-action` records the selected action, follows git-master commit discipline, stages paths explicitly, creates atomic commits when selected, pushes only when selected, creates a PR only when selected and supported by the host/project tools, records outcomes through `scripts/topic-log.py`, and stops.
+| Skill | Invoke When |
+| --- | --- |
+| `using-as-usual` | AsUsual activates; owns activation confirmation and first reads |
+| `start-work` | New topic or the next phase is unclear after first reads |
+| `define-requirements` | Route is `requirements`, answered question files need validation, or the user asks to write/update requirements |
+| `writing-plan` | User approves moving from completed requirements to plan, or asks to write/update `plan.md` |
+| `executing-plan` | `requirements.md` and `plan.md` are current and the user explicitly approves or requests execution |
+| `review-execution` | Execution completed, review follow-up is needed, or the optional code cleanup decision is pending |
+| `cleanup-code` | Review recorded and the user approves code cleanup |
+| `finalize` | Execution review and the code cleanup decision are recorded, or the user explicitly abandons the topic (`cancelled`) |
+| `git-action` | Topic finalized and the user chooses `none`, `commit`, `commit + push`, or `commit + push + PR` |
+| `manage-self-improvement` | Triggered by `finalize` before topic closure |
+| `search-long-term-memory` | Read-only recall from `.as-usual/memory/*`; typically dispatched as a subagent |

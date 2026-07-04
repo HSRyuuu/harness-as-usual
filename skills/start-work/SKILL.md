@@ -26,12 +26,7 @@ Before routing, confirm:
 
 ## Routing Principle
 
-- Treat the High-Risk Operation Gate in `core-workflow.md` as a hard gate.
-- Route to `requirements` when material ambiguity exists or the work needs a reviewed `requirements.md`.
-- Route to `plan` when `requirements.md` is complete/current, the user approved moving on to plan, and execution order or verification needs definition.
-- Route to `execute` when `requirements.md` and approved/current `plan.md` exist and the user asks to execute.
-- Route to `direct-execute` only for very simple, low-risk, reversible work.
-- When borderline, choose the heavier gate.
+Use the canonical routing principle and Route table in `core-workflow.md` §4 (Start Work Gate Routing); do not maintain a second copy here. Treat the High-Risk Operation Gate as a hard gate, and when borderline, choose the heavier gate.
 
 ## Route Table
 
