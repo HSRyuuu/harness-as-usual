@@ -34,6 +34,7 @@ Verify that broad AsUsual changes are reflected in the durable project documents
 | `docs/ARCHITECTURE-WORKFLOW.md` | Detailed architecture and workflow map |
 | `as-usual-rules/core-workflow.md` | Canonical runtime workflow contract |
 | `skills/using-as-usual/SKILL.md` | Public runtime activation skill |
+| `skills/hand-off/SKILL.md` | Public runtime hand-off resume skill |
 | `skills/start-work/SKILL.md` | Public runtime routing skill |
 | `skills/define-requirements/SKILL.md` | Public runtime requirements definition skill |
 | `skills/writing-plan/SKILL.md` | Public runtime planning skill |
@@ -63,7 +64,7 @@ These files are the durable project identity surface. When broad workflow, artif
 | Maintainer knowledge bases | `AGENTS.md`, `CLAUDE.md` |
 | Public overview and architecture | `README.md`, `docs/ARCHITECTURE-WORKFLOW.md` |
 | Runtime contract | `as-usual-rules/core-workflow.md` |
-| Public runtime skills | `skills/using-as-usual/SKILL.md`, `skills/start-work/SKILL.md`, `skills/define-requirements/SKILL.md`, `skills/writing-plan/SKILL.md`, `skills/executing-plan/SKILL.md`, `skills/review-execution/SKILL.md`, `skills/cleanup-code/SKILL.md`, `skills/finalize/SKILL.md`, `skills/git-action/SKILL.md`, `skills/manage-self-improvement/SKILL.md`, `skills/search-long-term-memory/SKILL.md` |
+| Public runtime skills | `skills/using-as-usual/SKILL.md`, `skills/hand-off/SKILL.md`, `skills/start-work/SKILL.md`, `skills/define-requirements/SKILL.md`, `skills/writing-plan/SKILL.md`, `skills/executing-plan/SKILL.md`, `skills/review-execution/SKILL.md`, `skills/cleanup-code/SKILL.md`, `skills/finalize/SKILL.md`, `skills/git-action/SKILL.md`, `skills/manage-self-improvement/SKILL.md`, `skills/search-long-term-memory/SKILL.md` |
 | Runtime templates | `templates/question.md`, `templates/requirements.md`, `templates/plan.md`, `templates/topic.md`, `templates/MEMORY.md` |
 | Verification registries | `.agents/skills/manage-skills/SKILL.md`, `.agents/skills/verify-implementation/SKILL.md` |
 | This skill and mirror | `.agents/skills/verify-project-identity/SKILL.md`, `.claude/skills/verify-project-identity/SKILL.md` |
@@ -253,7 +254,7 @@ Fix:
 Run:
 
 ```bash
-rg -n 'define-requirements|question-cN\.md|requirements\.md|plan\.md|review-execution|cleanup-code|finalize|git-action|post-finalize|\.as-usual/memory|memory/MEMORY\.md|manage-self-improvement|search-long-term-memory|memory commit exception' \
+rg -n 'hand-off|define-requirements|question-cN\.md|requirements\.md|plan\.md|review-execution|cleanup-code|finalize|git-action|post-finalize|\.as-usual/memory|memory/MEMORY\.md|manage-self-improvement|search-long-term-memory|memory commit exception' \
   AGENTS.md \
   CLAUDE.md \
   README.md \

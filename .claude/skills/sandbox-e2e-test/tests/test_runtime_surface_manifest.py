@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[4]
 
 EXPECTED_RUNTIME_SKILLS = {
     "using-as-usual",
+    "hand-off",
     "start-work",
     "define-requirements",
     "writing-plan",

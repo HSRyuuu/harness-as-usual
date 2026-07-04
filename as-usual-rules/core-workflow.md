@@ -618,6 +618,7 @@ When AsUsual is active, use `using-as-usual` first. The canonical runtime workfl
 
 | Skill | Invoke When |
 | --- | --- |
+| `hand-off` | User invokes an AsUsual hand-off command or asks to resume an existing topic path from another session; not a workflow phase |
 | `using-as-usual` | AsUsual activates; owns activation confirmation and first reads |
 | `start-work` | New topic or the next phase is unclear after first reads |
 | `define-requirements` | Route is `requirements`, answered question files need validation, or the user asks to write/update requirements |

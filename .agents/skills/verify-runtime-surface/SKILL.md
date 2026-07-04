@@ -32,6 +32,7 @@ Runtime surfaces seen or executed by a target-project user who installed the AsU
 | `hooks/run-hook.cmd` | hook runner used for smoke output |
 | `as-usual-rules/core-workflow.md` | canonical runtime workflow read when AsUsual activates |
 | `skills/using-as-usual/SKILL.md` | public runtime activation skill |
+| `skills/hand-off/SKILL.md` | public runtime hand-off resume skill |
 | `skills/start-work/SKILL.md` | public runtime gate routing skill |
 | `skills/define-requirements/SKILL.md` | public runtime question cycle and requirements writing skill |
 | `skills/define-requirements/requirements-document-reviewer-prompt.md` | public runtime requirements review prompt |
@@ -105,6 +106,7 @@ rg -n 'AGENTS\.md|dev-as-usual|plugin development|AsUsual plugin itself|hook, ma
   hooks/session-start \
   as-usual-rules/core-workflow.md \
   skills/using-as-usual/SKILL.md \
+  skills/hand-off/SKILL.md \
   skills/start-work/SKILL.md \
   skills/define-requirements/SKILL.md \
   skills/define-requirements/requirements-document-reviewer-prompt.md \

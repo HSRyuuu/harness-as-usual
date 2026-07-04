@@ -91,6 +91,8 @@ The runtime workflow rules live in [`as-usual-rules/core-workflow.md`](as-usual-
 <sub><code>SessionStart</code> → <code>using-as-usual</code> → <code>start-work</code> → <b>route</b> → <code>review-execution</code> → <code>finalize</code> → <code>git-action</code></sub>
 </div>
 
+Need to continue a topic from another session? Use <code>/as-usual:hand-off path</code> to rehydrate an existing topic and route back into the normal workflow.
+
 <table>
 <thead>
 <tr><th align="center" width="48">#</th><th align="left" width="190">Stage</th><th align="left">What happens</th></tr>

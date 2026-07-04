@@ -36,6 +36,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 | `hooks/session-start` | one-sentence SessionStart activation guidance |
 | `as-usual-rules/core-workflow.md` | canonical runtime workflow contract |
 | `skills/using-as-usual/SKILL.md` | runtime activation and first-read behavior |
+| `skills/hand-off/SKILL.md` | existing topic hand-off resume behavior |
 | `skills/start-work/SKILL.md` | route selection after activation |
 | `skills/define-requirements/SKILL.md` | file-backed question cycle, answer validation, requirements synthesis, review, and requirements revision routing |
 | `skills/define-requirements/requirements-document-reviewer-prompt.md` | local requirements reviewer criteria and output shape |
@@ -75,6 +76,7 @@ Run:
 for f in \
   as-usual-rules/core-workflow.md \
   skills/using-as-usual/SKILL.md \
+  skills/hand-off/SKILL.md \
   skills/start-work/SKILL.md \
   skills/define-requirements/SKILL.md \
   skills/define-requirements/requirements-document-reviewer-prompt.md \
@@ -123,9 +125,10 @@ Fix: restore the missing runtime file or update this skill only if the runtime c
 Run:
 
 ```bash
-rg -n 'using-as-usual|start-work|define-requirements|writing-plan|executing-plan|review-execution|cleanup-code|finalize|git-action|direct-execute|requirements-complete|approve-plan|plan-review|approve-execute|execution-complete|decide-code-cleanup|git-action-decision' \
+rg -n 'hand-off|using-as-usual|start-work|define-requirements|writing-plan|executing-plan|review-execution|cleanup-code|finalize|git-action|direct-execute|requirements-complete|approve-plan|plan-review|approve-execute|execution-complete|decide-code-cleanup|git-action-decision' \
   as-usual-rules/core-workflow.md \
   skills/using-as-usual/SKILL.md \
+  skills/hand-off/SKILL.md \
   skills/start-work/SKILL.md \
   skills/define-requirements/SKILL.md \
   skills/writing-plan/SKILL.md \
@@ -144,6 +147,7 @@ rg -n 'using-as-usual|start-work|define-requirements|writing-plan|executing-plan
 PASS:
 
 - `using-as-usual` owns activation, first reads, and topic initialization.
+- `hand-off` owns explicit hand-off resume from an existing topic path and routes to the existing phase owner without adding a workflow phase.
 - `start-work` owns routing after first reads.
 - `define-requirements` owns question creation, answer validation, and material ambiguity.
 - `define-requirements` owns requirements writing, local review, `requirements-complete`, and asking for plan approval.

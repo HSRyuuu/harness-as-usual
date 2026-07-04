@@ -39,6 +39,7 @@ Run the same smoke tests repeatedly after AsUsual harness changes.
 | `.codex-plugin/plugin.json`                         | Codex plugin manifest             |
 | `.agents/plugins/marketplace.json`                  | Codex local marketplace manifest  |
 | `skills/using-as-usual/SKILL.md`                    | runtime activation skill          |
+| `skills/hand-off/SKILL.md`                          | runtime hand-off resume skill     |
 | `skills/start-work/SKILL.md`                        | runtime gate routing skill        |
 | `skills/define-requirements/SKILL.md`                    | runtime question cycle and requirements writing skill      |
 | `skills/define-requirements/requirements-document-reviewer-prompt.md` | runtime requirements review prompt     |

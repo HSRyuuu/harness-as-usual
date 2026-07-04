@@ -23,6 +23,7 @@ as-usual/
 ├── plugins/              # local marketplace source symlink workspace
 ├── templates/            # topic artifact templates
 └── skills/               # stable skills only; do not commit draft/probe skills
+    ├── hand-off/  # resume entrypoint for continuing an existing topic path from another session
     ├── manage-self-improvement/  # triggered at finalize; records cross-topic lessons into memory
     └── search-long-term-memory/  # read-only recall util; queries .as-usual/memory/ for past decisions
 ```
@@ -86,6 +87,7 @@ Plugin development requests are classified as plugin development even when they 
 | Hook context injection | `hooks/session-start`, `hooks/run-hook.cmd`, `hooks/hooks.json`, `hooks/hooks-codex.json` | injects a one-sentence capability summary and entrypoint skill |
 | Artifact templates | `templates/question.md`, `templates/requirements.md`, `templates/plan.md`, `templates/topic.md`, `templates/MEMORY.md` | file shapes created under `.as-usual/topic/yyyy-MM-dd-<topic>/`; `topic.md` and `audit.jsonl` are initialized by `scripts/topic-log.py init`; `MEMORY.md` is the template for `.as-usual/memory/MEMORY.md` |
 | Runtime activation skill | `skills/using-as-usual/SKILL.md` | reads core workflow and topic artifacts when AsUsual signals are detected |
+| Hand-off resume skill | `skills/hand-off/SKILL.md` | routes `/as-usual:hand-off path` or cross-session topic resume requests back to the current phase owner skill |
 | Requirements definition skill | `skills/define-requirements/SKILL.md` | handles question files and `requirements.md` synthesis/review |
 | Self-improvement skill | `skills/manage-self-improvement/SKILL.md` | triggered at finalize; distills cross-topic lessons into `.as-usual/memory/MEMORY.md` |
 | Long-term memory recall skill | `skills/search-long-term-memory/SKILL.md` | read-only recall util; queries `.as-usual/memory/` for past decisions and patterns |
@@ -109,6 +111,7 @@ Plugin development requests are classified as plugin development even when they 
 | Hook config | JSON | `hooks/hooks.json`, `hooks/hooks-codex.json` | runs the hook runner on Claude/Codex SessionStart |
 | Topic log helper | Python | `scripts/topic-log.py` | initializes `topic.md`/`audit.jsonl`, appends audit events, and derives current status |
 | Activation skill | Skill | `skills/using-as-usual/SKILL.md` | AsUsual work classification, first reads, artifact gate progress |
+| Hand-off resume skill | Skill | `skills/hand-off/SKILL.md` | rehydrates an existing `.as-usual/topic/...` path and routes to the current phase owner skill |
 | Requirements definition skill | Skill | `skills/define-requirements/SKILL.md` | `question-cN.md` creation/validation and `requirements.md` synthesis/review |
 | Self-improvement skill | Skill | `skills/manage-self-improvement/SKILL.md` | finalize trigger; distills cross-topic lessons into `.as-usual/memory/MEMORY.md` |
 | Long-term memory recall skill | Skill | `skills/search-long-term-memory/SKILL.md` | read-only recall util for `.as-usual/memory/` |

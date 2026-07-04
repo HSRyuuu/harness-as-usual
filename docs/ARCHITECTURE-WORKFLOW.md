@@ -27,6 +27,7 @@ as-usual/
 │   └── hooks-codex.json
 ├── skills/
 │   ├── using-as-usual/
+│   ├── hand-off/                  # 기존 topic path를 다른 세션에서 이어받는 resume entrypoint
 │   ├── start-work/
 │   ├── define-requirements/
 │   ├── writing-plan/
@@ -98,6 +99,8 @@ SessionStart hook
 -> optional git-action
 ```
 
+`hand-off`는 별도 workflow step이 아니라 기존 `.as-usual/topic/...` artifact를 다른 세션에서 이어받기 위한 지원 entrypoint다. `/as-usual:hand-off <path>`처럼 topic path가 주어지면 해당 topic을 즉시 재수화하고, path가 없으면 최근 topic 후보를 읽은 뒤 사용자 확인을 거쳐 기존 phase owner skill로 라우팅한다.
+
 `direct-execute`는 clear, trivial, low-risk, reversible 작업에만 허용되는 좁은 shortcut이다. 일반적인 non-trivial implementation은 `requirements.md`와 승인된 `plan.md` gate를 지나야 한다.
 
 종단 경로는 두 가지다.
@@ -134,6 +137,21 @@ Prompt 위치:
 
 - `skills/using-as-usual/SKILL.md`
 - `as-usual-rules/core-workflow.md`
+
+### 2a. Hand-Off Resume: `hand-off`
+
+`hand-off`는 Claude, Codex, 또는 다른 session에서 이미 진행한 AsUsual topic을 이어받는다. 새 topic을 만들거나 gate를 추가하지 않고, topic artifact와 working tree를 다시 읽어서 현재 phase에 맞는 기존 skill로 넘긴다.
+
+주요 규칙:
+
+- path가 있으면 topic directory, topic 내부 파일, project root, `.as-usual/topic/` collection을 canonical topic directory로 해석한다.
+- path가 없으면 현재 project의 최근 topic 후보를 읽고 사용자에게 이어받을 topic이 맞는지 확인한다.
+- `plan.md`가 있고 관련 작업 흔적이 보이면 완료 여부를 먼저 확인한 뒤, 실행 미완료면 `executing-plan`, 실행 완료면 `review-execution`으로 이어간다.
+- `spec.md` 같은 noncanonical artifact만 있으면 이를 `requirements.md`로 조용히 간주하지 않고 canonical requirements 합성 여부를 묻는다.
+
+Prompt 위치:
+
+- `skills/hand-off/SKILL.md`
 
 ### 3. Gate Routing: `start-work`
 
@@ -368,6 +386,7 @@ Topic log helper:
 | --- | --- |
 | Canonical workflow prompt | `as-usual-rules/core-workflow.md` |
 | Activation and first reads | `skills/using-as-usual/SKILL.md` |
+| Hand-off resume entrypoint | `skills/hand-off/SKILL.md` |
 | Gate routing | `skills/start-work/SKILL.md` |
 | Requirements questions | `skills/define-requirements/SKILL.md` |
 | Question template | `templates/question.md` |

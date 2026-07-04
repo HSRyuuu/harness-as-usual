@@ -11,6 +11,7 @@ This skill is the entry-point helper for activation and first reads in the AsUsu
 
 | Skill | Responsibility |
 | --- | --- |
+| `hand-off` | Resume an existing topic from an explicit hand-off command, a supplied topic path, or a cross-session resume, then route to the current owner skill |
 | `using-as-usual` | Identify activation, confirm `core-workflow.md`, perform `.as-usual/topic/` first reads, and initialize new topic `topic.md`/`audit.jsonl` |
 | `start-work` | After first reads, route a new topic or unclear current phase to requirements, plan, execute, or direct-execute |
 | `define-requirements` | Create/validate `question-cN.md` files when needed, write/review `requirements.md`, and ask for plan approval |
@@ -31,6 +32,16 @@ Treat the request as AsUsual work when any of these is true:
 - The user mentions `.as-usual/`, `topic.md`, `audit.jsonl`, `question-cN.md`, `requirements.md`, `plan.md`, or topic artifacts.
 - The user asks to resume an active topic with phrasing like "I answered", "write the requirements", "write the plan", or "continue", and there is an active topic under `.as-usual/topic/` with readable derived status.
 - The user asks for feature-development work that should use the AsUsual workflow.
+
+## Hand-Off Delegation
+
+Before doing first reads yourself, delegate to `hand-off` when the request is a cross-session resume rather than a same-session continuation:
+
+- The user supplies an existing topic path or a path inside `.as-usual/topic/`.
+- The user explicitly references another Claude, Codex, or session that started or advanced the topic.
+- The user invokes an AsUsual hand-off command.
+
+`hand-off` owns path resolution, hand-off first reads, completion verification, and routing back to the current owner skill. For ordinary same-session resume phrasing such as "I answered", "write the requirements", or "continue" with no cross-session signal, stay in `using-as-usual` and perform first reads normally.
 
 ## Required First Reads
 
