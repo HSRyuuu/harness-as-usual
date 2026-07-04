@@ -11,6 +11,21 @@ Keep AsUsual maintainer-only skills synchronized between the Codex-facing `.agen
 
 This is a maintainer skill. Do not move it into public plugin `skills/`, and do not register it as a verification skill.
 
+## Sync Scope
+
+Mirror the maintainer skill source files only. Generated local artifacts are outside the sync contract even when they appear under a skill directory.
+
+Ignored generated artifacts:
+
+- `__pycache__/`
+- `*.pyc`
+- `*.pyo`
+- `.pytest_cache/`
+- `.mypy_cache/`
+- `.ruff_cache/`
+
+If ignored artifacts create diff noise, remove the generated files or rerun verification with the exclusions below. Do not treat ignored artifacts as mirror drift.
+
 ## When To Use
 
 - After creating, deleting, renaming, or editing `.agents/skills/**`
@@ -37,7 +52,14 @@ This is a maintainer skill. Do not move it into public plugin `skills/`, and do 
 Run:
 
 ```bash
-find .agents/skills .claude/skills -mindepth 2 -maxdepth 3 -type f | sort
+find .agents/skills .claude/skills -mindepth 2 -maxdepth 3 -type f \
+  ! -path '*/__pycache__/*' \
+  ! -path '*/.pytest_cache/*' \
+  ! -path '*/.mypy_cache/*' \
+  ! -path '*/.ruff_cache/*' \
+  ! -name '*.pyc' \
+  ! -name '*.pyo' \
+  | sort
 comm -3 \
   <(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -print | sed 's#^\.agents/skills/##' | sort) \
   <(find .claude/skills -mindepth 2 -maxdepth 2 -name SKILL.md -print | sed 's#^\.claude/skills/##' | sort)
@@ -62,7 +84,15 @@ Commands:
 
 ```bash
 git status --short -- .agents/skills .claude/skills
-for left in .agents/skills/*/SKILL.md; do
+find .agents/skills -type f \
+  ! -path '*/__pycache__/*' \
+  ! -path '*/.pytest_cache/*' \
+  ! -path '*/.mypy_cache/*' \
+  ! -path '*/.ruff_cache/*' \
+  ! -name '*.pyc' \
+  ! -name '*.pyo' \
+  | sort \
+  | while IFS= read -r left; do
   rel="${left#.agents/skills/}"
   right=".claude/skills/$rel"
   test -f "$right" || continue
@@ -79,22 +109,36 @@ After choosing the source copy, update the other side from the latest copy. Pres
 For a single skill:
 
 ```bash
-rsync -a --delete ".agents/skills/<skill-name>/" ".claude/skills/<skill-name>/"
+rsync -a --delete \
+  --exclude '__pycache__/' \
+  --exclude '*.pyc' \
+  --exclude '*.pyo' \
+  --exclude '.pytest_cache/' \
+  --exclude '.mypy_cache/' \
+  --exclude '.ruff_cache/' \
+  ".agents/skills/<skill-name>/" ".claude/skills/<skill-name>/"
 ```
 
 or, if `.claude/skills/<skill-name>/` is newer:
 
 ```bash
-rsync -a --delete ".claude/skills/<skill-name>/" ".agents/skills/<skill-name>/"
+rsync -a --delete \
+  --exclude '__pycache__/' \
+  --exclude '*.pyc' \
+  --exclude '*.pyo' \
+  --exclude '.pytest_cache/' \
+  --exclude '.mypy_cache/' \
+  --exclude '.ruff_cache/' \
+  ".claude/skills/<skill-name>/" ".agents/skills/<skill-name>/"
 ```
 
-PASS: the stale skill folder now matches the chosen latest source.
+PASS: the stale skill folder's source files now match the chosen latest source.
 
 FAIL: files still differ after sync.
 
 Fix: inspect the diff and rerun sync from the correct source.
 
-### Step 4: Verify Byte-For-Byte Sync
+### Step 4: Verify Source-File Sync
 
 **Tool:** Bash
 
@@ -109,13 +153,20 @@ for left in .agents/skills/*; do
     echo "MISSING_CLAUDE_SKILL: $name"
     continue
   fi
-  diff -qr "$left" "$right" || true
+  diff -qr \
+    -x __pycache__ \
+    -x '*.pyc' \
+    -x '*.pyo' \
+    -x .pytest_cache \
+    -x .mypy_cache \
+    -x .ruff_cache \
+    "$left" "$right" || true
 done
 ```
 
-PASS: no missing skills and no `diff -qr` output.
+PASS: no missing skills and no source-file `diff -qr` output.
 
-FAIL: any missing or differing file remains.
+FAIL: any missing or differing source file remains.
 
 Fix: repeat Step 2 and Step 3 for each differing skill.
 
@@ -139,7 +190,7 @@ After registry edits, rerun this skill so `.claude/skills/**` mirrors `.agents/s
 | Skill tree shape | PASS/FAIL | ... |
 | Latest copy chosen | PASS/FAIL | ... |
 | Sync applied | PASS/FAIL | ... |
-| Byte-for-byte sync | PASS/FAIL | ... |
+| Source-file sync | PASS/FAIL | ... |
 | Registries | PASS/FAIL | ... |
 
 ### Synced Skills
@@ -151,4 +202,5 @@ After registry edits, rerun this skill so `.claude/skills/**` mirrors `.agents/s
 
 1. Public runtime skills under `skills/**` are not mirrored by this skill.
 2. Plugin manifests and marketplace JSON files are not mirrored by this skill.
-3. If both sides changed differently and the correct source is unclear, stop for user confirmation instead of guessing.
+3. Generated local artifacts listed in Sync Scope are ignored, not synchronized.
+4. If both sides changed differently and the correct source is unclear, stop for user confirmation instead of guessing.
