@@ -101,6 +101,16 @@ When there are no findings, do not create an empty `code-review-report.md` and d
 
 ### Step 3: Handle Review Findings
 
+Allowed dispositions by severity:
+
+| Severity | Allowed dispositions |
+| --- | --- |
+| Critical | `fixed` (and re-reviewed to passed), `rejected` (with technical reason, re-reviewed to passed), `blocked` |
+| Important | `fixed` (and re-reviewed to passed), `rejected` (with technical reason, re-reviewed to passed), `blocked` |
+| Minor | `fixed`, `rejected`, `deferred` (non-blocking follow-up), `user-accepted-risk` (user explicitly accepts, recorded in `audit.jsonl`) |
+
+`user-accepted-risk` and `deferred` are never valid for Critical or Important findings. If the user declines to fix a Critical or Important finding, the topic finalizes as `blocked`.
+
 If Critical findings exist, record the finding disposition needed through `record-review --status findings --report code-review-report.md` and `blocker`, then stop before code cleanup or finalize.
 
 If Important findings exist, ask the user whether to fix them now or block the topic. Record the decision in `audit.jsonl`. Do not route to code cleanup or non-blocked finalization until the decision is recorded and the finding is fixed plus re-reviewed, or the topic is blocked.

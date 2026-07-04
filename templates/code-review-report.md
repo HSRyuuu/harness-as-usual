@@ -32,6 +32,8 @@ findingQualityGateApplied: yes | no
 
 ## Dispositions
 
+<!-- Allowed dispositions per severity are owned by skills/review-execution/SKILL.md (Step 3). user-accepted-risk / deferred are Minor-only. -->
+
 - Finding:
   - Disposition: fixed | blocked | rejected | user-accepted-risk | deferred
   - Evidence:
