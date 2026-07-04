@@ -60,7 +60,7 @@ AsUsual should keep enough friction to prevent careless changes, but not so much
 - Behavior/API/domain logic, bug fixes, and refactors require TDD evidence: test target, RED before implementation, GREEN after implementation, and refactor check. Non-TDD execution is allowed only as a human-approved exception for `throwaway-prototype`, `generated-code`, or `configuration`.
 - `topic.md` is agent-first, human-readable, and low-churn: it carries initial request, boundary, durable notes, and artifact orientation, not a constantly maintained snapshot.
 - Execution review is mandatory before finalization.
-- Simplify cleanup is optional and user-approved.
+- Code cleanup is optional and user-approved.
 - Post-finalize git action selection is explicit; commit, push, PR, release, and deploy actions require user selection or approval.
 
 ## Non-Goals
