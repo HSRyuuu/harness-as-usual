@@ -263,8 +263,8 @@ When self-review and reviewer-prompt checks pass:
 1. Fill `plan.md` `Review Status`: set `Status: plan-complete`, `Reviewer Result: passed` (or `issues-fixed` if the reviewer fixed findings), `Reviewed At` to the current timestamp, and a one-line `Review Notes` in the user's language. Fill `Plan Review Checks` as a markdown checkbox list, using `[x]` for passed checks and `[ ]` only for unresolved checks. Then fill `Plan Review Findings` and `Plan Review Actions Taken`; write check result values, findings, and actions in the user's language unless they are canonical status values.
 2. Run `scripts/topic-log.py complete-plan` to record `plan.completed`.
 3. Confirm derived status now routes to execution approval.
-5. Tell the user the plan is ready and ask them to review `plan.md` before approving execution. Respond in the user's current conversation language. Canonical English form: `The plan is ready for review. Please review plan.md; if it looks good, approve execution and I will run it.`
-6. Stop.
+4. Tell the user the plan is ready and ask them to review `plan.md` before approving execution. Respond in the user's current conversation language. Canonical English form: `The plan is ready for review. Please review plan.md; if it looks good, approve execution and I will run it.`
+5. Stop.
 
 Use:
 

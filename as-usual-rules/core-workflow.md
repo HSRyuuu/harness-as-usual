@@ -165,7 +165,7 @@ When AsUsual is active, read in this order before making workflow decisions, ans
 7. Read `requirements.md` before writing a plan or executing.
 8. Read `plan.md` before executing.
 
-For topics with many or large artifacts, you may delegate artifact inventory and status summarization to a subagent to keep the controller's context clean when the host supports it. This does not replace controller first reads: before any gate decision, approval request, artifact edit, or completion claim, the controller must directly read the canonical artifact or exact excerpt needed for that decision. The controller remains the owner of gate decisions, approvals, artifact edits, and completion claims, and does not delegate those.
+Artifact inventory and status summarization may be delegated to a subagent per `using-as-usual`, but the controller must directly read the canonical artifact needed for any gate decision, approval request, artifact edit, or completion claim, and never delegates those decisions.
 
 If there is no active topic and the user is starting a new topic, choose a topic slug using the actual current date and lowercase kebab-case, run `scripts/topic-log.py init` for the topic, tell the user the topic path, and route to `start-work`.
 

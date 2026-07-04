@@ -32,7 +32,6 @@ Before finalizing, confirm:
 - Review result is recorded.
 - Code cleanup was either skipped or completed.
 - Remaining issues and skipped verification are explicit.
-- The self-improvement pass has been run via `manage-self-improvement`, and its result is recorded (applied, skipped with reason, or "no candidates").
 
 If execution review or code cleanup decision is missing, return to `review-execution`. Do not close the topic optimistically.
 
@@ -50,6 +49,8 @@ Read and use these sources in this order:
 ## Workflow
 
 ### Step 0: Self-Improvement Pass
+
+Do not proceed to Step 1 until this pass has a recorded result (applied, skipped with reason, or "no candidates").
 
 Before closing the record, trigger the `manage-self-improvement` skill (prefer a
 subagent; inline fallback):
@@ -89,6 +90,14 @@ Also confirm these audit records are present when applicable:
 
 If these fields are missing, route back to the owning phase or record the missing helper capability. Do not finalize optimistically.
 
+Run the structural validator and treat a failure as a blocker:
+
+```bash
+python3 <plugin-root>/scripts/topic-log.py validate --topic-dir <topic-dir>
+```
+
+If validation fails, route back to the owning phase or report the missing helper capability. Do not finalize while `validate` fails.
+
 Fill missing operational details from recorded artifacts. Do not invent verification results.
 
 ### Step 2: Set Final Topic Status
@@ -125,6 +134,14 @@ python3 scripts/topic-log.py finalize-topic \
 ```
 
 This records `topic.finalized`, derives phase `finalized`, derives next action `git-action-decision`, and records the report artifact.
+
+After `finalize-topic`, confirm `status --json` derives phase `finalized`, then re-run the structural validator so the finalize invariants are checked:
+
+```bash
+python3 <plugin-root>/scripts/topic-log.py validate --topic-dir <topic-dir>
+```
+
+If validation fails, route back to the owning phase or report the missing helper capability. Do not treat the topic as finalized while `validate` fails.
 
 ### Step 3: Ask Git Action Decision
 

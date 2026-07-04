@@ -31,7 +31,7 @@
 - Findings:
 - Code Review Report:
 
-## Simplify Decision
+## Code Cleanup Decision
 
 - Decision:
 - Result:
