@@ -288,7 +288,7 @@ When the topic is `plan-review` and the user requests a change before approving 
 
 Example — non-material (absorb here): "Task 순서 설명을 더 분명히", "파일 경로 오타 수정". → update plan.md, rerun self-review + reviewer checks, stay plan-review.
 
-Example — material (route out): "DB 마이그레이션 방식을 in-memory H2에서 공유 스테이징으로 변경" (changes risk + acceptance + verification). → ask focused clarification; route to define-requirements if requirements change.
+Example — material (route via Clarification Routing): "DB 마이그레이션 방식을 in-memory H2에서 공유 스테이징으로 변경" (changes risk + acceptance + verification). → ask focused clarification; route to define-requirements if requirements change.
 
 ## Long-Term Memory Capture
 

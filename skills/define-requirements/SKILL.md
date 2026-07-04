@@ -278,7 +278,7 @@ When the topic is `requirements-complete` and the user requests a change before 
 
 Example — non-material (absorb here): "체크인 안내 문구 오타 수정", "Acceptance Criteria 문장을 더 명확히". → update requirements.md, rerun checks, stay requirements-complete.
 
-Example — material (route out): "예약을 PENDING 대신 즉시 확정으로 바꾸자" (changes domain behavior + verification). → ask focused clarification or open question-cN.md, do not silently edit.
+Example — material (route via Clarification Routing): "예약을 PENDING 대신 즉시 확정으로 바꾸자" (changes domain behavior + verification). → ask focused clarification or open question-cN.md, do not silently edit.
 
 ## Long-Term Memory Capture
 

@@ -35,7 +35,7 @@ The only exception is a clear, trivial, low-risk, reversible task that `start-wo
 
 <ALWAYS>
 - re-read topic files from disk before phase decisions
-- ask broad/material decisions via file-backed question cycles, not chat-only
+- ask broad-ambiguity decisions via file-backed question cycles, not chat-only
 </ALWAYS>
 
 </Inviolable_Rules>
@@ -44,6 +44,8 @@ The only exception is a clear, trivial, low-risk, reversible task that `start-wo
 
 - **material**: a decision or change is material if it could change any of requirements, plan, implementation approach, risk, or verification. Wording, comments, path/typo corrections, and behavior-preserving step reordering are non-material.
 - **non-trivial**: implementation is non-trivial if it fails any `direct-execute` allow condition (clear, trivial, low-risk, reversible).
+- **focused clarification**: a single user decision that can be resolved in the current turn. It may be material; if so, the answer must be recorded in `audit.jsonl` through `scripts/topic-log.py`, the affected artifact must be updated, and the relevant review rerun.
+- **broad ambiguity**: multiple interdependent decisions, a decision requiring a durable multi-option review, or a topic-boundary change. Broad ambiguity must go through the file-backed `define-requirements` question cycle (or `start-work` re-routing), never chat alone.
 
 ## 0. Instruction Priority
 
@@ -199,11 +201,15 @@ Detailed `direct-execute` allow and deny checks are owned by `start-work`. Any h
 
 ## Clarification Routing
 
-When a needed decision appears during requirements, plan, or execute writing or review, route it by impact:
+When a needed decision appears during requirements, plan, or execute writing or review, route it by shape:
 
-- If the decision is non-material (see Key Terms) and resolvable in the current turn: ask a focused chat clarification, record the answer in `audit.jsonl` through `scripts/topic-log.py`, update the affected artifact, and rerun the relevant review.
-- If the decision is material, becomes a broad multi-question cycle, or changes the topic boundary: route to `define-requirements` or `start-work` and stop. Record the routing through `scripts/topic-log.py`.
-- If the decision involves a high-risk operation: use the High-Risk Operation Gate.
+- IF the decision involves a high-risk operation: use the High-Risk Operation Gate.
+- ELSE IF it is broad ambiguity (multiple interdependent decisions, durable multi-option review, or topic-boundary change): route to `define-requirements` or `start-work`, record the routing through `scripts/topic-log.py`, and stop.
+- ELSE (focused clarification, single decision resolvable in the current turn): ask in chat.
+    - IF the answer is material: record it in `audit.jsonl` through `scripts/topic-log.py`, update the affected artifact (`requirements.md`/`plan.md`), and rerun the relevant review before continuing.
+    - IF the answer is non-material: record it and continue.
+
+The initial requirements question cycle is not clarification. Broad or initial define-requirements decisions always use file-backed `question-cN.md` cycles (see §6 and Inviolable Rules).
 
 ## 5. Phase Router
 
