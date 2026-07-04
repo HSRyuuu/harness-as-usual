@@ -29,7 +29,7 @@ Treat the request as AsUsual work when any of these is true:
 
 - The user explicitly says `as-usual` or `AsUsual`.
 - The user mentions `.as-usual/`, `topic.md`, `audit.jsonl`, `question-cN.md`, `requirements.md`, `plan.md`, or topic artifacts.
-- The user asks to resume an active topic with phrasing like "I answered", "write the requirements", "write the plan", or "continue".
+- The user asks to resume an active topic with phrasing like "I answered", "write the requirements", "write the plan", or "continue", and there is an active topic under `.as-usual/topic/` with readable derived status.
 - The user asks for feature-development work that should use the AsUsual workflow.
 
 ## Required First Reads

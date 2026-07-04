@@ -121,7 +121,7 @@ hook 출력은 호스트별 형식 분기를 포함한다: Claude Code(`CLAUDE_P
 
 ### 2. Activation: `using-as-usual`
 
-사용자가 `as-usual`, `.as-usual/`, topic artifact, "답변했어", "requirements 작성해", "plan 작성해", "continue" 같은 activation signal을 주면 AsUsual이 활성화된다.
+사용자가 `as-usual`, `.as-usual/`, topic artifact를 직접 언급하거나, `.as-usual/topic/` 아래 active topic과 derived status가 있는 상태에서 "답변했어", "requirements 작성해", "plan 작성해", "continue" 같은 resume signal을 주면 AsUsual이 활성화된다.
 
 `using-as-usual`은 다음을 수행한다.
 
