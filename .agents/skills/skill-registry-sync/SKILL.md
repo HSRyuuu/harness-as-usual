@@ -26,6 +26,26 @@ Ignored generated artifacts:
 
 If ignored artifacts create diff noise, remove the generated files or rerun verification with the exclusions below. Do not treat ignored artifacts as mirror drift.
 
+## Sync Decision Model
+
+Classify source-file changes before copying:
+
+| Case | Meaning | Action |
+| --- | --- | --- |
+| Claude only changed | `.claude/skills/**` has source-file changes and `.agents/skills/**` does not | Copy `.claude/skills -> .agents/skills` |
+| Codex only changed | `.agents/skills/**` has source-file changes and `.claude/skills/**` does not | Copy `.agents/skills -> .claude/skills` |
+| Both changed differently | Both trees have source-file changes and source files differ | Stop, merge the intended source manually, then copy the merged side to the other side |
+| Both changed identically | Both trees have source-file changes but source files already match | No sync needed |
+
+Use the helper script for the first two cases:
+
+```bash
+python3 .agents/skills/skill-registry-sync/scripts/sync-maintainer-skills.py
+python3 .agents/skills/skill-registry-sync/scripts/sync-maintainer-skills.py --apply
+```
+
+The first command is a dry run. `--apply` copies only when exactly one side has source-file changes. If both sides changed differently, the script exits without copying.
+
 ## When To Use
 
 - After creating, deleting, renaming, or editing `.agents/skills/**`
@@ -41,6 +61,7 @@ If ignored artifacts create diff noise, remove the generated files or rerun veri
 | `.claude/skills/` | Claude-facing maintainer skill mirror tree |
 | `.agents/skills/manage-skills/SKILL.md` | registered verification skill list |
 | `.agents/skills/verify-implementation/SKILL.md` | aggregate verification skill list |
+| `.agents/skills/skill-registry-sync/scripts/sync-maintainer-skills.py` | one-sided mirror sync helper |
 | `AGENTS.md` | project-local skill and verification registry |
 
 ## Workflow
@@ -49,7 +70,21 @@ If ignored artifacts create diff noise, remove the generated files or rerun veri
 
 **Tool:** Bash
 
-Run:
+Run the helper first:
+
+```bash
+python3 .agents/skills/skill-registry-sync/scripts/sync-maintainer-skills.py
+```
+
+If the helper reports a one-sided direction, you may apply it:
+
+```bash
+python3 .agents/skills/skill-registry-sync/scripts/sync-maintainer-skills.py --apply
+```
+
+If the helper reports that both sides changed differently, do not use `--apply`. Merge the intended source manually, then rerun the helper.
+
+Manual inspection alternative:
 
 ```bash
 find .agents/skills .claude/skills -mindepth 2 -maxdepth 3 -type f \
@@ -69,7 +104,7 @@ PASS: every maintainer skill has the same relative `SKILL.md` path in both trees
 
 FAIL: a skill exists on only one side.
 
-Fix: create or remove the matching skill folder on the other side based on the intended latest tree.
+Fix: apply the one-sided sync helper if only one side changed, or create/remove the matching skill folder on the other side based on the intended latest tree.
 
 ### Step 2: Choose The Latest Copy
 
@@ -105,6 +140,12 @@ done
 **Tool:** Bash
 
 After choosing the source copy, update the other side from the latest copy. Preserve executable helper scripts.
+
+For one-sided changes, prefer:
+
+```bash
+python3 .agents/skills/skill-registry-sync/scripts/sync-maintainer-skills.py --apply
+```
 
 For a single skill:
 
