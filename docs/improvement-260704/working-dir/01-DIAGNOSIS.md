@@ -172,8 +172,8 @@ core-workflow.md:199-205 (Clarification Routing):
 
 ---
 
-## 진단했지만 제외한 항목 (참고)
+## 진단했지만 제외/후속 처리한 항목 (참고)
 
-- **subagent task 이중 리뷰(requirements review + quality review) 부담:** `executing-plan/SKILL.md:211` — 무거운 ceremony지만 PROJECT_IDENTITY의 실패 모드 1(요구사항 오해) 예방 장치로 의도된 설계. 게이트 약화 위험이 있어 이번 라운드에서 제외. 추후 E2E 테스트 증거가 쌓이면 재검토.
-- **`scripts/topic-log.py` 1,524줄 단일 파일:** 분할은 테스트 전면 개편을 동반하는 대형 리팩터링. 이번 개선 목표(하네스 품질) 대비 이득이 불분명해 제외.
+- **subagent task 순차 이중 리뷰(requirements review + quality review) 부담:** `executing-plan/SKILL.md:211` — 재검토 결과, 현재는 합치거나 줄이지 않는다. requirements review는 요구사항/plan/task contract 충족 여부를 먼저 잠그고, quality review는 그 뒤 코드 품질/유지보수성/검증 품질을 본다. 이는 Superpowers-style execution loop를 의도적으로 따른 것이며 PROJECT_IDENTITY의 실패 모드 1(요구사항 오해) 예방 장치다. 단일 prompt 통합은 호출 수를 줄일 수 있지만 route-back 판단과 품질 판단을 섞어 게이트를 흐릴 위험이 있다. 후속으로는 실제 subagent-driven E2E에서 두 리뷰가 중복 finding만 내는지, quality review의 고유 Critical/Important 발견이 있는지, 리뷰 비용이 실행을 의미 있게 지연하는지를 보고 축소 여부를 다시 판단한다.
+- **`scripts/topic-log.py` 1,524줄 단일 파일:** 후속 작업으로 분할 완료. public entrypoint는 `scripts/topic-log.py`로 유지하고 내부 구현을 `scripts/as_usual_topic_log/` 패키지로 분리했다. 상수/경로/audit/status/validation, topic.md helper, CLI parser/main, command handler 그룹을 각각 모듈화했으며 기존 helper 테스트와 smoke 검증을 통과했다. 관련 커밋: `3a81741`, `c8d26de`, `d4347d3`, `05f7a47`, `2dbcb40`.
 - **maintainer skill 미러 구조:** `02-FILE-STRUCTURE.md` §G가 이번 작업 범위 밖으로 명시.
