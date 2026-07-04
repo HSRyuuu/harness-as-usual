@@ -60,7 +60,7 @@ Read and use these sources in this order:
 Record the selected git action with:
 
 ```bash
-python3 scripts/topic-log.py select-git-action \
+python3 <plugin-root>/scripts/topic-log.py select-git-action \
   --topic-dir <topic-dir> \
   --action <none|commit|commit + push|commit + push + PR>
 ```

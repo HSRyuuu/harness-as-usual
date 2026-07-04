@@ -126,7 +126,7 @@ Include:
 Use:
 
 ```bash
-python3 scripts/topic-log.py finalize-topic \
+python3 <plugin-root>/scripts/topic-log.py finalize-topic \
   --topic-dir <topic-dir> \
   --status <complete|follow-up-needed|blocked> \
   --summary "<summary>" \

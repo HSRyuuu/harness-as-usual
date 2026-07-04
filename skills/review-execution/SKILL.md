@@ -163,7 +163,7 @@ Record execution review mode:
 Clean review, no report artifact:
 
 ```bash
-python3 scripts/topic-log.py record-review \
+python3 <plugin-root>/scripts/topic-log.py record-review \
   --topic-dir .as-usual/topic/2026-06-24-task-priority \
   --mode self \
   --status passed \
@@ -176,7 +176,7 @@ python3 scripts/topic-log.py record-review \
 Review with findings and report artifact:
 
 ```bash
-python3 scripts/topic-log.py record-review \
+python3 <plugin-root>/scripts/topic-log.py record-review \
   --topic-dir .as-usual/topic/2026-06-24-task-priority \
   --mode self \
   --status findings \

@@ -477,10 +477,10 @@ Git action invariants:
 
 `topic.md` is the low-churn resume surface. It should be compact but sufficient enough to orient a fresh session to durable context. Do not update it for per-task progress, verification attempts, or transient next steps.
 
-For topic and audit updates, use the audit-first helper:
+For topic and audit updates, use the audit-first helper. `<plugin-root>` is the installed AsUsual plugin root (the directory containing `scripts/` and `skills/`); resolve it from the SessionStart hook announcement or the parent directory of the running skill:
 
 ```bash
-python3 <as-usual-plugin-root>/scripts/topic-log.py ...
+python3 <plugin-root>/scripts/topic-log.py ...
 ```
 
 Prefer these phase-level commands when they match the transition:

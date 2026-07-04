@@ -89,7 +89,7 @@ After creating or updating a question file:
 1. Record the question artifact:
 
 ```bash
-python3 scripts/topic-log.py artifact \
+python3 <plugin-root>/scripts/topic-log.py artifact \
   --topic-dir <topic-dir> \
   --name question \
   --value question-cN.md \
@@ -102,7 +102,7 @@ python3 scripts/topic-log.py artifact \
 2. Append a `question.created` event:
 
 ```bash
-python3 scripts/topic-log.py audit \
+python3 <plugin-root>/scripts/topic-log.py audit \
   --topic-dir <topic-dir> \
   --event question.created \
   --phase define-requirements \
@@ -128,7 +128,7 @@ If the user answered in chat instead of editing `[Answer]:` fields:
 5. Append a `question.answered` event:
 
 ```bash
-python3 scripts/topic-log.py audit \
+python3 <plugin-root>/scripts/topic-log.py audit \
   --topic-dir <topic-dir> \
   --event question.answered \
   --phase define-requirements \
@@ -155,7 +155,7 @@ Validation checks:
 Classify validated answers as decisions, constraints, risks, acceptance criteria, or non-blocking open questions. Use `question.answered` only for answer transcription. Record durable decisions extracted from validated answers separately:
 
 ```bash
-python3 scripts/topic-log.py decision \
+python3 <plugin-root>/scripts/topic-log.py decision \
   --topic-dir <topic-dir> \
   --source "question-c1.md Q1" \
   --summary "Use the selected requirements decision."
@@ -259,7 +259,7 @@ When self-review and reviewer-prompt checks pass:
 3. Run:
 
 ```bash
-python3 scripts/topic-log.py complete-requirements \
+python3 <plugin-root>/scripts/topic-log.py complete-requirements \
   --topic-dir <topic-dir> \
   --requirements requirements.md \
   --summary "<summary>"

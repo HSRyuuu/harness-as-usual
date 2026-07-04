@@ -48,7 +48,7 @@ For approved items only:
 1. Update memory per `references/memory-update.md` (simplify/consolidate/dedup, budget
    3000). If `.as-usual/memory/MEMORY.md` does not exist yet, create
    `.as-usual/memory/` and initialize `MEMORY.md` from the AsUsual plugin template
-   at `<as-usual-plugin-root>/templates/MEMORY.md` first. If the template file is
+   at `<plugin-root>/templates/MEMORY.md` first. If the template file is
    unavailable, recreate the same section shape from the installed skill/template
    instructions before adding entries. Record with `record-memory --summary ... --files ...`.
 2. Create new skill or patch existing skill in the project-local skills dir per

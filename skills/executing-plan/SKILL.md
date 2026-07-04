@@ -100,7 +100,7 @@ Before the first task, record that execution was approved from the current user 
 Use `scripts/topic-log.py approve-execution` when the user approves plan execution:
 
 ```bash
-python3 scripts/topic-log.py approve-execution \
+python3 <plugin-root>/scripts/topic-log.py approve-execution \
   --topic-dir .as-usual/topic/2026-06-24-task-priority \
   --approved-by user \
   --source "current user turn" \
@@ -147,7 +147,7 @@ For subagent-driven tasks:
 Example dispatch record:
 
 ```bash
-python3 scripts/topic-log.py dispatch-task \
+python3 <plugin-root>/scripts/topic-log.py dispatch-task \
   --topic-dir <topic-dir> \
   --task "Task N: <name>" \
   --mode subagent-driven \
@@ -161,7 +161,7 @@ python3 scripts/topic-log.py dispatch-task \
 For every high-risk operation that has fresh approval, use `approve-high-risk` before editing:
 
 ```bash
-python3 scripts/topic-log.py approve-high-risk \
+python3 <plugin-root>/scripts/topic-log.py approve-high-risk \
   --topic-dir .as-usual/topic/2026-06-24-task-priority \
   --operation-id "db-task-priority" \
   --description "Add persisted non-null Task.priority enum field and API/frontend priority contract" \
@@ -188,7 +188,7 @@ For each `## Task N` in plan order:
 1. Record task start:
 
 ```bash
-python3 scripts/topic-log.py audit \
+python3 <plugin-root>/scripts/topic-log.py audit \
   --topic-dir <topic-dir> \
   --event task.started \
   --actor codex \
@@ -242,7 +242,7 @@ Declare execution complete only after `audit.jsonl` records:
 Use `record-sweep` for final consistency evidence:
 
 ```bash
-python3 scripts/topic-log.py record-sweep \
+python3 <plugin-root>/scripts/topic-log.py record-sweep \
   --topic-dir <topic-dir> \
   --kind final \
   --command "<command>" \
@@ -253,7 +253,7 @@ python3 scripts/topic-log.py record-sweep \
 After recording execution completion, prefer the `complete-execution` macro:
 
 ```bash
-python3 scripts/topic-log.py complete-execution \
+python3 <plugin-root>/scripts/topic-log.py complete-execution \
   --topic-dir .as-usual/topic/2026-06-24-task-priority \
   --summary "Execution completed; verification evidence and remaining issues are recorded." \
   --actor codex

@@ -40,7 +40,7 @@ When the request is AsUsual work, before answering or executing:
 2. Locate the active topic under `.as-usual/topic/`.
 3. For an existing topic, read `topic.md` first for durable resume context.
 4. Read `audit.jsonl`.
-5. Run `python3 scripts/topic-log.py status --topic-dir <topic-dir> --json` when the helper is available.
+5. Run `python3 <plugin-root>/scripts/topic-log.py status --topic-dir <topic-dir> --json` when the helper is available.
 6. Read linked artifacts needed for the derived next action, such as question files, `requirements.md`, `plan.md`, review report, or final report.
 7. If this is a new topic, choose a `yyyy-MM-dd-<topic>` slug using the actual current date and lowercase kebab-case.
 8. For a new topic, immediately create the topic folder and run `scripts/topic-log.py init` to initialize `topic.md` and `audit.jsonl`, record the initial user request, append a `topic.created` audit event, tell the user the topic path in one line, then route with `start-work`.
@@ -77,7 +77,7 @@ When no active topic exists and the user is starting a new topic:
 
 1. Choose the topic folder name as `yyyy-MM-dd-<topic>` using the actual current date and a lowercase kebab-case slug.
 2. Create the topic folder under `.as-usual/topic/`.
-3. Run `python3 <as-usual-plugin-root>/scripts/topic-log.py init --topic-dir <topic-dir> --topic <yyyy-MM-dd-topic> --initial-request <request> --summary <summary> --actor codex`. If the host is Claude Code, use `--actor claude`.
+3. Run `python3 <plugin-root>/scripts/topic-log.py init --topic-dir <topic-dir> --topic <yyyy-MM-dd-topic> --initial-request <request> --summary <summary> --actor codex`. If the host is Claude Code, use `--actor claude`.
 4. Confirm the script created `topic.md`, created `audit.jsonl`, recorded the initial request in `topic.md#Initial Request`, and appended the `topic.created` event.
 5. Tell the user the topic path in one line so they can correct the slug or topic if needed.
 6. Continue to `start-work`.
@@ -98,7 +98,7 @@ This skill should not duplicate phase procedures. Its job is to hand off to the 
 
 - `topic.md` is the low-churn resume document. It carries the initial request, topic boundary, and durable notes, not high-churn progress.
 - `audit.jsonl` is an append-only event log.
-- Derive phase, next action, artifacts, blockers, approvals, and verification with `python3 scripts/topic-log.py status --topic-dir <topic-dir> --json`.
+- Derive phase, next action, artifacts, blockers, approvals, and verification with `python3 <plugin-root>/scripts/topic-log.py status --topic-dir <topic-dir> --json`.
 - Prefer source traces such as `topic.md#Initial Request`, `topic.created`, `question-c1.md Q1`, and `decision.recorded`.
 - Update `topic.md` and `audit.jsonl` only through `scripts/topic-log.py` when the helper can express the transition. Prefer macro commands such as `route-start-work`, `complete-requirements`, `complete-plan`, `complete-task`, `verification`, `blocker`, `complete-execution`, `record-review`, `skip-code-cleanup`, `finalize-topic`, and `select-git-action`.
 

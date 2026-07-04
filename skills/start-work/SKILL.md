@@ -19,7 +19,7 @@ Before routing, confirm:
 - active topic `topic.md`
 - active topic `audit.jsonl`
 - `topic.md#Initial Request` and `topic.created` capture the initial request for this topic
-- derived status from `python3 scripts/topic-log.py status --topic-dir <topic-dir> --json`, when available
+- derived status from `python3 <plugin-root>/scripts/topic-log.py status --topic-dir <topic-dir> --json`, when available
 - linked `question-cN.md`, `requirements.md`, and `plan.md`
 - minimum target project context needed for routing
 - freshness of the latest request versus existing artifacts
@@ -78,7 +78,7 @@ When a route is selected, record:
 Use `scripts/topic-log.py route-start-work` from the plugin root for route recording:
 
 ```bash
-python3 scripts/topic-log.py route-start-work \
+python3 <plugin-root>/scripts/topic-log.py route-start-work \
   --topic-dir <topic-dir> \
   --route <requirements|plan|execute|direct-execute> \
   --reason "<reason>"

@@ -35,7 +35,7 @@ Before writing the plan, confirm:
 - The active topic folder is under `.as-usual/topic/yyyy-MM-dd-<topic>/`.
 - `topic.md` and `audit.jsonl` exist.
 - `requirements.md` exists.
-- `python3 scripts/topic-log.py status --topic-dir <topic-dir> --json` shows `phase=requirements-complete` and `nextAction=approve-plan`, or `audit.jsonl` contains a successful `requirements.completed` event.
+- `python3 <plugin-root>/scripts/topic-log.py status --topic-dir <topic-dir> --json` shows `phase=requirements-complete` and `nextAction=approve-plan`, or `audit.jsonl` contains a successful `requirements.completed` event.
 - The user explicitly approved moving from requirements to plan in the current turn, or asked to write or update the plan.
 - The plan is based on current `requirements.md` content, not chat memory.
 
@@ -269,7 +269,7 @@ When self-review and reviewer-prompt checks pass:
 Use:
 
 ```bash
-python3 scripts/topic-log.py complete-plan \
+python3 <plugin-root>/scripts/topic-log.py complete-plan \
   --topic-dir <topic-dir> \
   --plan plan.md \
   --summary "<summary>"
