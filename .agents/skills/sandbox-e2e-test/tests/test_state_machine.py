@@ -553,6 +553,99 @@ class TopicLogTests(unittest.TestCase):
             self.assertNotEqual(validate.returncode, 0)
             self.assertIn("review.completed", validate.stderr + validate.stdout)
 
+    def test_validate_accepts_cancelled_finalization_before_execution_with_reason(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            topic_dir = self.init_topic(tmp)
+
+            result = self.run_topic_log(
+                "finalize-topic",
+                "--topic-dir",
+                str(topic_dir),
+                "--status",
+                "cancelled",
+                "--summary",
+                "User cancelled during requirements before any execution.",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+            validate = self.run_topic_log("validate", "--topic-dir", str(topic_dir))
+            self.assertEqual(validate.returncode, 0, validate.stderr + validate.stdout)
+
+            status_result = self.run_topic_log("status", "--topic-dir", str(topic_dir), "--json")
+            self.assertEqual(status_result.returncode, 0, status_result.stderr + status_result.stdout)
+            status = json.loads(status_result.stdout)
+            self.assertEqual(status["status"], "cancelled")
+            self.assertEqual(status["phase"], "finalized")
+
+    def test_validate_rejects_cancelled_finalization_without_reason(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            topic_dir = self.init_topic(tmp)
+
+            result = self.run_topic_log(
+                "finalize-topic",
+                "--topic-dir",
+                str(topic_dir),
+                "--status",
+                "cancelled",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+            validate = self.run_topic_log("validate", "--topic-dir", str(topic_dir))
+            self.assertNotEqual(validate.returncode, 0)
+            self.assertIn("cancellation reason", validate.stderr + validate.stdout)
+
+    def test_validate_accepts_complete_finalization_with_review_and_cleanup(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            topic_dir = self.init_topic(tmp)
+            for command in [
+                (
+                    "record-review",
+                    "--topic-dir",
+                    str(topic_dir),
+                    "--mode",
+                    "self",
+                    "--status",
+                    "passed",
+                    "--critical",
+                    "0",
+                    "--important",
+                    "0",
+                    "--minor",
+                    "0",
+                    "--reason",
+                    "Clean review.",
+                ),
+                (
+                    "skip-code-cleanup",
+                    "--topic-dir",
+                    str(topic_dir),
+                    "--reason",
+                    "No cleanup needed.",
+                ),
+                (
+                    "finalize-topic",
+                    "--topic-dir",
+                    str(topic_dir),
+                    "--status",
+                    "complete",
+                    "--summary",
+                    "Completed with review and cleanup decision.",
+                    "--report",
+                    "report.md",
+                ),
+            ]:
+                result = self.run_topic_log(*command)
+                self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+
+            validate = self.run_topic_log("validate", "--topic-dir", str(topic_dir))
+            self.assertEqual(validate.returncode, 0, validate.stderr + validate.stdout)
+
+            status_result = self.run_topic_log("status", "--topic-dir", str(topic_dir), "--json")
+            self.assertEqual(status_result.returncode, 0, status_result.stderr + status_result.stdout)
+            status = json.loads(status_result.stdout)
+            self.assertEqual(status["status"], "complete")
+            self.assertEqual(status["phase"], "finalized")
+
     def test_validate_rejects_complete_finalization_after_latest_review_findings(self):
         with tempfile.TemporaryDirectory() as tmp:
             topic_dir = self.init_topic(tmp)

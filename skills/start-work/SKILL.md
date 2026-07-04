@@ -73,7 +73,7 @@ When a route is selected, record:
 - skipped gates, if any
 - next action, such as `answer-questions`, `write-requirements`, `approve-plan`, `write-plan`, `approve-execute`, `execute`, `review-execution`, `decide-code-cleanup`, `finalize`, or `git-action-decision`
 - for direct-execute, the allow-condition rationale and verification plan
-- for direct-execute completion, the result, verification outcome, and terminal next action
+- for direct-execute completion, the result, verification outcome, and terminal next action — record phase `direct-execute-complete` with next action `none` (the canonical terminal values in `scripts/topic-log.py`), using the generic `audit` command with `--phase direct-execute-complete --next-action none`. Direct-execute is a lightweight terminal path: it does not join the finalize/git-action path; if the user then explicitly asks for a commit or another git action, handle it as ordinary chat.
 
 Use `scripts/topic-log.py route-start-work` from the plugin root for route recording:
 

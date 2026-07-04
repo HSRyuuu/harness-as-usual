@@ -971,6 +971,9 @@ def cmd_finalize_topic(args: argparse.Namespace) -> None:
     if args.report:
         validate_canonical_filename("report", args.report, "report.md")
     topic = require_existing_topic_dir(args.topic_dir)
+    data = {"status": args.status, "report": args.report}
+    if args.status == "cancelled":
+        data["cancellationReason"] = args.summary
     append_audit(
         topic,
         event="topic.finalized",
@@ -981,7 +984,7 @@ def cmd_finalize_topic(args: argparse.Namespace) -> None:
         timestamp=args.timestamp or current_timestamp(),
         summary=args.summary or "Topic finalized.",
         next_action="git-action-decision",
-        data={"status": args.status, "report": args.report},
+        data=data,
     )
 
 
@@ -1167,28 +1170,37 @@ def validate_topic_invariants(topic: Path) -> None:
     status = derive_status(topic)
     finalized_events = [event for event in events if event.get("event") == "topic.finalized"]
     if finalized_events:
-        require_invariant(status["artifacts"].get("report"), "finalized topic requires report.md artifact")
-        review_events = [event for event in events if event.get("event") == "review.completed"]
-        require_invariant(
-            review_events,
-            "finalized topic requires review.completed audit event",
-        )
-        require_invariant(
-            any(event.get("event") in CODE_CLEANUP_DECISION_EVENTS for event in events),
-            "finalized topic requires code cleanup decision audit event",
-        )
         finalized_data = finalized_events[-1].get("data") or {}
         finalized_status = finalized_data.get("status")
-        if finalized_status in {"complete", "follow-up-needed"}:
-            latest_review_data = review_events[-1].get("data") or {}
+        if finalized_status == "cancelled":
+            # A cancelled topic may be closed from any phase, including before
+            # execution/review. It is exempt from report/review/cleanup evidence,
+            # but the explicit cancellation reason summary is required.
             require_invariant(
-                latest_review_data.get("status") == "passed",
-                "finalized complete/follow-up-needed topic requires latest review.completed status must be passed",
+                (finalized_data.get("cancellationReason") or "").strip(),
+                "finalized cancelled topic requires a cancellation reason summary",
+            )
+        else:
+            require_invariant(status["artifacts"].get("report"), "finalized topic requires report.md artifact")
+            review_events = [event for event in events if event.get("event") == "review.completed"]
+            require_invariant(
+                review_events,
+                "finalized topic requires review.completed audit event",
             )
             require_invariant(
-                int(latest_review_data.get("critical") or 0) == 0 and int(latest_review_data.get("important") or 0) == 0,
-                "finalized complete/follow-up-needed topic requires no unresolved critical or important review findings",
+                any(event.get("event") in CODE_CLEANUP_DECISION_EVENTS for event in events),
+                "finalized topic requires code cleanup decision audit event",
             )
+            if finalized_status in {"complete", "follow-up-needed"}:
+                latest_review_data = review_events[-1].get("data") or {}
+                require_invariant(
+                    latest_review_data.get("status") == "passed",
+                    "finalized complete/follow-up-needed topic requires latest review.completed status must be passed",
+                )
+                require_invariant(
+                    int(latest_review_data.get("critical") or 0) == 0 and int(latest_review_data.get("important") or 0) == 0,
+                    "finalized complete/follow-up-needed topic requires no unresolved critical or important review findings",
+                )
 
 
 def cmd_validate(args: argparse.Namespace) -> None:

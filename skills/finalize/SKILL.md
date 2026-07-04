@@ -35,6 +35,8 @@ Before finalizing, confirm:
 
 If execution review or code cleanup decision is missing, return to `review-execution`. Do not close the topic optimistically.
 
+Cancelled exception: when the user explicitly abandons the topic, the execution/review preconditions above do not apply, and the topic may be closed from any phase with status `cancelled`. The explicit user cancellation decision and the cancellation reason summary are mandatory. `requirements.md`/`plan.md` are read only if they exist. Cancel is not a gate bypass: continuing the abandoned work happens only through a new topic or an explicit resume of this topic, never by silently implementing after cancel.
+
 ## Inputs
 
 Read and use these sources in this order:
@@ -65,6 +67,9 @@ subagent; inline fallback):
 
 If nothing survives, record a "no candidates" note. Do not proceed to close without a
 recorded self-improvement result.
+
+Run this pass for `cancelled` closure too — abandoned topics can still yield lessons
+(for example, why the topic was mis-scoped). "No candidates" is an acceptable result.
 
 ### Step 1: Final Record Check
 
@@ -109,6 +114,9 @@ Choose one status:
 | `complete` | Execution, verification, review, and code cleanup decision are recorded, with no remaining blocking issues. |
 | `follow-up-needed` | The core topic work is usable, but remaining non-blocking Minor findings, accepted non-blocking risks, or deferred cleanup exist. Critical and Important findings must be fixed and re-reviewed or the topic is `blocked`. |
 | `blocked` | The topic cannot be completed without external input, failed verification, missing dependency, or unresolved Critical/Important review findings. |
+| `cancelled` | The user explicitly chose to abandon the topic. Record the remaining work and the cancellation reason in the summary. Exempt from execution/review preconditions and from `report.md`. |
+
+For `cancelled`, skip the `report.md` creation below, check the working tree for leftover changes from this topic, and if any exist, ask the user whether to revert or keep them before the git action question; record the decision. Then run `finalize-topic --status cancelled --summary "<cancellation reason>"` (the cancellation reason summary is required — `validate` fails without it) and continue at Step 3.
 
 Create or update `report.md` in the topic folder using `templates/report.md`. This is the concise user-facing final report, not a replacement for `audit.jsonl`. Write user-facing prose in the user's current or clearly preferred language, while preserving exact commands, paths, status values, and technical identifiers.
 
@@ -128,7 +136,7 @@ Use:
 ```bash
 python3 <plugin-root>/scripts/topic-log.py finalize-topic \
   --topic-dir <topic-dir> \
-  --status <complete|follow-up-needed|blocked> \
+  --status <complete|follow-up-needed|blocked|cancelled> \
   --summary "<summary>" \
   --report report.md
 ```
@@ -168,8 +176,10 @@ Append facts to `audit.jsonl`; do not rewrite old events into a summary.
 
 ## Anti-Patterns
 
-- Finalizing before execution review is recorded.
+- Finalizing before execution review is recorded (except explicit user cancellation closed as `cancelled`).
 - Treating code cleanup as mandatory.
+- Closing as `cancelled` without an explicit user cancellation decision or without a cancellation reason summary.
+- Silently continuing the abandoned implementation after a `cancelled` closure instead of opening a new topic or explicitly resuming.
 - Marking `complete` while Critical review findings remain unresolved.
 - Asking a broad "what next?" instead of the git action decision.
 - Running git commands, creating a PR, releasing, or deploying from `finalize`.

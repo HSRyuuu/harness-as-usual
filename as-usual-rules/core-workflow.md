@@ -30,7 +30,7 @@ The only exception is a clear, trivial, low-risk, reversible task that `start-wo
 - claim completion without verification evidence (or explicit "not verified because…") in audit.jsonl
 - print/copy/commit/persist secret values
 - hand-edit topic.md/audit.jsonl (only scripts/topic-log.py)
-- run a git action before finalize + explicit user selection
+- run a git action on a gated (non-direct-execute) topic before finalize + explicit user selection; on any path, never run a git action without an explicit user request
 </NEVER>
 
 <ALWAYS>
@@ -235,6 +235,11 @@ IF current request starts a new topic or the derived phase is unclear:
         record route reason, skipped gates, and verification plan
         execute the trivial work
         record result, verification, and terminal next action through scripts/topic-log.py
+        # direct-execute is a lightweight terminal path: it does NOT join the
+        # finalize/git-action path. If the user then explicitly asks to commit or
+        # run another git action, handle it as ordinary chat; the git-action skill
+        # is for finalized topics only. Never run a git action without an explicit
+        # user request.
         STOP
 
 IF current request answers existing questions:
@@ -442,15 +447,17 @@ Preconditions:
 - Code cleanup was skipped or completed.
 - Remaining issues and skipped verification are explicit.
 
+Cancelled exception: when the user explicitly abandons the topic, close it from any phase with `scripts/topic-log.py finalize-topic --topic-dir <topic-dir> --status cancelled --summary "<cancellation reason>"`. A cancelled finalize does not require the execution/review preconditions above, but the explicit user cancellation decision and the cancellation reason summary are mandatory. Cancel is not a gate bypass: continuing the abandoned work happens only through a new topic or an explicit resume of this topic, never by silently implementing after cancel.
+
 Finalize invariants:
 
 - Do not implement new work, run code review, run git commands, release, deploy, create a PR, or commit automatically.
-- Set final topic status to `complete`, `follow-up-needed`, or `blocked`.
-- Create or update `report.md` from `templates/report.md` as the concise user-facing handoff summary and include it in the audit event artifacts.
-- Run `scripts/topic-log.py finalize-topic --topic-dir <topic-dir> --status <complete|follow-up-needed|blocked> --summary "<summary>" --report report.md`.
+- Set final topic status to `complete`, `follow-up-needed`, `blocked`, or `cancelled`.
+- Create or update `report.md` from `templates/report.md` as the concise user-facing handoff summary and include it in the audit event artifacts. (`cancelled` is exempt from `report.md`.)
+- Run `scripts/topic-log.py finalize-topic --topic-dir <topic-dir> --status <complete|follow-up-needed|blocked|cancelled> --summary "<summary>" --report report.md`.
 - Confirm `scripts/topic-log.py status --topic-dir <topic-dir> --json` derives phase `finalized` and next action `git-action-decision`.
 - Ask the user whether to run `none`, `commit`, `commit + push`, or `commit + push + PR`, then stop. If the user later chooses a git action, invoke `git-action`.
-- Before writing `report.md` and setting final status, run one self-improvement pass via the `manage-self-improvement` skill (prefer a subagent; inline fallback). `finalize` only gathers user approval of proposed candidates; the actual memory record and skill create/patch are owned by `manage-self-improvement`. Do not close the topic without a recorded self-improvement result (applied, skipped, or "no candidates").
+- Before writing `report.md` and setting final status, run one self-improvement pass via the `manage-self-improvement` skill (prefer a subagent; inline fallback). `finalize` only gathers user approval of proposed candidates; the actual memory record and skill create/patch are owned by `manage-self-improvement`. Do not close the topic without a recorded self-improvement result (applied, skipped, or "no candidates"). This also applies to `cancelled` closure, where "no candidates" is an acceptable result.
 - Reflect memory/skill candidates only after explicit user approval. Recalled memory never overrides user/topic/workflow.
 
 ## 12. Git Action Rules
@@ -636,9 +643,9 @@ Use the `cleanup-code` skill after `review-execution` records review completion 
 
 `cleanup-code` runs four cleanup reviews for reuse, simplification, efficiency, and abstraction level; applies only safe behavior-preserving cleanup within the approved change surface; reruns relevant verification when files change; records the code cleanup result through `scripts/topic-log.py`; and routes to `finalize`.
 
-Use the `finalize` skill after execution review and the code cleanup decision are recorded.
+Use the `finalize` skill after execution review and the code cleanup decision are recorded, or when the user explicitly abandons the topic (`cancelled`).
 
-`finalize` checks the topic record, sets final status to `complete`, `follow-up-needed`, or `blocked`, records finalization through `scripts/topic-log.py`, asks which git action to run, and stops. It does not run git commands, create a PR, release, or deploy.
+`finalize` checks the topic record, sets final status to `complete`, `follow-up-needed`, `blocked`, or `cancelled`, records finalization through `scripts/topic-log.py`, asks which git action to run, and stops. It does not run git commands, create a PR, release, or deploy.
 
 Use the `git-action` skill after topic finalization when the user chooses `none`, `commit`, `commit + push`, or `commit + push + PR`.
 

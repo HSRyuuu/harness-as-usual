@@ -100,6 +100,11 @@ SessionStart hook
 
 `direct-execute`는 clear, trivial, low-risk, reversible 작업에만 허용되는 좁은 shortcut이다. 일반적인 non-trivial implementation은 `requirements.md`와 승인된 `plan.md` gate를 지나야 한다.
 
+종단 경로는 두 가지다.
+
+- **Gated topic**: review-execution → (optional cleanup) → finalize → optional git-action. finalize의 최종 status는 `complete`, `follow-up-needed`, `blocked`, `cancelled` 중 하나다. 사용자가 topic 포기를 명시하면 어느 phase에서든 `finalize-topic --status cancelled --summary "<취소 사유>"`로 종료할 수 있다(cancelled는 execution/review 전제조건과 `report.md` 요구에서 면제되고, 취소 사유 summary는 필수).
+- **Direct-execute topic**: phase `direct-execute-complete` + next action `none`으로 끝나는 경량 종단이다. finalize/git-action 경로에 합류하지 않으며, 이후 commit 등 git 작업은 사용자가 명시적으로 요청할 때 일반 대화로 처리한다. 어떤 경로에서도 사용자 명시 요청 없는 자동 git action은 금지된다.
+
 ## Workflow Stage Details
 
 ### 1. Hook Bootstrap
@@ -307,12 +312,13 @@ Main prompt 위치:
 
 ### 10. Finalize: `finalize`
 
-Review와 code cleanup decision이 기록된 뒤 topic을 닫는다.
+Review와 code cleanup decision이 기록된 뒤 topic을 닫는다. 예외로, 사용자가 topic 포기를 명시하면 어느 phase에서든 `cancelled`로 닫을 수 있다.
 
 주요 규칙:
 
-- topic status를 `complete`, `follow-up-needed`, `blocked` 중 하나로 정한다.
-- `report.md`를 생성하거나 갱신한다.
+- topic status를 `complete`, `follow-up-needed`, `blocked`, `cancelled` 중 하나로 정한다.
+- `report.md`를 생성하거나 갱신한다. (`cancelled`는 `report.md` 면제, 취소 사유 summary 필수. 작업 트리에 이 topic의 잔여 변경이 있으면 되돌릴지/유지할지 사용자에게 먼저 묻는다.)
+- self-improvement pass는 `cancelled`에도 실행하며 "no candidates"가 허용된다.
 - `scripts/topic-log.py finalize-topic`으로 finalization을 기록하고, `status --json`에서 `finalized`/`git-action-decision`이 파생되는지 확인한다.
 - git action을 사용자에게 묻고 멈춘다.
 - commit, push, PR, release, deploy를 자동으로 실행하지 않는다.
