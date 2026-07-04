@@ -273,7 +273,7 @@ Execution 후 finalize 전에 mandatory review를 수행한다. 이 단계는 ta
 - prompt-injection trust boundary
 - code quality and production readiness
 
-Finding이 있으면 `code-review-report.md`를 생성하거나 갱신한다. Critical finding은 fix, block, user-accepted risk 같은 disposition 없이 finalize로 갈 수 없다.
+Finding이 있으면 `code-review-report.md`를 생성하거나 갱신한다. Critical/Important finding은 `fixed`(재리뷰 통과), `rejected`(기술적 사유 + 재리뷰 통과), 또는 `blocked` disposition 중 하나 없이 finalize로 갈 수 없다. `user-accepted-risk`와 `deferred`는 Minor finding에만 허용된다.
 
 Review 완료 후 optional code cleanup을 실행할지 사용자에게 묻는다.
 
