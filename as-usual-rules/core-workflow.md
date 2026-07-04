@@ -101,6 +101,7 @@ Apply this workflow only for AsUsual runtime usage in a target project.
 | The user explicitly says `as-usual` or `AsUsual` | AsUsual active | Use this workflow. |
 | The user mentions `.as-usual/`, question/requirements/plan/topic.md/audit.jsonl, or topic artifacts | AsUsual active | Read topic artifacts and continue the workflow. |
 | The user says something like "I answered", "write the requirements", "write the plan", or "continue", and `.as-usual/topic/` has an active topic | AsUsual active | Resume from topic files, not memory. |
+| The user asks for feature-development work that should use the AsUsual workflow | AsUsual active | Use this workflow. |
 | Ordinary coding or question request with no AsUsual signal | Not active | Do not force AsUsual. |
 
 ### Activation Decision Procedure
