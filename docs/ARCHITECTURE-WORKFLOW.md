@@ -111,6 +111,8 @@ SessionStart hook
 
 SessionStart hook은 AsUsual capability와 `using-as-usual` entrypoint를 한 문장으로만 주입한다. Full workflow prompt, active topic 후보, memory 내용은 주입하지 않는다.
 
+hook 출력은 호스트별 형식 분기를 포함한다: Claude Code(`CLAUDE_PLUGIN_ROOT`, `COPILOT_CLI` 아님), Codex(`PLUGIN_ROOT`), Cursor(`CURSOR_PLUGIN_ROOT`, 실험적), 그 외 fallback(두 형식 동시 출력). 공식 지원 호스트는 Claude Code와 Codex이며 Cursor 분기는 best-effort다.
+
 | 항목 | 위치 |
 | --- | --- |
 | Hook runner | `hooks/session-start` |

@@ -67,6 +67,8 @@ Basic cycle:
 
 The SessionStart hook announces only the AsUsual capability and the `using-as-usual` entrypoint in one sentence. It does not inject the full core workflow, topic candidates, or memory content; when AsUsual activates, `using-as-usual` finds and reads files from disk. The fact that this hook injected context does not force every request into the workflow.
 
+The hook output includes host-specific format branches: Claude Code (`CLAUDE_PLUGIN_ROOT` without `COPILOT_CLI`), Codex (`PLUGIN_ROOT`), Cursor (`CURSOR_PLUGIN_ROOT`, experimental), otherwise a fallback that emits both formats. Officially supported hosts are Claude Code and Codex; the Cursor branch is best-effort.
+
 Signals that count as AsUsual work:
 
 1. The user explicitly says `as-usual` or `AsUsual`.

@@ -71,6 +71,8 @@ Runtime workflow는 target project의 하나의 topic에만 적용한다. `.as-u
 
 SessionStart hook은 AsUsual capability와 `using-as-usual` entrypoint를 한 문장으로만 알려준다. Full core workflow, topic 후보, memory 내용은 주입하지 않고, AsUsual이 활성화될 때 `using-as-usual`이 파일에서 직접 찾고 읽는다. 이 hook이 주입됐다는 사실만으로 모든 요청에 workflow를 강제하지 않는다.
 
+hook 출력은 호스트별 형식 분기를 포함한다: Claude Code(`CLAUDE_PLUGIN_ROOT`, `COPILOT_CLI` 아님), Codex(`PLUGIN_ROOT`), Cursor(`CURSOR_PLUGIN_ROOT`, 실험적), 그 외 fallback(두 형식 동시 출력). 공식 지원 호스트는 Claude Code와 Codex이며 Cursor 분기는 best-effort다.
+
 AsUsual 작업으로 보는 신호:
 
 1. 사용자가 `as-usual`, `AsUsual`이라고 명시한다.
