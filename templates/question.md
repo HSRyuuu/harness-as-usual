@@ -11,27 +11,27 @@ currentPhase: define-requirements
 
 ---
 
-## 💡 Question 1: [명확하고 구체적인 질문]
+## 💡 Question 1: [clear, specific question]
 
-### 왜 중요한가요?
+### Why This Matters
 
-[이 결정이 requirements, plan, 구현, 위험도, 검증에 어떤 영향을 주는지 짧게 설명]
+[short note on how this decision affects requirements, plan, implementation, risk, and verification]
 
-### Requirements 반영
+### Requirements Impact
 
-[이 답변이 requirements.md의 어느 부분에 반영되는지]
+[which part of requirements.md this answer feeds into]
 
-### 선택
+### Options
 
-A) [첫 번째 의미 있는 선택지]
+A) [first meaningful option]
 
-B) [두 번째 의미 있는 선택지]
+B) [second meaningful option]
 
-X) Other (`[Answer]:` 뒤에 직접 작성)
+X) Other (write directly after `[Answer]:`)
 
-**추천**: [현재 맥락 기준 추천 선택지와 짧은 이유]
+**Recommendation**: [recommended option for the current context and a short reason]
 
-✅ 답변을 입력하세요.
+✅ Enter your answer.
 [Answer]:
 
 ---

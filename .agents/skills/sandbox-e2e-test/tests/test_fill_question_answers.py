@@ -44,16 +44,16 @@ class FillQuestionAnswersTests(unittest.TestCase):
             question_file.write_text(
                 "# Demo 질문 c1\n\n"
                 "## 💡 Question 1: Scope?\n\n"
-                "### 왜 중요한가요?\n\n"
+                "### Why This Matters\n\n"
                 "Scope changes implementation.\n\n"
-                "### Requirements 반영\n\n"
+                "### Requirements Impact\n\n"
                 "Requirements scope.\n\n"
-                "### 선택\n\n"
+                "### Options\n\n"
                 "A) Full stack\n\n"
                 "B) Backend only\n\n"
-                "X) Other (`[Answer]:` 뒤에 직접 작성)\n\n"
-                "**추천**: A를 추천합니다.\n\n"
-                "✅ 답변을 입력하세요.\n"
+                "X) Other (write directly after `[Answer]:`)\n\n"
+                "**Recommendation**: A is recommended.\n\n"
+                "✅ Enter your answer.\n"
                 "[Answer]:\n",
                 encoding="utf-8",
             )

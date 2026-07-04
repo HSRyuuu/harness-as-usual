@@ -23,9 +23,9 @@ questionFiles: []
 
 ### Dependency Analysis
 
-- 선행 조건:
-- 이후 작업 전에 만들어야 할 인터페이스 또는 산출물:
-- 마이그레이션, 빌드, 테스트 순서:
+- Prerequisites:
+- Interfaces or artifacts required before later work:
+- Migration, build, and test ordering:
 
 ### Ordering Rationale
 
@@ -84,7 +84,7 @@ questionFiles: []
 
 ### Depends On
 
-- 없음
+- None
 
 ### Files
 
@@ -121,7 +121,7 @@ questionFiles: []
 ### Verification
 
 - Command:
-- Expected result: 사용자 언어로 성공 기준 작성
+- Expected result: <!-- Write the success criteria here in the user's language. -->
 
 ### Notes
 

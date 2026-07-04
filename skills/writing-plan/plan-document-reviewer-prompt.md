@@ -61,7 +61,7 @@ If the issue reveals a material decision that could change scope, requirements, 
 
 Record the review result in the existing `## Review Status` area of `plan.md`. Do not create a separate review block; write into the template's `Review Status` structure.
 Use markdown checkboxes for `Plan Review Checks`: `[x]` for passed checks and `[ ]` for checks that remain failed or blocked.
-Blocking checks must cite concrete evidence (file/section/quote or concrete reason); Advisory checks may use a short localized pass note.
+Blocking checks must cite concrete evidence (file/section/quote or concrete reason); Advisory checks may use a short localized pass note. The `evidence:` label shown in the example below may stay canonical English or be consistently translated into the user's language; the check names, `[x]`/`[ ]` markers, and status values stay canonical.
 
 ```markdown
 ## Review Status
@@ -75,21 +75,21 @@ Blocking checks must cite concrete evidence (file/section/quote or concrete reas
 
 #### Blocking
 
-- [x] Requirements coverage — 근거: <file/section/quote or concrete reason>
-- [x] Requirements-plan consistency — 근거: <file/section/quote or concrete reason>
-- [x] Acceptance criteria matrix — 근거: <file/section/quote or concrete reason>
-- [x] Decision contract clarity — 근거: <file/section/quote or concrete reason>
-- [x] Dependency ordering — 근거: <file/section/quote or concrete reason>
-- [x] No placeholders — 근거: <file/section/quote or concrete reason>
-- [x] File surface — 근거: <file/section/quote or concrete reason>
-- [x] Interface consistency — 근거: <file/section/quote or concrete reason>
-- [x] Execution surface — 근거: <file/section/quote or concrete reason>
-- [x] Safety gate coverage — 근거: <file/section/quote or concrete reason>
-- [x] Test strategy fit — 근거: <file/section/quote or concrete reason>
-- [x] Verification evidence mapping — 근거: <file/section/quote or concrete reason>
-- [x] Verification surface — 근거: <file/section/quote or concrete reason>
-- [x] Executor readiness — 근거: <file/section/quote or concrete reason>
-- [x] Policy restraint — 근거: <file/section/quote or concrete reason>
+- [x] Requirements coverage — evidence: <file/section/quote or concrete reason>
+- [x] Requirements-plan consistency — evidence: <file/section/quote or concrete reason>
+- [x] Acceptance criteria matrix — evidence: <file/section/quote or concrete reason>
+- [x] Decision contract clarity — evidence: <file/section/quote or concrete reason>
+- [x] Dependency ordering — evidence: <file/section/quote or concrete reason>
+- [x] No placeholders — evidence: <file/section/quote or concrete reason>
+- [x] File surface — evidence: <file/section/quote or concrete reason>
+- [x] Interface consistency — evidence: <file/section/quote or concrete reason>
+- [x] Execution surface — evidence: <file/section/quote or concrete reason>
+- [x] Safety gate coverage — evidence: <file/section/quote or concrete reason>
+- [x] Test strategy fit — evidence: <file/section/quote or concrete reason>
+- [x] Verification evidence mapping — evidence: <file/section/quote or concrete reason>
+- [x] Verification surface — evidence: <file/section/quote or concrete reason>
+- [x] Executor readiness — evidence: <file/section/quote or concrete reason>
+- [x] Policy restraint — evidence: <file/section/quote or concrete reason>
 
 #### Advisory
 

@@ -34,7 +34,7 @@ SCENARIO_ANSWERS = {
 
 
 QUESTION_PATTERN = re.compile(
-    r"(## (?:💡\s*)?Question (\d+).*?(?:### (?:✍️\s*)?Answer\s*\n\n|✅ 답변을 입력하세요\.\s*\n))\[Answer\]:\s*(?=\n|---\n|## (?:💡\s*)?Question|\Z)",
+    r"(## (?:💡\s*)?Question (\d+).*?(?:### (?:✍️\s*)?Answer\s*\n\n|✅ Enter your answer\.\s*\n))\[Answer\]:\s*(?=\n|---\n|## (?:💡\s*)?Question|\Z)",
     flags=re.DOTALL,
 )
 

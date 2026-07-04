@@ -79,10 +79,11 @@ Question selection:
 - Each question must include at least two meaningful options and a final `X) Other`; 2-5 options are recommended.
 - Leave a blank line between options.
 - Put a `---` separator immediately before and after each question block.
-- Each question must follow this order: `### 왜 중요한가요?`, `### Requirements 반영`, `### 선택`, options, `**추천**:`, `✅ 답변을 입력하세요.`, then `[Answer]:`.
+- Each question must follow this canonical structural order: `### Why This Matters`, `### Requirements Impact`, `### Options`, options, `**Recommendation**:`, `✅ Enter your answer.`, then `[Answer]:`.
+- These structural headings may stay in canonical English or be consistently translated into the user's current or preferred language, but their order and count are fixed to the canonical structure above. Do not add, drop, or reorder them.
 - Leave `[Answer]:` blank when creating the file. The user fills it directly unless they later provide a clearly mappable chat answer.
 - Write question text, context, recommendations, why-it-matters notes, and requirements impact notes in the user's current or clearly preferred conversation language unless the user requests another language.
-- Preserve option letters, `[Answer]:`, file paths, code identifiers, and exact technical references.
+- Always preserve `[Answer]:`, option letters (`A)`, `B)`, `X) Other`), file paths, code identifiers, and exact technical references regardless of the artifact language.
 
 After creating or updating a question file:
 

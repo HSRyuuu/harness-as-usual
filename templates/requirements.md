@@ -24,7 +24,7 @@
 - Question files:
   - `question-c1.md`
 - Other references:
-  - 없음
+  - None
 
 ## Domain Requirements
 
@@ -46,7 +46,8 @@
 
 ## Non-Functional Requirements
 
-- 없음 또는 해당 없음일 때도 사용자 언어로 이유를 짧게 작성
+<!-- If none/N-A, keep an explicit none/N-A line here in the user's language with a short reason. -->
+- None
 
 ## Decisions From Questions
 
@@ -54,7 +55,7 @@
 
 ## Assumptions
 
-- 없음
+- None
 
 ## Affected Surface
 
@@ -64,11 +65,12 @@
 
 ## Risks
 
-- 없음 또는 해당 없음일 때도 사용자 언어로 이유를 짧게 작성
+<!-- If none/N-A, keep an explicit none/N-A line here in the user's language with a short reason. -->
+- None
 
 ## Open Questions
 
-- 없음
+- None
 
 ## Acceptance Criteria
 

@@ -34,7 +34,7 @@ Blocking checks (must cite concrete evidence — file/section/quote or concrete 
 | Plan readiness | A planner can infer likely files/areas, dependencies, constraints, and verification direction from `requirements.md` alone. |
 | Boundary clarity | Out-of-scope prevents accidental expansion. |
 | None / N/A handling | Optional sections may be explicitly none. Accept none/N/A statements written in the user's language. Do not require invented NFRs, risks, assumptions, or affected files. |
-| User-language consistency | Canonical headings, status values, source traces, code identifiers, commands, and paths may stay canonical. User-facing prose should follow the user's preferred language. |
+| User-language consistency | Structural/canonical headings may stay canonical English or be consistently translated to the user's language, with order and count fixed; status values, source traces, code identifiers, commands, and paths stay canonical. Other user-facing prose should follow the user's preferred language. |
 | YAGNI | The requirements do not add unrequested features or process beyond the topic. |
 
 ## Calibration
@@ -55,7 +55,7 @@ If the issue reveals a broad multi-question decision cycle or changes the topic 
 
 Record the review result in the existing `## Review Status` area of `requirements.md`. Do not create a separate review block.
 Use markdown checkboxes for `Requirements Review Checks`: `[x]` for passed checks and `[ ]` for checks that remain failed or blocked.
-Blocking checks must cite concrete evidence (file/section/quote or concrete reason); Advisory checks may use a short localized pass note.
+Blocking checks must cite concrete evidence (file/section/quote or concrete reason); Advisory checks may use a short localized pass note. The `evidence:` label shown in the example below may stay canonical English or be consistently translated into the user's language; the check names, `[x]`/`[ ]` markers, and status values stay canonical.
 
 ```markdown
 ## Review Status
@@ -69,17 +69,17 @@ Blocking checks must cite concrete evidence (file/section/quote or concrete reas
 
 #### Blocking
 
-- [x] Completeness — 근거: <file/section/quote or concrete reason>
-- [x] Source traceability — 근거: <file/section/quote or concrete reason>
-- [x] Question coverage — 근거: <file/section/quote or concrete reason>
-- [x] Domain rule clarity — 근거: <file/section/quote or concrete reason>
-- [x] Constraint coverage — 근거: <file/section/quote or concrete reason>
-- [x] Consistency — 근거: <file/section/quote or concrete reason>
-- [x] Technical decision consistency — 근거: <file/section/quote or concrete reason>
-- [x] Material ambiguity — 근거: <file/section/quote or concrete reason>
-- [x] Assumptions — 근거: <file/section/quote or concrete reason>
-- [x] Plan readiness — 근거: <file/section/quote or concrete reason>
-- [x] Boundary clarity — 근거: <file/section/quote or concrete reason>
+- [x] Completeness — evidence: <file/section/quote or concrete reason>
+- [x] Source traceability — evidence: <file/section/quote or concrete reason>
+- [x] Question coverage — evidence: <file/section/quote or concrete reason>
+- [x] Domain rule clarity — evidence: <file/section/quote or concrete reason>
+- [x] Constraint coverage — evidence: <file/section/quote or concrete reason>
+- [x] Consistency — evidence: <file/section/quote or concrete reason>
+- [x] Technical decision consistency — evidence: <file/section/quote or concrete reason>
+- [x] Material ambiguity — evidence: <file/section/quote or concrete reason>
+- [x] Assumptions — evidence: <file/section/quote or concrete reason>
+- [x] Plan readiness — evidence: <file/section/quote or concrete reason>
+- [x] Boundary clarity — evidence: <file/section/quote or concrete reason>
 
 #### Advisory
 
