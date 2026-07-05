@@ -69,6 +69,7 @@ ACTORS = {"codex", "claude", "user", "system"}
 HOSTS = {"codex", "claude"}
 REVIEW_MODES = {"independent", "self", "local-prompt"}
 REVIEW_STATUSES = {"passed", "findings", "blocked"}
+VERIFICATION_VERDICTS = {"PASS", "FAIL", "INCONCLUSIVE"}
 AUDIT_STATUSES = {"success", "warning", "error"}
 GIT_ACTIONS = {"none", "commit", "commit + push", "commit + push + PR"}
 ROUTES = {"requirements", "plan", "execute", "direct-execute"}

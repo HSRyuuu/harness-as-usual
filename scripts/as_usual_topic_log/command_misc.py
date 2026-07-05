@@ -30,6 +30,7 @@ from .constants import (
     TASK_REVIEW_TYPES,
     TASK_ROLES,
     TDD_EXCEPTION_CATEGORIES,
+    VERIFICATION_VERDICTS,
 )
 from .paths import audit_path, require_existing_topic_dir, topic_dir, topic_md_path
 from .status import derive_status
@@ -101,6 +102,7 @@ def cmd_blocker(args: argparse.Namespace) -> None:
 
 def cmd_verification(args: argparse.Namespace) -> None:
     validate_enum("actor", args.actor, ACTORS)
+    validate_enum("verification verdict", args.verdict, VERIFICATION_VERDICTS)
     topic = require_existing_topic_dir(args.topic_dir)
     append_audit(
         topic,
@@ -112,7 +114,7 @@ def cmd_verification(args: argparse.Namespace) -> None:
         timestamp=args.timestamp or current_timestamp(),
         summary=args.summary,
         next_action=args.next_action or "",
-        data={"command": args.command, "result": args.result},
+        data={"command": args.command, "result": args.result, "verdict": args.verdict},
     )
 
 def cmd_status(args: argparse.Namespace) -> None:

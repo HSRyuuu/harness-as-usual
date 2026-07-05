@@ -341,6 +341,7 @@ def build_parser() -> argparse.ArgumentParser:
     verification.add_argument("--summary", required=True)
     verification.add_argument("--command", required=True)
     verification.add_argument("--result", required=True)
+    verification.add_argument("--verdict", required=True)
     verification.add_argument("--phase", default="")
     verification.add_argument("--next-action", default="")
     verification.add_argument("--artifacts", default="")

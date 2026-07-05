@@ -754,7 +754,7 @@ AsUsual sandbox runner contract:
   - `python3 /Users/happyhsryu/dev/personal/as-usual/scripts/topic-log.py artifact --topic-dir <topicDir> --name <artifactName> --value <file>`
   - `python3 /Users/happyhsryu/dev/personal/as-usual/scripts/topic-log.py artifact --topic-dir <topicDir> --name question --value question-c1.md --append --actor __AS_USUAL_HOST__`
   - `python3 /Users/happyhsryu/dev/personal/as-usual/scripts/topic-log.py decision --topic-dir <topicDir> --summary <text>`
-  - `python3 /Users/happyhsryu/dev/personal/as-usual/scripts/topic-log.py verification --topic-dir <topicDir> --command <command> --result <result> --summary "Final command: <command> -> exit 0."`
+  - `python3 /Users/happyhsryu/dev/personal/as-usual/scripts/topic-log.py verification --topic-dir <topicDir> --command <command> --result <result> --verdict PASS --summary "Final command: <command> -> exit 0."`
   - `python3 /Users/happyhsryu/dev/personal/as-usual/scripts/topic-log.py approve-execution --topic-dir <topicDir> --approved-by user --source <source>`
   - `python3 /Users/happyhsryu/dev/personal/as-usual/scripts/topic-log.py approve-high-risk --topic-dir <topicDir> --operation-id <id> --description <description> --rollback <rollback> --approved-by user`
   - `python3 /Users/happyhsryu/dev/personal/as-usual/scripts/topic-log.py dispatch-task --topic-dir <topicDir> --task <task> --mode subagent-driven --role implementer --context requirements.md,plan.md --summary <text> --actor __AS_USUAL_HOST__`
