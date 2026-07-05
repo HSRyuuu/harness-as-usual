@@ -111,7 +111,7 @@ This skill should not duplicate phase procedures. Its job is to hand off to the 
 - `audit.jsonl` is an append-only event log.
 - Derive phase, next action, artifacts, blockers, approvals, and verification with `python3 <plugin-root>/scripts/topic-log.py status --topic-dir <topic-dir> --json`.
 - Prefer source traces such as `topic.md#Initial Request`, `topic.created`, `question-c1.md Q1`, and `decision.recorded`.
-- Update `topic.md` and `audit.jsonl` only through `scripts/topic-log.py` when the helper can express the transition. Prefer macro commands such as `route-start-work`, `complete-requirements`, `complete-plan`, `complete-task`, `verification`, `blocker`, `complete-execution`, `record-review`, `skip-code-cleanup`, `finalize-topic`, and `select-git-action`.
+- Update `topic.md` and `audit.jsonl` only through `scripts/topic-log.py` when the helper can express the transition. Prefer the highest-level command that matches the transition; see `as-usual-rules/log-audit-commands.md` for the canonical command set.
 
 ## Stop Conditions
 

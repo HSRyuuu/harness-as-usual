@@ -162,7 +162,7 @@ Artifact invariants:
 - Do not create project-global `.as-usual/audit.jsonl`.
 - `.as-usual/memory/` holds project-scoped long-term memory (`MEMORY.md`, optional `<domain>_MEMORY.md`). This is the one allowed non-`topic/` artifact category under `.as-usual/`. Do not create other project-global artifacts.
 - Do not use the legacy plural-`topics` folder or compact `yyyyMMdd` date format for new artifacts.
-- Update `topic.md` and `audit.jsonl` only through `scripts/topic-log.py`; prefer phase macro commands such as `route-start-work`, `complete-requirements`, `complete-plan`, `complete-task`, `complete-execution`, `skip-code-cleanup`, `finalize-topic`, and `select-git-action` over composing multiple low-level audit calls. If the helper cannot express a needed runtime update, stop and report the missing helper capability instead of hand-editing those files.
+- Update `topic.md` and `audit.jsonl` only through `scripts/topic-log.py`; prefer the phase-transition macro that matches the transition over composing multiple low-level audit calls. See `as-usual-rules/log-audit-commands.md` for the canonical command set. If the helper cannot express a needed runtime update, stop and report the missing helper capability instead of hand-editing those files.
 - Initialize a new topic with `scripts/topic-log.py init`, which creates `topic.md`, creates `audit.jsonl`, records the initial request, and appends the first `topic.created` event.
 - Use host-specific audit actors such as `codex` or `claude`; do not use the generic actor value `agent`.
 - After creating a topic, tell the user the topic path in one line so they can correct the topic/slug early.
@@ -509,16 +509,7 @@ For topic and audit updates, use the audit-first helper. `<plugin-root>` is the 
 python3 <plugin-root>/scripts/topic-log.py ...
 ```
 
-Prefer these phase-level commands when they match the transition:
-
-- `route-start-work`: record route, reason, skipped gates, and next action.
-- `complete-requirements`: record `requirements-complete`, link `requirements.md`, and append typed audit.
-- `complete-plan`: record `plan-review`, link `plan.md`, and append typed audit.
-- `complete-task`: record one execution task result and optional verification evidence.
-- `complete-execution`: record `execution-complete` and route to review.
-- `skip-code-cleanup`: record the explicit code cleanup skip decision and route to finalize.
-- `finalize-topic`: record final status, link `report.md`, and request git action.
-- `select-git-action`: record the chosen post-finalize git action.
+`as-usual-rules/log-audit-commands.md` is the canonical reference for the full command set, grouped by role (phase-transition macros, in-phase recorders, and read-only commands). Prefer the highest-level command that matches the transition over composing multiple low-level `audit` calls. Do not maintain a second command list here.
 
 Do not hand-edit `topic.md` or `audit.jsonl`. If the helper cannot express a needed update, stop and report the missing helper capability so the helper can be extended.
 
