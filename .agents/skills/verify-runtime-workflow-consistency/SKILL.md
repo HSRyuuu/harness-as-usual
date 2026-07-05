@@ -546,6 +546,34 @@ rg -n 'VERIFICATION_VERDICTS|PASS \| FAIL \| INCONCLUSIVE' scripts/as_usual_topi
 rg -n 'execute/task-|clean-up/review-result-' as-usual-rules/core-workflow.md
 rg -n '^verdict:' templates/code-review-report.md
 rg -n 'topic-log\.py verification' skills as-usual-rules .agents .claude | rg -v -- --verdict
+rg -n 'INCONCLUSIVE is not PASS' as-usual-rules/core-workflow.md skills/executing-plan/SKILL.md
+rg -n 'TASK / DELIVERABLE / SCOPE / VERIFY' as-usual-rules/core-workflow.md
+rg -n 'claim' skills/executing-plan/implementer-prompt.md
+rg -n 'must not issue the final review verdict' skills/review-execution/SKILL.md
+rg -l 'blocker-finder' \
+  skills/executing-plan/task-requirements-reviewer-prompt.md \
+  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/review-execution/code-reviewer-prompt.md \
+  skills/cleanup-code/reuse-reviewer-prompt.md \
+  skills/cleanup-code/simplification-reviewer-prompt.md \
+  skills/cleanup-code/efficiency-reviewer-prompt.md \
+  skills/cleanup-code/abstraction-reviewer-prompt.md
+rg -l 'at most 3' \
+  skills/executing-plan/task-requirements-reviewer-prompt.md \
+  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/review-execution/code-reviewer-prompt.md \
+  skills/cleanup-code/reuse-reviewer-prompt.md \
+  skills/cleanup-code/simplification-reviewer-prompt.md \
+  skills/cleanup-code/efficiency-reviewer-prompt.md \
+  skills/cleanup-code/abstraction-reviewer-prompt.md
+rg -l 'Does Not Check|also does not check' \
+  skills/executing-plan/task-requirements-reviewer-prompt.md \
+  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/review-execution/code-reviewer-prompt.md \
+  skills/cleanup-code/reuse-reviewer-prompt.md \
+  skills/cleanup-code/simplification-reviewer-prompt.md \
+  skills/cleanup-code/efficiency-reviewer-prompt.md \
+  skills/cleanup-code/abstraction-reviewer-prompt.md
 ```
 
 PASS:
@@ -557,6 +585,10 @@ PASS:
 - `core-workflow.md` contains `execute/task-` and `clean-up/review-result-` review artifact paths.
 - `templates/code-review-report.md` has frontmatter `verdict:`.
 - The final verification-call scan has no output; every active `topic-log.py verification` example includes `--verdict`.
+- `INCONCLUSIVE is not PASS` appears in both `core-workflow.md` and `executing-plan/SKILL.md`.
+- `core-workflow.md` contains the `TASK / DELIVERABLE / SCOPE / VERIFY` delegation input contract.
+- `implementer-prompt.md` treats `DONE` as a claim, and `review-execution/SKILL.md` says the implementer must not issue the final review verdict on its own work.
+- The 7 reviewer prompts all contain `blocker-finder`, `at most 3`, and either `Does Not Check` or `also does not check`.
 
 FAIL:
 
@@ -564,8 +596,11 @@ FAIL:
 - Receipt output paths are missing from target prompts.
 - The helper and workflow contract disagree about verification verdict vocabulary.
 - A `topic-log.py verification` example omits `--verdict`.
+- `INCONCLUSIVE` is treated as pass, or the gate contract is missing from either the core workflow or executing-plan skill.
+- The delegation input contract is missing from `core-workflow.md`, or the DoneClaim/independent-review contract is missing from the implementer or review-execution surfaces.
+- Any of the 7 reviewer prompts lacks blocker-finder role wording, the at-most-3 cap, or an explicit non-check declaration.
 
-Fix: align runtime prompts, `core-workflow.md`, `templates/code-review-report.md`, and `scripts/as_usual_topic_log/constants.py` to the same closed vocabularies and receipt contract.
+Fix: align runtime prompts, `core-workflow.md`, `templates/code-review-report.md`, and `scripts/as_usual_topic_log/constants.py` to the same closed vocabularies, receipt contract, DoneClaim gate, reviewer calibration, and delegation contract.
 
 ## Output Format
 
