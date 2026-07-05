@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,16 @@ def validate_enum(name: str, value: str, allowed: set[str]) -> None:
 def validate_canonical_filename(name: str, value: str, expected: str) -> None:
     if value != expected:
         raise SystemExit(f"Invalid {name}: {value}. {name} must be {expected}")
+
+
+_QUESTION_FILENAME = re.compile(r"^question-c\d+\.md$")
+
+
+def validate_question_filename(value: str) -> None:
+    if not _QUESTION_FILENAME.match(value):
+        raise SystemExit(
+            f"Invalid question file: {value}. Expected canonical name question-c<N>.md (for example question-c1.md)."
+        )
 
 
 def require_invariant(condition: Any, message: str) -> None:

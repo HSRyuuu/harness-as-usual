@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 
 from .commands import (
+    cmd_answer_question,
     cmd_approve_execution,
     cmd_approve_high_risk,
     cmd_artifact,
@@ -21,6 +22,7 @@ from .commands import (
     cmd_note,
     cmd_record_memory,
     cmd_record_memory_candidate,
+    cmd_record_question,
     cmd_record_review,
     cmd_record_skill,
     cmd_record_sweep,
@@ -108,6 +110,25 @@ def build_parser() -> argparse.ArgumentParser:
     route.add_argument("--actor", default="codex")
     route.add_argument("--timestamp", default="")
     route.set_defaults(func=cmd_route_start_work)
+
+    record_question = sub.add_parser("record-question", help="Append requirements question creation event.")
+    record_question.add_argument("--topic-dir", required=True)
+    record_question.add_argument("--question", required=True)
+    record_question.add_argument("--summary", default="")
+    record_question.add_argument("--actor", default="codex")
+    record_question.add_argument("--timestamp", default="")
+    record_question.set_defaults(func=cmd_record_question)
+
+    answer_question = sub.add_parser("answer-question", help="Append requirements question answered event.")
+    answer_question.add_argument("--topic-dir", required=True)
+    answer_question.add_argument("--question", required=True)
+    answer_question.add_argument("--source", choices=["file", "chat"], default="file")
+    answer_question.add_argument("--next-action", default="")
+    answer_question.add_argument("--summary", default="")
+    answer_question.add_argument("--notes", default="")
+    answer_question.add_argument("--actor", default="codex")
+    answer_question.add_argument("--timestamp", default="")
+    answer_question.set_defaults(func=cmd_answer_question)
 
     complete_requirements = sub.add_parser("complete-requirements", help="Append requirements completion event.")
     complete_requirements.add_argument("--topic-dir", required=True)

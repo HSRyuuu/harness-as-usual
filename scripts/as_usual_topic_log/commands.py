@@ -14,11 +14,13 @@ from .command_execution import (
     cmd_record_task_review,
 )
 from .command_lifecycle import (
+    cmd_answer_question,
     cmd_artifact,
     cmd_audit,
     cmd_complete_plan,
     cmd_complete_requirements,
     cmd_init,
+    cmd_record_question,
     cmd_route_start_work,
 )
 from .command_memory import cmd_record_memory, cmd_record_memory_candidate, cmd_record_skill
@@ -31,6 +33,7 @@ from .command_review_finalize import (
 )
 
 __all__ = [
+    "cmd_answer_question",
     "cmd_approve_execution",
     "cmd_approve_high_risk",
     "cmd_artifact",
@@ -47,6 +50,7 @@ __all__ = [
     "cmd_note",
     "cmd_record_memory",
     "cmd_record_memory_candidate",
+    "cmd_record_question",
     "cmd_record_review",
     "cmd_record_skill",
     "cmd_record_sweep",

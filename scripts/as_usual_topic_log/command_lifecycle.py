@@ -39,6 +39,7 @@ from .validation import (
     validate_audit,
     validate_canonical_filename,
     validate_enum,
+    validate_question_filename,
     validate_topic_invariants,
 )
 
@@ -156,6 +157,42 @@ def cmd_route_start_work(args: argparse.Namespace) -> None:
             "skippedGates": args.skipped_gates,
             "verificationPlan": args.verification_plan,
         },
+    )
+
+def cmd_record_question(args: argparse.Namespace) -> None:
+    validate_enum("actor", args.actor, ACTORS)
+    validate_question_filename(args.question)
+    topic = require_existing_topic_dir(args.topic_dir)
+    append_audit(
+        topic,
+        event="question.created",
+        actor=args.actor,
+        phase="define-requirements",
+        artifacts=[args.question],
+        notes=args.summary,
+        timestamp=args.timestamp or current_timestamp(),
+        summary=args.summary or f"Created requirements question file {args.question}.",
+        next_action="answer-questions",
+        data={"question": args.question},
+    )
+
+def cmd_answer_question(args: argparse.Namespace) -> None:
+    validate_enum("actor", args.actor, ACTORS)
+    validate_question_filename(args.question)
+    if args.next_action:
+        validate_enum("nextAction", args.next_action, NEXT_ACTIONS)
+    topic = require_existing_topic_dir(args.topic_dir)
+    append_audit(
+        topic,
+        event="question.answered",
+        actor=args.actor,
+        phase="define-requirements",
+        artifacts=[args.question],
+        notes=args.notes,
+        timestamp=args.timestamp or current_timestamp(),
+        summary=args.summary or f"Recorded answers for {args.question}.",
+        next_action=args.next_action or "answer-questions",
+        data={"question": args.question, "source": args.source},
     )
 
 def cmd_complete_requirements(args: argparse.Namespace) -> None:
