@@ -142,6 +142,7 @@ Plugin development requests are classified as plugin development even when they 
 - `question-cN.md` and `[Answer]:` fields are for the `define-requirements` question cycle only.
 - The agent stops after creating or updating a requirements question file.
 - When the user says they answered, reread the question file from disk.
+- The user may answer question files in chat; the agent then presents a question-to-answer mapping table, gets explicit confirmation, and only after that transcribes answers into `[Answer]:` fields. Question files stay the canonical answer record.
 - In requirements/plan/execute phases, focused clarifications may be asked in chat. Record the answer in `audit.jsonl` through `scripts/topic-log.py`, and rerun the affected requirements or plan review when artifacts change.
 - Broad ambiguity involving multiple decisions or a topic-boundary change should route to `define-requirements` or `start-work` instead of being compressed into one chat question.
 - Before writing requirements, read the same topic's `question-cN.md` files in order.

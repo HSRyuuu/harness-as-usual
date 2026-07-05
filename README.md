@@ -98,7 +98,7 @@ Need to continue a topic from another session? Use <code>/as-usual:hand-off path
 <tr><th align="center" width="48">#</th><th align="left" width="190">Stage</th><th align="left">What happens</th></tr>
 </thead>
 <tbody>
-<tr><td align="center">1</td><td><code>define-requirements</code></td><td>Write <code>question-cN.md</code> only when material ambiguity exists; you answer in <code>[Answer]:</code> fields; the agent synthesizes a single <code>requirements.md</code>.</td></tr>
+<tr><td align="center">1</td><td><code>define-requirements</code></td><td>Write <code>question-cN.md</code> only when material ambiguity exists; you answer in <code>[Answer]:</code> fields, or in chat — the agent then confirms a question-to-answer mapping table with you before writing the file; the agent synthesizes a single <code>requirements.md</code>.</td></tr>
 <tr><td align="center">2</td><td><code>writing-plan</code></td><td>Produce one <code>plan.md</code> from the approved requirements.</td></tr>
 <tr><td align="center">3</td><td><code>executing-plan</code></td><td>Implement via <code>inline</code>, <code>subagent-driven</code>, or <code>mixed</code> mode (or <code>direct-execute</code> for trivial work); the main agent stays the controller for order, evidence, and completion claims.</td></tr>
 <tr><td align="center">4</td><td><code>review-execution</code></td><td>Mandatory review of real changes against the recorded evidence.</td></tr>

@@ -82,7 +82,7 @@ Target project에는 runtime prompt를 복사하지 않는다. AsUsual이 활성
 | --- | --- |
 | `topic.md` | initial request, topic boundary, durable notes, artifact orientation을 담는 agent-first low-churn resume document. 사람도 읽기 좋게 쓰되, current snapshot이나 progress ledger로 계속 갱신하지 않는다. |
 | `audit.jsonl` | canonical append-only event log. topic created, route, answer validation, requirements/plan completion, execution, review, finalize, git action 등을 기록한다. 현재 phase, next action, blockers, approvals, verification은 여기서 파생한다. |
-| `question-cN.md` | define-requirements cycle별 질문 파일. 사용자가 `[Answer]:` field에 직접 답한다. Topic/cycle/input provenance는 YAML front matter에 두고, 본문은 사용자 결정 질문에 집중한다. |
+| `question-cN.md` | define-requirements cycle별 질문 파일. 사용자가 `[Answer]:` field에 직접 답하거나, chat으로 답하면 agent가 질문-답변 매핑 표 확인을 받은 뒤 전사한다. Topic/cycle/input provenance는 YAML front matter에 두고, 본문은 사용자 결정 질문에 집중한다. |
 | `requirements.md` | answered question files와 initial request를 합성한 단일 requirements document. |
 | `plan.md` | 승인된 requirements을 기반으로 만든 단일 execution contract. 실행 progress ledger가 아니다. Input provenance는 YAML front matter에 둔다. |
 | `execute/task-<N>-requirements-review.md`, `execute/task-<N>-quality-review.md` | task-level requirements/quality review 상세 파일. YAML front matter의 `verdict`가 canonical 판정 위치다. |
@@ -183,7 +183,7 @@ Topic log helper:
 
 ### 4. Define Requirements: `define-requirements`
 
-초기 broad ambiguity는 chat으로만 묻지 않는다. `question-cN.md`를 만들고 사용자가 `[Answer]:` field에 직접 답하게 한다.
+초기 broad ambiguity는 chat으로만 묻지 않는다. `question-cN.md`를 만들고 사용자가 `[Answer]:` field에 직접 답하게 한다. 사용자가 chat으로 답한 경우에도 답변을 바로 파일에 쓰지 않는다. Agent가 질문-답변 매핑 표를 보여주고 사용자의 명시적 확인을 받은 뒤에만 `[Answer]:` field에 전사한다. 매핑 오답(사용자는 Q1에 A라고 했는데 agent가 Q2의 답으로 기록)을 막기 위한 게이트다.
 
 주요 규칙:
 

@@ -96,7 +96,7 @@ python3 <plugin-root>/scripts/topic-log.py record-question \
   --summary "Created requirements question file question-cN.md."
 ```
 
-2. Tell the user which file to fill in, specifically asking them to fill the `[Answer]:` fields, and stop.
+2. Tell the user which file to fill in, specifically asking them to fill the `[Answer]:` fields, and stop. The user may instead answer in chat; that path goes through the chat-answer mapping table in Validate Answers below.
 
 Use `scripts/topic-log.py` macros for audit updates. Do not hand-edit `audit.jsonl`.
 
@@ -106,26 +106,38 @@ When the user returns saying they answered, reread `question-c1.md`, `question-c
 
 If the user answered in chat instead of editing `[Answer]:` fields:
 
-1. Map each chat answer to one specific question file and question number.
+1. Map each chat answer to exactly one question file and question number. Answers that name the question or option map directly; positional answers such as `A B C A` map to the open questions in file and question order only when the answer count matches the open question count exactly.
 2. Do not treat short approval phrases such as `ㄱㄱ`, `go`, `go ahead`, `진행`, `좋아`, `ok`, or `yes` as answers to one or more material questions. These phrases may approve requirements synthesis only when every `[Answer]:` field was already filled by the user on disk.
 3. If a `[Answer]:` field is blank or was prefilled by the agent, stop and ask the user to fill the file directly instead of mapping a broad approval phrase to recommended options.
-4. If mapping is clear and the answer names the question or option, transcribe the answer into the matching `[Answer]:` field.
-5. Record the answer with the `answer-question` macro. It appends a single `question.answered` event and keeps next action at `answer-questions` because validation has not run yet — do not jump the derived state to `write-requirements` before answers are validated:
+4. Before writing anything to disk, present the mapping as a confirmation table, ask the user whether it is correct, and stop:
+
+```markdown
+| Question | Summary | Your Answer |
+| --- | --- | --- |
+| question-c1.md Q1 | <short question summary> | A) <selected option summary> |
+| question-c1.md Q2 | <short question summary> | B) <selected option summary> |
+```
+
+The table exists to catch mis-mapping (the user meant A for Q1, the agent mapped A to Q2), so each row must show enough question and option text for the user to spot a wrong pairing. The table may contain only answers the user actually gave — never fill rows from recommendations or defaults, and a question the user did not answer stays visibly unanswered and blocks confirmation.
+
+5. If the user corrects any row, update the table and ask for confirmation again. Never transcribe a partially confirmed or corrected-but-unconfirmed mapping.
+6. Only after the user explicitly confirms the table, transcribe each confirmed answer into the matching `[Answer]:` field.
+7. Record each transcription with the `answer-question` macro. It appends a single `question.answered` event and keeps next action at `answer-questions` because validation has not run yet — do not jump the derived state to `write-requirements` before answers are validated:
 
 ```bash
 python3 <plugin-root>/scripts/topic-log.py answer-question \
   --topic-dir <topic-dir> \
   --question question-cN.md \
   --source chat \
-  --summary "Transcribed chat answer into question-cN.md Q<N>." \
-  --notes "Source: current user turn."
+  --summary "Transcribed confirmed chat answer into question-cN.md Q<N>." \
+  --notes "Source: chat answer confirmed via mapping table."
 ```
 
-When the user filled the `[Answer]:` fields directly on disk, transcription is not needed; you may still record an `answer-question --source file` event (the default) for audit traceability, but it is optional on the file path.
+When the user filled the `[Answer]:` fields directly on disk, the mapping table and transcription are not needed; you may still record an `answer-question --source file` event (the default) for audit traceability, but it is optional on the file path.
 
-6. Continue validation from disk.
+8. Continue validation from disk. Treat the confirmed table as the "user answered" trigger: proceed to validation and, when it passes, requirements synthesis in the same turn.
 
-If mapping is unclear, ask the user to answer directly in the file and stop.
+If the mapping cannot be made unambiguous even after one correction round, ask the user to answer directly in the file and stop.
 
 Validation checks:
 
@@ -295,6 +307,8 @@ The actual review/approval/write happens later via `manage-self-improvement` at 
 - Writing `plan.md` before the user approves completed requirements.
 - Asking broad material decisions only in chat.
 - Guessing empty `[Answer]:` fields.
+- Transcribing chat answers into `[Answer]:` fields without showing the mapping table and getting explicit confirmation.
+- Prefilling the mapping table with recommended options the user did not choose.
 - Leaving template examples or placeholders in completed `requirements.md`.
 - Carrying material ambiguity into `Open Questions`.
 - Marking requirements complete while reviewer findings remain unresolved.
