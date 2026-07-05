@@ -76,6 +76,8 @@ A no-finding review is valid when the implementation satisfies the requirements,
 
 Prefer a separate code-review agent or subagent when the host supports it. Fill the reviewer prompt with the topic artifact paths and the diff or changed-file list, and give the reviewer only the topic files, diff/range, and execution evidence needed for review, not the whole conversation history.
 
+Regardless of host support, the implementer of the change must not issue the final review verdict on its own work. In inline fallback, the verdict must come from re-reading the actual files, diff, and recorded evidence, not from restating the implementer's claims.
+
 For `independent` review mode, treat the reviewer response as a receipt: `Verdict: passed | findings | blocked`, `Report: code-review-report.md | none`, and severity counts. If a report is written, confirm the report frontmatter `verdict` matches the receipt verdict before recording `record-review`.
 
 For `local-prompt` review mode, apply the same file/frontmatter rule directly in this session: when a report is created, its frontmatter `verdict` must match the `record-review --status` value.
