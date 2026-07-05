@@ -8,6 +8,7 @@ plan: plan.md
 diffOrChangedFiles:
 verificationEvidence:
 findingQualityGateApplied: yes | no
+verdict: passed | findings | blocked
 ---
 
 # yyyy-MM-dd-<topic> Code Review Report

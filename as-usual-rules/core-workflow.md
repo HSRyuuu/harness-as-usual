@@ -132,6 +132,11 @@ Canonical topic folder:
             ├── question-c2.md
             ├── requirements.md
             ├── plan.md
+            ├── execute/
+            │   ├── task-<N>-requirements-review.md
+            │   └── task-<N>-quality-review.md
+            ├── clean-up/
+            │   └── review-result-<type>.md
             ├── code-review-report.md
             └── report.md
 ```
@@ -149,6 +154,10 @@ Artifact invariants:
 - When asking for user approval or a material decision in chat or a terminal transcript, use a compact approval block instead of one dense paragraph. Include one item per line: requested action, reason, scope/files, risk or impact, rollback/recovery, and the exact user choice needed. Omit fields only when they truly do not apply. Use the user's current language for labels and prose, while preserving exact commands, paths, dependency coordinates, and code identifiers.
 - `topic.md` is a low-churn resume document for durable context: initial request, topic boundary, durable decisions, constraints, and artifact index. Do not use it as a current snapshot, task list, progress ledger, or verification log.
 - `audit.jsonl` is the canonical append-only event history. Current phase, next action, blockers, approvals, verification, and linked artifacts are derived from it by `scripts/topic-log.py status --json`.
+- Review detail files record their canonical verdict in YAML frontmatter `verdict`, and that verdict must match the corresponding audit status. This file/frontmatter/audit consistency applies regardless of host or subagent availability.
+- Task review detail files use `execute/task-<N>-requirements-review.md` and `execute/task-<N>-quality-review.md`; cleanup review detail files use `clean-up/review-result-<type>.md`.
+- When a subagent is used, detailed outputs go to files and the subagent response returns only a verdict plus artifact path receipt. The receipt verdict must match the review file frontmatter and audit status.
+- Closed vocabularies are fixed as review `passed | findings | blocked`, verification `PASS | FAIL | INCONCLUSIVE` (gate semantics are finalized in a later topic), and implementer completion `DONE | NEEDS_CONTEXT | BLOCKED`.
 - Do not create or copy the runtime workflow prompt into the target project.
 - Do not create project-global `.as-usual/audit.jsonl`.
 - `.as-usual/memory/` holds project-scoped long-term memory (`MEMORY.md`, optional `<domain>_MEMORY.md`). This is the one allowed non-`topic/` artifact category under `.as-usual/`. Do not create other project-global artifacts.
@@ -533,6 +542,8 @@ Derived status should come from `scripts/topic-log.py status --topic-dir <topic-
 - remaining issues
 
 `audit.jsonl` is an append-only event log. Record facts, not a polished summary. New audit events should include typed observation fields: `status` (`success`, `warning`, or `error`), `summary`, `phase`, `nextAction`, and when applicable `errorKind`, `retryHint`, and `stopCondition`.
+
+`verification.recorded` events must include the `verification --verdict` value (`PASS | FAIL | INCONCLUSIVE`) in event data.
 
 Run `scripts/topic-log.py validate --topic-dir <topic-dir>` before claiming a topic is structurally complete. Use `scripts/topic-log.py record-sweep` for E2E, stale-reference, mirror, or harness quality evidence.
 

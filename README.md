@@ -126,6 +126,11 @@ AsUsual uses two branches inside `.as-usual/`: `topic/` for per-work-unit artifa
 │       ├── question-c2.md
 │       ├── requirements.md       # single synthesized requirements doc
 │       ├── plan.md               # single execution contract
+│       ├── execute/
+│       │   ├── task-<N>-requirements-review.md
+│       │   └── task-<N>-quality-review.md
+│       ├── clean-up/
+│       │   └── review-result-<type>.md
 │       ├── code-review-report.md
 │       └── report.md
 └── memory/
