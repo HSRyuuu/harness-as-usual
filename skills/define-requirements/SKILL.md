@@ -87,34 +87,18 @@ Question selection:
 
 After creating or updating a question file:
 
-1. Record the question artifact:
+1. Record the question with the `record-question` macro. It appends a single `question.created` event with phase `define-requirements`, next action `answer-questions`, and the question file in artifacts, so the question shows up in derived status:
 
 ```bash
-python3 <plugin-root>/scripts/topic-log.py artifact \
+python3 <plugin-root>/scripts/topic-log.py record-question \
   --topic-dir <topic-dir> \
-  --name question \
-  --value question-cN.md \
-  --append \
-  --phase define-requirements \
-  --next-action answer-questions \
+  --question question-cN.md \
   --summary "Created requirements question file question-cN.md."
 ```
 
-2. Append a `question.created` event:
+2. Tell the user which file to fill in, specifically asking them to fill the `[Answer]:` fields, and stop.
 
-```bash
-python3 <plugin-root>/scripts/topic-log.py audit \
-  --topic-dir <topic-dir> \
-  --event question.created \
-  --phase define-requirements \
-  --next-action answer-questions \
-  --artifacts question-cN.md \
-  --summary "Created requirements question file question-cN.md."
-```
-
-3. Tell the user which file to fill in, specifically asking them to fill the `[Answer]:` fields, and stop.
-
-Use `scripts/topic-log.py` for audit updates. Do not hand-edit `audit.jsonl`.
+Use `scripts/topic-log.py` macros for audit updates. Do not hand-edit `audit.jsonl`.
 
 ### Validate Answers
 
@@ -126,18 +110,18 @@ If the user answered in chat instead of editing `[Answer]:` fields:
 2. Do not treat short approval phrases such as `ㄱㄱ`, `go`, `go ahead`, `진행`, `좋아`, `ok`, or `yes` as answers to one or more material questions. These phrases may approve requirements synthesis only when every `[Answer]:` field was already filled by the user on disk.
 3. If a `[Answer]:` field is blank or was prefilled by the agent, stop and ask the user to fill the file directly instead of mapping a broad approval phrase to recommended options.
 4. If mapping is clear and the answer names the question or option, transcribe the answer into the matching `[Answer]:` field.
-5. Append a `question.answered` event:
+5. Record the answer with the `answer-question` macro. It appends a single `question.answered` event and keeps next action at `answer-questions` because validation has not run yet — do not jump the derived state to `write-requirements` before answers are validated:
 
 ```bash
-python3 <plugin-root>/scripts/topic-log.py audit \
+python3 <plugin-root>/scripts/topic-log.py answer-question \
   --topic-dir <topic-dir> \
-  --event question.answered \
-  --phase define-requirements \
-  --next-action write-requirements \
-  --artifacts question-cN.md \
+  --question question-cN.md \
+  --source chat \
   --summary "Transcribed chat answer into question-cN.md Q<N>." \
   --notes "Source: current user turn."
 ```
+
+When the user filled the `[Answer]:` fields directly on disk, transcription is not needed; you may still record an `answer-question --source file` event (the default) for audit traceability, but it is optional on the file path.
 
 6. Continue validation from disk.
 
