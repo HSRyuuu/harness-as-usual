@@ -19,6 +19,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 8. Confirm stale phase names, removed gates, and old topic paths do not return to active runtime rules.
 9. Confirm the self-improvement memory surface is aligned across workflow rules, runtime skills, templates, and audit helpers.
 10. Confirm codebase exploration output is treated as untrusted evidence and its subagent assignment is self-contained.
+11. Confirm verdict vocabularies and receipt contracts stay aligned across prompts, workflow rules, templates, and audit helpers.
 
 ## When To Run
 
@@ -516,6 +517,56 @@ FAIL:
 
 Fix: update active runtime files to use `.as-usual/topic/yyyy-MM-dd-<topic>/`, `topic.md`, `audit.jsonl`, `scripts/topic-log.py`, and the current public runtime skills.
 
+### Step 10: Verdict Vocabulary And Receipt Contract Check
+
+**Tool:** Bash
+
+Run:
+
+```bash
+rg -l 'passed \| findings \| blocked' \
+  skills/executing-plan/task-requirements-reviewer-prompt.md \
+  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/review-execution/code-reviewer-prompt.md \
+  skills/cleanup-code/reuse-reviewer-prompt.md \
+  skills/cleanup-code/simplification-reviewer-prompt.md \
+  skills/cleanup-code/efficiency-reviewer-prompt.md \
+  skills/cleanup-code/abstraction-reviewer-prompt.md
+rg -n 'Ready to finalize|DONE_WITH_CONCERNS' skills/executing-plan skills/review-execution skills/cleanup-code
+rg -l 'receipt|Review File:|Report:' \
+  skills/executing-plan/implementer-prompt.md \
+  skills/executing-plan/task-requirements-reviewer-prompt.md \
+  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/review-execution/code-reviewer-prompt.md \
+  skills/cleanup-code/reuse-reviewer-prompt.md \
+  skills/cleanup-code/simplification-reviewer-prompt.md \
+  skills/cleanup-code/efficiency-reviewer-prompt.md \
+  skills/cleanup-code/abstraction-reviewer-prompt.md
+rg -n 'VERIFICATION_VERDICTS|PASS \| FAIL \| INCONCLUSIVE' scripts/as_usual_topic_log/constants.py as-usual-rules/core-workflow.md
+rg -n 'execute/task-|clean-up/review-result-' as-usual-rules/core-workflow.md
+rg -n '^verdict:' templates/code-review-report.md
+rg -n 'topic-log\.py verification' skills as-usual-rules .agents .claude | rg -v -- --verdict
+```
+
+PASS:
+
+- Review prompts use the closed review verdict vocabulary `passed | findings | blocked`.
+- `Ready to finalize` and `DONE_WITH_CONCERNS` do not appear in active execute, review-execution, or cleanup-code runtime surfaces.
+- Target subagent prompts contain receipt/report path output fields.
+- `VERIFICATION_VERDICTS` and `PASS | FAIL | INCONCLUSIVE` are present in the helper/workflow contract.
+- `core-workflow.md` contains `execute/task-` and `clean-up/review-result-` review artifact paths.
+- `templates/code-review-report.md` has frontmatter `verdict:`.
+- The final verification-call scan has no output; every active `topic-log.py verification` example includes `--verdict`.
+
+FAIL:
+
+- Any active runtime prompt uses free-form verdict wording, `Ready to finalize`, or `DONE_WITH_CONCERNS`.
+- Receipt output paths are missing from target prompts.
+- The helper and workflow contract disagree about verification verdict vocabulary.
+- A `topic-log.py verification` example omits `--verdict`.
+
+Fix: align runtime prompts, `core-workflow.md`, `templates/code-review-report.md`, and `scripts/as_usual_topic_log/constants.py` to the same closed vocabularies and receipt contract.
+
 ## Output Format
 
 ```markdown
@@ -533,6 +584,7 @@ Fix: update active runtime files to use `.as-usual/topic/yyyy-MM-dd-<topic>/`, `
 | Self-improvement and memory surface | PASS/FAIL | ... |
 | Codebase exploration trust boundary | PASS/FAIL | ... |
 | Removed runtime surface | PASS/FAIL | ... |
+| Verdict vocabulary and receipt contract | PASS/FAIL | ... |
 
 ### Findings
 
