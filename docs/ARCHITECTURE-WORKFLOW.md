@@ -263,7 +263,7 @@ Topic log helper:
 - Plan을 비판적으로 검토한 뒤 task 순서대로 실행한다. 실행 모드는 `inline`, `subagent-driven`, `mixed` 중 plan에서 승인된 값을 따른다.
 - subagent-driven task에서도 main agent가 controller로 남아 task 순서, audit event, verification, completion claim을 책임진다.
 - task reviewer는 상세 findings를 `execute/task-<N>-requirements-review.md` 또는 `execute/task-<N>-quality-review.md`에 쓰고, receipt는 폐쇄 어휘 판정과 파일 경로만 반환한다.
-- 리뷰 판정은 `passed | findings | blocked`, 검증 판정은 `PASS | FAIL | INCONCLUSIVE`, 구현 완료 보고는 `DONE | NEEDS_CONTEXT | BLOCKED`를 사용한다.
+- 리뷰 판정은 `passed | findings | blocked`, 검증 판정은 `PASS | FAIL | INCONCLUSIVE`, 구현 완료 보고는 `DONE | NEEDS_CONTEXT | BLOCKED`를 사용한다. `INCONCLUSIVE`는 PASS가 아니며, `DONE`은 controller가 diff/evidence/verification을 확인하기 전까지 완료 주장이므로 task 완료나 execution-complete의 근거가 될 수 없다.
 - Plan에 없는 scope를 즉흥적으로 추가하지 않는다.
 - `plan.md`를 progress ledger로 수정하지 않는다.
 - task progress, dispatch, task review/fix loop, verification command, result, final sweep, blocker는 `scripts/topic-log.py`로 `audit.jsonl`에 기록한다.
