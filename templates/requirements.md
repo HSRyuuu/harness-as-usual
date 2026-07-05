@@ -59,9 +59,9 @@
 
 ## Affected Surface
 
-- 관련 파일 / 영역:
-- 기존 동작 또는 맥락:
-- 변경하지 않을 것:
+- Related files / areas:
+- Existing behavior or context:
+- What not to change:
 
 ## Risks
 
