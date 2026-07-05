@@ -20,15 +20,18 @@ You are reviewing whether the task output satisfies the approved `requirements.m
 - The implementation does not add unapproved behavior, policy, git action, release, deploy, or broad refactor scope.
 - Required RED/GREEN or verification evidence is present for the task's test strategy.
 - Any new requirement, scope, risk, or plan contradiction is identified as route-back.
+- The review is read-only except for writing its own review file.
+- Write detailed findings to `execute/task-<N>-requirements-review.md` with YAML frontmatter: `task`, `type: requirements`, `verdict: passed | findings | blocked`, and `reviewedAt`. On re-review, update the same file and frontmatter.
+- Return only the receipt below. Do not paste detailed findings into the response.
 
 ## Output
 
 ```text
 Status: passed | findings | blocked
+Review File: execute/task-<N>-requirements-review.md
 Critical:
 Important:
 Minor:
-Findings:
-- [finding-id] [severity] summary, evidence, required disposition
+Finding IDs:
 Route Back:
 ```
