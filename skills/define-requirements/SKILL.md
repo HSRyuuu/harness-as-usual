@@ -259,7 +259,7 @@ python3 <plugin-root>/scripts/topic-log.py complete-requirements \
   --requirements requirements.md \
   --summary "<summary>"
 ```
-4. Tell the user the requirements are complete and ask them to review `requirements.md` before approving the move to plan.
+4. Tell the user the requirements are complete and ask them to review `requirements.md` before approving the move to plan. If this topic created no `question-cN.md` files, say so explicitly in one line in the user's language (for example: "No questions were needed, so I did not create a question file.") with the short reason the question cycle was not needed.
 5. Stop.
 
 Do not write `plan.md` until the user explicitly approves moving on.
