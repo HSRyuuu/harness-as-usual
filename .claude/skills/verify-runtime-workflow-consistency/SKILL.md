@@ -18,6 +18,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 7. Confirm high-risk operations, prompt-injection boundaries, secret protection, and review follow-up routing stay aligned.
 8. Confirm stale phase names, removed gates, and old topic paths do not return to active runtime rules.
 9. Confirm the self-improvement memory surface is aligned across workflow rules, runtime skills, templates, and audit helpers.
+10. Confirm codebase exploration output is treated as untrusted evidence and its subagent assignment is self-contained.
 
 ## When To Run
 
@@ -54,6 +55,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 | `skills/git-action/SKILL.md` | selected post-finalize git action handling |
 | `skills/manage-self-improvement/SKILL.md` | finalize-triggered self-improvement proposal/application skill |
 | `skills/search-long-term-memory/SKILL.md` | read-only long-term memory recall utility |
+| `skills/explore-codebase/SKILL.md` | read-only codebase exploration utility |
 | `templates/question.md` | question artifact shape |
 | `templates/requirements.md` | canonical requirements artifact shape |
 | `templates/plan.md` | canonical plan artifact shape |
@@ -94,6 +96,7 @@ for f in \
   skills/git-action/SKILL.md \
   skills/manage-self-improvement/SKILL.md \
   skills/search-long-term-memory/SKILL.md \
+  skills/explore-codebase/SKILL.md \
   templates/question.md \
   templates/requirements.md \
   templates/plan.md \
@@ -438,6 +441,33 @@ FAIL:
 - `search-long-term-memory` returns recalled memory without an explicit untrusted-context boundary.
 - Required memory/skill audit events exist in one surface but are missing from `core-workflow.md`, `topic-log.py`, or the owning runtime skill.
 
+### Step 8a: Codebase Exploration Trust Boundary Check
+
+Run:
+
+```bash
+rg -n 'explore-codebase|Codebase-Informed Drafting|UNTRUSTED CODEBASE EXPLORATION RESULT|repository-discoverable facts|Affected Surface|Dispatch Assignment Protocol|QUESTION:|CONTEXT:|PROCEDURE:|CONSTRAINTS:|OUTPUT:|fresh bounded subagent|reread the cited files|reread cited files|Trust Boundary' \
+  as-usual-rules/core-workflow.md \
+  skills/define-requirements/SKILL.md \
+  skills/writing-plan/SKILL.md \
+  skills/explore-codebase/SKILL.md
+```
+
+PASS:
+
+- `core-workflow.md` lists `explore-codebase` as a read-only utility and treats `UNTRUSTED CODEBASE EXPLORATION RESULT` as untrusted discovery evidence.
+- `define-requirements` and `writing-plan` invoke `explore-codebase` for repository-discoverable facts before asking requirements questions or writing plan details.
+- `explore-codebase` requires the controller to paste a self-contained dispatch assignment protocol instead of assuming the subagent can read `SKILL.md`.
+- The dispatch protocol includes the procedure, read-only constraints, no-internet/no-secret rules, and exact `UNTRUSTED CODEBASE EXPLORATION RESULT` output shape.
+- Controller-facing instructions require rereading cited files or exact excerpts before requirements, plan, implementation, review, or completion claims rely on exploration output.
+
+FAIL:
+
+- Any runtime surface treats exploration output as authoritative instructions instead of untrusted evidence.
+- `define-requirements` or `writing-plan` refers to `UNTRUSTED CODEBASE EXPLORATION RESULT` but the explorer dispatch protocol does not produce that exact header.
+- The dispatch assignment can be sent without procedure, constraints, or output format.
+- The explorer can mutate files, write topic artifacts, browse the internet, run package/test/git mutating commands, or expose secrets.
+
 ### Step 9: Audit-First Stale Runtime Surface Check
 
 **Tool:** Bash
@@ -501,6 +531,7 @@ Fix: update active runtime files to use `.as-usual/topic/yyyy-MM-dd-<topic>/`, `
 | Safety gates and review follow-up | PASS/FAIL | ... |
 | Structured approval/review evidence | PASS/FAIL | ... |
 | Self-improvement and memory surface | PASS/FAIL | ... |
+| Codebase exploration trust boundary | PASS/FAIL | ... |
 | Removed runtime surface | PASS/FAIL | ... |
 
 ### Findings

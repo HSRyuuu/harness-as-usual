@@ -24,6 +24,7 @@ as-usual/
 ├── templates/            # topic artifact templates
 └── skills/               # stable skills only; do not commit draft/probe skills
     ├── hand-off/  # resume entrypoint for continuing an existing topic path from another session
+    ├── explore-codebase/  # read-only codebase discovery util; repository facts before requirements/plan
     ├── manage-self-improvement/  # triggered at finalize; records cross-topic lessons into memory
     └── search-long-term-memory/  # read-only recall util; queries .as-usual/memory/ for past decisions
 ```
@@ -91,6 +92,7 @@ Plugin development requests are classified as plugin development even when they 
 | Requirements definition skill | `skills/define-requirements/SKILL.md` | handles question files and `requirements.md` synthesis/review |
 | Self-improvement skill | `skills/manage-self-improvement/SKILL.md` | triggered at finalize; distills cross-topic lessons into `.as-usual/memory/MEMORY.md` |
 | Long-term memory recall skill | `skills/search-long-term-memory/SKILL.md` | read-only recall util; queries `.as-usual/memory/` for past decisions and patterns |
+| Codebase exploration skill | `skills/explore-codebase/SKILL.md` | read-only discovery util for repository-discoverable facts before requirements or plan writing |
 | Plugin development guide | `.agents/skills/dev-as-usual/SKILL.md` | explains runtime usage vs plugin development boundary |
 | Harness smoke verification | `.agents/skills/verify-as-usual-harness/SKILL.md` | verifies runtime workflow, hook injection, and manifest smoke tests |
 | Runtime surface verification | `.agents/skills/verify-runtime-surface/SKILL.md` | verifies that maintainer guidance has not leaked into runtime-facing surface |
@@ -115,6 +117,7 @@ Plugin development requests are classified as plugin development even when they 
 | Requirements definition skill | Skill | `skills/define-requirements/SKILL.md` | `question-cN.md` creation/validation and `requirements.md` synthesis/review |
 | Self-improvement skill | Skill | `skills/manage-self-improvement/SKILL.md` | finalize trigger; distills cross-topic lessons into `.as-usual/memory/MEMORY.md` |
 | Long-term memory recall skill | Skill | `skills/search-long-term-memory/SKILL.md` | read-only recall util for `.as-usual/memory/` |
+| Codebase exploration skill | Skill | `skills/explore-codebase/SKILL.md` | read-only repository surface discovery before requirements or plan writing |
 | Memory template | Markdown | `templates/MEMORY.md` | baseline shape for `.as-usual/memory/MEMORY.md` in target projects |
 | Maintainer development skill | Project-local Skill | `.agents/skills/dev-as-usual/SKILL.md` | classifies AsUsual repository changes as plugin development |
 | Harness smoke skill | Project-local Skill | `.agents/skills/verify-as-usual-harness/SKILL.md` | harness smoke verification procedure |

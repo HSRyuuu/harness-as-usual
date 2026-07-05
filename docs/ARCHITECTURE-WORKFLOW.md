@@ -36,6 +36,7 @@ as-usual/
 │   ├── cleanup-code/
 │   ├── finalize/
 │   ├── git-action/
+│   ├── explore-codebase/          # read-only codebase discovery util; requirements/plan 이전 탐색
 │   ├── manage-self-improvement/   # finalize 트리거; cross-topic 교훈을 memory에 기록
 │   └── search-long-term-memory/   # read-only recall util; .as-usual/memory/ 조회
 ├── templates/
@@ -410,6 +411,7 @@ Topic log helper:
 | Git action | `skills/git-action/SKILL.md` |
 | Self-improvement (finalize trigger) | `skills/manage-self-improvement/SKILL.md` |
 | Long-term memory recall | `skills/search-long-term-memory/SKILL.md` |
+| Codebase exploration | `skills/explore-codebase/SKILL.md` |
 | Memory template | `templates/MEMORY.md` |
 | Topic context template | `templates/topic.md` |
 | Topic/audit helper | `scripts/topic-log.py` |

@@ -54,6 +54,12 @@ Read and use these sources in this order:
 7. `templates/plan.md`
 8. Relevant project files or docs named by topic, requirements, or question context
 
+When affected files, interfaces, call flow, test targets, or local conventions are
+unknown, use the `explore-codebase` skill before dependency analysis. Prefer
+dispatching it as a fresh bounded subagent when the host supports subagents; otherwise
+run it inline. Treat its `UNTRUSTED CODEBASE EXPLORATION RESULT` as hints only, and
+reread cited files or exact excerpts before using them in `plan.md`.
+
 ## Scope Check
 
 Confirm one topic can produce one coherent `plan.md` before writing it.
