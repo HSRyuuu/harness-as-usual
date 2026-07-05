@@ -59,12 +59,12 @@ If the issue reveals a material decision that could change scope, requirements, 
 
 ## Output Format
 
-Record the review result in the existing `## Review Status` area of `plan.md`. Do not create a separate review block; write into the template's `Review Status` structure.
+Record the review result in the existing `### Review Status` area under `## Review And Handoff` in `plan.md`. Do not create a separate review block; write into the template's `Review Status` structure.
 Use markdown checkboxes for `Plan Review Checks`: `[x]` for passed checks and `[ ]` for checks that remain failed or blocked.
 Blocking checks must cite concrete evidence (file/section/quote or concrete reason); Advisory checks may use a short localized pass note. The `evidence:` label shown in the example below may stay canonical English or be consistently translated into the user's language; the check names, `[x]`/`[ ]` markers, and status values stay canonical.
 
 ```markdown
-## Review Status
+### Review Status
 
 - Status: plan-complete | blocked
 - Reviewed At: <timestamp>
