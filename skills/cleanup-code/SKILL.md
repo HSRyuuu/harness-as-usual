@@ -57,13 +57,15 @@ When the host supports subagents, run these four review agents in parallel using
 | Efficiency | `efficiency-reviewer-prompt.md` | Wasteful loops, repeated work, avoidable I/O, expensive rendering, or needless allocations |
 | Abstraction | `abstraction-reviewer-prompt.md` | Whether code sits at the right level of abstraction for the surrounding codebase |
 
-If subagents are unavailable, run the four reviews sequentially in the current session and record that limitation.
+Each review writes a file under `clean-up/`: `clean-up/review-result-reuse.md`, `clean-up/review-result-simplification.md`, `clean-up/review-result-efficiency.md`, or `clean-up/review-result-abstraction.md`. Each file must include YAML frontmatter `type`, `verdict`, and `reviewedAt`. The receipt verdict must be one of `passed | findings | blocked` and must match the file frontmatter `verdict`.
+
+If subagents are unavailable, run the four reviews sequentially in the current session and record that limitation. The four `clean-up/review-result-<type>.md` files and frontmatter are still required; only subagent receipt responses are omitted.
 
 Review only changed code and nearby context needed to judge cleanup. Do not expand into unrelated refactors.
 
 ### Step 2: Synthesize Cleanup Plan
 
-Combine reviewer findings into one cleanup set.
+Read the four review files and combine reviewer findings into one cleanup set.
 
 Apply only findings that are:
 
@@ -92,7 +94,7 @@ If cleanup changes files, rerun relevant verification:
 - Rerun narrower commands when they cover the cleanup safely.
 - If verification cannot be rerun, record why and what remains.
 
-Record exact commands and outcomes with `scripts/topic-log.py verification`.
+Record exact commands and outcomes with `scripts/topic-log.py verification --verdict PASS|FAIL|INCONCLUSIVE`.
 
 ### Step 5: Record And Route
 

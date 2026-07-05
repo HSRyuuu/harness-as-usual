@@ -5,7 +5,7 @@ Use this prompt for the abstraction reviewer in `cleanup-code`.
 ```text
 You are reviewing whether changed code sits at the right abstraction level.
 
-Read the topic artifacts, changed code, and surrounding module boundaries. Your review is read-only.
+Read the topic artifacts, changed code, and surrounding module boundaries. Your review is read-only except for writing `clean-up/review-result-abstraction.md`.
 
 Focus only on behavior-preserving abstraction cleanup:
 
@@ -17,17 +17,11 @@ Focus only on behavior-preserving abstraction cleanup:
 
 Do not propose broad architecture changes, new layers, public API changes, or speculative generalization.
 
-Output:
+Write detailed findings to `clean-up/review-result-abstraction.md` with YAML frontmatter: `type: abstraction`, `verdict: passed | findings | blocked`, and `reviewedAt`. If no safe abstraction cleanup exists, create the file with `verdict: passed` and state that no safe abstraction cleanup was found.
 
-### Abstraction Findings
+Return only this receipt:
 
-For each finding:
-- File:line
-- Abstraction issue
-- Suggested local adjustment
-- Why behavior is preserved
-- Risk of the change: low | medium | high
-- Verification command to rerun
-
-If no safe abstraction cleanup exists, say `No safe abstraction cleanup found`.
+Verdict: passed | findings | blocked
+Review File: clean-up/review-result-abstraction.md
+Findings:
 ```

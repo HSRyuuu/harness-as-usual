@@ -76,6 +76,10 @@ A no-finding review is valid when the implementation satisfies the requirements,
 
 Prefer a separate code-review agent or subagent when the host supports it. Fill the reviewer prompt with the topic artifact paths and the diff or changed-file list, and give the reviewer only the topic files, diff/range, and execution evidence needed for review, not the whole conversation history.
 
+For `independent` review mode, treat the reviewer response as a receipt: `Verdict: passed | findings | blocked`, `Report: code-review-report.md | none`, and severity counts. If a report is written, confirm the report frontmatter `verdict` matches the receipt verdict before recording `record-review`.
+
+For `local-prompt` review mode, apply the same file/frontmatter rule directly in this session: when a report is created, its frontmatter `verdict` must match the `record-review --status` value.
+
 ### Step 2: Record Review Result
 
 Record the review outcome with `scripts/topic-log.py record-review`.
@@ -91,11 +95,12 @@ If findings exist, list file/line references when possible, why each issue matte
 When any Critical, Important, or Minor finding exists:
 
 1. Create or update `code-review-report.md` in the topic folder using `templates/code-review-report.md`.
-2. Fill the YAML front matter with review input provenance: `topic`, `topicFile`, `audit`, `statusCommand`, `requirements`, `plan`, `diffOrChangedFiles`, `verificationEvidence`, and `findingQualityGateApplied`.
+2. Fill the YAML front matter with review input provenance: `topic`, `topicFile`, `audit`, `statusCommand`, `requirements`, `plan`, `diffOrChangedFiles`, `verificationEvidence`, `findingQualityGateApplied`, and `verdict`.
 3. Write user-facing prose in the user's current or clearly preferred language. Preserve exact file paths, line numbers, commands, severity labels, and disposition values.
 4. Fill the report body sections defined by `templates/code-review-report.md`; that template owns the report's section list and order. Do not redefine the report body shape here.
-5. Include `code-review-report.md` through the `record-review --report code-review-report.md` artifact field.
-6. Include `code-review-report.md` in the `review.completed` audit event artifacts.
+5. Confirm `code-review-report.md` frontmatter `verdict` matches the `record-review --status` value.
+6. Include `code-review-report.md` through the `record-review --report code-review-report.md` artifact field.
+7. Include `code-review-report.md` in the `review.completed` audit event artifacts.
 
 When there are no findings, do not create an empty `code-review-report.md` and do not pass `--report`. Record the no-finding result in `audit.jsonl`.
 

@@ -5,7 +5,7 @@ Use this prompt when dispatching a separate reviewer for AsUsual `review-executi
 ```text
 You are reviewing a completed AsUsual topic implementation.
 
-Your review is read-only. Do not edit files, stage changes, commit, switch branches, or mutate the working tree.
+Your review is read-only except for writing `code-review-report.md` when findings exist. Do not edit implementation files, stage changes, commit, switch branches, or otherwise mutate the working tree.
 
 ## Topic Artifacts
 
@@ -73,44 +73,16 @@ Avoid speculative review noise:
 
 ## Output Format
 
-### Strengths
+If findings exist, write detailed findings to `code-review-report.md` using the template frontmatter plus `verdict: passed | findings | blocked`. If there are no findings, do not create a report file.
 
-- <specific strengths>
+Return only this receipt:
 
-### Findings
-
-#### Critical
-
-- File:line:
-  - Problem:
-  - Why it matters:
-  - Suggested fix:
-
-#### Important
-
-- File:line:
-  - Problem:
-  - Why it matters:
-  - Suggested fix:
-
-#### Minor
-
-- File:line:
-  - Problem:
-  - Why it matters:
-  - Suggested fix:
-
-### Silent Failure Assessment
-
-- <whether the changed code introduces swallowed errors, dangerous fallbacks, or missing failure propagation>
-
-### Verification Assessment
-
-- <whether test/verification evidence is sufficient>
-
-### Verdict
-
-Ready to finalize: yes | no | with minor follow-ups
-
+```text
+Verdict: passed | findings | blocked
+Report: code-review-report.md | none
+Critical:
+Important:
+Minor:
 Reasoning: <1-3 sentences>
+```
 ```

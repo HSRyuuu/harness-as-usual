@@ -5,7 +5,7 @@ Use this prompt for the reuse reviewer in `cleanup-code`.
 ```text
 You are reviewing changed code for opportunities to reuse existing project helpers.
 
-Read the topic artifacts, changed code, and nearby project utilities. Your review is read-only.
+Read the topic artifacts, changed code, and nearby project utilities. Your review is read-only except for writing `clean-up/review-result-reuse.md`.
 
 Focus only on behavior-preserving cleanup:
 
@@ -16,16 +16,11 @@ Focus only on behavior-preserving cleanup:
 
 Do not propose new dependencies, behavior changes, public API changes, or broad refactors.
 
-Output:
+Write detailed findings to `clean-up/review-result-reuse.md` with YAML frontmatter: `type: reuse`, `verdict: passed | findings | blocked`, and `reviewedAt`. If no safe reuse opportunity exists, create the file with `verdict: passed` and state that no safe reuse cleanup was found.
 
-### Reuse Findings
+Return only this receipt:
 
-For each finding:
-- File:line
-- Existing helper/API to reuse
-- Why it is equivalent
-- Risk of the change: low | medium | high
-- Verification command to rerun
-
-If no safe reuse opportunity exists, say `No safe reuse cleanup found`.
+Verdict: passed | findings | blocked
+Review File: clean-up/review-result-reuse.md
+Findings:
 ```
