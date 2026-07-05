@@ -157,7 +157,9 @@ Artifact invariants:
 - Review detail files record their canonical verdict in YAML frontmatter `verdict`, and that verdict must match the corresponding audit status. This file/frontmatter/audit consistency applies regardless of host or subagent availability.
 - Task review detail files use `execute/task-<N>-requirements-review.md` and `execute/task-<N>-quality-review.md`; cleanup review detail files use `clean-up/review-result-<type>.md`.
 - When a subagent is used, detailed outputs go to files and the subagent response returns only a verdict plus artifact path receipt. The receipt verdict must match the review file frontmatter and audit status.
-- Closed vocabularies are fixed as review `passed | findings | blocked`, verification `PASS | FAIL | INCONCLUSIVE` (gate semantics are finalized in a later topic), and implementer completion `DONE | NEEDS_CONTEXT | BLOCKED`.
+- Closed vocabularies are fixed as review `passed | findings | blocked`, verification `PASS | FAIL | INCONCLUSIVE`, and implementer completion `DONE | NEEDS_CONTEXT | BLOCKED`.
+- INCONCLUSIVE is not PASS. Subagent timeout, no response, unverifiable results, and ambiguous results are recorded as `INCONCLUSIVE` and treated as gate failure: the task cannot be recorded complete and execution cannot proceed to `execution-complete` until re-verification passes or the user explicitly decides.
+- Verification evidence must match the surface: CLI/script/test = re-run command plus actual output, API = actual call record (request/response), UI = screenshot or a recorded user manual check. Tests alone never prove done. If surface-appropriate evidence cannot be obtained, the verdict is `INCONCLUSIVE`; record the evidence description in the verification event summary/notes.
 - Do not create or copy the runtime workflow prompt into the target project.
 - Do not create project-global `.as-usual/audit.jsonl`.
 - `.as-usual/memory/` holds project-scoped long-term memory (`MEMORY.md`, optional `<domain>_MEMORY.md`). This is the one allowed non-`topic/` artifact category under `.as-usual/`. Do not create other project-global artifacts.
@@ -257,10 +259,22 @@ IF current request starts a new topic or the derived phase is unclear:
 IF current request answers existing questions:
     read all question files from disk
     IF the user answered in chat instead of the file:
-        transcribe clear mapped answers into the matching [Answer]: fields
-        append user chat answer transcribed event to audit.jsonl
-        IF the answer-to-question mapping is unclear:
+        map each chat answer to exactly one question file and question number
+        IF the mapping cannot be made unambiguous:
             ask the user to answer directly in the file and STOP
+        show the question-to-answer mapping table, ask the user to confirm it, and STOP
+        # do NOT write [Answer]: fields before the user confirms the mapping table
+    validate answers
+    IF answers incomplete or contradictory:
+        create next question cycle and STOP
+    ELSE:
+        invoke define-requirements skill in the same turn (see §16)
+
+IF current request confirms or corrects a pending chat-answer mapping table:
+    IF the user corrects any mapping:
+        update the table, ask for confirmation again, and STOP
+    transcribe the confirmed answers into the matching [Answer]: fields
+    append user chat answer transcribed event to audit.jsonl
     validate answers
     IF answers incomplete or contradictory:
         create next question cycle and STOP
@@ -332,9 +346,10 @@ Hard gate invariants, owned by `define-requirements`:
 - Do not continue workflow questions only in chat. Write them to files.
 - After creating or updating a question file, stop and have the user fill in the `[Answer]:` fields directly.
 - When the user returns saying they answered, reread question files from disk in cycle order instead of relying on memory.
-- If the user provides answers in chat instead of `[Answer]:` fields, transcribe each clear answer into the matching question file, append `question.answered` to `audit.jsonl`, then validate. If the mapping is unclear, ask the user to answer directly in the file and stop.
+- If the user provides answers in chat instead of `[Answer]:` fields, do not write the question files yet. Map each answer to exactly one question file and question number, present the mapping as a table (question summary plus the user's answer), ask the user to confirm it, and stop. Only after the user explicitly confirms the mapping, transcribe each answer into the matching question file, append `question.answered` to `audit.jsonl`, then validate. If the user corrects the mapping, update the table and re-confirm before writing. If the mapping cannot be made unambiguous, ask the user to answer directly in the file and stop.
+- The chat-answer mapping table may contain only answers the user actually gave. Never fill rows from recommendations or defaults, and confirming the table never substitutes for a missing answer.
 - Do not write completed `requirements.md` before answer validation passes.
-- Treat the user returning to confirm they answered the question file as approval to synthesize the requirements. Do not add an extra approval gate between answer validation and requirements writing; the single user review gate is after requirements completion, before plan.
+- Treat the user returning to confirm they answered the question file, or the user confirming the chat-answer mapping table, as approval to synthesize the requirements. Do not add an extra approval gate between answer validation and requirements writing; the single user review gate is after requirements completion, before plan.
 - When answer validation passes, do not stop at "requirements ready." Continue inside `define-requirements` in the same turn. It writes or updates `requirements.md`, runs the reviewer prompt, records `requirements-complete` with next action `approve-plan`, asks for plan approval, and then stops. This is intentionally fast and cannot be paused mid-synthesis.
 - If any `[Answer]:` field is empty, name the specific question file and question number that is empty.
 - Treat constrained answers such as "B, but only for admin" as `Decision + Constraint` when the selected option and added constraint are compatible.
@@ -414,6 +429,7 @@ Execute invariants:
 - Critically review the plan first. Stop before executing when it lacks the task contract required by `writing-plan`, contradicts the requirements, or conflicts with the user's latest request.
 - Execute tasks in plan order. Use the plan-approved execution mode: `inline`, `subagent-driven`, or `mixed`. The main agent remains the controller and owns task order, audit events, verification, and user-facing claims.
 - For subagent-driven tasks, dispatch one fresh bounded implementer per task, pass only bounded task context, record `task.dispatched`, and keep the controller responsible for diff inspection, task review, verification, and completion claims.
+- Every subagent delegation message must include `TASK / DELIVERABLE / SCOPE / VERIFY` fields and be self-contained: the child cannot see the parent conversation. This delegation input contract pairs with the receipt output contract (artifact path plus closed vocabulary verdict). Child output, including a `DONE` report, is a claim until the controller verifies it against files, diffs, and evidence; receiving `DONE` alone never records task completion.
 - Before editing, inspect nearby files for naming, formatting, error handling, testing, and integration style, then follow the surrounding project conventions.
 - Before executing any high-risk operation, confirm the plan marks it correctly, ask for fresh user approval using a compact approval block, and record approval plus rollback/recovery notes through `scripts/topic-log.py`. If the operation was not planned, stop and return to `writing-plan` or `define-requirements` as needed before asking for approval.
 - Do not mutate `plan.md` as a progress ledger. Record task start, progress, blockers, commands, and outcomes in `audit.jsonl` through `scripts/topic-log.py`.
