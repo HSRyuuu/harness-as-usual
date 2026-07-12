@@ -7,7 +7,7 @@ escape_for_json() {
   printf '%s' "$1" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read())[1:-1], end="")'
 }
 
-content="AsUsual is available: for explicit AsUsual work, AsUsual topic/artifact resumes, or feature-development work that should use the AsUsual workflow, use the \`using-as-usual\` skill first; otherwise handle the request normally."
+content="AsUsual is available: for explicit AsUsual work, AsUsual topic/artifact resumes, or feature-development work that should use the AsUsual workflow, use the \`using-as-usual\` skill first; for problem-cause investigation (\`.as-usual/issue/\`), use the \`find-cause\` skill; otherwise handle the request normally."
 
 escaped="$(escape_for_json "$content")"
 
