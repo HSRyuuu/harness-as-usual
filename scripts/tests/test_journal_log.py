@@ -191,5 +191,110 @@ class JournalLogStatusChangeTests(JournalLogTestBase):
             self.assertIn("target", result.stderr)
 
 
+class JournalLogStatusAndConcludeTests(JournalLogTestBase):
+    def seed_confirmed(self, tmp):
+        issue_dir = self.init_issue(tmp)
+        add = self.run_journal_log(
+            "add", "--issue-dir", str(issue_dir),
+            "--kind", "hypothesis", "--content", "dns cache expiry",
+        )
+        seq = json.loads(add.stdout)["seq"]
+        self.run_journal_log(
+            "confirm", "--issue-dir", str(issue_dir),
+            "--target", str(seq), "--evidence", "reproduced",
+        )
+        return issue_dir, seq
+
+    def status_json(self, issue_dir):
+        result = self.run_journal_log("status", "--issue-dir", str(issue_dir), "--json")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return json.loads(result.stdout)
+
+    def test_status_derives_open_and_entry_buckets(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, seq = self.seed_confirmed(tmp)
+            status = self.status_json(issue_dir)
+            self.assertEqual(status["issueStatus"], "open")
+            self.assertEqual(status["confirmed"], [seq])
+            self.assertEqual(status["active"], [])
+
+    def test_cancel_moves_confirmed_entry_to_cancelled_bucket(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, seq = self.seed_confirmed(tmp)
+            self.run_journal_log(
+                "cancel", "--issue-dir", str(issue_dir),
+                "--target", str(seq), "--reason", "refuted by logs",
+            )
+            status = self.status_json(issue_dir)
+            self.assertEqual(status["confirmed"], [])
+            self.assertEqual(status["cancelled"], [seq])
+
+    def test_conclude_records_lifecycle_and_status_becomes_concluded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, _ = self.seed_confirmed(tmp)
+            result = self.run_journal_log(
+                "conclude", "--issue-dir", str(issue_dir),
+                "--summary", "root cause: dns cache expiry",
+                "--follow-up", ".as-usual/topic/2026-07-12-fix-dns-cache",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            entry = self.read_journal(issue_dir)[-1]
+            self.assertEqual(entry["kind"], "lifecycle")
+            self.assertEqual(entry["event"], "concluded")
+            self.assertEqual(entry["followUp"], ".as-usual/topic/2026-07-12-fix-dns-cache")
+            status = self.status_json(issue_dir)
+            self.assertEqual(status["issueStatus"], "concluded")
+            self.assertEqual(
+                status["followUps"], [".as-usual/topic/2026-07-12-fix-dns-cache"]
+            )
+
+    def test_conclude_refuses_without_confirmed_entry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            result = self.run_journal_log(
+                "conclude", "--issue-dir", str(issue_dir), "--summary", "done",
+            )
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("confirmed", result.stderr)
+
+    def test_conclude_force_without_confirmed_requires_reason(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            missing = self.run_journal_log(
+                "conclude", "--issue-dir", str(issue_dir), "--summary", "inconclusive",
+                "--force-without-confirmed",
+            )
+            self.assertEqual(missing.returncode, 1)
+            self.assertIn("reason", missing.stderr)
+            forced = self.run_journal_log(
+                "conclude", "--issue-dir", str(issue_dir), "--summary", "inconclusive",
+                "--force-without-confirmed", "--reason", "cannot reproduce in local env",
+            )
+            self.assertEqual(forced.returncode, 0, forced.stderr)
+            self.assertEqual(self.status_json(issue_dir)["issueStatus"], "concluded")
+
+    def test_conclude_cancelled_closes_issue_without_confirmed_gate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            result = self.run_journal_log(
+                "conclude", "--issue-dir", str(issue_dir),
+                "--status", "cancelled", "--summary", "user abandoned investigation",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(self.status_json(issue_dir)["issueStatus"], "cancelled")
+
+    def test_conclude_refuses_already_closed_issue(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, _ = self.seed_confirmed(tmp)
+            self.run_journal_log(
+                "conclude", "--issue-dir", str(issue_dir), "--summary", "done",
+            )
+            again = self.run_journal_log(
+                "conclude", "--issue-dir", str(issue_dir), "--summary", "again",
+            )
+            self.assertEqual(again.returncode, 1)
+            self.assertIn("already", again.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

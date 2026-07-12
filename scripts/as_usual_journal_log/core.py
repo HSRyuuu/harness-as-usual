@@ -122,6 +122,42 @@ def find_reasoning_entry(entries: list[JsonObject], seq: int) -> JsonObject:
     raise JournalError(f"invalid target: seq {seq} not found")
 
 
+def derive_status(entries: list[JsonObject]) -> JsonObject:
+    entry_status: dict[int, str] = {}
+    issue_status = "open"
+    follow_ups: list[str] = []
+    last_seq = 0
+    for entry in entries:
+        last_seq = max(last_seq, entry.get("seq", 0))
+        kind = entry.get("kind")
+        if kind in REASONING_KINDS:
+            entry_status[entry["seq"]] = "added"
+        elif kind == "status-change":
+            target = entry.get("target")
+            if target in entry_status:
+                entry_status[target] = entry.get("status", "added")
+        elif kind == "lifecycle":
+            event = entry.get("event")
+            if event == "concluded":
+                issue_status = "concluded"
+            elif event == "cancelled":
+                issue_status = "cancelled"
+            if entry.get("followUp"):
+                follow_ups.append(entry["followUp"])
+
+    def bucket(status: str) -> list[int]:
+        return sorted(seq for seq, value in entry_status.items() if value == status)
+
+    return {
+        "issueStatus": issue_status,
+        "active": bucket("added"),
+        "confirmed": bucket("confirmed"),
+        "cancelled": bucket("cancelled"),
+        "followUps": follow_ups,
+        "lastSeq": last_seq,
+    }
+
+
 def init_issue(issue_dir: Path, *, initial_request: str, actor: str) -> JsonObject:
     if journal_path(issue_dir).exists():
         raise JournalError(f"journal already exists: {journal_path(issue_dir)}")

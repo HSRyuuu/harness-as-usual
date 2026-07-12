@@ -12,6 +12,7 @@ from .core import (
     JournalError,
     append_entry,
     build_entry,
+    derive_status,
     find_reasoning_entry,
     init_issue,
     read_entries,
@@ -94,6 +95,39 @@ def cmd_cancel(args: argparse.Namespace) -> int:
     return _status_change(args, status="cancelled", reason=args.reason)
 
 
+def cmd_status(args: argparse.Namespace) -> int:
+    entries = read_entries(Path(args.issue_dir))
+    return emit(derive_status(entries))
+
+
+def cmd_conclude(args: argparse.Namespace) -> int:
+    issue_dir = Path(args.issue_dir)
+    entries = read_entries(issue_dir)
+    derived = derive_status(entries)
+    if derived["issueStatus"] != "open":
+        raise JournalError(f"issue already {derived['issueStatus']}")
+    if args.status == "concluded" and not derived["confirmed"]:
+        if not args.force_without_confirmed:
+            raise JournalError(
+                "no confirmed entry: confirm a hypothesis first, or pass "
+                "--force-without-confirmed with --reason"
+            )
+        if not args.reason:
+            raise JournalError("--force-without-confirmed requires --reason")
+    entry = build_entry(
+        entries,
+        actor=args.actor,
+        kind="lifecycle",
+        status="added",
+        event=args.status,
+        content=args.summary,
+        followUp=args.follow_up,
+        reason=args.reason,
+    )
+    append_entry(issue_dir, entry)
+    return emit({"ok": True, "seq": entry["seq"], "issueStatus": args.status})
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="journal-log")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -131,6 +165,21 @@ def build_parser() -> argparse.ArgumentParser:
     cancel_parser.add_argument("--reason", required=True)
     cancel_parser.add_argument("--actor", default="claude")
     cancel_parser.set_defaults(func=cmd_cancel)
+
+    status_parser = subparsers.add_parser("status", help="derive issue status from the journal")
+    status_parser.add_argument("--issue-dir", required=True)
+    status_parser.add_argument("--json", action="store_true")
+    status_parser.set_defaults(func=cmd_status)
+
+    conclude_parser = subparsers.add_parser("conclude", help="close the issue")
+    conclude_parser.add_argument("--issue-dir", required=True)
+    conclude_parser.add_argument("--summary", required=True)
+    conclude_parser.add_argument("--status", default="concluded", choices=["concluded", "cancelled"])
+    conclude_parser.add_argument("--follow-up", dest="follow_up")
+    conclude_parser.add_argument("--force-without-confirmed", action="store_true")
+    conclude_parser.add_argument("--reason")
+    conclude_parser.add_argument("--actor", default="claude")
+    conclude_parser.set_defaults(func=cmd_conclude)
 
     return parser
 
