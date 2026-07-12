@@ -136,5 +136,60 @@ class JournalLogAddTests(JournalLogTestBase):
             self.assertEqual(entry["content"], "repro test code approved")
 
 
+class JournalLogStatusChangeTests(JournalLogTestBase):
+    def seed_hypothesis(self, tmp):
+        issue_dir = self.init_issue(tmp)
+        result = self.run_journal_log(
+            "add", "--issue-dir", str(issue_dir),
+            "--kind", "hypothesis", "--content", "pool exhaustion",
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return issue_dir, json.loads(result.stdout)["seq"]
+
+    def test_confirm_appends_status_change_with_target(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, seq = self.seed_hypothesis(tmp)
+            result = self.run_journal_log(
+                "confirm", "--issue-dir", str(issue_dir),
+                "--target", str(seq), "--evidence", "reproduced by load test",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            entry = self.read_journal(issue_dir)[-1]
+            self.assertEqual(entry["kind"], "status-change")
+            self.assertEqual(entry["status"], "confirmed")
+            self.assertEqual(entry["target"], seq)
+            self.assertEqual(entry["evidence"], "reproduced by load test")
+
+    def test_cancel_requires_reason_and_appends_event(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, seq = self.seed_hypothesis(tmp)
+            result = self.run_journal_log(
+                "cancel", "--issue-dir", str(issue_dir),
+                "--target", str(seq), "--reason", "contradicted by #18",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            entry = self.read_journal(issue_dir)[-1]
+            self.assertEqual(entry["status"], "cancelled")
+            self.assertEqual(entry["reason"], "contradicted by #18")
+
+    def test_confirm_rejects_missing_target(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, _ = self.seed_hypothesis(tmp)
+            result = self.run_journal_log(
+                "confirm", "--issue-dir", str(issue_dir), "--target", "99",
+            )
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("target", result.stderr)
+
+    def test_confirm_rejects_non_reasoning_target(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, _ = self.seed_hypothesis(tmp)
+            result = self.run_journal_log(
+                "confirm", "--issue-dir", str(issue_dir), "--target", "1",
+            )
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("target", result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

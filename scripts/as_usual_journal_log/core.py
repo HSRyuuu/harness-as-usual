@@ -110,6 +110,18 @@ def problem_template() -> str:
     return PROBLEM_FALLBACK
 
 
+def find_reasoning_entry(entries: list[JsonObject], seq: int) -> JsonObject:
+    for entry in entries:
+        if entry.get("seq") == seq:
+            if entry.get("kind") not in REASONING_KINDS:
+                raise JournalError(
+                    f"invalid target: seq {seq} is kind {entry.get('kind')}, "
+                    f"not a reasoning entry"
+                )
+            return entry
+    raise JournalError(f"invalid target: seq {seq} not found")
+
+
 def init_issue(issue_dir: Path, *, initial_request: str, actor: str) -> JsonObject:
     if journal_path(issue_dir).exists():
         raise JournalError(f"journal already exists: {journal_path(issue_dir)}")
