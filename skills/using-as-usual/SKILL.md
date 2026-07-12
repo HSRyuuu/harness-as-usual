@@ -12,6 +12,7 @@ This skill is the entry-point helper for activation and first reads in the AsUsu
 | Skill | Responsibility |
 | --- | --- |
 | `hand-off` | Resume an existing topic from an explicit hand-off command, a supplied topic path, or a cross-session resume, then route to the current owner skill |
+| `find-cause` | Own the whole `.as-usual/issue/` investigation lifecycle per `as-usual-rules/find-cause-workflow.md`; not a coding topic phase |
 | `using-as-usual` | Identify activation, confirm `core-workflow.md`, perform `.as-usual/topic/` first reads, and initialize new topic `topic.md`/`audit.jsonl` |
 | `start-work` | After first reads, route a new topic or unclear current phase to requirements, plan, execute, or direct-execute |
 | `define-requirements` | Create/validate `question-cN.md` files when needed, write/review `requirements.md`, and ask for plan approval |
@@ -32,6 +33,7 @@ Treat the request as AsUsual work when any of these is true:
 - The user mentions `.as-usual/`, `topic.md`, `audit.jsonl`, `question-cN.md`, `requirements.md`, `plan.md`, or topic artifacts.
 - The user asks to resume an active topic with phrasing like "I answered", "write the requirements", "write the plan", or "continue", and there is an active topic under `.as-usual/topic/` with readable derived status.
 - The user asks for feature-development work that should use the AsUsual workflow.
+- The user mentions `.as-usual/issue/`, `journal.jsonl`, `problem.md`, or asks to investigate/confirm a problem's cause or a solution direction without implementing it. This activates the find-cause workflow, not the coding topic workflow.
 
 ## Hand-Off Delegation
 
@@ -104,6 +106,8 @@ This skill should not duplicate phase procedures. Its job is to hand off to the 
 - `writing-plan` for dependency analysis, plan writing, review, and execution approval prompt.
 - `executing-plan` for approved execution and task-level evidence.
 - `review-execution`, `cleanup-code`, `finalize`, and `git-action` for post-execution gates.
+
+When the request is find-cause work (investigation/cause-confirmation, new or resumed issue under `.as-usual/issue/`), do not run coding-topic first reads or `start-work`. Hand off to the `find-cause` skill, which owns its own first reads against `as-usual-rules/find-cause-workflow.md`.
 
 ## Topic Log And Audit
 
