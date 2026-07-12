@@ -7,7 +7,14 @@ import json
 import sys
 from pathlib import Path
 
-from .core import JournalError, init_issue
+from .core import (
+    REASONING_KINDS,
+    JournalError,
+    append_entry,
+    build_entry,
+    init_issue,
+    read_entries,
+)
 
 
 def emit(receipt: dict) -> int:
@@ -29,6 +36,39 @@ def cmd_init(args: argparse.Namespace) -> int:
     return emit({"ok": True, "seq": entry["seq"], "issueDir": args.issue_dir})
 
 
+def cmd_add(args: argparse.Namespace) -> int:
+    if args.kind not in REASONING_KINDS:
+        raise JournalError(
+            f"invalid kind: {args.kind} (allowed: {sorted(REASONING_KINDS)})"
+        )
+    issue_dir = Path(args.issue_dir)
+    entries = read_entries(issue_dir)
+    entry = build_entry(
+        entries,
+        actor=args.actor,
+        kind=args.kind,
+        status="added",
+        content=args.content,
+        evidence=args.evidence,
+    )
+    append_entry(issue_dir, entry)
+    return emit({"ok": True, "seq": entry["seq"]})
+
+
+def cmd_approve(args: argparse.Namespace) -> int:
+    issue_dir = Path(args.issue_dir)
+    entries = read_entries(issue_dir)
+    entry = build_entry(
+        entries,
+        actor=args.actor,
+        kind="approval",
+        status="added",
+        content=args.content,
+    )
+    append_entry(issue_dir, entry)
+    return emit({"ok": True, "seq": entry["seq"]})
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="journal-log")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -38,6 +78,20 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("--initial-request", required=True)
     init_parser.add_argument("--actor", required=True)
     init_parser.set_defaults(func=cmd_init)
+
+    add_parser = subparsers.add_parser("add", help="append a reasoning entry")
+    add_parser.add_argument("--issue-dir", required=True)
+    add_parser.add_argument("--kind", required=True)
+    add_parser.add_argument("--content", required=True)
+    add_parser.add_argument("--evidence")
+    add_parser.add_argument("--actor", default="claude")
+    add_parser.set_defaults(func=cmd_add)
+
+    approve_parser = subparsers.add_parser("approve", help="record a user approval")
+    approve_parser.add_argument("--issue-dir", required=True)
+    approve_parser.add_argument("--content", required=True)
+    approve_parser.add_argument("--actor", default="user")
+    approve_parser.set_defaults(func=cmd_approve)
 
     return parser
 

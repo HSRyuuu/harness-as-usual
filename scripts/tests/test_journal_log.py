@@ -93,5 +93,48 @@ class JournalLogInitTests(JournalLogTestBase):
             self.assertIn("actor", result.stderr)
 
 
+class JournalLogAddTests(JournalLogTestBase):
+    def add_entry(self, issue_dir, kind, content, *extra):
+        return self.run_journal_log(
+            "add", "--issue-dir", str(issue_dir), "--kind", kind, "--content", content, *extra
+        )
+
+    def test_add_appends_reasoning_entry_with_incremented_seq(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            result = self.add_entry(
+                issue_dir, "hypothesis", "connection pool exhaustion", "--evidence", "journal #1"
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            entries = self.read_journal(issue_dir)
+            self.assertEqual(len(entries), 2)
+            entry = entries[-1]
+            self.assertEqual(entry["seq"], 2)
+            self.assertEqual(entry["kind"], "hypothesis")
+            self.assertEqual(entry["status"], "added")
+            self.assertEqual(entry["content"], "connection pool exhaustion")
+            self.assertEqual(entry["evidence"], "journal #1")
+            self.assertEqual(entry["actor"], "claude")
+
+    def test_add_rejects_non_reasoning_kind(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            result = self.add_entry(issue_dir, "lifecycle", "nope")
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("kind", result.stderr)
+
+    def test_approve_records_user_approval(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            result = self.run_journal_log(
+                "approve", "--issue-dir", str(issue_dir), "--content", "repro test code approved"
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            entry = self.read_journal(issue_dir)[-1]
+            self.assertEqual(entry["kind"], "approval")
+            self.assertEqual(entry["actor"], "user")
+            self.assertEqual(entry["content"], "repro test code approved")
+
+
 if __name__ == "__main__":
     unittest.main()
