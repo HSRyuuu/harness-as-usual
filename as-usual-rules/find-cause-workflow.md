@@ -63,11 +63,11 @@ thought process can be reconstructed at the end and resumed across sessions.
 ## Hard Gates
 
 1. Journal is append-only; all updates go through `scripts/journal-log.py`.
-2. No confirmation without evidence: do not `confirm` an entry or conclude
-   the issue without reproduction evidence or an explicit
-   "could not reproduce because ... " judgment recorded as evidence/reason.
-   (`journal-log.py conclude` enforces this; `--force-without-confirmed`
-   requires a recorded reason.)
+2. No confirmation without evidence. Two script-enforced points back this:
+   `journal-log.py confirm` requires `--evidence` (record reproduction
+   evidence, or an explicit "could not reproduce because ... " judgment as the
+   evidence text); `journal-log.py conclude` requires at least one confirmed
+   entry, and `--force-without-confirmed` requires a recorded `--reason`.
 3. Read-only by default: reading code, running the app, and analyzing logs
    are free. Writing reproduction tests/scripts requires an explicit user
    request or approval recorded with `journal-log.py approve`. Production

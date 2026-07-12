@@ -13,6 +13,7 @@ from .core import (
     append_entry,
     build_entry,
     derive_status,
+    ensure_open,
     find_reasoning_entry,
     init_issue,
     read_entries,
@@ -47,6 +48,7 @@ def cmd_add(args: argparse.Namespace) -> int:
         )
     issue_dir = Path(args.issue_dir)
     entries = read_entries(issue_dir)
+    ensure_open(entries)
     entry = build_entry(
         entries,
         actor=args.actor,
@@ -73,10 +75,18 @@ def cmd_approve(args: argparse.Namespace) -> int:
     return emit({"ok": True, "seq": entry["seq"]})
 
 
-def _status_change(args: argparse.Namespace, *, status: str, **fields) -> int:
+def _status_change(
+    args: argparse.Namespace, *, status: str, require_evidence: bool = False, **fields
+) -> int:
     issue_dir = Path(args.issue_dir)
     entries = read_entries(issue_dir)
+    ensure_open(entries)
     find_reasoning_entry(entries, args.target)
+    if require_evidence and not fields.get("evidence"):
+        raise JournalError(
+            "confirm requires --evidence: record reproduction evidence or an "
+            "explicit 'could not reproduce because ...' judgment"
+        )
     entry = build_entry(
         entries,
         actor=args.actor,
@@ -90,7 +100,9 @@ def _status_change(args: argparse.Namespace, *, status: str, **fields) -> int:
 
 
 def cmd_confirm(args: argparse.Namespace) -> int:
-    return _status_change(args, status="confirmed", evidence=args.evidence)
+    return _status_change(
+        args, status="confirmed", require_evidence=True, evidence=args.evidence
+    )
 
 
 def cmd_cancel(args: argparse.Namespace) -> int:

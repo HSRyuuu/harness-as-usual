@@ -158,11 +158,21 @@ def derive_status(entries: list[JsonObject]) -> JsonObject:
     }
 
 
+def ensure_open(entries: list[JsonObject]) -> None:
+    issue_status = derive_status(entries)["issueStatus"]
+    if issue_status != "open":
+        raise JournalError(
+            f"issue already {issue_status}; reopen is not supported. "
+            "Only follow-up linking is allowed after conclusion."
+        )
+
+
 def validate_entries(entries: list[JsonObject]) -> list[str]:
     problems: list[str] = []
     seen_seq: set[int] = set()
     reasoning_seqs: set[int] = set()
     previous_seq = 0
+    closed = False
     for index, entry in enumerate(entries, 1):
         seq = entry.get("seq")
         if not isinstance(seq, int) or seq <= 0:
@@ -189,17 +199,26 @@ def validate_entries(entries: list[JsonObject]) -> list[str]:
             reasoning_seqs.add(seq)
             if status != "added":
                 problems.append(f"seq {seq}: reasoning entry must start as added")
+            if closed:
+                problems.append(f"seq {seq}: reasoning entry after issue conclusion")
         elif kind == "status-change":
             target = entry.get("target")
             if not isinstance(target, int) or target not in reasoning_seqs:
                 problems.append(f"seq {seq}: target {target!r} is not an earlier reasoning entry")
             if status not in {"confirmed", "cancelled"}:
                 problems.append(f"seq {seq}: status-change must be confirmed or cancelled")
+            if status == "confirmed" and not entry.get("evidence"):
+                problems.append(f"seq {seq}: confirmed status-change requires evidence")
             if status == "cancelled" and not entry.get("reason"):
                 problems.append(f"seq {seq}: cancelled status-change requires reason")
+            if closed:
+                problems.append(f"seq {seq}: status-change after issue conclusion")
         elif kind == "lifecycle":
-            if entry.get("event") not in LIFECYCLE_EVENTS:
-                problems.append(f"seq {seq}: invalid lifecycle event {entry.get('event')!r}")
+            event = entry.get("event")
+            if event not in LIFECYCLE_EVENTS:
+                problems.append(f"seq {seq}: invalid lifecycle event {event!r}")
+            if event in {"concluded", "cancelled"}:
+                closed = True
 
     if entries:
         first = entries[0]

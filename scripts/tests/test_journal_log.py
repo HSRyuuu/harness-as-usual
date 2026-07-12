@@ -200,6 +200,20 @@ class JournalLogStatusChangeTests(JournalLogTestBase):
             self.assertEqual(result.returncode, 1)
             self.assertIn("target", result.stderr)
 
+    def test_confirm_requires_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, seq = self.seed_hypothesis(tmp)
+            missing = self.run_journal_log(
+                "confirm", "--issue-dir", str(issue_dir), "--target", str(seq),
+            )
+            self.assertEqual(missing.returncode, 1)
+            self.assertIn("evidence", missing.stderr)
+            ok = self.run_journal_log(
+                "confirm", "--issue-dir", str(issue_dir), "--target", str(seq),
+                "--evidence", "reproduced",
+            )
+            self.assertEqual(ok.returncode, 0, ok.stderr)
+
 
 class JournalLogStatusAndConcludeTests(JournalLogTestBase):
     def seed_confirmed(self, tmp):
@@ -305,6 +319,31 @@ class JournalLogStatusAndConcludeTests(JournalLogTestBase):
             self.assertEqual(again.returncode, 1)
             self.assertIn("already", again.stderr)
 
+    def test_reasoning_mutations_refused_after_conclude(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, seq = self.seed_confirmed(tmp)
+            self.run_journal_log(
+                "conclude", "--issue-dir", str(issue_dir), "--summary", "done",
+            )
+            add = self.run_journal_log(
+                "add", "--issue-dir", str(issue_dir),
+                "--kind", "finding", "--content", "late finding",
+            )
+            self.assertEqual(add.returncode, 1)
+            self.assertIn("concluded", add.stderr)
+            confirm = self.run_journal_log(
+                "confirm", "--issue-dir", str(issue_dir),
+                "--target", str(seq), "--evidence", "late",
+            )
+            self.assertEqual(confirm.returncode, 1)
+            self.assertIn("concluded", confirm.stderr)
+            cancel = self.run_journal_log(
+                "cancel", "--issue-dir", str(issue_dir),
+                "--target", str(seq), "--reason", "late",
+            )
+            self.assertEqual(cancel.returncode, 1)
+            self.assertIn("concluded", cancel.stderr)
+
     def test_link_follow_up_after_conclude_records_lifecycle_link(self):
         with tempfile.TemporaryDirectory() as tmp:
             issue_dir, _ = self.seed_confirmed(tmp)
@@ -364,6 +403,24 @@ class JournalLogViewValidateTests(JournalLogTestBase):
             problems = json.loads(result.stdout)["problems"]
             self.assertTrue(any("seq" in problem for problem in problems))
             self.assertTrue(any("target" in problem for problem in problems))
+
+    def test_validate_flags_reasoning_after_conclusion(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            with (issue_dir / "journal.jsonl").open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps({
+                    "seq": 2, "ts": "2026-07-12T10:00:00+09:00", "actor": "claude",
+                    "kind": "lifecycle", "status": "added", "event": "concluded",
+                    "content": "done",
+                }) + "\n")
+                handle.write(json.dumps({
+                    "seq": 3, "ts": "2026-07-12T10:01:00+09:00", "actor": "claude",
+                    "kind": "finding", "status": "added", "content": "smuggled",
+                }) + "\n")
+            result = self.run_journal_log("validate", "--issue-dir", str(issue_dir))
+            self.assertEqual(result.returncode, 1)
+            problems = json.loads(result.stdout)["problems"]
+            self.assertTrue(any("after issue conclusion" in problem for problem in problems))
 
     def test_validate_reports_non_integer_target_without_crash(self):
         with tempfile.TemporaryDirectory() as tmp:

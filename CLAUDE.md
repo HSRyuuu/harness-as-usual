@@ -6,7 +6,7 @@ AsUsual is an agent harness for use with both Claude Code and Codex. It provides
 
 The core idea of AsUsual is to keep topic-level decision records in files so the agent does not guess the user's existing work style.
 
-The canonical file for the current runtime contract is `as-usual-rules/core-workflow.md`.
+AsUsual has two parallel work units. The coding `topic` (canonical rules `as-usual-rules/core-workflow.md`) covers feature-development. The find-cause `issue` (canonical rules `as-usual-rules/find-cause-workflow.md`) covers root-cause/solution-direction investigation without code changes; its state is journal-first under `.as-usual/issue/` via `scripts/journal-log.py`, and a confirmed `conclusion.md` feeds a follow-up coding topic.
 
 ## STRUCTURE
 
@@ -24,6 +24,7 @@ as-usual/
 ├── templates/            # topic artifact templates
 └── skills/               # stable skills only; do not commit draft/probe skills
     ├── hand-off/  # resume entrypoint for continuing an existing topic path from another session
+    ├── find-cause/  # owns the .as-usual/issue/ find-cause investigation lifecycle (parallel to coding topics)
     ├── explore-codebase/  # read-only codebase discovery util; repository facts before requirements/plan
     ├── manage-self-improvement/  # triggered at finalize; records cross-topic lessons into memory
     └── search-long-term-memory/  # read-only recall util; queries .as-usual/memory/ for past decisions
@@ -89,8 +90,11 @@ Plugin development requests are classified as plugin development even when they 
 
 | Task | Location | Notes |
 | --- | --- | --- |
-| Runtime workflow rules | `as-usual-rules/core-workflow.md` | canonical AsUsual workflow read when AsUsual activates |
-| Hook context injection | `hooks/session-start`, `hooks/run-hook.cmd`, `hooks/hooks.json`, `hooks/hooks-codex.json` | injects a one-sentence capability summary and entrypoint skill |
+| Runtime workflow rules | `as-usual-rules/core-workflow.md` | canonical coding-topic workflow read when AsUsual activates |
+| Find-cause workflow rules | `as-usual-rules/find-cause-workflow.md` | canonical find-cause `issue` workflow; read when find-cause activates |
+| Find-cause skill + templates | `skills/find-cause/SKILL.md`, `templates/problem.md`, `templates/conclusion.md` | owns the `.as-usual/issue/` lifecycle; `problem.md`/`conclusion.md` are its artifacts |
+| Issue journal helper | `scripts/journal-log.py`, `scripts/as_usual_journal_log/` | initializes/append/derives the append-only `journal.jsonl`; enforces evidence + conclusion gates |
+| Hook context injection | `hooks/session-start`, `hooks/run-hook.cmd`, `hooks/hooks.json`, `hooks/hooks-codex.json` | injects a one-sentence capability summary and entrypoint skills (`using-as-usual`, `find-cause`) |
 | Artifact templates | `templates/question.md`, `templates/requirements.md`, `templates/plan.md`, `templates/topic.md`, `templates/MEMORY.md` | file shapes created under `.as-usual/topic/yyyy-MM-dd-<topic>/`; `topic.md` and `audit.jsonl` are initialized by `scripts/topic-log.py init`; `MEMORY.md` is the template for `.as-usual/memory/MEMORY.md` |
 | Runtime activation skill | `skills/using-as-usual/SKILL.md` | reads core workflow and topic artifacts when AsUsual signals are detected |
 | Hand-off resume skill | `skills/hand-off/SKILL.md` | routes `/as-usual:hand-off path` or cross-session topic resume requests back to the current phase owner skill |
@@ -113,12 +117,15 @@ Plugin development requests are classified as plugin development even when they 
 
 | Surface | Type | Location | Role |
 | --- | --- | --- | --- |
-| Core workflow | Markdown prompt | `as-usual-rules/core-workflow.md` | runtime contract the agent follows while working in a target project |
-| SessionStart hook | shell + JSON | `hooks/session-start` | injects one-sentence lightweight bootstrap context for `using-as-usual` |
+| Core workflow | Markdown prompt | `as-usual-rules/core-workflow.md` | coding-topic runtime contract the agent follows while working in a target project |
+| Find-cause workflow | Markdown prompt | `as-usual-rules/find-cause-workflow.md` | find-cause `issue` runtime contract; parallel to core-workflow, no phase pipeline |
+| SessionStart hook | shell + JSON | `hooks/session-start` | injects one-sentence lightweight bootstrap context for `using-as-usual` and `find-cause` |
 | Hook config | JSON | `hooks/hooks.json`, `hooks/hooks-codex.json` | runs the hook runner on Claude/Codex SessionStart |
 | Topic log helper | Python | `scripts/topic-log.py` | initializes `topic.md`/`audit.jsonl`, appends audit events, and derives current status |
-| Activation skill | Skill | `skills/using-as-usual/SKILL.md` | AsUsual work classification, first reads, artifact gate progress |
-| Hand-off resume skill | Skill | `skills/hand-off/SKILL.md` | rehydrates an existing `.as-usual/topic/...` path and routes to the current phase owner skill |
+| Issue journal helper | Python | `scripts/journal-log.py`, `scripts/as_usual_journal_log/{cli,core}.py` | append-only `journal.jsonl` init/add/confirm/cancel/conclude/link-follow-up/status/view/validate; enforces evidence-on-confirm, confirmed-before-conclude, and no-mutation-after-conclusion gates |
+| Activation skill | Skill | `skills/using-as-usual/SKILL.md` | AsUsual work classification, first reads, artifact gate progress; routes find-cause to the `find-cause` skill |
+| Hand-off resume skill | Skill | `skills/hand-off/SKILL.md` | rehydrates an existing `.as-usual/topic/...` (or `.as-usual/issue/...`) path and routes to the current owner skill |
+| Find-cause skill | Skill | `skills/find-cause/SKILL.md` | owns the whole `.as-usual/issue/` investigation lifecycle per `find-cause-workflow.md` |
 | Requirements definition skill | Skill | `skills/define-requirements/SKILL.md` | `question-cN.md` creation/validation and `requirements.md` synthesis/review |
 | Self-improvement skill | Skill | `skills/manage-self-improvement/SKILL.md` | finalize trigger; distills cross-topic lessons into `.as-usual/memory/MEMORY.md` |
 | Long-term memory recall skill | Skill | `skills/search-long-term-memory/SKILL.md` | read-only recall util for `.as-usual/memory/` |
@@ -136,8 +143,9 @@ Plugin development requests are classified as plugin development even when they 
 
 ## CONVENTIONS
 
-- Keep the runtime workflow in the single file `as-usual-rules/core-workflow.md`.
-- The canonical topic path is `.as-usual/topic/yyyy-MM-dd-<topic>/`.
+- Keep the coding-topic runtime workflow in the single file `as-usual-rules/core-workflow.md`, and the find-cause runtime workflow in the single file `as-usual-rules/find-cause-workflow.md`. These are the only two runtime workflow prompts.
+- The canonical topic path is `.as-usual/topic/yyyy-MM-dd-<topic>/`; the canonical find-cause issue path is `.as-usual/issue/yyyy-MM-dd-<slug>/`.
+- `journal.jsonl` is append-only and script-managed via `scripts/journal-log.py`. Never hand-edit it. Reasoning entries cannot be mutated after conclusion; only `link-follow-up` is allowed on a concluded issue.
 - `topics/` and the `yyyyMMdd` format are legacy designs. Do not use them for new runtime artifacts.
 - `question-cN.md` and `[Answer]:` fields are for the `define-requirements` question cycle only.
 - The agent stops after creating or updating a requirements question file.
@@ -169,7 +177,7 @@ Plugin development requests are classified as plugin development even when they 
 - Mixing plugin development guidance into `core-workflow.md`.
 - Changing repo-relative install examples into machine-specific personal paths.
 - Using the default `personal` marketplace for Codex local plugin setup.
-- Committing `.codegraph/`, `.as-usual/topic/`, installed plugin cache output, or local probe output. (`.as-usual/memory/` is an allowed commit target.)
+- Committing `.codegraph/`, `.as-usual/topic/`, `.as-usual/issue/`, installed plugin cache output, or local probe output. (`.as-usual/memory/` is an allowed commit target.)
 
 ## COMMANDS
 
@@ -204,6 +212,6 @@ codex plugin add as-usual@as-usual-local --json
 
 ## NOTES
 
-- `as-usual-rules/core-workflow.md` is the only runtime workflow prompt.
+- `as-usual-rules/core-workflow.md` (coding topics) and `as-usual-rules/find-cause-workflow.md` (find-cause issues) are the two runtime workflow prompts.
 - Runtime workflow skills in `skills/` are stable public plugin surface.
 - Post-execute policy is: task-level verification inside `executing-plan`, mandatory `review-execution`, optional `cleanup-code`, and `finalize` asking for post-finalize git action selection.
