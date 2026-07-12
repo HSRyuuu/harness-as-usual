@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[4]
 EXPECTED_RUNTIME_SKILLS = {
     "using-as-usual",
     "hand-off",
+    "find-cause",
     "start-work",
     "define-requirements",
     "writing-plan",
@@ -18,6 +19,7 @@ EXPECTED_RUNTIME_SKILLS = {
     "git-action",
     "manage-self-improvement",
     "search-long-term-memory",
+    "explore-codebase",
 }
 
 

@@ -11,7 +11,7 @@ disable-model-invocation: true
 Run the same smoke tests repeatedly after AsUsual harness changes.
 
 1. Verify that JSON manifests and hook configs are valid.
-2. Verify that `as-usual-rules/core-workflow.md` is the canonical runtime workflow.
+2. Verify that `as-usual-rules/core-workflow.md` and `as-usual-rules/find-cause-workflow.md` are the canonical coding-topic and find-cause workflows.
 3. Verify that the SessionStart hook injects only a one-sentence AsUsual capability summary with the runtime entrypoint, without injecting the full core workflow, rule path, topic candidates, memory content, or static artifact rules.
 4. Verify that old paths or removed workflow skills do not remain on the runtime surface.
 
@@ -30,6 +30,7 @@ Run the same smoke tests repeatedly after AsUsual harness changes.
 | File                                                | Purpose                           |
 | --------------------------------------------------- | --------------------------------- |
 | `as-usual-rules/core-workflow.md`                   | canonical runtime workflow        |
+| `as-usual-rules/find-cause-workflow.md`              | canonical find-cause workflow     |
 | `hooks/session-start`                               | SessionStart context injection    |
 | `hooks/run-hook.cmd`                                | hook runner                       |
 | `hooks/hooks.json`                                  | Claude hook config                |
@@ -40,6 +41,7 @@ Run the same smoke tests repeatedly after AsUsual harness changes.
 | `.agents/plugins/marketplace.json`                  | Codex local marketplace manifest  |
 | `skills/using-as-usual/SKILL.md`                    | runtime activation skill          |
 | `skills/hand-off/SKILL.md`                          | runtime hand-off resume skill     |
+| `skills/find-cause/SKILL.md`                         | runtime find-cause issue skill    |
 | `skills/start-work/SKILL.md`                        | runtime gate routing skill        |
 | `skills/define-requirements/SKILL.md`                    | runtime question cycle and requirements writing skill      |
 | `skills/define-requirements/requirements-document-reviewer-prompt.md` | runtime requirements review prompt     |
@@ -61,6 +63,9 @@ Run the same smoke tests repeatedly after AsUsual harness changes.
 | `templates/report.md`                               | final topic handoff report template |
 | `templates/topic.md`                                | low-churn topic resume template   |
 | `scripts/topic-log.py`                              | topic/audit helper and status derivation |
+| `scripts/journal-log.py`                            | issue journal CLI entrypoint |
+| `scripts/as_usual_journal_log/`                     | issue journal implementation |
+| `scripts/tests/test_journal_log.py`                 | issue journal behavior and gate tests |
 | `.agents/skills/sandbox-e2e-test/scripts/e2e-report-linter.py` | sandbox E2E report linter |
 | `.agents/skills/sandbox-e2e-test/scripts/fill-question-answers.py` | sandbox E2E question answer fixture helper |
 | `.agents/skills/sandbox-e2e-test/tests/test_e2e_report_linter.py` | linter unit tests |
@@ -95,15 +100,16 @@ Run:
 
 ```bash
 test -s as-usual-rules/core-workflow.md
+test -s as-usual-rules/find-cause-workflow.md
 ```
 
 PASS:
 
-- `as-usual-rules/core-workflow.md` exists and is non-empty.
+- Both canonical workflow files exist and are non-empty.
 
 FAIL:
 
-- `core-workflow.md` is missing or empty.
+- Either canonical workflow file is missing or empty.
 
 Fix:
 
@@ -202,6 +208,7 @@ rm -rf "$tmp_dir"
 Run:
 
 ```bash
+python3 -m unittest discover -s scripts/tests -p 'test_*.py'
 python3 -m unittest discover -s .agents/skills/sandbox-e2e-test/tests -p 'test_*.py'
 if python3 .agents/skills/sandbox-e2e-test/scripts/e2e-report-linter.py \
   --report-dir docs/test/2026-06-24-priority-e2e-codex-20260624-215619 \
@@ -225,6 +232,7 @@ PY
 
 PASS:
 
+- journal helper unittest exits 0.
 - unittest exits 0.
 - runtime surface manifest tests keep public skill names, plugin manifest paths, marketplace metadata, and SessionStart hook commands aligned.
 - linter emits parseable JSON with `overallResult`, `segments`, and `checks`. The archived fixture may report PASS or FAIL; this smoke checks the linter output contract, not that a historical E2E report is clean.
