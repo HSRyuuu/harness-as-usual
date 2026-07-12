@@ -16,7 +16,7 @@
   <a href="#-install"><b>Install</b></a> ·
   <a href="#-why-asusual"><b>Why</b></a> ·
   <a href="#-how-it-works"><b>Workflow</b></a> ·
-  <a href="#-topic-artifacts"><b>Artifacts</b></a>
+  <a href="#-work-unit-artifacts"><b>Artifacts</b></a>
 </p>
 
 </div>
@@ -27,7 +27,7 @@
 <tr>
 <td width="60" align="center">💡</td>
 <td>
-AsUsual is designed for <strong>controlled AI-assisted development</strong> on work that may eventually affect real, always-on production services. It is intentionally <em>not</em> a pure vibe-coding harness — it keeps topic-level decisions in files so the agent never has to guess your existing work style.
+AsUsual is designed for <strong>controlled AI-assisted development</strong> on work that may eventually affect real, always-on production services. It is intentionally <em>not</em> a pure vibe-coding harness — it keeps coding-topic decisions and find-cause investigation evidence in files so the agent never has to guess your existing work style.
 </td>
 </tr>
 </table>
@@ -85,13 +85,16 @@ Prefer to do it by hand? Follow [`docs/INSTALL.md`](docs/INSTALL.md) — remove 
 
 ## 🔄 How It Works
 
-The runtime workflow rules live in [`as-usual-rules/core-workflow.md`](as-usual-rules/core-workflow.md) — read by the agent on disk, **never copied into target projects**.
+AsUsual has two parallel runtime work units, both read by the agent on disk and **never copied into target projects**:
+
+- Coding `topic`: [`as-usual-rules/core-workflow.md`](as-usual-rules/core-workflow.md) for requirements → plan → implementation → review → finalize.
+- Find-cause `issue`: [`as-usual-rules/find-cause-workflow.md`](as-usual-rules/find-cause-workflow.md) for evidence-backed root-cause or solution-direction investigation without production-code changes.
 
 <div align="center">
 <sub><code>SessionStart</code> → <code>using-as-usual</code> → <code>start-work</code> → <b>route</b> → <code>review-execution</code> → <code>finalize</code> → <code>git-action</code></sub>
 </div>
 
-Need to continue a topic from another session? Use <code>/as-usual:hand-off path</code> to rehydrate an existing topic and route back into the normal workflow.
+Need to continue a topic or issue from another session? Use <code>/as-usual:hand-off path</code> to rehydrate it and route back to its current owner.
 
 <table>
 <thead>
@@ -112,9 +115,9 @@ Need to continue a topic from another session? Use <code>/as-usual:hand-off path
 
 <br>
 
-## 📂 Topic Artifacts
+## 📂 Work-Unit Artifacts
 
-AsUsual uses two branches inside `.as-usual/`: `topic/` for per-work-unit artifacts and `memory/` for curated cross-topic durable knowledge.
+AsUsual uses three branches inside `.as-usual/`: `topic/` for coding work, `issue/` for find-cause investigations, and `memory/` for curated cross-topic durable knowledge.
 
 ```text
 .as-usual/
@@ -133,6 +136,12 @@ AsUsual uses two branches inside `.as-usual/`: `topic/` for per-work-unit artifa
 │       │   └── review-result-<type>.md
 │       ├── code-review-report.md
 │       └── report.md
+├── issue/
+│   └── yyyy-MM-dd-<slug>/
+│       ├── problem.md             # living investigation snapshot
+│       ├── journal.jsonl          # append-only reasoning and lifecycle log
+│       ├── evidence/              # optional captured evidence
+│       └── conclusion.md          # confirmed result and provenance
 └── memory/
     ├── MEMORY.md                 # curated cross-topic knowledge; 3000-char budget
     └── *_MEMORY.md               # optional domain-specific memory files
@@ -143,6 +152,9 @@ AsUsual uses two branches inside `.as-usual/`: `topic/` for per-work-unit artifa
 
 > [!NOTE]
 > `topic/` artifacts are not committed by default. `.as-usual/memory/` is a commit target — it accumulates durable knowledge across topics and is updated at `finalize` by the `manage-self-improvement` skill.
+
+> [!NOTE]
+> `issue/` artifacts are also not committed by default. A concluded issue can link a separate coding topic through `scripts/journal-log.py link-follow-up`.
 
 <br>
 
