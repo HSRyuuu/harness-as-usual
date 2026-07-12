@@ -118,7 +118,8 @@ CLAUDE_PLUGIN_ROOT="$PWD" bash hooks/run-hook.cmd session-start \
   | jq '{
       event: .hookSpecificOutput.hookEventName,
       hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")),
-      isOneSentence: (.hookSpecificOutput.additionalContext | split(".") | length <= 2),
+      hasFindCause: (.hookSpecificOutput.additionalContext | contains("find-cause")),
+      isOneSentence: (.hookSpecificOutput.additionalContext | split(". ") | length <= 2),
       hasNoRuleSource: (.hookSpecificOutput.additionalContext | contains("Harness rule source:") | not),
       hasNoActiveCandidates: (.hookSpecificOutput.additionalContext | contains("Active topic candidates:") | not),
       hasNoMemoryContent: (.hookSpecificOutput.additionalContext | contains("Project memory:") | not),
@@ -132,6 +133,7 @@ PASS:
 
 - `event` is `SessionStart`.
 - `hasUsingSkill` is `true`.
+- `hasFindCause` is `true`.
 - `isOneSentence` is `true`.
 - `hasNoRuleSource` is `true`.
 - `hasNoActiveCandidates` is `true`.

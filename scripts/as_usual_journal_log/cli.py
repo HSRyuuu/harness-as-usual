@@ -128,6 +128,11 @@ def cmd_conclude(args: argparse.Namespace) -> int:
             )
         if not args.reason:
             raise JournalError("--force-without-confirmed requires --reason")
+    if args.status == "cancelled" and not args.reason:
+        raise JournalError(
+            "conclude --status cancelled requires --reason: record why the "
+            "investigation was abandoned"
+        )
     entry = build_entry(
         entries,
         actor=args.actor,

@@ -75,8 +75,14 @@ thought process can be reconstructed at the end and resumed across sessions.
 4. High-risk operations (production access, shared-DB queries, etc.) follow
    core-workflow.md's High-Risk Operation Gate; record the fresh approval
    with `journal-log.py approve`.
-5. Before ending a turn, record this turn's meaningful findings, decisions,
-   and retractions in the journal.
+5. Before ending a turn, record this turn's reasoning in the journal. If the
+   turn produced any finding, decision, hypothesis, confirmation, or
+   retraction, at least one matching journal entry must be appended before the
+   turn ends — do not defer it to a later batch. A turn that ends with no new
+   entry is acceptable only when you explicitly tell the user that this turn
+   produced no new reasoning (e.g. it was pure reading that changed nothing);
+   silently deciding the work was "not meaningful enough" to record is a gate
+   violation, because the journal is the sole resume record across sessions.
 
 Everything else — investigation order, number of questions, number of
 hypotheses, entry length — is free-form. Do not impose coding-workflow

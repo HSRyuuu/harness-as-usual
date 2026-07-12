@@ -190,7 +190,7 @@ jq '.skills,.hooks' .codex-plugin/plugin.json
 
 # Hook smoke verification
 CLAUDE_PLUGIN_ROOT="$PWD" bash hooks/run-hook.cmd session-start \
-  | jq '{event: .hookSpecificOutput.hookEventName, hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), isOneSentence: (.hookSpecificOutput.additionalContext | split(".") | length <= 2), hasNoRuleSource: (.hookSpecificOutput.additionalContext | contains("Harness rule source:") | not), hasNoActiveCandidates: (.hookSpecificOutput.additionalContext | contains("Active topic candidates:") | not), hasNoFullCore: (.hookSpecificOutput.additionalContext | contains("## 8. Plan Rules") | not)}'
+  | jq '{event: .hookSpecificOutput.hookEventName, hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), hasFindCause: (.hookSpecificOutput.additionalContext | contains("find-cause")), isOneSentence: (.hookSpecificOutput.additionalContext | split(". ") | length <= 2), hasNoRuleSource: (.hookSpecificOutput.additionalContext | contains("Harness rule source:") | not), hasNoActiveCandidates: (.hookSpecificOutput.additionalContext | contains("Active topic candidates:") | not), hasNoFullCore: (.hookSpecificOutput.additionalContext | contains("## 8. Plan Rules") | not)}'
 
 # Check that public surface does not include draft/cache content
 git ls-tree -r --name-only HEAD | rg '^(commands/|skills/as-usual-(interview|execute|test)/)' || true

@@ -303,9 +303,23 @@ class JournalLogStatusAndConcludeTests(JournalLogTestBase):
             result = self.run_journal_log(
                 "conclude", "--issue-dir", str(issue_dir),
                 "--status", "cancelled", "--summary", "user abandoned investigation",
+                "--reason", "user has no time to continue",
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(self.status_json(issue_dir)["issueStatus"], "cancelled")
+            validate = self.run_journal_log("validate", "--issue-dir", str(issue_dir))
+            self.assertEqual(validate.returncode, 0, validate.stderr)
+
+    def test_conclude_cancelled_requires_reason(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            result = self.run_journal_log(
+                "conclude", "--issue-dir", str(issue_dir),
+                "--status", "cancelled", "--summary", "user abandoned investigation",
+            )
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("reason", result.stderr)
+            self.assertEqual(self.status_json(issue_dir)["issueStatus"], "open")
 
     def test_conclude_refuses_already_closed_issue(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -362,6 +376,49 @@ class JournalLogStatusAndConcludeTests(JournalLogTestBase):
             self.assertIn(".as-usual/topic/2026-07-12-fix", status["followUps"])
             validate = self.run_journal_log("validate", "--issue-dir", str(issue_dir))
             self.assertEqual(validate.returncode, 0, validate.stderr)
+
+
+class JournalLogRobustnessTests(JournalLogTestBase):
+    def test_add_heals_missing_trailing_newline(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            path = issue_dir / "journal.jsonl"
+            # Simulate a crash that left the file without a trailing newline.
+            data = path.read_bytes().rstrip(b"\n")
+            path.write_bytes(data)
+            result = self.run_journal_log(
+                "add", "--issue-dir", str(issue_dir),
+                "--kind", "finding", "--content", "after crash",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            entries = self.read_journal(issue_dir)
+            self.assertEqual(len(entries), 2)
+            self.assertEqual(entries[-1]["content"], "after crash")
+            validate = self.run_journal_log("validate", "--issue-dir", str(issue_dir))
+            self.assertEqual(validate.returncode, 0, validate.stderr)
+
+    def test_mutations_fail_gracefully_on_non_integer_seq(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            with (issue_dir / "journal.jsonl").open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps({
+                    "seq": "two", "ts": "2026-07-12T10:00:00+09:00", "actor": "claude",
+                    "kind": "finding", "status": "added", "content": "corrupt",
+                }) + "\n")
+            add = self.run_journal_log(
+                "add", "--issue-dir", str(issue_dir),
+                "--kind", "finding", "--content", "next",
+            )
+            self.assertEqual(add.returncode, 1)
+            self.assertIn("validate", add.stderr)
+            self.assertNotIn("Traceback", add.stderr)
+            status = self.run_journal_log("status", "--issue-dir", str(issue_dir))
+            self.assertEqual(status.returncode, 1)
+            self.assertNotIn("Traceback", status.stderr)
+            validate = self.run_journal_log("validate", "--issue-dir", str(issue_dir))
+            self.assertEqual(validate.returncode, 1)
+            problems = json.loads(validate.stdout)["problems"]
+            self.assertTrue(any("seq" in problem for problem in problems))
 
 
 class JournalLogViewValidateTests(JournalLogTestBase):
