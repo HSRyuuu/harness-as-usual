@@ -64,6 +64,7 @@ def cmd_add(args: argparse.Namespace) -> int:
 def cmd_approve(args: argparse.Namespace) -> int:
     issue_dir = Path(args.issue_dir)
     entries = read_entries(issue_dir)
+    ensure_open(entries)
     entry = build_entry(
         entries,
         actor=args.actor,

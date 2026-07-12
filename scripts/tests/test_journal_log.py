@@ -357,6 +357,12 @@ class JournalLogStatusAndConcludeTests(JournalLogTestBase):
             )
             self.assertEqual(cancel.returncode, 1)
             self.assertIn("concluded", cancel.stderr)
+            approve = self.run_journal_log(
+                "approve", "--issue-dir", str(issue_dir),
+                "--content", "late approval",
+            )
+            self.assertEqual(approve.returncode, 1)
+            self.assertIn("concluded", approve.stderr)
 
     def test_link_follow_up_after_conclude_records_lifecycle_link(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -478,6 +484,24 @@ class JournalLogViewValidateTests(JournalLogTestBase):
             self.assertEqual(result.returncode, 1)
             problems = json.loads(result.stdout)["problems"]
             self.assertTrue(any("after issue conclusion" in problem for problem in problems))
+
+    def test_validate_flags_approval_after_conclusion(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            with (issue_dir / "journal.jsonl").open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps({
+                    "seq": 2, "ts": "2026-07-12T10:00:00+09:00", "actor": "claude",
+                    "kind": "lifecycle", "status": "added", "event": "cancelled",
+                    "content": "stopped", "reason": "user stopped investigation",
+                }) + "\n")
+                handle.write(json.dumps({
+                    "seq": 3, "ts": "2026-07-12T10:01:00+09:00", "actor": "user",
+                    "kind": "approval", "status": "added", "content": "too late",
+                }) + "\n")
+            result = self.run_journal_log("validate", "--issue-dir", str(issue_dir))
+            self.assertEqual(result.returncode, 1)
+            problems = json.loads(result.stdout)["problems"]
+            self.assertTrue(any("approval after issue conclusion" in problem for problem in problems))
 
     def test_validate_reports_non_integer_target_without_crash(self):
         with tempfile.TemporaryDirectory() as tmp:

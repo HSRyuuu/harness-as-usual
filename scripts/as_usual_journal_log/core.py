@@ -239,6 +239,9 @@ def validate_entries(entries: list[JsonObject]) -> list[str]:
                 problems.append(f"seq {seq}: cancelled status-change requires reason")
             if closed:
                 problems.append(f"seq {seq}: status-change after issue conclusion")
+        elif kind == "approval":
+            if closed:
+                problems.append(f"seq {seq}: approval after issue conclusion")
         elif kind == "lifecycle":
             event = entry.get("event")
             if event not in LIFECYCLE_EVENTS:
