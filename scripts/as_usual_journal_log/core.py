@@ -158,6 +158,89 @@ def derive_status(entries: list[JsonObject]) -> JsonObject:
     }
 
 
+def validate_entries(entries: list[JsonObject]) -> list[str]:
+    problems: list[str] = []
+    seen_seq: set[int] = set()
+    reasoning_seqs: set[int] = set()
+    previous_seq = 0
+    for index, entry in enumerate(entries, 1):
+        seq = entry.get("seq")
+        if not isinstance(seq, int) or seq <= 0:
+            problems.append(f"entry {index}: invalid seq {seq!r}")
+            continue
+        if seq in seen_seq:
+            problems.append(f"entry {index}: duplicate seq {seq}")
+        if seq <= previous_seq:
+            problems.append(f"entry {index}: seq {seq} not increasing")
+        seen_seq.add(seq)
+        previous_seq = max(previous_seq, seq)
+
+        kind = entry.get("kind")
+        status = entry.get("status")
+        actor = entry.get("actor")
+        if kind not in KINDS:
+            problems.append(f"seq {seq}: invalid kind {kind!r}")
+        if status not in ENTRY_STATUSES:
+            problems.append(f"seq {seq}: invalid status {status!r}")
+        if actor not in ACTORS:
+            problems.append(f"seq {seq}: invalid actor {actor!r}")
+
+        if kind in REASONING_KINDS:
+            reasoning_seqs.add(seq)
+            if status != "added":
+                problems.append(f"seq {seq}: reasoning entry must start as added")
+        elif kind == "status-change":
+            target = entry.get("target")
+            if target not in reasoning_seqs:
+                problems.append(f"seq {seq}: target {target!r} is not an earlier reasoning entry")
+            if status not in {"confirmed", "cancelled"}:
+                problems.append(f"seq {seq}: status-change must be confirmed or cancelled")
+            if status == "cancelled" and not entry.get("reason"):
+                problems.append(f"seq {seq}: cancelled status-change requires reason")
+        elif kind == "lifecycle":
+            if entry.get("event") not in LIFECYCLE_EVENTS:
+                problems.append(f"seq {seq}: invalid lifecycle event {entry.get('event')!r}")
+
+    if entries:
+        first = entries[0]
+        if first.get("kind") != "lifecycle" or first.get("event") != "created":
+            problems.append("entry 1: journal must start with a lifecycle created event")
+    else:
+        problems.append("journal is empty")
+    return problems
+
+
+def render_markdown(entries: list[JsonObject]) -> str:
+    derived = derive_status(entries)
+    by_seq = {entry["seq"]: entry for entry in entries if "seq" in entry}
+
+    def section(title: str, seqs: list[int]) -> list[str]:
+        lines = [f"## {title}", ""]
+        if not seqs:
+            lines.append("(none)")
+        for seq in seqs:
+            entry = by_seq[seq]
+            lines.append(f"- #{seq} [{entry.get('kind')}] {entry.get('content', '')}")
+        lines.append("")
+        return lines
+
+    lines = [f"# Journal View (issue: {derived['issueStatus']})", ""]
+    lines += section("Confirmed", derived["confirmed"])
+    lines += section("Active", derived["active"])
+    lines += section("Cancelled", derived["cancelled"])
+    lines += ["## Log", ""]
+    for entry in entries:
+        seq = entry.get("seq")
+        detail = entry.get("content") or entry.get("reason") or entry.get("evidence") or ""
+        suffix = f" -> #{entry['target']}" if entry.get("target") else ""
+        lines.append(
+            f"- #{seq} {entry.get('ts', '')} [{entry.get('kind')}/{entry.get('status')}]"
+            f"{suffix} {detail}"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def init_issue(issue_dir: Path, *, initial_request: str, actor: str) -> JsonObject:
     if journal_path(issue_dir).exists():
         raise JournalError(f"journal already exists: {journal_path(issue_dir)}")

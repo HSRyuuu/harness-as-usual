@@ -296,5 +296,46 @@ class JournalLogStatusAndConcludeTests(JournalLogTestBase):
             self.assertIn("already", again.stderr)
 
 
+class JournalLogViewValidateTests(JournalLogTestBase):
+    def test_view_md_groups_by_derived_status(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            add = self.run_journal_log(
+                "add", "--issue-dir", str(issue_dir),
+                "--kind", "hypothesis", "--content", "dns cache expiry",
+            )
+            seq = json.loads(add.stdout)["seq"]
+            self.run_journal_log(
+                "confirm", "--issue-dir", str(issue_dir), "--target", str(seq),
+                "--evidence", "reproduced",
+            )
+            result = self.run_journal_log("view", "--issue-dir", str(issue_dir), "--md")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("## Confirmed", result.stdout)
+            self.assertIn("dns cache expiry", result.stdout)
+            self.assertIn("## Log", result.stdout)
+
+    def test_validate_passes_on_wellformed_journal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            result = self.run_journal_log("validate", "--issue-dir", str(issue_dir))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout)["problems"], [])
+
+    def test_validate_flags_duplicate_seq_and_bad_target(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            with (issue_dir / "journal.jsonl").open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps({
+                    "seq": 1, "ts": "2026-07-12T10:00:00+09:00", "actor": "claude",
+                    "kind": "status-change", "status": "confirmed", "target": 99,
+                }) + "\n")
+            result = self.run_journal_log("validate", "--issue-dir", str(issue_dir))
+            self.assertEqual(result.returncode, 1)
+            problems = json.loads(result.stdout)["problems"]
+            self.assertTrue(any("seq" in problem for problem in problems))
+            self.assertTrue(any("target" in problem for problem in problems))
+
+
 if __name__ == "__main__":
     unittest.main()

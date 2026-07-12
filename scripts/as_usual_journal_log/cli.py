@@ -16,6 +16,8 @@ from .core import (
     find_reasoning_entry,
     init_issue,
     read_entries,
+    render_markdown,
+    validate_entries,
 )
 
 
@@ -128,6 +130,21 @@ def cmd_conclude(args: argparse.Namespace) -> int:
     return emit({"ok": True, "seq": entry["seq"], "issueStatus": args.status})
 
 
+def cmd_view(args: argparse.Namespace) -> int:
+    entries = read_entries(Path(args.issue_dir))
+    if args.md:
+        print(render_markdown(entries))
+        return 0
+    return emit({"derived": derive_status(entries), "entries": entries})
+
+
+def cmd_validate(args: argparse.Namespace) -> int:
+    entries = read_entries(Path(args.issue_dir))
+    problems = validate_entries(entries)
+    emit({"ok": not problems, "problems": problems})
+    return 1 if problems else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="journal-log")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -180,6 +197,15 @@ def build_parser() -> argparse.ArgumentParser:
     conclude_parser.add_argument("--reason")
     conclude_parser.add_argument("--actor", default="claude")
     conclude_parser.set_defaults(func=cmd_conclude)
+
+    view_parser = subparsers.add_parser("view", help="render the journal")
+    view_parser.add_argument("--issue-dir", required=True)
+    view_parser.add_argument("--md", action="store_true")
+    view_parser.set_defaults(func=cmd_view)
+
+    validate_parser = subparsers.add_parser("validate", help="validate journal structure")
+    validate_parser.add_argument("--issue-dir", required=True)
+    validate_parser.set_defaults(func=cmd_validate)
 
     return parser
 
