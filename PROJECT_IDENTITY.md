@@ -2,7 +2,7 @@
 
 AsUsual은 단순한 바이브코딩 보조 도구가 아니다. AsUsual은 24시간 열려 있는 실제 프로덕션 웹사이트에 배포할 수 있는 수준의 작업을, 사용자가 통제 가능한 방식으로 agent와 함께 진행하기 위한 개발 하네스다.
 
-처음에는 개인 작업 방식을 보존하기 위해 만든 하네스지만, 목표는 특정 개인이나 특정 기술 스택에 갇히지 않는다. AsUsual은 언어 중립 runtime workflow를 지향한다. 어떤 기술 스택이든 사용자가 중요하게 여기는 요구사항, 승인, 위험, 검증, 리뷰 흐름을 파일로 남기고 재개할 수 있어야 한다.
+처음에는 개인 작업 방식을 보존하기 위해 만든 하네스지만, 목표는 특정 개인이나 특정 기술 스택에 갇히지 않는다. AsUsual은 언어 중립 runtime workflow를 지향한다. Coding `topic`은 통제된 구현을, find-cause `issue`는 코드 변경 전 원인과 해결 방향의 확인을 담당한다. 어떤 기술 스택이든 사용자가 중요하게 여기는 요구사항, 조사 근거, 승인, 위험, 검증, 리뷰 흐름을 파일로 남기고 재개할 수 있어야 한다.
 
 ## Identity Statement
 
@@ -11,7 +11,7 @@ AsUsual exists to keep AI-assisted development from becoming uncontrolled implem
 AsUsual should help an agent:
 
 - stop before guessing unclear requirements,
-- preserve user decisions as durable topic artifacts,
+- preserve user decisions and investigation evidence as durable topic or issue artifacts,
 - expose likely DB/API and external behavior impact before implementation,
 - require explicit approval before dangerous operations,
 - record verification evidence instead of relying on optimistic summaries,
@@ -49,6 +49,8 @@ AsUsual should keep enough friction to prevent careless changes, but not so much
 ## Runtime Principles
 
 - Topic artifacts are the source of truth; chat memory is supporting context.
+- Find-cause issue artifacts are also source of truth: `problem.md` is the living snapshot, `journal.jsonl` is the append-only reasoning record managed through `scripts/journal-log.py`, and `conclusion.md` records the confirmed result with evidence provenance.
+- Find-cause work never modifies production code. Implementation starts as a separately linked coding topic after the cause or solution direction is confirmed.
 - Non-trivial implementation requires a completed `requirements.md` and approved `plan.md`.
 - Requirements questions are file-backed when the answer can materially change the work.
 - `requirements.md` should read like a human-friendly requirements definition document: domain-specific rules, constraints, invariants, side effects, and acceptance criteria should be explicit enough for both a human developer and an agent to plan from it.
@@ -82,4 +84,4 @@ When tradeoffs are unclear, AsUsual should prefer:
 - concrete verification evidence over "looks done",
 - user approval over inferred consent for risky operations.
 
-This identity should guide changes to `as-usual-rules/core-workflow.md`, public runtime skills, templates, hook output, documentation, and maintainer-only development skills.
+This identity should guide changes to `as-usual-rules/core-workflow.md`, `as-usual-rules/find-cause-workflow.md`, public runtime skills, templates, hook output, documentation, and maintainer-only development skills.

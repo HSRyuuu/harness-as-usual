@@ -33,8 +33,10 @@ Verify that broad AsUsual changes are reflected in the durable project documents
 | `README.md` | Public project overview and workflow summary |
 | `docs/ARCHITECTURE-WORKFLOW.md` | Detailed architecture and workflow map |
 | `as-usual-rules/core-workflow.md` | Canonical runtime workflow contract |
+| `as-usual-rules/find-cause-workflow.md` | Canonical find-cause issue workflow contract |
 | `skills/using-as-usual/SKILL.md` | Public runtime activation skill |
 | `skills/hand-off/SKILL.md` | Public runtime hand-off resume skill |
+| `skills/find-cause/SKILL.md` | Public find-cause issue lifecycle skill |
 | `skills/start-work/SKILL.md` | Public runtime routing skill |
 | `skills/define-requirements/SKILL.md` | Public runtime requirements definition skill |
 | `skills/writing-plan/SKILL.md` | Public runtime planning skill |
@@ -63,8 +65,8 @@ These files are the durable project identity surface. When broad workflow, artif
 | Identity anchor | `PROJECT_IDENTITY.md` |
 | Maintainer knowledge bases | `AGENTS.md`, `CLAUDE.md` |
 | Public overview and architecture | `README.md`, `docs/ARCHITECTURE-WORKFLOW.md` |
-| Runtime contract | `as-usual-rules/core-workflow.md` |
-| Public runtime skills | `skills/using-as-usual/SKILL.md`, `skills/hand-off/SKILL.md`, `skills/start-work/SKILL.md`, `skills/define-requirements/SKILL.md`, `skills/writing-plan/SKILL.md`, `skills/executing-plan/SKILL.md`, `skills/review-execution/SKILL.md`, `skills/cleanup-code/SKILL.md`, `skills/finalize/SKILL.md`, `skills/git-action/SKILL.md`, `skills/manage-self-improvement/SKILL.md`, `skills/search-long-term-memory/SKILL.md` |
+| Runtime contract | `as-usual-rules/core-workflow.md`, `as-usual-rules/find-cause-workflow.md` |
+| Public runtime skills | `skills/using-as-usual/SKILL.md`, `skills/hand-off/SKILL.md`, `skills/find-cause/SKILL.md`, `skills/start-work/SKILL.md`, `skills/define-requirements/SKILL.md`, `skills/writing-plan/SKILL.md`, `skills/executing-plan/SKILL.md`, `skills/review-execution/SKILL.md`, `skills/cleanup-code/SKILL.md`, `skills/finalize/SKILL.md`, `skills/git-action/SKILL.md`, `skills/manage-self-improvement/SKILL.md`, `skills/search-long-term-memory/SKILL.md` |
 | Runtime templates | `templates/question.md`, `templates/requirements.md`, `templates/plan.md`, `templates/topic.md`, `templates/MEMORY.md` |
 | Verification registries | `.agents/skills/manage-skills/SKILL.md`, `.agents/skills/verify-implementation/SKILL.md` |
 | This skill and mirror | `.agents/skills/verify-project-identity/SKILL.md`, `.claude/skills/verify-project-identity/SKILL.md` |
@@ -130,6 +132,7 @@ for f in \
   README.md \
   docs/ARCHITECTURE-WORKFLOW.md \
   as-usual-rules/core-workflow.md \
+  as-usual-rules/find-cause-workflow.md \
   .agents/skills/manage-skills/SKILL.md \
   .agents/skills/verify-implementation/SKILL.md
 do
@@ -183,7 +186,7 @@ Run:
 
 ```bash
 rg -n -g '!**/verify-project-identity/SKILL.md' \
-  'user-interview|writing-spec|questions-cN|questions\.md|spec-complete|write-spec|complete-spec|specWritten|specCompleted|userInterview|User interview|interview question|interview cycle|Background|commit decision' \
+  'user-interview|writing-spec|questions-cN|questions\.md|spec-complete|write-spec|complete-spec|specWritten|specCompleted|userInterview|User interview|interview question|interview cycle|commit decision' \
   PROJECT_IDENTITY.md \
   AGENTS.md \
   CLAUDE.md \
@@ -194,6 +197,10 @@ rg -n -g '!**/verify-project-identity/SKILL.md' \
   templates \
   .agents/skills \
   .claude/skills
+rg -n 'Background' \
+  as-usual-rules/core-workflow.md \
+  skills/define-requirements \
+  templates/requirements.md
 ```
 
 PASS:
@@ -201,6 +208,7 @@ PASS:
 - No stale active-guidance terms remain.
 - `spec.md` may appear only as an explicit anti-pattern or guard that says not to create a separate spec artifact for a new topic.
 - Historical reference, archived test, or generated evidence documents are not part of this check unless the current task explicitly edits them as living docs.
+- `Background Knowledge` is valid in find-cause `problem.md`; only coding-topic requirements surfaces are checked for the removed `Background` section.
 
 FAIL:
 
@@ -220,7 +228,7 @@ Fix:
 Run:
 
 ```bash
-rg -n 'uncontrolled implementation|Requirements misunderstanding|DB/API|High-risk|requirements\.md|plan\.md|topic\.md|audit\.jsonl|topic-log\.py|inline|subagent-driven|mixed|controller|TDD|approved exception|throwaway-prototype|generated-code|configuration|Execution review|post-finalize|git action|human-friendly requirements|domain-specific rules' PROJECT_IDENTITY.md
+rg -n 'uncontrolled implementation|Requirements misunderstanding|DB/API|High-risk|requirements\.md|plan\.md|topic\.md|audit\.jsonl|topic-log\.py|inline|subagent-driven|mixed|controller|TDD|approved exception|throwaway-prototype|generated-code|configuration|Execution review|post-finalize|git action|human-friendly requirements|domain-specific rules|find-cause|issue artifacts|journal\.jsonl|journal-log\.py|conclusion\.md|production code|separately linked coding topic' PROJECT_IDENTITY.md
 ```
 
 PASS:
@@ -237,6 +245,7 @@ PASS:
   - mandatory execution review,
   - post-finalize git action selection,
   - the human-readable/domain-specific role of `requirements.md`.
+  - find-cause issue artifacts, append-only journal evidence, the no-production-code boundary, and separately linked coding topics.
 
 FAIL:
 
@@ -260,6 +269,15 @@ rg -n 'hand-off|define-requirements|question-cN\.md|requirements\.md|plan\.md|re
   README.md \
   docs/ARCHITECTURE-WORKFLOW.md \
   as-usual-rules/core-workflow.md
+
+rg -n 'find-cause|\.as-usual/issue|problem\.md|journal\.jsonl|conclusion\.md|journal-log\.py|link-follow-up' \
+  AGENTS.md \
+  CLAUDE.md \
+  README.md \
+  docs/ARCHITECTURE-WORKFLOW.md \
+  as-usual-rules/find-cause-workflow.md \
+  skills/find-cause/SKILL.md \
+  skills/hand-off/SKILL.md
 ```
 
 PASS:
@@ -269,6 +287,7 @@ PASS:
 - Durable documents agree that non-trivial implementation requires completed requirements and an approved plan.
 - Durable documents agree that execution review is mandatory, code cleanup is optional/user-approved, and git actions happen only after finalization and explicit user selection.
 - When the artifact model or self-improvement surface changes, durable documents agree that `.as-usual/` has both `topic/` and `memory/` branches; `manage-self-improvement` and `search-long-term-memory` are the self-improvement and recall skills; and `.as-usual/memory/*` is the memory commit exception while topic artifacts remain excluded by default.
+- Durable documents agree that find-cause uses `.as-usual/issue/`, `problem.md`, append-only `journal.jsonl`, `conclusion.md`, and `scripts/journal-log.py`, and that implementation routes to a separately linked coding topic.
 
 FAIL:
 
@@ -319,6 +338,7 @@ Run:
 ```bash
 rg -n 'dev-as-usual|plugin development|install guide|reload|marketplace|AGENTS\.md' \
   as-usual-rules/core-workflow.md \
+  as-usual-rules/find-cause-workflow.md \
   skills \
   templates \
   hooks/session-start

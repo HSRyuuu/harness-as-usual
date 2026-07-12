@@ -20,6 +20,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 9. Confirm the self-improvement memory surface is aligned across workflow rules, runtime skills, templates, and audit helpers.
 10. Confirm codebase exploration output is treated as untrusted evidence and its subagent assignment is self-contained.
 11. Confirm verdict vocabularies and receipt contracts stay aligned across prompts, workflow rules, templates, and audit helpers.
+12. Confirm find-cause journal gates, command examples, hand-off routing, and post-conclusion mutation rules stay aligned.
 
 ## When To Run
 
@@ -27,6 +28,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 - After changing public runtime skills under `skills/**`
 - After changing `templates/requirements.md`, `templates/plan.md`, `templates/question.md`, `templates/topic.md`, `templates/code-review-report.md`, or `templates/report.md`
 - After changing runtime helper scripts under `scripts/**`
+- After changing `as-usual-rules/find-cause-workflow.md`, `skills/find-cause/**`, or the issue journal helper
 - After changing `skills/define-requirements/requirements-document-reviewer-prompt.md`
 - After changing `skills/writing-plan/**`, `skills/executing-plan/**`, `skills/review-execution/**`, `skills/cleanup-code/**`, `skills/finalize/**`, or `skills/git-action/**`
 - When a workflow issue appears in the `start-work -> define-requirements -> writing-plan -> executing-plan -> review-execution -> cleanup-code -> finalize -> git-action` path
@@ -37,8 +39,10 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 | --- | --- |
 | `hooks/session-start` | one-sentence SessionStart activation guidance |
 | `as-usual-rules/core-workflow.md` | canonical runtime workflow contract |
+| `as-usual-rules/find-cause-workflow.md` | canonical find-cause issue workflow contract |
 | `skills/using-as-usual/SKILL.md` | runtime activation and first-read behavior |
 | `skills/hand-off/SKILL.md` | existing topic hand-off resume behavior |
+| `skills/find-cause/SKILL.md` | find-cause issue lifecycle and journal command usage |
 | `skills/start-work/SKILL.md` | route selection after activation |
 | `skills/define-requirements/SKILL.md` | file-backed question cycle, answer validation, requirements synthesis, review, and requirements revision routing |
 | `skills/define-requirements/requirements-document-reviewer-prompt.md` | local requirements reviewer criteria and output shape |
@@ -66,6 +70,8 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 | `templates/MEMORY.md` | baseline shape for `.as-usual/memory/MEMORY.md` |
 | `scripts/topic-log.py init` | creates `topic.md`, creates the topic `audit.jsonl` stream, and records the initial request |
 | `scripts/topic-log.py` | helper script referenced by runtime skills for routine topic/audit updates and derived status |
+| `scripts/journal-log.py` | find-cause issue journal CLI entrypoint |
+| `scripts/as_usual_journal_log/` | find-cause journal gates, validation, and status derivation |
 
 ## Workflow
 
@@ -78,8 +84,10 @@ Run:
 ```bash
 for f in \
   as-usual-rules/core-workflow.md \
+  as-usual-rules/find-cause-workflow.md \
   skills/using-as-usual/SKILL.md \
   skills/hand-off/SKILL.md \
+  skills/find-cause/SKILL.md \
   skills/start-work/SKILL.md \
   skills/define-requirements/SKILL.md \
   skills/define-requirements/requirements-document-reviewer-prompt.md \
@@ -105,13 +113,17 @@ for f in \
   templates/code-review-report.md \
   templates/report.md \
   templates/MEMORY.md \
-  scripts/topic-log.py
+  scripts/topic-log.py \
+  scripts/journal-log.py \
+  scripts/as_usual_journal_log/cli.py \
+  scripts/as_usual_journal_log/core.py
 do
   test -s "$f" || echo "MISSING_OR_EMPTY: $f"
 done
 removed_state_template="templates/state"".json"
 test ! -e "$removed_state_template" || echo "REMOVED_FILE_PRESENT: $removed_state_template"
 python3 scripts/topic-log.py --help >/dev/null || echo "HELP_FAILED: scripts/topic-log.py"
+python3 scripts/journal-log.py --help >/dev/null || echo "HELP_FAILED: scripts/journal-log.py"
 ```
 
 PASS: no `MISSING_OR_EMPTY` lines.
@@ -185,9 +197,11 @@ Fix: keep phase ownership in `core-workflow.md` and mirror the same boundary in 
 Run:
 
 ```bash
-rg -n 'AsUsual is available|using-as-usual|explicit AsUsual work|topic/artifact resumes|feature-development work that should use the AsUsual workflow|otherwise handle the request normally|The user asks for feature-development work that should use the AsUsual workflow|Read the full `as-usual-rules/core-workflow.md`' \
+rg -n 'AsUsual is available|using-as-usual|find-cause|explicit AsUsual work|topic/artifact resumes|feature-development work that should use the AsUsual workflow|otherwise handle the request normally|The user asks for feature-development work that should use the AsUsual workflow|Read the full `as-usual-rules/core-workflow.md`|\.as-usual/issue|journal\.jsonl' \
   hooks/session-start \
   skills/using-as-usual/SKILL.md \
+  skills/find-cause/SKILL.md \
+  as-usual-rules/find-cause-workflow.md \
   AGENTS.md \
   CLAUDE.md \
   docs/ARCHITECTURE-WORKFLOW.md
@@ -195,10 +209,11 @@ rg -n 'AsUsual is available|using-as-usual|explicit AsUsual work|topic/artifact 
 
 PASS:
 
-- `hooks/session-start` injects one concise activation sentence that points to `using-as-usual`.
+- `hooks/session-start` injects one concise activation sentence that points to `using-as-usual` and `find-cause`.
 - The hook sentence and `skills/using-as-usual/SKILL.md` agree on activation categories: explicit AsUsual work, topic/artifact references or resumes, and feature-development work that should use the AsUsual workflow.
 - `skills/using-as-usual/SKILL.md` owns rule and topic discovery when the hook no longer announces the core workflow path or active topic candidates.
 - Durable maintainer docs describe the same hook/activation boundary without reintroducing full workflow injection.
+- Find-cause activation and issue resume signals align across the hook, durable docs, workflow, and public skills.
 
 FAIL:
 
@@ -207,6 +222,40 @@ FAIL:
 - Durable docs still say the hook injects the full rule path, active topic candidates, memory content, or detailed workflow sections.
 
 Fix: align `hooks/session-start`, `skills/using-as-usual/SKILL.md`, and durable docs so the hook remains a one-sentence entrypoint and `using-as-usual` owns file-backed discovery.
+
+### Step 2b: Find-Cause Journal Contract Check
+
+**Tools:** Read, Bash
+
+Run:
+
+```bash
+rg -n 'confirm.*--evidence|No confirmation without evidence|Only follow-up linking|link-follow-up|ensure_open|approval after issue conclusion|status-change after issue conclusion' \
+  as-usual-rules/find-cause-workflow.md \
+  skills/find-cause/SKILL.md \
+  skills/hand-off/SKILL.md \
+  scripts/as_usual_journal_log/cli.py \
+  scripts/as_usual_journal_log/core.py \
+  scripts/tests/test_journal_log.py
+python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+```
+
+PASS:
+
+- Public `confirm` command examples include the required evidence argument.
+- `add`, `approve`, `confirm`, and `cancel` refuse concluded or cancelled issues.
+- `validate` reports reasoning, approval, or status-change entries appended after conclusion.
+- `link-follow-up` remains the only supported post-conclusion mutation.
+- Journal helper tests pass.
+
+FAIL:
+
+- The public skill demonstrates a `confirm` command that the CLI rejects.
+- Any reasoning or approval command can mutate a closed issue.
+- Structural validation accepts a prohibited post-conclusion mutation.
+- The workflow, public skill, helper, and tests disagree about evidence or conclusion gates.
+
+Fix: align `find-cause-workflow.md`, `skills/find-cause/SKILL.md`, the journal helper, and its tests as one runtime contract.
 
 ### Step 3: Requirements Template And Reviewer Vocabulary Check
 
@@ -612,6 +661,7 @@ Fix: align runtime prompts, `core-workflow.md`, `templates/code-review-report.md
 | Required files | PASS/FAIL | ... |
 | Route ownership | PASS/FAIL | ... |
 | Hook/activation alignment | PASS/FAIL | ... |
+| Find-cause journal contract | PASS/FAIL | ... |
 | Requirements review vocabulary | PASS/FAIL | ... |
 | Ambiguity and assumptions | PASS/FAIL | ... |
 | Safety gates and review follow-up | PASS/FAIL | ... |

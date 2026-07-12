@@ -11,7 +11,7 @@ disable-model-invocation: true
 Runtime surfaces seen or executed by a target-project user who installed the AsUsual plugin must not include plugin maintainer guidance.
 
 1. Confirm that SessionStart hook output injects only target-project runtime guidance.
-2. Confirm that `core-workflow.md`, public runtime skills, and templates do not contain plugin development routing.
+2. Confirm that both runtime workflow prompts, public runtime skills, and templates do not contain plugin development routing.
 3. Confirm that project-local maintainer skills are not exposed through public plugin `skills/`.
 4. Confirm that runtime docs and hook payloads use only user-facing workflow vocabulary.
 
@@ -31,8 +31,10 @@ Runtime surfaces seen or executed by a target-project user who installed the AsU
 | `hooks/session-start` | SessionStart context injection source |
 | `hooks/run-hook.cmd` | hook runner used for smoke output |
 | `as-usual-rules/core-workflow.md` | canonical runtime workflow read when AsUsual activates |
+| `as-usual-rules/find-cause-workflow.md` | canonical find-cause issue workflow |
 | `skills/using-as-usual/SKILL.md` | public runtime activation skill |
 | `skills/hand-off/SKILL.md` | public runtime hand-off resume skill |
+| `skills/find-cause/SKILL.md` | public find-cause issue lifecycle skill |
 | `skills/start-work/SKILL.md` | public runtime gate routing skill |
 | `skills/define-requirements/SKILL.md` | public runtime question cycle and requirements writing skill |
 | `skills/define-requirements/requirements-document-reviewer-prompt.md` | public runtime requirements review prompt |
@@ -53,6 +55,8 @@ Runtime surfaces seen or executed by a target-project user who installed the AsU
 | `templates/topic.md` | low-churn topic resume template |
 | `scripts/topic-log.py init` | creates `topic.md` and `audit.jsonl` |
 | `scripts/topic-log.py` | runtime helper for topic/audit updates and derived status |
+| `scripts/journal-log.py` | runtime helper entrypoint for issue journal updates |
+| `scripts/as_usual_journal_log/` | issue journal implementation |
 | `README.md` | public project overview |
 | `docs/CLAUDE-PLUGIN-SETTING.md` | public Claude install guide |
 | `docs/CODEX-PLUGIN-SETTING.md` | public Codex install guide |
@@ -105,8 +109,10 @@ Run:
 rg -n 'AGENTS\.md|dev-as-usual|plugin development|AsUsual plugin itself|hook, manifest, docs, skill, install, reload|diagnose requests|DEVELOPING-AS-USUAL' \
   hooks/session-start \
   as-usual-rules/core-workflow.md \
+  as-usual-rules/find-cause-workflow.md \
   skills/using-as-usual/SKILL.md \
   skills/hand-off/SKILL.md \
+  skills/find-cause/SKILL.md \
   skills/start-work/SKILL.md \
   skills/define-requirements/SKILL.md \
   skills/define-requirements/requirements-document-reviewer-prompt.md \
@@ -123,7 +129,9 @@ rg -n 'AGENTS\.md|dev-as-usual|plugin development|AsUsual plugin itself|hook, ma
   skills/finalize/SKILL.md \
   skills/git-action/SKILL.md \
   templates \
-  scripts/topic-log.py
+  scripts/topic-log.py \
+  scripts/journal-log.py \
+  scripts/as_usual_journal_log
 removed_state='state'"\.json"
 removed_helper='state'"-machine\.py"
 removed_task_verification='task'"Verification"
@@ -133,10 +141,12 @@ removed_current_next='current'"\.nextAction"
 stale_pattern="${removed_state}|${removed_helper}|${removed_task_verification}|${removed_safety_gates}|${removed_current_phase}|${removed_current_next}"
 rg -n "$stale_pattern" \
   hooks/session-start \
-  as-usual-rules/core-workflow.md \
+  as-usual-rules \
   skills \
   templates \
-  scripts/topic-log.py
+  scripts/topic-log.py \
+  scripts/journal-log.py \
+  scripts/as_usual_journal_log
 ```
 
 PASS:

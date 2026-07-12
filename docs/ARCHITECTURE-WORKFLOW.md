@@ -10,11 +10,12 @@ AsUsual은 세 계층으로 동작한다.
 
 | 계층 | 위치 | 역할 |
 | --- | --- | --- |
-| Runtime contract | `as-usual-rules/core-workflow.md` | AsUsual runtime의 canonical workflow prompt. phase routing, hard gate, artifact contract, topic/audit 규칙을 정의한다. |
+| Coding-topic runtime contract | `as-usual-rules/core-workflow.md` | Coding topic의 canonical workflow prompt. phase routing, hard gate, artifact contract, topic/audit 규칙을 정의한다. |
+| Find-cause runtime contract | `as-usual-rules/find-cause-workflow.md` | Find-cause issue의 canonical workflow prompt. journal contract, investigation gates, conclusion 규칙을 정의한다. |
 | Runtime skills | `skills/` | 각 workflow 단계에서 agent가 실제로 따라야 하는 phase별 prompt. |
-| Topic artifacts | target project의 `.as-usual/topic/yyyy-MM-dd-<topic>/` | topic별 source of truth. 질문, requirements, plan, low-churn topic context, audit events, review report, final report를 저장한다. |
+| Work-unit artifacts | target project의 `.as-usual/topic/yyyy-MM-dd-<topic>/`, `.as-usual/issue/yyyy-MM-dd-<slug>/` | coding topic과 find-cause issue별 source of truth를 저장한다. |
 
-AsUsual에서 chat memory는 보조 맥락이다. Runtime 중에는 topic artifact가 source of truth다.
+AsUsual에서 chat memory는 보조 맥락이다. Runtime 중에는 topic 또는 issue artifact가 source of truth다.
 
 ```text
 as-usual/

@@ -1,4 +1,11 @@
-"""Core journal operations for AsUsual find-cause issues."""
+"""Core journal operations for AsUsual find-cause issues.
+
+Concurrency: append_entry does a read-then-append without a file lock, so it
+assumes a single controller (the find-cause main agent) mutates one issue's
+journal at a time — matching AsUsual's single-controller model. It is not safe
+against concurrent writers; two simultaneous appends can produce duplicate
+seqs, which `validate` detects after the fact.
+"""
 
 from __future__ import annotations
 
@@ -68,8 +75,18 @@ def read_entries(issue_dir: Path) -> list[JsonObject]:
     return entries
 
 
+def entry_seq(entry: JsonObject) -> int:
+    seq = entry.get("seq", 0)
+    if not isinstance(seq, int) or isinstance(seq, bool):
+        raise JournalError(
+            f"journal has a non-integer seq {seq!r}; run "
+            "'journal-log.py validate --issue-dir <dir>' to inspect the corruption"
+        )
+    return seq
+
+
 def next_seq(entries: list[JsonObject]) -> int:
-    return max((entry.get("seq", 0) for entry in entries), default=0) + 1
+    return max((entry_seq(entry) for entry in entries), default=0) + 1
 
 
 def build_entry(
@@ -98,7 +115,15 @@ def build_entry(
 
 
 def append_entry(issue_dir: Path, entry: JsonObject) -> JsonObject:
-    with journal_path(issue_dir).open("a", encoding="utf-8") as handle:
+    path = journal_path(issue_dir)
+    # Heal a missing trailing newline (e.g. a crash mid-write) so this append
+    # does not merge onto the previous line and corrupt the whole journal.
+    if path.exists():
+        data = path.read_bytes()
+        if data and not data.endswith(b"\n"):
+            with path.open("a", encoding="utf-8") as handle:
+                handle.write("\n")
+    with path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
     return entry
 
@@ -128,10 +153,11 @@ def derive_status(entries: list[JsonObject]) -> JsonObject:
     follow_ups: list[str] = []
     last_seq = 0
     for entry in entries:
-        last_seq = max(last_seq, entry.get("seq", 0))
+        seq = entry_seq(entry)
+        last_seq = max(last_seq, seq)
         kind = entry.get("kind")
         if kind in REASONING_KINDS:
-            entry_status[entry["seq"]] = "added"
+            entry_status[seq] = "added"
         elif kind == "status-change":
             target = entry.get("target")
             if isinstance(target, int) and target in entry_status:
@@ -158,11 +184,21 @@ def derive_status(entries: list[JsonObject]) -> JsonObject:
     }
 
 
+def ensure_open(entries: list[JsonObject]) -> None:
+    issue_status = derive_status(entries)["issueStatus"]
+    if issue_status != "open":
+        raise JournalError(
+            f"issue already {issue_status}; reopen is not supported. "
+            "Only follow-up linking is allowed after conclusion."
+        )
+
+
 def validate_entries(entries: list[JsonObject]) -> list[str]:
     problems: list[str] = []
     seen_seq: set[int] = set()
     reasoning_seqs: set[int] = set()
     previous_seq = 0
+    closed = False
     for index, entry in enumerate(entries, 1):
         seq = entry.get("seq")
         if not isinstance(seq, int) or seq <= 0:
@@ -189,17 +225,31 @@ def validate_entries(entries: list[JsonObject]) -> list[str]:
             reasoning_seqs.add(seq)
             if status != "added":
                 problems.append(f"seq {seq}: reasoning entry must start as added")
+            if closed:
+                problems.append(f"seq {seq}: reasoning entry after issue conclusion")
         elif kind == "status-change":
             target = entry.get("target")
             if not isinstance(target, int) or target not in reasoning_seqs:
                 problems.append(f"seq {seq}: target {target!r} is not an earlier reasoning entry")
             if status not in {"confirmed", "cancelled"}:
                 problems.append(f"seq {seq}: status-change must be confirmed or cancelled")
+            if status == "confirmed" and not entry.get("evidence"):
+                problems.append(f"seq {seq}: confirmed status-change requires evidence")
             if status == "cancelled" and not entry.get("reason"):
                 problems.append(f"seq {seq}: cancelled status-change requires reason")
+            if closed:
+                problems.append(f"seq {seq}: status-change after issue conclusion")
+        elif kind == "approval":
+            if closed:
+                problems.append(f"seq {seq}: approval after issue conclusion")
         elif kind == "lifecycle":
-            if entry.get("event") not in LIFECYCLE_EVENTS:
-                problems.append(f"seq {seq}: invalid lifecycle event {entry.get('event')!r}")
+            event = entry.get("event")
+            if event not in LIFECYCLE_EVENTS:
+                problems.append(f"seq {seq}: invalid lifecycle event {event!r}")
+            if event == "cancelled" and not entry.get("reason"):
+                problems.append(f"seq {seq}: cancelled conclusion requires reason")
+            if event in {"concluded", "cancelled"}:
+                closed = True
 
     if entries:
         first = entries[0]

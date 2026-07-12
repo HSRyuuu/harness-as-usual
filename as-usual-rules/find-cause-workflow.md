@@ -63,11 +63,11 @@ thought process can be reconstructed at the end and resumed across sessions.
 ## Hard Gates
 
 1. Journal is append-only; all updates go through `scripts/journal-log.py`.
-2. No confirmation without evidence: do not `confirm` an entry or conclude
-   the issue without reproduction evidence or an explicit
-   "could not reproduce because ... " judgment recorded as evidence/reason.
-   (`journal-log.py conclude` enforces this; `--force-without-confirmed`
-   requires a recorded reason.)
+2. No confirmation without evidence. Two script-enforced points back this:
+   `journal-log.py confirm` requires `--evidence` (record reproduction
+   evidence, or an explicit "could not reproduce because ... " judgment as the
+   evidence text); `journal-log.py conclude` requires at least one confirmed
+   entry, and `--force-without-confirmed` requires a recorded `--reason`.
 3. Read-only by default: reading code, running the app, and analyzing logs
    are free. Writing reproduction tests/scripts requires an explicit user
    request or approval recorded with `journal-log.py approve`. Production
@@ -75,8 +75,14 @@ thought process can be reconstructed at the end and resumed across sessions.
 4. High-risk operations (production access, shared-DB queries, etc.) follow
    core-workflow.md's High-Risk Operation Gate; record the fresh approval
    with `journal-log.py approve`.
-5. Before ending a turn, record this turn's meaningful findings, decisions,
-   and retractions in the journal.
+5. Before ending a turn, record this turn's reasoning in the journal. If the
+   turn produced any finding, decision, hypothesis, confirmation, or
+   retraction, at least one matching journal entry must be appended before the
+   turn ends — do not defer it to a later batch. A turn that ends with no new
+   entry is acceptable only when you explicitly tell the user that this turn
+   produced no new reasoning (e.g. it was pure reading that changed nothing);
+   silently deciding the work was "not meaningful enough" to record is a gate
+   violation, because the journal is the sole resume record across sessions.
 
 Everything else — investigation order, number of questions, number of
 hypotheses, entry length — is free-form. Do not impose coding-workflow

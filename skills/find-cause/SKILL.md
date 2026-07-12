@@ -34,7 +34,8 @@ acting, then follow it. This skill adds only operational defaults.
   they happen, not in a batch at the end:
   `journal-log.py add --issue-dir <dir> --kind <kind> --content "..."
   [--evidence "..."]`.
-- Confirm or cancel with `confirm --issue-dir <dir> --target <seq>` /
+- Confirm or cancel with `confirm --issue-dir <dir> --target <seq> --evidence
+  "<reproduction evidence or could-not-reproduce judgment>"` /
   `cancel --issue-dir <dir> --target <seq> --reason "..."`. Never edit
   journal lines.
 - Enforce the hard gates from the workflow file: read-only default,

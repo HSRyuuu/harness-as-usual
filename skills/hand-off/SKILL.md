@@ -52,12 +52,12 @@ The path may point to:
    - If the path is a file or nested folder under a topic, walk upward until the topic directory is found.
    - If the path is a target project root or `.as-usual/topic/`, choose the most recently modified topic directory and state which one was selected.
    - If the path is ambiguous or does not contain an AsUsual topic, stop and ask for the correct topic path.
-3. If no path was supplied, inspect `.as-usual/topic/` in the current project. Read the most recent topic candidate's `topic.md`, `audit.jsonl`, and derived status, then ask the user to confirm before continuing. If several recent topics look plausible, list up to three with their topic names and next actions.
+3. If no path was supplied, inspect both `.as-usual/topic/` and `.as-usual/issue/` in the current project. If only topics exist, read the most recent topic candidate's `topic.md`, `audit.jsonl`, and derived status, then ask the user to confirm before continuing (list up to three plausible topics with their names and next actions). If only issues exist, route to the Issue Hand-Off path below. If both exist, list recent topics and issues together and ask the user which to resume. If neither exists, say there is nothing to resume.
 4. Do not use legacy `.as-usual/topics/` paths for new work. If only legacy artifacts exist, explain that hand-off needs a canonical `.as-usual/topic/yyyy-MM-dd-name/` topic or an explicit migration request.
 
 ## Issue Hand-Off
 
-If the supplied path resolves inside `.as-usual/issue/` (an issue directory, a file inside one, or the `issue/` collection), this is a find-cause issue, not a coding topic. Do not apply topic first reads or completion verification. Read `problem.md`, run `python3 <plugin-root>/scripts/journal-log.py status --issue-dir <dir> --json`, then route to the `find-cause` skill. When no path is supplied and both recent topics and recent issues exist, list both and ask the user which to resume.
+If the supplied path resolves inside `.as-usual/issue/` (an issue directory, a file inside one, or the `issue/` collection) — or no path was supplied and issues are the resume target selected in step 3 — this is a find-cause issue, not a coding topic. Do not apply topic first reads or completion verification. Read `problem.md`, run `python3 <plugin-root>/scripts/journal-log.py status --issue-dir <dir> --json`, then route to the `find-cause` skill. If several recent issues look plausible, list up to three with their slugs and derived status before continuing.
 
 ## First Reads
 
