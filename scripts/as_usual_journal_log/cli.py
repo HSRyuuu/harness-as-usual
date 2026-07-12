@@ -130,6 +130,22 @@ def cmd_conclude(args: argparse.Namespace) -> int:
     return emit({"ok": True, "seq": entry["seq"], "issueStatus": args.status})
 
 
+def cmd_link_follow_up(args: argparse.Namespace) -> int:
+    issue_dir = Path(args.issue_dir)
+    entries = read_entries(issue_dir)
+    entry = build_entry(
+        entries,
+        actor=args.actor,
+        kind="lifecycle",
+        status="added",
+        event="follow-up-linked",
+        content=f"follow-up topic linked: {args.topic_dir}",
+        followUp=args.topic_dir,
+    )
+    append_entry(issue_dir, entry)
+    return emit({"ok": True, "seq": entry["seq"], "followUp": args.topic_dir})
+
+
 def cmd_view(args: argparse.Namespace) -> int:
     entries = read_entries(Path(args.issue_dir))
     if args.md:
@@ -197,6 +213,14 @@ def build_parser() -> argparse.ArgumentParser:
     conclude_parser.add_argument("--reason")
     conclude_parser.add_argument("--actor", default="claude")
     conclude_parser.set_defaults(func=cmd_conclude)
+
+    link_follow_up_parser = subparsers.add_parser(
+        "link-follow-up", help="link a follow-up coding topic to this issue"
+    )
+    link_follow_up_parser.add_argument("--issue-dir", required=True)
+    link_follow_up_parser.add_argument("--topic-dir", required=True)
+    link_follow_up_parser.add_argument("--actor", default="claude")
+    link_follow_up_parser.set_defaults(func=cmd_link_follow_up)
 
     view_parser = subparsers.add_parser("view", help="render the journal")
     view_parser.add_argument("--issue-dir", required=True)

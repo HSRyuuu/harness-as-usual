@@ -112,7 +112,9 @@ continue in the same turn:
 4. Offer a follow-up coding topic. If accepted, create it with the existing
    `scripts/topic-log.py init`, pass `conclusion.md` as a source input, and
    link both directions: the topic records the conclusion path, and the
-   journal records the topic path via `conclude --follow-up <topic-dir>`.
+   journal records the topic path via `journal-log.py link-follow-up
+   --issue-dir <dir> --topic-dir <topic-dir>` (pass `--follow-up` to
+   `conclude` instead when the topic already exists at conclusion time).
 5. Offer memory candidates for knowledge that outlives the issue via the
    `manage-self-improvement` skill; reflect only after explicit user
    approval.

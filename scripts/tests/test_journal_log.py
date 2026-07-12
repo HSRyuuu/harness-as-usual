@@ -295,6 +295,25 @@ class JournalLogStatusAndConcludeTests(JournalLogTestBase):
             self.assertEqual(again.returncode, 1)
             self.assertIn("already", again.stderr)
 
+    def test_link_follow_up_after_conclude_records_lifecycle_link(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, _ = self.seed_confirmed(tmp)
+            self.run_journal_log(
+                "conclude", "--issue-dir", str(issue_dir), "--summary", "done",
+            )
+            result = self.run_journal_log(
+                "link-follow-up", "--issue-dir", str(issue_dir),
+                "--topic-dir", ".as-usual/topic/2026-07-12-fix",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            entry = self.read_journal(issue_dir)[-1]
+            self.assertEqual(entry["kind"], "lifecycle")
+            self.assertEqual(entry["event"], "follow-up-linked")
+            status = self.status_json(issue_dir)
+            self.assertIn(".as-usual/topic/2026-07-12-fix", status["followUps"])
+            validate = self.run_journal_log("validate", "--issue-dir", str(issue_dir))
+            self.assertEqual(validate.returncode, 0, validate.stderr)
+
 
 class JournalLogViewValidateTests(JournalLogTestBase):
     def test_view_md_groups_by_derived_status(self):
