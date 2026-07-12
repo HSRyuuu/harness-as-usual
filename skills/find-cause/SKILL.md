@@ -16,8 +16,8 @@ acting, then follow it. This skill adds only operational defaults.
    skill, or the path announced by the SessionStart hook).
 2. For an existing issue: read `problem.md`, then run
    `python3 <plugin-root>/scripts/journal-log.py status --issue-dir <dir> --json`,
-   then read `conclusion.md` if it exists. Use `view --md` when you need the
-   full reasoning trail.
+   then read `conclusion.md` if it exists. Use `view --issue-dir <dir> --md`
+   when you need the full reasoning trail.
 3. For a new issue: choose `.as-usual/issue/yyyy-MM-dd-<slug>/` with the
    actual current date, then run
    `python3 <plugin-root>/scripts/journal-log.py init --issue-dir <dir>
@@ -34,8 +34,9 @@ acting, then follow it. This skill adds only operational defaults.
   they happen, not in a batch at the end:
   `journal-log.py add --issue-dir <dir> --kind <kind> --content "..."
   [--evidence "..."]`.
-- Confirm or cancel with `confirm --target <seq>` / `cancel --target <seq>
-  --reason "..."`. Never edit journal lines.
+- Confirm or cancel with `confirm --issue-dir <dir> --target <seq>` /
+  `cancel --issue-dir <dir> --target <seq> --reason "..."`. Never edit
+  journal lines.
 - Enforce the hard gates from the workflow file: read-only default,
   approval-gated reproduction code (`approve`), evidence-gated confirmation,
   inherited high-risk gate, record-before-turn-end.

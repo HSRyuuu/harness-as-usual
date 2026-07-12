@@ -92,6 +92,16 @@ class JournalLogInitTests(JournalLogTestBase):
             self.assertEqual(result.returncode, 1)
             self.assertIn("actor", result.stderr)
 
+    def test_init_invalid_actor_leaves_no_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = Path(tmp) / "issue" / "2026-07-12-x"
+            result = self.run_journal_log(
+                "init", "--issue-dir", str(issue_dir),
+                "--initial-request", "x", "--actor", "agent",
+            )
+            self.assertEqual(result.returncode, 1)
+            self.assertFalse(issue_dir.exists())
+
 
 class JournalLogAddTests(JournalLogTestBase):
     def add_entry(self, issue_dir, kind, content, *extra):
@@ -354,6 +364,21 @@ class JournalLogViewValidateTests(JournalLogTestBase):
             problems = json.loads(result.stdout)["problems"]
             self.assertTrue(any("seq" in problem for problem in problems))
             self.assertTrue(any("target" in problem for problem in problems))
+
+    def test_validate_reports_non_integer_target_without_crash(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir = self.init_issue(tmp)
+            with (issue_dir / "journal.jsonl").open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps({
+                    "seq": 2, "ts": "2026-07-12T10:00:00+09:00", "actor": "claude",
+                    "kind": "status-change", "status": "confirmed", "target": [1, 2],
+                }) + "\n")
+            result = self.run_journal_log("validate", "--issue-dir", str(issue_dir))
+            self.assertEqual(result.returncode, 1)
+            problems = json.loads(result.stdout)["problems"]
+            self.assertTrue(any("target" in problem for problem in problems))
+            status = self.run_journal_log("status", "--issue-dir", str(issue_dir))
+            self.assertEqual(status.returncode, 0, status.stderr)
 
 
 if __name__ == "__main__":

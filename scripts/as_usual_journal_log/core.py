@@ -134,7 +134,7 @@ def derive_status(entries: list[JsonObject]) -> JsonObject:
             entry_status[entry["seq"]] = "added"
         elif kind == "status-change":
             target = entry.get("target")
-            if target in entry_status:
+            if isinstance(target, int) and target in entry_status:
                 entry_status[target] = entry.get("status", "added")
         elif kind == "lifecycle":
             event = entry.get("event")
@@ -191,7 +191,7 @@ def validate_entries(entries: list[JsonObject]) -> list[str]:
                 problems.append(f"seq {seq}: reasoning entry must start as added")
         elif kind == "status-change":
             target = entry.get("target")
-            if target not in reasoning_seqs:
+            if not isinstance(target, int) or target not in reasoning_seqs:
                 problems.append(f"seq {seq}: target {target!r} is not an earlier reasoning entry")
             if status not in {"confirmed", "cancelled"}:
                 problems.append(f"seq {seq}: status-change must be confirmed or cancelled")
@@ -244,7 +244,6 @@ def render_markdown(entries: list[JsonObject]) -> str:
 def init_issue(issue_dir: Path, *, initial_request: str, actor: str) -> JsonObject:
     if journal_path(issue_dir).exists():
         raise JournalError(f"journal already exists: {journal_path(issue_dir)}")
-    issue_dir.mkdir(parents=True, exist_ok=True)
     entry = build_entry(
         [],
         actor=actor,
@@ -255,6 +254,7 @@ def init_issue(issue_dir: Path, *, initial_request: str, actor: str) -> JsonObje
         initialRequest=initial_request,
         schemaVersion=SCHEMA_VERSION,
     )
+    issue_dir.mkdir(parents=True, exist_ok=True)
     append_entry(issue_dir, entry)
     problem = problem_template().replace("{initial_request}", initial_request)
     (issue_dir / PROBLEM_FILE).write_text(problem, encoding="utf-8")
