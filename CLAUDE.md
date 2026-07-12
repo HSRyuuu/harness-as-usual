@@ -32,7 +32,7 @@ as-usual/
 
 ## RUNTIME WORKFLOW MODEL
 
-The runtime workflow applies to only one topic in a target project. The canonical topic folder has this shape:
+The runtime workflow operates on one coding `topic` or one find-cause `issue` in a target project. The canonical artifact tree has this shape:
 
 ```text
 .as-usual/
@@ -49,6 +49,12 @@ The runtime workflow applies to only one topic in a target project. The canonica
 │       │   └── review-result-<type>.md
 │       ├── topic.md
 │       └── audit.jsonl
+├── issue/
+│   └── yyyy-MM-dd-<slug>/
+│       ├── problem.md
+│       ├── journal.jsonl
+│       ├── evidence/
+│       └── conclusion.md
 └── memory/
     ├── MEMORY.md           # curated cross-topic knowledge; 3000-char budget; commit target
     └── *_MEMORY.md         # optional domain-specific memory files
@@ -63,26 +69,28 @@ Basic cycle:
 5. `cleanup-code`: optional code cleanup after review, only when the user approves.
 6. `finalize`: close the topic record, trigger `manage-self-improvement` to update `.as-usual/memory/MEMORY.md` with cross-topic lessons, and ask which post-finalize git action to run.
 
+A find-cause issue has no phase pipeline. It investigates through `problem.md` and append-only `journal.jsonl`, records a confirmed result in `conclusion.md`, and links a separate coding topic when implementation is requested.
+
 ## RUNTIME CONTRACT BOUNDARY
 
-- `as-usual-rules/core-workflow.md` contains only AsUsual runtime usage rules.
+- `as-usual-rules/core-workflow.md` contains only coding-topic runtime rules, and `as-usual-rules/find-cause-workflow.md` contains only find-cause issue runtime rules.
 - Rules for developing the AsUsual plugin itself, including hooks, manifests, docs, skills, install, and reload, belong in `CLAUDE.md` and `.agents/skills/dev-as-usual/SKILL.md`.
-- Do not mix plugin development goals, packaging details, or install guides into `core-workflow.md`.
-- Do not copy the runtime workflow prompt into target projects. Target projects contain `.as-usual/topic/...` work-unit artifacts and, once seeded, `.as-usual/memory/...` durable knowledge artifacts.
+- Do not mix plugin development goals, packaging details, or install guides into either runtime workflow prompt.
+- Do not copy runtime workflow prompts into target projects. Target projects contain `.as-usual/topic/...`, `.as-usual/issue/...`, and `.as-usual/memory/...` artifacts.
 - Requests that modify the AsUsual repository are plugin development work. Do not force the `.as-usual/topic/` workflow unless the user explicitly asks to run the plugin development itself as an AsUsual topic.
 
 ## HOOK ACTIVATION MODEL
 
-The SessionStart hook announces only the AsUsual capability and the `using-as-usual` entrypoint in one sentence. It does not inject the full core workflow, topic candidates, or memory content; when AsUsual activates, `using-as-usual` finds and reads files from disk. The fact that this hook injected context does not force every request into the workflow.
+The SessionStart hook announces only the AsUsual capability and the `using-as-usual` and `find-cause` entrypoints in one sentence. It does not inject full workflows, topic/issue candidates, or memory content; the activated entrypoint skill finds and reads files from disk. The fact that this hook injected context does not force every request into the workflow.
 
 The hook output includes host-specific format branches: Claude Code (`CLAUDE_PLUGIN_ROOT` without `COPILOT_CLI`), Codex (`PLUGIN_ROOT`), Cursor (`CURSOR_PLUGIN_ROOT`, experimental), otherwise a fallback that emits both formats. Officially supported hosts are Claude Code and Codex; the Cursor branch is best-effort.
 
 Signals that count as AsUsual work:
 
 1. The user explicitly says `as-usual` or `AsUsual`.
-2. The user mentions `.as-usual/`, question/requirements/plan/topic.md/audit.jsonl, or a specific topic artifact.
-3. The user asks to resume an active topic with phrasing like "I answered", "write the requirements", "write the plan", or "continue", and there are in-progress topic artifacts and derived status under `.as-usual/topic/`.
-4. The user asks for feature-development work that should use the AsUsual workflow.
+2. The user mentions `.as-usual/`, question/requirements/plan/topic.md/audit.jsonl, problem.md/journal.jsonl/conclusion.md, or a specific topic/issue artifact.
+3. The user asks to resume an active topic or issue and there are in-progress artifacts and derived status under `.as-usual/topic/` or `.as-usual/issue/`.
+4. The user asks for feature-development work or a no-code root-cause/solution-direction investigation that should use AsUsual.
 
 Plugin development requests are classified as plugin development even when they include the signals above. Apply the runtime workflow only if the user explicitly says to run plugin development itself as an AsUsual topic.
 
