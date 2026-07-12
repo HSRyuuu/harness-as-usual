@@ -55,6 +55,10 @@ The path may point to:
 3. If no path was supplied, inspect `.as-usual/topic/` in the current project. Read the most recent topic candidate's `topic.md`, `audit.jsonl`, and derived status, then ask the user to confirm before continuing. If several recent topics look plausible, list up to three with their topic names and next actions.
 4. Do not use legacy `.as-usual/topics/` paths for new work. If only legacy artifacts exist, explain that hand-off needs a canonical `.as-usual/topic/yyyy-MM-dd-name/` topic or an explicit migration request.
 
+## Issue Hand-Off
+
+If the supplied path resolves inside `.as-usual/issue/` (an issue directory, a file inside one, or the `issue/` collection), this is a find-cause issue, not a coding topic. Do not apply topic first reads or completion verification. Read `problem.md`, run `python3 <plugin-root>/scripts/journal-log.py status --issue-dir <dir> --json`, then route to the `find-cause` skill. When no path is supplied and both recent topics and recent issues exist, list both and ask the user which to resume.
+
 ## First Reads
 
 After selecting a topic:

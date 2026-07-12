@@ -20,7 +20,8 @@ AsUsual에서 chat memory는 보조 맥락이다. Runtime 중에는 topic artifa
 as-usual/
 ├── PROJECT_IDENTITY.md
 ├── as-usual-rules/
-│   └── core-workflow.md
+│   ├── core-workflow.md
+│   └── find-cause-workflow.md
 ├── hooks/
 │   ├── session-start
 │   ├── hooks.json
@@ -36,6 +37,7 @@ as-usual/
 │   ├── cleanup-code/
 │   ├── finalize/
 │   ├── git-action/
+│   ├── find-cause/                # issue workflow 및 원인 진단
 │   ├── explore-codebase/          # read-only codebase discovery util; requirements/plan 이전 탐색
 │   ├── manage-self-improvement/   # finalize 트리거; cross-topic 교훈을 memory에 기록
 │   └── search-long-term-memory/   # read-only recall util; .as-usual/memory/ 조회
@@ -46,9 +48,12 @@ as-usual/
 │   ├── topic.md
 │   ├── code-review-report.md
 │   ├── report.md
+│   ├── problem.md
+│   ├── conclusion.md
 │   └── MEMORY.md                  # .as-usual/memory/MEMORY.md baseline shape
 └── scripts/
-    └── topic-log.py
+    ├── topic-log.py
+    └── journal-log.py
 ```
 
 ## Runtime Artifact Model
@@ -73,6 +78,12 @@ Target project에는 runtime prompt를 복사하지 않는다. AsUsual이 활성
     │       │   └── review-result-<type>.md
     │       ├── code-review-report.md
     │       └── report.md
+    ├── issue/
+    │   └── yyyy-MM-dd-<slug>/
+    │       ├── problem.md       # 살아있는 현재 스냅샷 (resume 문서 겸함)
+    │       ├── journal.jsonl    # append-only 추론 + lifecycle 로그
+    │       ├── evidence/        # 선택: 조사 증거
+    │       └── conclusion.md    # 종결 산출물
     └── memory/
         ├── MEMORY.md           # curated cross-topic 지식; 3000자 budget; 커밋 대상
         └── *_MEMORY.md         # 선택적 도메인별 memory 파일
@@ -392,6 +403,30 @@ Topic log helper:
 
 - `scripts/topic-log.py select-git-action`
 
+## Find-Cause Workflow (Issue)
+
+find-cause는 topic과 평행한 두 번째 작업 단위 `issue`다. 코드를 수정하지 않고
+문제의 원인 또는 해결·개선 방향을 확정하는 것이 목적이며, 확정된
+`conclusion.md`가 후속 coding topic의 입력이 된다.
+
+| 구분 | coding | find-cause |
+| --- | --- | --- |
+| 작업 단위 | `.as-usual/topic/` | `.as-usual/issue/` |
+| canonical 규칙 | `as-usual-rules/core-workflow.md` | `as-usual-rules/find-cause-workflow.md` |
+| 헬퍼 | `scripts/topic-log.py` | `scripts/journal-log.py` |
+| 종착점 | finalize + git action | `conclusion.md` (git action 없음) |
+
+- phase 파이프라인이 없다. issue 상태(`open → concluded | cancelled`)는
+  journal의 lifecycle 이벤트에서 파생한다.
+- `journal.jsonl`은 append-only다. 확정 항목의 번복은 `status-change` +
+  `cancelled` 이벤트를 append하고 현재 상태는 파생한다. entry status 어휘는
+  `added | confirmed | cancelled`.
+- 하드 게이트: journal append-only, 증거 없는 확정 금지, 재현 코드 사용자
+  승인, high-risk 게이트 상속, 턴 종료 전 기록. 나머지 조사 방식은 자유.
+- 상세 규칙: `as-usual-rules/find-cause-workflow.md`. 스킬:
+  `skills/find-cause/SKILL.md`. 설계:
+  `docs/design/2026-07-12-find-cause-workflow-design.md`.
+
 ## Prompt And Template Map
 
 | 목적 | Path |
@@ -426,6 +461,11 @@ Topic log helper:
 | Memory template | `templates/MEMORY.md` |
 | Topic context template | `templates/topic.md` |
 | Topic/audit helper | `scripts/topic-log.py` |
+| Find-cause workflow rules | `as-usual-rules/find-cause-workflow.md` |
+| Find-cause skill | `skills/find-cause/SKILL.md` |
+| Problem template | `templates/problem.md` |
+| Conclusion template | `templates/conclusion.md` |
+| Issue journal helper | `scripts/journal-log.py` |
 
 ## Key Design Boundaries
 
