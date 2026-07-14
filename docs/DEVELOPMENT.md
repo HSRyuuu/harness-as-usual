@@ -10,7 +10,7 @@ runtime workflow and project identity, see [`../README.md`](../README.md) and
 as-usual/
 ├── as-usual-rules/core-workflow.md   # canonical runtime workflow (read on disk)
 ├── .agents/                          # Codex marketplace + maintainer-only skills
-├── .claude-plugin/                   # Claude plugin + local marketplace manifest
+├── .claude-plugin/                   # Claude plugin + marketplace manifest
 ├── .codex-plugin/                    # Codex plugin manifest
 ├── hooks/                            # SessionStart hook + shared runner
 ├── skills/                           # stable public runtime skills
@@ -21,8 +21,8 @@ as-usual/
 ## Smoke Test
 
 ```bash
-claude plugin details as-usual@as-usual-local
-codex plugin list | grep -E 'as-usual|as-usual-local'
+claude plugin details as-usual@harness-as-usual
+codex plugin list | grep -E 'as-usual|harness-as-usual'
 CLAUDE_PLUGIN_ROOT="$PWD" hooks/run-hook.cmd session-start | jq .
 ```
 

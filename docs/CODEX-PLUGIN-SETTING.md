@@ -1,275 +1,113 @@
 # Codex Plugin Setting
 
-This document describes how to clone AsUsual and install it as a Codex local plugin.
+AsUsual uses marketplace `harness-as-usual` and plugin id `as-usual@harness-as-usual`.
 
-## Prerequisites
-
-- Codex CLI is installed and `codex plugin --help` works.
-- `git` is installed.
-- Use `jq` for JSON validation. If `jq` is unavailable, use `python3 -m json.tool <file>`.
-- Public repository URL: `https://github.com/HSRyuuu/harness-as-usual.git`.
-
-## Install From Git
-
-Choose where to place the local plugin.
+## GitHub Install
 
 ```bash
-mkdir -p "$HOME/dev"
-cd "$HOME/dev"
-git clone https://github.com/HSRyuuu/harness-as-usual.git
-export AS_USUAL_REPO="$HOME/dev/harness-as-usual"
+codex plugin marketplace add HSRyuuu/harness-as-usual
+codex plugin add as-usual@harness-as-usual
 ```
 
-If the repository already exists:
+Verify:
+
+```bash
+codex plugin marketplace list | grep harness-as-usual
+codex plugin list | grep as-usual@harness-as-usual
+grep -E 'harness-as-usual|as-usual@harness-as-usual' ~/.codex/config.toml
+```
+
+## Update A GitHub Install
+
+```bash
+codex plugin marketplace upgrade harness-as-usual
+```
+
+Codex serves the installed snapshot from `~/.codex/plugins/cache/harness-as-usual/as-usual/<version>/`. The canonical version is `.codex-plugin/plugin.json`; publishing changes requires bumping it in lockstep with `.claude-plugin/plugin.json`. The marketplace `plugins[]` entry intentionally has no duplicate version.
+
+Start a new Codex session after installing or updating. Existing sessions do not reload plugin state.
+
+## Local Development Install
+
+Use this instead of the GitHub source when editing AsUsual locally:
 
 ```bash
 export AS_USUAL_REPO="$HOME/dev/harness-as-usual"
+git clone https://github.com/HSRyuuu/harness-as-usual.git "$AS_USUAL_REPO"
 cd "$AS_USUAL_REPO"
-git pull --ff-only
-```
 
-## Important Codex Model
-
-Codex does not load a plugin just because a plugin entry exists in `~/.agents/plugins/marketplace.json`.
-
-This local development install requires the following:
-
-1. The marketplace file at `$AS_USUAL_REPO/.agents/plugins/marketplace.json`.
-2. The plugin source path inside that marketplace: `./plugins/as-usual`.
-3. The `$AS_USUAL_REPO/plugins/as-usual` symlink pointing back to the plugin root.
-4. A marketplace entry registered in `~/.codex/config.toml`.
-5. An installed plugin entry in `~/.codex/config.toml`.
-6. A cache snapshot under `~/.codex/plugins/cache/as-usual-local/as-usual/<version>/`.
-
-## Validate Repository Files
-
-```bash
-cd "$AS_USUAL_REPO"
-mkdir -p plugins
-ln -sfn .. plugins/as-usual
-jq empty .agents/plugins/marketplace.json
-jq empty .codex-plugin/plugin.json
-jq empty hooks/hooks-codex.json
-chmod +x hooks/session-start hooks/run-hook.cmd
+jq empty .agents/plugins/marketplace.json .codex-plugin/plugin.json hooks/hooks-codex.json
 test "$(readlink plugins/as-usual)" = ".."
-```
+chmod +x hooks/session-start hooks/run-hook.cmd
 
-Expected result: every command exits with `0`.
-
-If `jq` is unavailable:
-
-```bash
-python3 -m json.tool "$AS_USUAL_REPO/.agents/plugins/marketplace.json" >/dev/null
-python3 -m json.tool "$AS_USUAL_REPO/.codex-plugin/plugin.json" >/dev/null
-python3 -m json.tool "$AS_USUAL_REPO/hooks/hooks-codex.json" >/dev/null
-```
-
-## Register Marketplace
-
-```bash
 codex plugin marketplace add "$AS_USUAL_REPO" --json
+codex plugin add as-usual@harness-as-usual --json
 ```
 
-Expected output includes:
+The repository tracks `plugins/as-usual -> ..` because Codex resolves `.agents/plugins/marketplace.json` plugin sources as marketplace subpaths. A fresh clone already has the link.
 
-```json
-{
-  "marketplaceName": "as-usual-local"
-}
-```
+Do not keep both a GitHub source and a local-directory source registered under different marketplace names; the same hook and skills can load twice.
 
-This command writes a `[marketplaces.as-usual-local]` entry to `~/.codex/config.toml`.
+## Reload A Local Development Snapshot
 
-## Install Plugin
+Codex runs the installed cache snapshot rather than the live repository tree. After local source changes, use:
 
 ```bash
-codex plugin add as-usual@as-usual-local --json
+.agents/skills/turn-on-off-as-usual/scripts/as-usual-toggle.sh reload --codex
 ```
 
-Expected output includes:
-
-```json
-{
-  "pluginId": "as-usual@as-usual-local",
-  "version": "0.1.0"
-}
-```
-
-This command writes `[plugins."as-usual@as-usual-local"]` to `~/.codex/config.toml` and creates a cache snapshot.
-
-## Verify Codex Detects The Plugin
-
-```bash
-codex plugin marketplace list | grep -E 'as-usual|as-usual-local'
-codex plugin list | grep -E 'as-usual|as-usual-local'
-grep -E 'as-usual-local|as-usual' ~/.codex/config.toml
-```
-
-Expected result:
-
-```text
-as-usual-local
-as-usual@as-usual-local  installed, enabled  0.1.0
-```
-
-## Verify Cache
-
-```bash
-test -f ~/.codex/plugins/cache/as-usual-local/as-usual/0.1.0/.codex-plugin/plugin.json
-jq '.name,.version,.hooks' ~/.codex/plugins/cache/as-usual-local/as-usual/0.1.0/.codex-plugin/plugin.json
-```
-
-Expected manifest values:
-
-```text
-"as-usual"
-"0.1.0"
-"./hooks/hooks-codex.json"
-```
+The helper validates the repository marketplace, removes only `as-usual@harness-as-usual`, prunes only `~/.codex/plugins/cache/harness-as-usual/as-usual`, and re-adds the plugin. Start a new session afterward.
 
 ## Verify Hook Loading
 
-Run the hook directly from the installed plugin cache.
+Resolve the currently installed version instead of hardcoding it:
 
 ```bash
-PLUGIN_ROOT="$HOME/.codex/plugins/cache/as-usual-local/as-usual/0.1.0" \
-  bash "$HOME/.codex/plugins/cache/as-usual-local/as-usual/0.1.0/hooks/run-hook.cmd" session-start \
-  | jq '{event: .hookSpecificOutput.hookEventName, hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), hasNoFullCore: (.hookSpecificOutput.additionalContext | contains("## 8. Plan Rules") | not)}'
-```
-
-Expected result:
-
-```json
-{
-  "event": "SessionStart",
-  "hasUsingSkill": true,
-  "hasNoFullCore": true
-}
-```
-
-## Restart Codex
-
-Codex loads plugin manifests and hooks at session start. Start a new Codex session after installing.
-
-If a new skill or hook change does not appear in a fresh session, the repository change is not reflected in the installed snapshot. Recreate the plugin snapshot.
-
-```bash
-codex plugin remove as-usual@as-usual-local --json
-codex plugin add as-usual@as-usual-local --json
+PLUGIN_ROOT="$(find "$HOME/.codex/plugins/cache/harness-as-usual/as-usual" -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1)"
+test -n "$PLUGIN_ROOT"
+jq '.name,.version,.hooks' "$PLUGIN_ROOT/.codex-plugin/plugin.json"
+PLUGIN_ROOT="$PLUGIN_ROOT" bash "$PLUGIN_ROOT/hooks/run-hook.cmd" session-start \
+  | jq '{event: .hookSpecificOutput.hookEventName, hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), hasFindCause: (.hookSpecificOutput.additionalContext | contains("find-cause")), hasNoFullCore: (.hookSpecificOutput.additionalContext | contains("## 8. Plan Rules") | not)}'
 ```
 
 ## Troubleshooting
 
-Check these items directly.
+### Legacy `as-usual-local` Identity Remains
 
 ```bash
-cd "$AS_USUAL_REPO"
-ln -sfn .. plugins/as-usual
-chmod +x hooks/session-start hooks/run-hook.cmd
-jq empty .codex-plugin/plugin.json .agents/plugins/marketplace.json hooks/hooks-codex.json
-codex plugin marketplace add "$AS_USUAL_REPO" --json
-codex plugin add as-usual@as-usual-local --json
-codex plugin list | grep -E 'as-usual|as-usual-local'
+codex plugin remove as-usual@as-usual-local --json || true
+codex plugin marketplace remove as-usual-local || true
 ```
 
-After fixing settings or install state, start a new Codex session.
+Then install `as-usual@harness-as-usual` again.
 
-### Personal Marketplace Entry Shows "not installed"
+### Plugin Is Listed But Not Installed
 
-Known failing form:
+Both config entries are required:
 
 ```text
-~/.agents/plugins/marketplace.json
-source.path = "./plugins/as-usual"
-```
-
-This form can make `codex plugin list` resolve the plugin relative to the home directory instead of the repository.
-
-Fix:
-
-- Use the repository-local marketplace at `$AS_USUAL_REPO/.agents/plugins/marketplace.json`.
-- Run `codex plugin marketplace add "$AS_USUAL_REPO" --json`.
-- Run `codex plugin add as-usual@as-usual-local --json`.
-
-### Plugin Does Not Show Up In New Session
-
-Check:
-
-```bash
-codex plugin list | grep -E 'as-usual|as-usual-local'
-grep -E 'as-usual-local|as-usual' ~/.codex/config.toml
-```
-
-Both entries are required.
-
-```text
-[marketplaces.as-usual-local]
-[plugins."as-usual@as-usual-local"]
+[marketplaces.harness-as-usual]
+[plugins."as-usual@harness-as-usual"]
 ```
 
 If the marketplace exists but the plugin is not installed:
 
 ```bash
-codex plugin add as-usual@as-usual-local --json
+codex plugin add as-usual@harness-as-usual --json
 ```
 
 ### Local Changes Do Not Appear
 
-Codex installs a versioned cache snapshot. After changing manifests or hooks:
-
-```bash
-codex plugin remove as-usual@as-usual-local
-codex plugin add as-usual@as-usual-local --json
-```
-
-If changes still do not appear, bump `.codex-plugin/plugin.json` version and reinstall.
-
-### Hook Does Not Inject Context
-
-Check:
-
-- `.codex-plugin/plugin.json` contains `"hooks": "./hooks/hooks-codex.json"`.
-- `hooks/hooks-codex.json` is valid JSON.
-- `hooks/session-start` and `hooks/run-hook.cmd` are executable.
-- The plugin cache contains `as-usual-rules/core-workflow.md`.
-
-The hook does not force the AsUsual workflow onto every request. It injects only a one-sentence capability summary with the `using-as-usual` entrypoint. The agent reads the full rules only when the user mentions `as-usual`, `AsUsual`, `.as-usual/` artifacts, resuming an active topic, or feature-development work that should use the AsUsual workflow. Active topic state is derived from `.as-usual/topic/yyyy-MM-dd-<topic>/topic.md` and `audit.jsonl`.
-
-Manual check:
-
-```bash
-PLUGIN_ROOT="$HOME/.codex/plugins/cache/as-usual-local/as-usual/0.1.0" \
-  bash "$HOME/.codex/plugins/cache/as-usual-local/as-usual/0.1.0/hooks/run-hook.cmd" session-start \
-  | jq .
-```
+Run the local reload helper above and start a new session. If a GitHub-installed update does not appear, confirm both plugin manifests were bumped and run `codex plugin marketplace upgrade harness-as-usual`.
 
 ### Hook Trust Prompt Appears
 
-Codex may ask whether to trust a newly installed plugin hook. In an interactive session, approve only after confirming the hook command points inside the installed AsUsual plugin cache or repository.
+Approve only after confirming the hook command points inside the installed AsUsual repository or cache. Bypass hook trust only for controlled non-interactive smoke tests, never as a normal default.
 
-Bypass hook trust only for non-interactive smoke tests.
+### JSON Validation Without `jq`
 
 ```bash
-codex exec -C "$AS_USUAL_REPO" \
-  --dangerously-bypass-hook-trust \
-  --dangerously-bypass-approvals-and-sandbox \
-  'Check whether the AsUsual plugin and SessionStart hook are loaded.'
-```
-
-Do not use `--dangerously-bypass-hook-trust` as a normal default.
-
-## Agent Install Prompt
-
-Give Codex this prompt.
-
-```text
-Clone and install the public AsUsual Codex plugin.
-Repository URL: https://github.com/HSRyuuu/harness-as-usual.git
-Follow docs/CODEX-PLUGIN-SETTING.md exactly.
-Set AS_USUAL_REPO to the cloned repository path.
-Use the repository-local marketplace, not ~/.agents/plugins/marketplace.json.
-Run codex plugin marketplace add "$AS_USUAL_REPO" --json.
-Run codex plugin add as-usual@as-usual-local --json.
-Verify with codex plugin list, ~/.codex/config.toml, cache path, and the hook smoke test.
-Do not overwrite unrelated Codex config.
+python3 -m json.tool "$AS_USUAL_REPO/.agents/plugins/marketplace.json" >/dev/null
+python3 -m json.tool "$AS_USUAL_REPO/.codex-plugin/plugin.json" >/dev/null
+python3 -m json.tool "$AS_USUAL_REPO/hooks/hooks-codex.json" >/dev/null
 ```

@@ -1,60 +1,54 @@
 # Uninstall
 
-Remove the AsUsual local plugin from Claude Code and Codex. See
-[INSTALL.md](INSTALL.md) for the matching install flow.
+Remove the AsUsual plugin and marketplace from Claude Code and Codex.
 
-Plugin / marketplace names:
+- Plugin id: `as-usual@harness-as-usual`
+- Marketplace name: `harness-as-usual`
 
-- Plugin id: `as-usual@as-usual-local`
-- Marketplace name: `as-usual-local`
-
-## 1. Remove From Claude Code
+## Claude Code
 
 ```bash
-claude plugin disable as-usual@as-usual-local
-claude plugin uninstall as-usual@as-usual-local
-claude plugin marketplace remove as-usual-local
+claude plugin disable as-usual@harness-as-usual
+claude plugin uninstall as-usual@harness-as-usual
+claude plugin marketplace remove harness-as-usual
 ```
 
-`uninstall` removes the installed plugin; `marketplace remove` drops the
-`as-usual-local` source from `~/.claude/settings.json`.
-
-## 2. Remove From Codex
+## Codex
 
 ```bash
-codex plugin remove as-usual@as-usual-local --json
-codex plugin marketplace remove as-usual-local
+codex plugin remove as-usual@harness-as-usual --json
+codex plugin marketplace remove harness-as-usual
 ```
 
-`codex plugin remove` clears the `[plugins."as-usual@as-usual-local"]` and hook-state
-entries from `~/.codex/config.toml`; `marketplace remove` clears
-`[marketplaces.as-usual-local]`.
-
-Optionally prune the cache snapshot (safe to remove; only the AsUsual entry):
+Optionally remove only the AsUsual cache snapshots:
 
 ```bash
-rm -rf "$HOME/.codex/plugins/cache/as-usual-local/as-usual"
+rm -rf "$HOME/.claude/plugins/cache/harness-as-usual/as-usual"
+rm -rf "$HOME/.codex/plugins/cache/harness-as-usual/as-usual"
 ```
 
-## 3. Verify Removal
+Do not delete either host's entire plugin cache tree.
+
+## Remove A Legacy Local Install
+
+Older releases used `as-usual@as-usual-local`:
+
+```bash
+claude plugin disable as-usual@as-usual-local || true
+claude plugin uninstall as-usual@as-usual-local || true
+claude plugin marketplace remove as-usual-local || true
+
+codex plugin remove as-usual@as-usual-local --json || true
+codex plugin marketplace remove as-usual-local || true
+```
+
+## Verify Removal
 
 ```bash
 claude plugin list             | grep as-usual || echo "claude: removed"
-claude plugin marketplace list | grep as-usual-local || echo "claude marketplace: removed"
+claude plugin marketplace list | grep harness-as-usual || echo "claude marketplace: removed"
 codex plugin list              | grep as-usual || echo "codex: removed"
-grep -E 'as-usual-local|as-usual@as-usual-local' "$HOME/.codex/config.toml" || echo "codex config: clean"
+grep -E 'harness-as-usual|as-usual@harness-as-usual' "$HOME/.codex/config.toml" || echo "codex config: clean"
 ```
 
-## 4. Local Workspace Cleanup (Optional)
-
-The `plugins/as-usual` symlink is a gitignored local workspace. Remove it if you no
-longer develop the plugin from this clone.
-
-```bash
-rm -f "$AS_USUAL_REPO/plugins/as-usual"
-```
-
-## 5. Restart Sessions
-
-Claude Code and Codex keep already-loaded plugins, skills, and hooks for the current
-session. Start a new session in each host to fully drop AsUsual.
+Already-running sessions keep their loaded skills and hook context. Start new sessions to fully drop AsUsual.

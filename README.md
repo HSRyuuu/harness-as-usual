@@ -5,7 +5,7 @@
 <p><strong><em>Controlled</em> AI-assisted development — from requirements to tests to done, in one workflow.</strong></p>
 
 <p>
-  <img alt="version" src="https://img.shields.io/badge/version-0.1.0-2563EB?style=flat-square">
+  <img alt="version" src="https://img.shields.io/badge/version-0.1.1-2563EB?style=flat-square">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-2563EB?style=flat-square">
   <img alt="Claude Code" src="https://img.shields.io/badge/Claude_Code-ready-2563EB?style=flat-square&logo=anthropic&logoColor=white">
   <img alt="Codex" src="https://img.shields.io/badge/Codex-ready-2563EB?style=flat-square&logo=openai&logoColor=white">
@@ -40,17 +40,40 @@ AsUsual is designed for <strong>controlled AI-assisted development</strong> on w
 
 ## 🚀 Install
 
-**Just paste this to your coding agent (Claude Code or Codex) — it does the rest:**
+Marketplace name: `harness-as-usual` · plugin id: `as-usual@harness-as-usual`.
+
+**Claude Code** — paste these commands into Claude Code:
+
+```text
+/plugin marketplace add HSRyuuu/harness-as-usual
+/plugin install as-usual@harness-as-usual
+```
+
+**Codex** — run these commands in a terminal:
+
+```bash
+codex plugin marketplace add HSRyuuu/harness-as-usual
+codex plugin add as-usual@harness-as-usual
+```
+
+Both hosts cache installed plugins. Start a new session after installation. For a GitHub-installed plugin update, run:
+
+```bash
+claude plugin marketplace update harness-as-usual
+claude plugin update as-usual@harness-as-usual
+codex plugin marketplace upgrade harness-as-usual
+```
+
+Maintaining AsUsual from a local clone? Use the local-directory flow in [`docs/INSTALL.md`](docs/INSTALL.md). Do not register both the GitHub and local-directory source on one machine under different marketplace names; that loads the same plugin twice.
+
+**Or paste this to your coding agent:**
 
 ```text
 This project, "AsUsual", is an agent harness for controlled AI-assisted development —
 it moves one work topic through requirements → plan → execute → review → finalize.
-Please install it for me on this machine:
-
-  1. git clone https://github.com/HSRyuuu/harness-as-usual.git
-  2. cd harness-as-usual && bash docs/INSTALL.sh
-  3. Run the smoke test in docs/DEVELOPMENT.md, report the result,
-     and tell me to restart my Claude Code / Codex session.
+Install it from the HSRyuuu/harness-as-usual marketplace for Claude Code and Codex.
+Use plugin id as-usual@harness-as-usual, verify both plugin lists, and tell me to
+start new sessions after installation.
 ```
 
 Prefer to do it by hand? Follow [`docs/INSTALL.md`](docs/INSTALL.md) — remove later with [`docs/UNINSTALL.md`](docs/UNINSTALL.md).
@@ -103,7 +126,7 @@ Need to continue a topic or issue from another session? Use <code>/as-usual:hand
 <tbody>
 <tr><td align="center">1</td><td><code>define-requirements</code></td><td>Write <code>question-cN.md</code> only when material ambiguity exists; you answer in <code>[Answer]:</code> fields, or in chat — the agent then confirms a question-to-answer mapping table with you before writing the file; the agent synthesizes a single <code>requirements.md</code>.</td></tr>
 <tr><td align="center">2</td><td><code>writing-plan</code></td><td>Produce one <code>plan.md</code> from the approved requirements.</td></tr>
-<tr><td align="center">3</td><td><code>executing-plan</code></td><td>Implement via <code>inline</code>, <code>subagent-driven</code>, or <code>mixed</code> mode (or <code>direct-execute</code> for trivial work); the main agent stays the controller for order, evidence, and completion claims.</td></tr>
+<tr><td align="center">3</td><td><code>executing-plan</code></td><td>Implement via <code>inline</code>, <code>subagent-driven</code>, or <code>mixed</code> mode; trivial work can use the <code>direct-execute</code> skill, including its recordless direct invocation. The main agent stays the controller for order, evidence, and completion claims.</td></tr>
 <tr><td align="center">4</td><td><code>review-execution</code></td><td>Mandatory review of real changes against the recorded evidence.</td></tr>
 <tr><td align="center">5</td><td><code>cleanup-code</code> &nbsp;<sub><i>optional</i></sub></td><td>User-approved code cleanup after review.</td></tr>
 <tr><td align="center">6</td><td><code>finalize</code></td><td>Close the topic record.</td></tr>
