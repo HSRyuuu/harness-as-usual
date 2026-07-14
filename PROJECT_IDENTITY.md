@@ -52,6 +52,7 @@ AsUsual should keep enough friction to prevent careless changes, but not so much
 - Find-cause issue artifacts are also source of truth: `problem.md` is the living snapshot, `journal.jsonl` is the append-only reasoning record managed through `scripts/journal-log.py`, and `conclusion.md` records the confirmed result with evidence provenance.
 - Find-cause work never modifies production code. Implementation starts as a separately linked coding topic after the cause or solution direction is confirmed.
 - Non-trivial implementation requires a completed `requirements.md` and approved `plan.md`.
+- `direct-execute` is a narrow exception for clear, trivial, low-risk, reversible work. The start-work-routed path remains auditable, while explicit direct invocation is intentionally recordless; neither path may run high-risk operations.
 - Requirements questions are file-backed when the answer can materially change the work.
 - `requirements.md` should read like a human-friendly requirements definition document: domain-specific rules, constraints, invariants, side effects, and acceptance criteria should be explicit enough for both a human developer and an agent to plan from it.
 - Focused clarifications may happen in chat only when the answer is recorded in `audit.jsonl` through `scripts/topic-log.py`; add a durable note to `topic.md` only when the clarification changes lasting topic context.

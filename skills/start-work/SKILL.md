@@ -32,32 +32,9 @@ Use the canonical routing principle and Route table in `core-workflow.md` §4 (S
 
 Use the canonical Route table in `core-workflow.md` §4 (Start Work Gate Routing) to choose the route. Do not maintain a second copy here.
 
-## Direct Execute Allow Conditions
+## Direct Execute Gate Reference
 
-Use `direct-execute` only when all conditions below are true.
-
-- The request and expected outcome are clear.
-- The change scope is small and isolated.
-- It does not change public API, data model, auth/security, migration, deployment, dependency policy, or user-visible behavior.
-- It does not include any high-risk operation from `core-workflow.md`.
-- There is no decision the user must make among multiple viable approaches.
-- The verification method is clear and can be run or recorded immediately.
-- Failure would be easy to reverse.
-
-Examples include documentation typo fixes, obvious formatting cleanup, single-file comment/copy corrections, read-only inspection, or a small mechanical step inside an already approved plan.
-
-## Direct Execute Deny Conditions
-
-Do not use `direct-execute` if any condition below is true.
-
-- It is a new feature, behavior change, API change, schema change, or permission/security change.
-- It requires a multi-file or multi-component design decision.
-- It could change user-facing UX, product wording, business rules, or acceptance criteria.
-- It asks for a test, release, commit, PR, or deploy policy that the topic has not yet decided.
-- It includes file deletion, bulk formatting, package installation, dependency changes, DB migration or schema changes, environment/secret changes, CI/CD changes, deploy/release, git push, or force push.
-- The latest request conflicts with an existing `requirements.md` or `plan.md`.
-- The verification method is unclear or failure risk is high.
-- There is no skip rationale to record in `audit.jsonl` beyond "it seems simple".
+The `direct-execute` allow and deny conditions have a single source in `skills/direct-execute/SKILL.md`. Read and apply those conditions when routing, and do not maintain a copy here. Any high-risk operation denies `direct-execute`.
 
 ## Required Record
 
@@ -68,7 +45,6 @@ When a route is selected, record:
 - skipped gates, if any
 - next action, such as `answer-questions`, `write-requirements`, `approve-plan`, `write-plan`, `approve-execute`, `execute`, `review-execution`, `decide-code-cleanup`, `finalize`, or `git-action-decision`
 - for direct-execute, the allow-condition rationale and verification plan
-- for direct-execute completion, the result, verification outcome, and terminal next action — record phase `direct-execute-complete` with next action `none` (the canonical terminal values in `scripts/topic-log.py`), using the generic `audit` command with `--phase direct-execute-complete --next-action none`. Direct-execute is a lightweight terminal path: it does not join the finalize/git-action path; if the user then explicitly asks for a commit or another git action, handle it as ordinary chat.
 
 Use `scripts/topic-log.py route-start-work` from the plugin root for route recording:
 
@@ -88,3 +64,5 @@ When the route is `requirements`, hand off to `define-requirements`. It creates/
 When the route is `plan`, hand off to `writing-plan`. It analyzes dependencies, writes/reviews `plan.md`, records `plan.completed`, asks for execution approval, and stops.
 
 When the route is `execute`, hand off to `executing-plan`. It rereads topic/audit/requirements/plan artifacts, critically reviews the plan, executes tasks in the approved execution mode, records audit events for progress, task review loops, sweeps, and verification, then invokes `review-execution` after successful execution completion or stops at a blocker.
+
+When the route is `direct-execute`, hand off to `direct-execute`. It executes the trivial work and records the result, verification, and terminal completion (`direct-execute-complete`).
