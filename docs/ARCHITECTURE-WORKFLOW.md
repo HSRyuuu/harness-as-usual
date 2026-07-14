@@ -31,6 +31,7 @@ as-usual/
 │   ├── using-as-usual/
 │   ├── hand-off/                  # 기존 topic path를 다른 세션에서 이어받는 resume entrypoint
 │   ├── start-work/
+│   ├── direct-execute/            # gate 단일 소스; routed audit path + recordless direct entry
 │   ├── define-requirements/
 │   ├── writing-plan/
 │   ├── executing-plan/
@@ -112,21 +113,32 @@ Canonical flow는 다음과 같다.
 SessionStart hook
 -> using-as-usual
 -> start-work
--> define-requirements | writing-plan | executing-plan | direct-execute
+-> define-requirements | writing-plan | executing-plan
 -> review-execution
 -> optional cleanup-code
 -> finalize
 -> optional git-action
+
+start-work
+-> direct-execute (routed entry)
+-> direct-execute-complete
+
+explicit direct-execute invocation
+-> direct-execute (recordless direct entry)
+-> terminal result
 ```
 
 `hand-off`는 별도 workflow step이 아니라 기존 `.as-usual/topic/...` artifact를 다른 세션에서 이어받기 위한 지원 entrypoint다. `/as-usual:hand-off <path>`처럼 topic path가 주어지면 해당 topic을 즉시 재수화하고, path가 없으면 최근 topic 후보를 읽은 뒤 사용자 확인을 거쳐 기존 phase owner skill로 라우팅한다.
 
-`direct-execute`는 clear, trivial, low-risk, reversible 작업에만 허용되는 좁은 shortcut이다. 일반적인 non-trivial implementation은 `requirements.md`와 승인된 `plan.md` gate를 지나야 한다.
+`direct-execute`는 clear, trivial, low-risk, reversible 작업에만 허용되는 좁은 shortcut이며 allow/deny 조건의 단일 소스는 `skills/direct-execute/SKILL.md`다. 일반적인 non-trivial implementation은 `requirements.md`와 승인된 `plan.md` gate를 지나야 한다.
 
-종단 경로는 두 가지다.
+종단 경로는 세 가지다.
 
 - **Gated topic**: review-execution → (optional cleanup) → finalize → optional git-action. finalize의 최종 status는 `complete`, `follow-up-needed`, `blocked`, `cancelled` 중 하나다. 사용자가 topic 포기를 명시하면 어느 phase에서든 `finalize-topic --status cancelled --summary "<취소 사유>"`로 종료할 수 있다(cancelled는 execution/review 전제조건과 `report.md` 요구에서 면제되고, 취소 사유 summary는 필수).
-- **Direct-execute topic**: phase `direct-execute-complete` + next action `none`으로 끝나는 경량 종단이다. finalize/git-action 경로에 합류하지 않으며, 이후 commit 등 git 작업은 사용자가 명시적으로 요청할 때 일반 대화로 처리한다. 어떤 경로에서도 사용자 명시 요청 없는 자동 git action은 금지된다.
+- **Routed direct-execute topic**: `start-work`가 라우팅한 뒤 topic audit에 route/result/verification을 기록하고 phase `direct-execute-complete` + next action `none`으로 끝난다.
+- **Recordless direct invocation**: `using-as-usual`/`start-work`와 topic 생성을 건너뛰고 결과·검증을 채팅으로 보고한다. 비 high-risk deny는 진행/라우팅을 정확히 한 번 확인하지만 high-risk는 확인으로도 실행할 수 없다.
+
+두 direct-execute 경로는 finalize/git-action 경로에 합류하지 않는다. 이후 commit 등 git 작업은 사용자가 명시적으로 요청할 때 일반 대화로 처리하며, 어떤 경로에서도 사용자 명시 요청 없는 자동 git action은 금지된다.
 
 ## Workflow Stage Details
 
@@ -184,6 +196,8 @@ Prompt 위치:
 | `execute` | 완료된 `requirements.md`, 승인된 `plan.md`가 있고 사용자가 실행을 요청했을 때 |
 | `direct-execute` | 명확하고 사소하며 low-risk이고 되돌리기 쉬운 작업일 때 |
 
+`start-work`는 `skills/direct-execute/SKILL.md`의 allow/deny 조건을 적용해 라우팅하고 조건 복사본을 유지하지 않는다.
+
 Prompt 위치:
 
 - `skills/start-work/SKILL.md`
@@ -192,6 +206,18 @@ Prompt 위치:
 Topic log helper:
 
 - `scripts/topic-log.py route-start-work`
+
+### 3a. Direct Execute: `direct-execute`
+
+`direct-execute`는 두 진입 경로를 소유한다.
+
+- Routed Entry: `start-work`가 기록한 topic 문맥을 이어받아 작업·검증 후 `direct-execute-complete`를 audit에 기록한다.
+- Direct Entry: 사용자의 명시적 호출을 topic/audit 없이 처리한다. allow 조건을 모두 만족하면 즉시 실행하고, 비 high-risk deny는 direct 진행과 start-work 라우팅을 정확히 한 번 확인하며, high-risk는 항상 거부한다.
+
+Prompt 위치:
+
+- `skills/direct-execute/SKILL.md`
+- `as-usual-rules/core-workflow.md`
 
 ### 4. Define Requirements: `define-requirements`
 
@@ -436,6 +462,7 @@ find-cause는 topic과 평행한 두 번째 작업 단위 `issue`다. 코드를 
 | Activation and first reads | `skills/using-as-usual/SKILL.md` |
 | Hand-off resume entrypoint | `skills/hand-off/SKILL.md` |
 | Gate routing | `skills/start-work/SKILL.md` |
+| Direct execute gates and entries | `skills/direct-execute/SKILL.md` |
 | Requirements questions | `skills/define-requirements/SKILL.md` |
 | Question template | `templates/question.md` |
 | Requirements definition | `skills/define-requirements/SKILL.md` |

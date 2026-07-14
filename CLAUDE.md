@@ -12,19 +12,20 @@ AsUsual has two parallel work units. The coding `topic` (canonical rules `as-usu
 
 ```text
 as-usual/
-├── .claude-plugin/       # Claude plugin and local marketplace manifest
+├── .claude-plugin/       # Claude plugin and marketplace manifest
 ├── .codex-plugin/        # Codex plugin manifest
-├── .agents/plugins/      # Codex local marketplace manifest
+├── .agents/plugins/      # Codex marketplace manifest
 ├── .agents/skills/       # AsUsual maintainer-only project-local skills
 ├── as-usual-rules/       # runtime workflow rules; core-workflow.md is canonical
 ├── commands/             # local command experiments; not public runtime surface
 ├── docs/                 # Claude/Codex clone, install, and development guide
 ├── hooks/                # SessionStart hook config and shared hook runner
-├── plugins/              # local marketplace source symlink workspace
+├── plugins/              # tracked Codex marketplace source symlink
 ├── templates/            # topic artifact templates
 └── skills/               # stable skills only; do not commit draft/probe skills
     ├── hand-off/  # resume entrypoint for continuing an existing topic path from another session
     ├── find-cause/  # owns the .as-usual/issue/ find-cause investigation lifecycle (parallel to coding topics)
+    ├── direct-execute/  # owns direct-execute gates, routed execution, and recordless direct entry
     ├── explore-codebase/  # read-only codebase discovery util; repository facts before requirements/plan
     ├── manage-self-improvement/  # triggered at finalize; records cross-topic lessons into memory
     └── search-long-term-memory/  # read-only recall util; queries .as-usual/memory/ for past decisions
@@ -69,6 +70,8 @@ Basic cycle:
 5. `cleanup-code`: optional code cleanup after review, only when the user approves.
 6. `finalize`: close the topic record, trigger `manage-self-improvement` to update `.as-usual/memory/MEMORY.md` with cross-topic lessons, and ask which post-finalize git action to run.
 
+`direct-execute` is a lightweight terminal alternative for trivial work. The `start-work`-routed path keeps topic audit records, while explicit direct invocation is recordless and never permits high-risk operations.
+
 A find-cause issue has no phase pipeline. It investigates through `problem.md` and append-only `journal.jsonl`, records a confirmed result in `conclusion.md`, and links a separate coding topic when implementation is requested.
 
 ## RUNTIME CONTRACT BOUNDARY
@@ -106,6 +109,7 @@ Plugin development requests are classified as plugin development even when they 
 | Artifact templates | `templates/question.md`, `templates/requirements.md`, `templates/plan.md`, `templates/topic.md`, `templates/MEMORY.md` | file shapes created under `.as-usual/topic/yyyy-MM-dd-<topic>/`; `topic.md` and `audit.jsonl` are initialized by `scripts/topic-log.py init`; `MEMORY.md` is the template for `.as-usual/memory/MEMORY.md` |
 | Runtime activation skill | `skills/using-as-usual/SKILL.md` | reads core workflow and topic artifacts when AsUsual signals are detected |
 | Hand-off resume skill | `skills/hand-off/SKILL.md` | routes `/as-usual:hand-off path` or cross-session topic resume requests back to the current phase owner skill |
+| Direct execute skill | `skills/direct-execute/SKILL.md` | owns direct-execute allow/deny gates, routed completion records, and recordless direct invocation |
 | Requirements definition skill | `skills/define-requirements/SKILL.md` | handles question files and `requirements.md` synthesis/review |
 | Self-improvement skill | `skills/manage-self-improvement/SKILL.md` | triggered at finalize; distills cross-topic lessons into `.as-usual/memory/MEMORY.md` |
 | Long-term memory recall skill | `skills/search-long-term-memory/SKILL.md` | read-only recall util; queries `.as-usual/memory/` for past decisions and patterns |
@@ -119,7 +123,7 @@ Plugin development requests are classified as plugin development even when they 
 | Skill registry maintenance | `.agents/skills/manage-skills/SKILL.md` | synchronizes verification skill coverage and AGENTS.md registration lists |
 | Local plugin toggle guide | `.agents/skills/turn-on-off-as-usual/SKILL.md` | handles local Claude/Codex plugin on/off while developing |
 | Claude install docs | `docs/CLAUDE-PLUGIN-SETTING.md`, `.claude-plugin/` | public install flow; do not include private absolute paths |
-| Codex install/reload docs | `docs/CODEX-PLUGIN-SETTING.md`, `.codex-plugin/`, `.agents/plugins/` | Codex local marketplace and snapshot reload flow |
+| Codex install/reload docs | `docs/CODEX-PLUGIN-SETTING.md`, `.codex-plugin/`, `.agents/plugins/` | Codex GitHub/local marketplace and snapshot reload flow |
 
 ## CODE MAP
 
@@ -134,6 +138,7 @@ Plugin development requests are classified as plugin development even when they 
 | Activation skill | Skill | `skills/using-as-usual/SKILL.md` | AsUsual work classification, first reads, artifact gate progress; routes find-cause to the `find-cause` skill |
 | Hand-off resume skill | Skill | `skills/hand-off/SKILL.md` | rehydrates an existing `.as-usual/topic/...` (or `.as-usual/issue/...`) path and routes to the current owner skill |
 | Find-cause skill | Skill | `skills/find-cause/SKILL.md` | owns the whole `.as-usual/issue/` investigation lifecycle per `find-cause-workflow.md` |
+| Direct execute skill | Skill | `skills/direct-execute/SKILL.md` | single source for direct-execute gates; handles routed audit completion and recordless direct entry |
 | Requirements definition skill | Skill | `skills/define-requirements/SKILL.md` | `question-cN.md` creation/validation and `requirements.md` synthesis/review |
 | Self-improvement skill | Skill | `skills/manage-self-improvement/SKILL.md` | finalize trigger; distills cross-topic lessons into `.as-usual/memory/MEMORY.md` |
 | Long-term memory recall skill | Skill | `skills/search-long-term-memory/SKILL.md` | read-only recall util for `.as-usual/memory/` |
@@ -147,12 +152,14 @@ Plugin development requests are classified as plugin development even when they 
 | Local admin skills | Project-local Skill | `.agents/skills/turn-on-off-as-usual/SKILL.md` | local plugin on/off |
 | Templates | Markdown | `templates/*.md` | topic artifact creation baseline |
 | Codex plugin | JSON | `.codex-plugin/plugin.json` | Codex plugin metadata, skills, hooks |
-| Claude marketplace | JSON | `.claude-plugin/`, `.agents/plugins/` | local marketplace registration |
+| Claude/Codex marketplace | JSON | `.claude-plugin/`, `.agents/plugins/` | GitHub or local-directory marketplace registration |
 
 ## CONVENTIONS
 
 - Keep the coding-topic runtime workflow in the single file `as-usual-rules/core-workflow.md`, and the find-cause runtime workflow in the single file `as-usual-rules/find-cause-workflow.md`. These are the only two runtime workflow prompts.
 - The canonical topic path is `.as-usual/topic/yyyy-MM-dd-<topic>/`; the canonical find-cause issue path is `.as-usual/issue/yyyy-MM-dd-<slug>/`.
+- The single source for `direct-execute` allow/deny conditions is `skills/direct-execute/SKILL.md`; `start-work` references and applies those conditions when routing.
+- The start-work-routed direct-execute path keeps topic audit records; explicit direct invocation bypasses using-as-usual/topic creation and is recordless. Neither path permits high-risk work.
 - `journal.jsonl` is append-only and script-managed via `scripts/journal-log.py`. Never hand-edit it. Reasoning entries cannot be mutated after conclusion; only `link-follow-up` is allowed on a concluded issue.
 - `topics/` and the `yyyyMMdd` format are legacy designs. Do not use them for new runtime artifacts.
 - `question-cN.md` and `[Answer]:` fields are for the `define-requirements` question cycle only.
@@ -204,9 +211,9 @@ CLAUDE_PLUGIN_ROOT="$PWD" bash hooks/run-hook.cmd session-start \
 git ls-tree -r --name-only HEAD | rg '^(commands/|skills/as-usual-(interview|execute|test)/)' || true
 git grep -n 'private absolute path' HEAD || true
 
-# Codex plugin snapshot reload
-codex plugin remove as-usual@as-usual-local --json
-codex plugin add as-usual@as-usual-local --json
+# GitHub marketplace update / local Codex snapshot reload
+codex plugin marketplace upgrade harness-as-usual
+.agents/skills/turn-on-off-as-usual/scripts/as-usual-toggle.sh reload --codex
 ```
 
 ## PROJECT-LOCAL VERIFICATION SKILLS
