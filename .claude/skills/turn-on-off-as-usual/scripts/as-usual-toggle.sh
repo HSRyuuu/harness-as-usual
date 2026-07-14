@@ -3,9 +3,9 @@
 
 set -euo pipefail
 
-PLUGIN_ID="as-usual@as-usual-local"
-MARKETPLACE_NAME="as-usual-local"
-CODEX_CACHE_ROOT="${HOME}/.codex/plugins/cache/as-usual-local/as-usual"
+PLUGIN_ID="as-usual@harness-as-usual"
+MARKETPLACE_NAME="harness-as-usual"
+CODEX_CACHE_ROOT="${HOME}/.codex/plugins/cache/harness-as-usual/as-usual"
 
 ACTION=""
 SCOPE="all"
@@ -132,11 +132,11 @@ codex_status() {
     return
   fi
 
-  codex plugin marketplace list 2>/dev/null | grep -E 'as-usual|as-usual-local' || true
-  codex plugin list 2>/dev/null | grep -E 'as-usual|as-usual-local' || true
+  codex plugin marketplace list 2>/dev/null | grep -E 'as-usual|harness-as-usual' || true
+  codex plugin list 2>/dev/null | grep -E 'as-usual|harness-as-usual' || true
 
   if [ -f "${HOME}/.codex/config.toml" ]; then
-    grep -E 'as-usual-local|as-usual' "${HOME}/.codex/config.toml" || true
+    grep -E 'harness-as-usual|as-usual' "${HOME}/.codex/config.toml" || true
   fi
 }
 
@@ -198,8 +198,8 @@ NODE
   fi
 
   if command -v claude >/dev/null 2>&1; then
-    claude plugin marketplace list 2>/dev/null | grep -E 'as-usual|as-usual-local' || true
-    claude plugin list 2>/dev/null | grep -E 'as-usual|as-usual-local' || true
+    claude plugin marketplace list 2>/dev/null | grep -E 'as-usual|harness-as-usual' || true
+    claude plugin list 2>/dev/null | grep -E 'as-usual|harness-as-usual' || true
   else
     warn "claude CLI not found"
   fi

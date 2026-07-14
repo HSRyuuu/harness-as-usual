@@ -1,7 +1,7 @@
 {
-  "name": "as-usual-local",
+  "name": "harness-as-usual",
   "interface": {
-    "displayName": "AsUsual Local"
+    "displayName": "AsUsual"
   },
   "plugins": [
     {

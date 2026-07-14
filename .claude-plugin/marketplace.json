@@ -1,18 +1,30 @@
 {
-  "name": "as-usual-local",
-  "description": "Local marketplace for the AsUsual topic workflow harness plugin.",
+  "name": "harness-as-usual",
+  "description": "Marketplace for the AsUsual controlled agent workflow harness.",
   "owner": {
     "name": "Happy Hsryu"
+  },
+  "metadata": {
+    "description": "AsUsual controlled agent workflow harness marketplace",
+    "version": "1.0.0"
   },
   "plugins": [
     {
       "name": "as-usual",
       "description": "An agent harness that helps coding agents follow a team's usual workflow through topic-level questions, requirements, plans, and state.",
-      "version": "0.1.0",
       "source": "./",
       "author": {
         "name": "Happy Hsryu"
-      }
+      },
+      "homepage": "https://github.com/HSRyuuu/harness-as-usual",
+      "repository": "https://github.com/HSRyuuu/harness-as-usual",
+      "keywords": [
+        "agent-harness",
+        "workflow",
+        "requirements",
+        "plan",
+        "hooks"
+      ]
     }
   ]
 }

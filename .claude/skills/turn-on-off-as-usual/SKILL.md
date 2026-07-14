@@ -53,18 +53,18 @@ Limit the surface when the user names one host:
 
 For `off`:
 
-- Codex: run `codex plugin remove as-usual@as-usual-local --json` when Codex is available. Keep the repository-local marketplace intact.
-- Claude Code: set `enabledPlugins["as-usual@as-usual-local"] = false` in `~/.claude/settings.json`, preserving unrelated settings and writing a timestamped backup first.
+- Codex: run `codex plugin remove as-usual@harness-as-usual --json` when Codex is available. Keep the repository-local marketplace intact.
+- Claude Code: set `enabledPlugins["as-usual@harness-as-usual"] = false` in `~/.claude/settings.json`, preserving unrelated settings and writing a timestamped backup first.
 
 For `on`:
 
-- Codex: validate the repo-local plugin shape, ensure `plugins/as-usual -> ..`, register the repository-local marketplace, remove `as-usual@as-usual-local`, delete the AsUsual cache snapshot under `~/.codex/plugins/cache/as-usual-local/as-usual`, then add `as-usual@as-usual-local` to force a fresh installed snapshot.
-- Claude Code: register `extraKnownMarketplaces.as-usual-local` against the repository path and set `enabledPlugins["as-usual@as-usual-local"] = true`.
+- Codex: validate the repo-local plugin shape, ensure `plugins/as-usual -> ..`, register the repository-local marketplace, remove `as-usual@harness-as-usual`, delete the AsUsual cache snapshot under `~/.codex/plugins/cache/harness-as-usual/as-usual`, then add `as-usual@harness-as-usual` to force a fresh installed snapshot.
+- Claude Code: register `extraKnownMarketplaces.harness-as-usual` against the repository path and set `enabledPlugins["as-usual@harness-as-usual"] = true`.
 
 For `reload`:
 
 - Codex: perform the same snapshot refresh used by `on --codex`. Use this after changing repository source code because Codex runs the installed cache snapshot, not the live repository tree.
-- Claude Code: ensure the repository-local marketplace is registered and the plugin is enabled. Existing Claude sessions still need a restart.
+- Claude Code: ensure the repository-local marketplace is registered and the plugin is enabled. A plugin version bump remains the reliable way to invalidate Claude's versioned snapshot; existing sessions still need a restart.
 
 For `status`:
 

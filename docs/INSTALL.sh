@@ -11,8 +11,8 @@
 # Reference: docs/INSTALL.md (manual steps), docs/UNINSTALL.md (removal).
 set -euo pipefail
 
-PLUGIN_ID="as-usual@as-usual-local"
-MARKETPLACE="as-usual-local"
+PLUGIN_ID="as-usual@harness-as-usual"
+MARKETPLACE="harness-as-usual"
 
 # Resolve the repository root: prefer AS_USUAL_REPO, else the parent of this script.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -46,11 +46,9 @@ else
   echo "==> Skipping Claude Code (claude CLI not found)"
 fi
 
-# 3. Install for Codex (marketplace source is the plugins/as-usual symlink).
+# 3. Install for Codex (the tracked plugins/as-usual symlink resolves the plugin root).
 if command -v codex >/dev/null 2>&1; then
   echo "==> Installing for Codex"
-  mkdir -p plugins
-  ln -sfn .. plugins/as-usual
   test "$(readlink plugins/as-usual)" = ".."
   codex plugin marketplace add "$AS_USUAL_REPO" --json || true
   codex plugin add "$PLUGIN_ID" --json
