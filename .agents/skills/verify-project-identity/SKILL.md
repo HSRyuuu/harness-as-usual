@@ -38,6 +38,7 @@ Verify that broad AsUsual changes are reflected in the durable project documents
 | `skills/hand-off/SKILL.md` | Public runtime hand-off resume skill |
 | `skills/find-cause/SKILL.md` | Public find-cause issue lifecycle skill |
 | `skills/start-work/SKILL.md` | Public runtime routing skill |
+| `skills/direct-execute/SKILL.md` | Public runtime direct-execute gate and execution skill |
 | `skills/define-requirements/SKILL.md` | Public runtime requirements definition skill |
 | `skills/writing-plan/SKILL.md` | Public runtime planning skill |
 | `skills/executing-plan/SKILL.md` | Public runtime execution skill |
@@ -66,7 +67,7 @@ These files are the durable project identity surface. When broad workflow, artif
 | Maintainer knowledge bases | `AGENTS.md`, `CLAUDE.md` |
 | Public overview and architecture | `README.md`, `docs/ARCHITECTURE-WORKFLOW.md` |
 | Runtime contract | `as-usual-rules/core-workflow.md`, `as-usual-rules/find-cause-workflow.md` |
-| Public runtime skills | `skills/using-as-usual/SKILL.md`, `skills/hand-off/SKILL.md`, `skills/find-cause/SKILL.md`, `skills/start-work/SKILL.md`, `skills/define-requirements/SKILL.md`, `skills/writing-plan/SKILL.md`, `skills/executing-plan/SKILL.md`, `skills/review-execution/SKILL.md`, `skills/cleanup-code/SKILL.md`, `skills/finalize/SKILL.md`, `skills/git-action/SKILL.md`, `skills/manage-self-improvement/SKILL.md`, `skills/search-long-term-memory/SKILL.md` |
+| Public runtime skills | `skills/using-as-usual/SKILL.md`, `skills/hand-off/SKILL.md`, `skills/find-cause/SKILL.md`, `skills/start-work/SKILL.md`, `skills/direct-execute/SKILL.md`, `skills/define-requirements/SKILL.md`, `skills/writing-plan/SKILL.md`, `skills/executing-plan/SKILL.md`, `skills/review-execution/SKILL.md`, `skills/cleanup-code/SKILL.md`, `skills/finalize/SKILL.md`, `skills/git-action/SKILL.md`, `skills/manage-self-improvement/SKILL.md`, `skills/search-long-term-memory/SKILL.md` |
 | Runtime templates | `templates/question.md`, `templates/requirements.md`, `templates/plan.md`, `templates/topic.md`, `templates/MEMORY.md` |
 | Verification registries | `.agents/skills/manage-skills/SKILL.md`, `.agents/skills/verify-implementation/SKILL.md` |
 | This skill and mirror | `.agents/skills/verify-project-identity/SKILL.md`, `.claude/skills/verify-project-identity/SKILL.md` |
@@ -263,7 +264,7 @@ Fix:
 Run:
 
 ```bash
-rg -n 'hand-off|define-requirements|question-cN\.md|requirements\.md|plan\.md|review-execution|cleanup-code|finalize|git-action|post-finalize|\.as-usual/memory|memory/MEMORY\.md|manage-self-improvement|search-long-term-memory|memory commit exception' \
+rg -n 'hand-off|direct-execute|define-requirements|question-cN\.md|requirements\.md|plan\.md|review-execution|cleanup-code|finalize|git-action|post-finalize|\.as-usual/memory|memory/MEMORY\.md|manage-self-improvement|search-long-term-memory|memory commit exception' \
   AGENTS.md \
   CLAUDE.md \
   README.md \
@@ -285,6 +286,7 @@ PASS:
 - Durable documents agree on the current topic artifact model: `question-cN.md`, `requirements.md`, `plan.md`, `topic.md`, `audit.jsonl`, and derived status through `scripts/topic-log.py`.
 - Durable documents agree that `define-requirements` owns file-backed questions plus requirements writing/review.
 - Durable documents agree that non-trivial implementation requires completed requirements and an approved plan.
+- Durable documents agree that `direct-execute` is limited to trivial, low-risk, reversible work; its start-work-routed path is audited, explicit direct invocation is recordless, and neither path permits high-risk work.
 - Durable documents agree that execution review is mandatory, code cleanup is optional/user-approved, and git actions happen only after finalization and explicit user selection.
 - When the artifact model or self-improvement surface changes, durable documents agree that `.as-usual/` has both `topic/` and `memory/` branches; `manage-self-improvement` and `search-long-term-memory` are the self-improvement and recall skills; and `.as-usual/memory/*` is the memory commit exception while topic artifacts remain excluded by default.
 - Durable documents agree that find-cause uses `.as-usual/issue/`, `problem.md`, append-only `journal.jsonl`, `conclusion.md`, and `scripts/journal-log.py`, and that implementation routes to a separately linked coding topic.

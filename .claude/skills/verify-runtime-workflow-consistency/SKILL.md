@@ -44,6 +44,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 | `skills/hand-off/SKILL.md` | existing topic hand-off resume behavior |
 | `skills/find-cause/SKILL.md` | find-cause issue lifecycle and journal command usage |
 | `skills/start-work/SKILL.md` | route selection after activation |
+| `skills/direct-execute/SKILL.md` | direct-execute gate ownership, routed execution, and recordless direct entry |
 | `skills/define-requirements/SKILL.md` | file-backed question cycle, answer validation, requirements synthesis, review, and requirements revision routing |
 | `skills/define-requirements/requirements-document-reviewer-prompt.md` | local requirements reviewer criteria and output shape |
 | `skills/writing-plan/SKILL.md` | plan synthesis, dependency analysis, review, and plan revision routing |
@@ -89,6 +90,7 @@ for f in \
   skills/hand-off/SKILL.md \
   skills/find-cause/SKILL.md \
   skills/start-work/SKILL.md \
+  skills/direct-execute/SKILL.md \
   skills/define-requirements/SKILL.md \
   skills/define-requirements/requirements-document-reviewer-prompt.md \
   skills/writing-plan/SKILL.md \
@@ -146,6 +148,7 @@ rg -n 'hand-off|using-as-usual|start-work|define-requirements|writing-plan|execu
   skills/using-as-usual/SKILL.md \
   skills/hand-off/SKILL.md \
   skills/start-work/SKILL.md \
+  skills/direct-execute/SKILL.md \
   skills/define-requirements/SKILL.md \
   skills/writing-plan/SKILL.md \
   skills/executing-plan/SKILL.md \
@@ -165,6 +168,7 @@ PASS:
 - `using-as-usual` owns activation, first reads, and topic initialization.
 - `hand-off` owns explicit hand-off resume from an existing topic path and routes to the existing phase owner without adding a workflow phase.
 - `start-work` owns routing after first reads.
+- `direct-execute` owns its allow/deny conditions, the audited start-work-routed path, and the recordless direct invocation path; high-risk work is denied on both paths.
 - `define-requirements` owns question creation, answer validation, and material ambiguity.
 - `define-requirements` owns requirements writing, local review, `requirements-complete`, and asking for plan approval.
 - `writing-plan` owns dependency analysis, plan writing, local plan review, `plan-review`, and asking for execution approval (`approve-execute`).
@@ -187,6 +191,7 @@ FAIL:
 - Any runtime rule runs a git action before `finalize` asks for a git action decision.
 - Any runtime rule adds a user approval gate between validated answers and requirements synthesis.
 - A next action that means approval to execute uses stale `execute-plan` wording instead of `approve-execute`.
+- Any runtime rule duplicates the direct-execute allow/deny condition list outside `skills/direct-execute/SKILL.md`, records topic artifacts for direct invocation, repeats its deny confirmation, or permits high-risk direct execution.
 
 Fix: keep phase ownership in `core-workflow.md` and mirror the same boundary in the responsible skill.
 
@@ -336,6 +341,7 @@ Run:
 rg -n 'High-Risk Operation Gate|high-risk operation|file deletion|bulk formatting|package installation|dependency changes|DB migration|schema changes|environment variable|\\.env|secret|credential|CI/CD|deploy|release|git push|force push|untrusted|Trust Boundary|data and evidence|prompt-injection|review-fixes-needed|address-review-findings|Safety|Risk Level|Separate Approval Required|Reversibility|Safety Gates|execution approved' \
   as-usual-rules/core-workflow.md \
   skills/start-work/SKILL.md \
+  skills/direct-execute/SKILL.md \
   skills/define-requirements/SKILL.md \
   skills/define-requirements/requirements-document-reviewer-prompt.md \
   skills/writing-plan/SKILL.md \
@@ -351,7 +357,7 @@ PASS:
 
 - `core-workflow.md` defines a trust boundary for external/project content and a high-risk operation gate.
 - `core-workflow.md`, `templates/topic.md`, and `topic-log.py` define `audit.jsonl` as the canonical event history and `topic-log.py status --json` as the derived status surface.
-- `start-work` denies `direct-execute` for high-risk operations.
+- The `direct-execute` skill owns the allow/deny conditions and denies high-risk operations on both entry paths; `start-work` applies those conditions when routing.
 - `templates/plan.md`, `writing-plan`, and the plan reviewer prompt all require execution mode and task Safety fields: risk level, high-risk operations, reversibility, separate approval, and rollback/recovery notes.
 - `templates/plan.md`, `writing-plan`, `executing-plan`, and the plan/review prompts preserve mandatory TDD evidence mapping through `Test target`, RED/GREEN evidence, approved TDD exception category/approval source, `verification.recorded`, and structured `task.completed` fields.
 - `executing-plan` supports inline/subagent-driven/mixed execution while keeping the main agent as controller and requiring task review/fix evidence before moving on.
@@ -368,6 +374,7 @@ FAIL:
 - Stage completion can only be reconstructed from chat memory or prose logs rather than `audit.jsonl` plus `topic-log.py status --json`.
 - Any runtime path allows high-risk operations to run only because they were present in an approved plan.
 - `direct-execute` can run high-risk operations.
+- The recordless direct entry path can create topic artifacts or audit records, or its deny confirmation can repeat more than once.
 - Review can proceed to code cleanup/finalize while Critical or Important findings lack a recorded disposition.
 - Execution review omits silent failure checks for swallowed errors, dangerous fallbacks, or missing propagation.
 - The execution reviewer prompt can record speculative Critical or Important findings without exact location, concrete failure mode, surrounding context, and defensible severity.

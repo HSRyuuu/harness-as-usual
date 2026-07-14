@@ -36,13 +36,14 @@ Run the same smoke tests repeatedly after AsUsual harness changes.
 | `hooks/hooks.json`                                  | Claude hook config                |
 | `hooks/hooks-codex.json`                            | Codex hook config                 |
 | `.claude-plugin/plugin.json`                        | Claude plugin manifest            |
-| `.claude-plugin/marketplace.json`                   | Claude local marketplace manifest |
+| `.claude-plugin/marketplace.json`                   | Claude marketplace manifest       |
 | `.codex-plugin/plugin.json`                         | Codex plugin manifest             |
-| `.agents/plugins/marketplace.json`                  | Codex local marketplace manifest  |
+| `.agents/plugins/marketplace.json`                  | Codex marketplace manifest        |
 | `skills/using-as-usual/SKILL.md`                    | runtime activation skill          |
 | `skills/hand-off/SKILL.md`                          | runtime hand-off resume skill     |
 | `skills/find-cause/SKILL.md`                         | runtime find-cause issue skill    |
 | `skills/start-work/SKILL.md`                        | runtime gate routing skill        |
+| `skills/direct-execute/SKILL.md`                    | runtime direct-execute gate and execution skill |
 | `skills/define-requirements/SKILL.md`                    | runtime question cycle and requirements writing skill      |
 | `skills/define-requirements/requirements-document-reviewer-prompt.md` | runtime requirements review prompt     |
 | `skills/writing-plan/SKILL.md`                      | runtime plan writing skill        |

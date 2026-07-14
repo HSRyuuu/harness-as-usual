@@ -36,6 +36,7 @@ Runtime surfaces seen or executed by a target-project user who installed the AsU
 | `skills/hand-off/SKILL.md` | public runtime hand-off resume skill |
 | `skills/find-cause/SKILL.md` | public find-cause issue lifecycle skill |
 | `skills/start-work/SKILL.md` | public runtime gate routing skill |
+| `skills/direct-execute/SKILL.md` | public runtime direct-execute gate and execution skill |
 | `skills/define-requirements/SKILL.md` | public runtime question cycle and requirements writing skill |
 | `skills/define-requirements/requirements-document-reviewer-prompt.md` | public runtime requirements review prompt |
 | `skills/writing-plan/SKILL.md` | public runtime plan writing skill |
@@ -114,6 +115,7 @@ rg -n 'AGENTS\.md|dev-as-usual|plugin development|AsUsual plugin itself|hook, ma
   skills/hand-off/SKILL.md \
   skills/find-cause/SKILL.md \
   skills/start-work/SKILL.md \
+  skills/direct-execute/SKILL.md \
   skills/define-requirements/SKILL.md \
   skills/define-requirements/requirements-document-reviewer-prompt.md \
   skills/writing-plan/SKILL.md \

@@ -10,6 +10,7 @@ EXPECTED_RUNTIME_SKILLS = {
     "hand-off",
     "find-cause",
     "start-work",
+    "direct-execute",
     "define-requirements",
     "writing-plan",
     "executing-plan",
@@ -68,7 +69,7 @@ class RuntimeSurfaceManifestTests(unittest.TestCase):
         self.assertTrue((ROOT / "hooks/run-hook.cmd").is_file())
         self.assertTrue((ROOT / "hooks/session-start").is_file())
 
-    def test_claude_and_marketplace_versions_match(self):
+    def test_plugin_versions_match_and_marketplaces_delegate_version(self):
         codex = self.load_json(".codex-plugin/plugin.json")
         claude = self.load_json(".claude-plugin/plugin.json")
         claude_marketplace = self.load_json(".claude-plugin/marketplace.json")
@@ -76,10 +77,15 @@ class RuntimeSurfaceManifestTests(unittest.TestCase):
 
         self.assertEqual(claude["name"], codex["name"])
         self.assertEqual(claude["version"], codex["version"])
+        self.assertEqual(claude_marketplace["name"], "harness-as-usual")
+        self.assertEqual(codex_marketplace["name"], "harness-as-usual")
         self.assertEqual(claude_marketplace["plugins"][0]["name"], codex["name"])
-        self.assertEqual(claude_marketplace["plugins"][0]["version"], codex["version"])
+        self.assertNotIn("version", claude_marketplace["plugins"][0])
+        self.assertNotIn("version", codex_marketplace["plugins"][0])
         self.assertEqual(codex_marketplace["plugins"][0]["name"], codex["name"])
         self.assertEqual(codex_marketplace["plugins"][0]["source"]["path"], "./plugins/as-usual")
+        self.assertTrue((ROOT / "plugins/as-usual").is_symlink())
+        self.assertEqual((ROOT / "plugins/as-usual").readlink(), Path(".."))
 
     def test_hook_configs_invoke_session_start_runner(self):
         for relative_path, expected_root_var in [
