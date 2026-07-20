@@ -20,11 +20,11 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 9. Confirm the self-improvement memory surface is aligned across workflow rules, runtime skills, templates, and audit helpers.
 10. Confirm codebase exploration output is treated as untrusted evidence and its subagent assignment is self-contained.
 11. Confirm verdict vocabularies and receipt contracts stay aligned across prompts, workflow rules, templates, and audit helpers.
-12. Confirm find-cause journal gates, command examples, hand-off routing, and post-conclusion mutation rules stay aligned.
+12. Confirm find-cause journal gates, command examples, hand-off routing, and post-conclusion mutation rules stay aligned, the start-work `find-cause` route in `routing-rules.md` matches the find-cause workflow's coding-topic entry rules, and skills referenced by the find-cause Conclusion procedure (such as `manage-self-improvement`) accept issue artifacts (`problem.md`, journal view, `conclusion.md`) as inputs.
 
 ## When To Run
 
-- After changing `as-usual-rules/core-workflow.md`
+- After changing `as-usual-rules/core-workflow.md` or `as-usual-rules/safety-rules.md`
 - After changing public runtime skills under `skills/**`
 - After changing `templates/requirements.md`, `templates/plan.md`, `templates/question.md`, `templates/topic.md`, `templates/code-review-report.md`, or `templates/report.md`
 - After changing runtime helper scripts under `scripts/**`
@@ -38,7 +38,12 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 | File | Purpose |
 | --- | --- |
 | `hooks/session-start` | one-sentence SessionStart activation guidance |
-| `as-usual-rules/core-workflow.md` | canonical runtime workflow contract |
+| `as-usual-rules/core-workflow.md` | canonical runtime workflow entrypoint (global invariants, artifact contract, phase entry gates) |
+| `as-usual-rules/routing-rules.md` | single-source owner: gate routing, clarification routing, phase router, failure circuit breaker |
+| `as-usual-rules/logging-rules.md` | single-source owner: record write/read rules, closed vocabularies, audit event types |
+| `as-usual-rules/completion-rules.md` | single-source owner: completion judgment, verification evidence, subagent receipt contract |
+| `as-usual-rules/safety-rules.md` | single-source owner: trust boundary and high-risk operation gate, shared by both workflows |
+| `as-usual-rules/log-audit-commands.md` | canonical topic-log command set |
 | `as-usual-rules/find-cause-workflow.md` | canonical find-cause issue workflow contract |
 | `skills/using-as-usual/SKILL.md` | runtime activation and first-read behavior |
 | `skills/hand-off/SKILL.md` | existing topic hand-off resume behavior |
@@ -85,6 +90,11 @@ Run:
 ```bash
 for f in \
   as-usual-rules/core-workflow.md \
+  as-usual-rules/routing-rules.md \
+  as-usual-rules/logging-rules.md \
+  as-usual-rules/completion-rules.md \
+  as-usual-rules/safety-rules.md \
+  as-usual-rules/log-audit-commands.md \
   as-usual-rules/find-cause-workflow.md \
   skills/using-as-usual/SKILL.md \
   skills/hand-off/SKILL.md \
@@ -145,6 +155,7 @@ Run:
 ```bash
 rg -n 'hand-off|using-as-usual|start-work|define-requirements|writing-plan|executing-plan|review-execution|cleanup-code|finalize|git-action|direct-execute|requirements-complete|approve-plan|plan-review|approve-execute|execution-complete|decide-code-cleanup|git-action-decision' \
   as-usual-rules/core-workflow.md \
+  as-usual-rules/routing-rules.md \
   skills/using-as-usual/SKILL.md \
   skills/hand-off/SKILL.md \
   skills/start-work/SKILL.md \
@@ -300,6 +311,7 @@ Run:
 ```bash
 rg -n 'Assumptions|Open Questions|Affected Surface|material ambiguity|chat clarification|focused chat|3-cycle|assumption-based|None identified|unlabeled assumption' \
   as-usual-rules/core-workflow.md \
+  as-usual-rules/routing-rules.md \
   skills/define-requirements/SKILL.md \
   skills/writing-plan/SKILL.md \
   skills/executing-plan/SKILL.md \
@@ -340,6 +352,10 @@ Run:
 ```bash
 rg -n 'High-Risk Operation Gate|high-risk operation|file deletion|bulk formatting|package installation|dependency changes|DB migration|schema changes|environment variable|\\.env|secret|credential|CI/CD|deploy|release|git push|force push|untrusted|Trust Boundary|data and evidence|prompt-injection|review-fixes-needed|address-review-findings|Safety|Risk Level|Separate Approval Required|Reversibility|Safety Gates|execution approved' \
   as-usual-rules/core-workflow.md \
+  as-usual-rules/safety-rules.md \
+  as-usual-rules/find-cause-workflow.md \
+  as-usual-rules/routing-rules.md \
+  as-usual-rules/logging-rules.md \
   skills/start-work/SKILL.md \
   skills/direct-execute/SKILL.md \
   skills/define-requirements/SKILL.md \
@@ -355,8 +371,8 @@ rg -n 'High-Risk Operation Gate|high-risk operation|file deletion|bulk formattin
 
 PASS:
 
-- `core-workflow.md` defines a trust boundary for external/project content and a high-risk operation gate.
-- `core-workflow.md`, `templates/topic.md`, and `topic-log.py` define `audit.jsonl` as the canonical event history and `topic-log.py status --json` as the derived status surface.
+- `as-usual-rules/safety-rules.md` is the single owner of the trust boundary and the high-risk operation gate; `core-workflow.md` and `find-cause-workflow.md` reference it instead of restating the operation list.
+- `as-usual-rules/logging-rules.md`, `templates/topic.md`, and `topic-log.py` define `audit.jsonl` as the canonical event history and `topic-log.py status --json` as the derived status surface.
 - The `direct-execute` skill owns the allow/deny conditions and denies high-risk operations on both entry paths; `start-work` applies those conditions when routing.
 - `templates/plan.md`, `writing-plan`, and the plan reviewer prompt all require execution mode and task Safety fields: risk level, high-risk operations, reversibility, separate approval, and rollback/recovery notes.
 - `templates/plan.md`, `writing-plan`, `executing-plan`, and the plan/review prompts preserve mandatory TDD evidence mapping through `Test target`, RED/GREEN evidence, approved TDD exception category/approval source, `verification.recorded`, and structured `task.completed` fields.
@@ -365,7 +381,7 @@ PASS:
 - `review-execution` and `code-reviewer-prompt.md` check secret leaks, prompt-injection risk, high-risk operation evidence, and review finding dispositions.
 - `review-execution`, `code-reviewer-prompt.md`, and `templates/code-review-report.md` check and record silent failure risk: empty catches, swallowed exceptions, dangerous fallbacks, and missing propagation or async handling.
 - `review-execution` and `code-reviewer-prompt.md` require a finding quality gate before recording findings: exact location, concrete failure mode, surrounding context, defensible severity, and acceptance that a no-finding review can be valid.
-- `core-workflow.md` routes `review-fixes-needed` / `address-review-findings`.
+- `as-usual-rules/routing-rules.md` routes `review-fixes-needed` / `address-review-findings`.
 - `scripts/topic-log.py` records structured execution approval, high-risk approval, and review events with actors and sequence numbers.
 
 FAIL:
@@ -581,8 +597,7 @@ Run:
 
 ```bash
 rg -l 'passed \| findings \| blocked' \
-  skills/executing-plan/task-requirements-reviewer-prompt.md \
-  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/executing-plan/task-reviewer-prompt.md \
   skills/review-execution/code-reviewer-prompt.md \
   skills/cleanup-code/reuse-reviewer-prompt.md \
   skills/cleanup-code/simplification-reviewer-prompt.md \
@@ -591,40 +606,37 @@ rg -l 'passed \| findings \| blocked' \
 rg -n 'Ready to finalize|DONE_WITH_CONCERNS' skills/executing-plan skills/review-execution skills/cleanup-code
 rg -l 'receipt|Review File:|Report:' \
   skills/executing-plan/implementer-prompt.md \
-  skills/executing-plan/task-requirements-reviewer-prompt.md \
-  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/executing-plan/task-reviewer-prompt.md \
   skills/review-execution/code-reviewer-prompt.md \
   skills/cleanup-code/reuse-reviewer-prompt.md \
   skills/cleanup-code/simplification-reviewer-prompt.md \
   skills/cleanup-code/efficiency-reviewer-prompt.md \
   skills/cleanup-code/abstraction-reviewer-prompt.md
-rg -n 'VERIFICATION_VERDICTS|PASS \| FAIL \| INCONCLUSIVE' scripts/as_usual_topic_log/constants.py as-usual-rules/core-workflow.md
+rg -n 'VERIFICATION_VERDICTS|PASS \| FAIL \| INCONCLUSIVE' scripts/as_usual_topic_log/constants.py as-usual-rules/logging-rules.md
 rg -n 'execute/task-|clean-up/review-result-' as-usual-rules/core-workflow.md
 rg -n '^verdict:' templates/code-review-report.md
 rg -n 'topic-log\.py verification' skills as-usual-rules .agents .claude | rg -v -- --verdict
-rg -n 'INCONCLUSIVE is not PASS' as-usual-rules/core-workflow.md skills/executing-plan/SKILL.md
-rg -n 'TASK / DELIVERABLE / SCOPE / VERIFY' as-usual-rules/core-workflow.md
+rg -n 'INCONCLUSIVE is not PASS' as-usual-rules/completion-rules.md
+rg -n 'completion-rules' skills/executing-plan/SKILL.md skills/review-execution/SKILL.md
+rg -n 'TASK / DELIVERABLE / SCOPE / VERIFY' as-usual-rules/completion-rules.md
 rg -n 'claim' skills/executing-plan/implementer-prompt.md
 rg -n 'must not issue the final review verdict' skills/review-execution/SKILL.md
 rg -l 'blocker-finder' \
-  skills/executing-plan/task-requirements-reviewer-prompt.md \
-  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/executing-plan/task-reviewer-prompt.md \
   skills/review-execution/code-reviewer-prompt.md \
   skills/cleanup-code/reuse-reviewer-prompt.md \
   skills/cleanup-code/simplification-reviewer-prompt.md \
   skills/cleanup-code/efficiency-reviewer-prompt.md \
   skills/cleanup-code/abstraction-reviewer-prompt.md
 rg -l 'at most 3' \
-  skills/executing-plan/task-requirements-reviewer-prompt.md \
-  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/executing-plan/task-reviewer-prompt.md \
   skills/review-execution/code-reviewer-prompt.md \
   skills/cleanup-code/reuse-reviewer-prompt.md \
   skills/cleanup-code/simplification-reviewer-prompt.md \
   skills/cleanup-code/efficiency-reviewer-prompt.md \
   skills/cleanup-code/abstraction-reviewer-prompt.md
 rg -l 'Does Not Check|also does not check' \
-  skills/executing-plan/task-requirements-reviewer-prompt.md \
-  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/executing-plan/task-reviewer-prompt.md \
   skills/review-execution/code-reviewer-prompt.md \
   skills/cleanup-code/reuse-reviewer-prompt.md \
   skills/cleanup-code/simplification-reviewer-prompt.md \
@@ -637,14 +649,14 @@ PASS:
 - Review prompts use the closed review verdict vocabulary `passed | findings | blocked`.
 - `Ready to finalize` and `DONE_WITH_CONCERNS` do not appear in active execute, review-execution, or cleanup-code runtime surfaces.
 - Target subagent prompts contain receipt/report path output fields.
-- `VERIFICATION_VERDICTS` and `PASS | FAIL | INCONCLUSIVE` are present in the helper/workflow contract.
+- `VERIFICATION_VERDICTS` (helper) and `PASS | FAIL | INCONCLUSIVE` (`logging-rules.md`) agree on the closed vocabulary.
 - `core-workflow.md` contains `execute/task-` and `clean-up/review-result-` review artifact paths.
 - `templates/code-review-report.md` has frontmatter `verdict:`.
 - The final verification-call scan has no output; every active `topic-log.py verification` example includes `--verdict`.
-- `INCONCLUSIVE is not PASS` appears in both `core-workflow.md` and `executing-plan/SKILL.md`.
-- `core-workflow.md` contains the `TASK / DELIVERABLE / SCOPE / VERIFY` delegation input contract.
+- `INCONCLUSIVE is not PASS` appears in `as-usual-rules/completion-rules.md` (the single owner), and `executing-plan`/`review-execution` reference `completion-rules` instead of restating it.
+- `as-usual-rules/completion-rules.md` contains the `TASK / DELIVERABLE / SCOPE / VERIFY` delegation input contract.
 - `implementer-prompt.md` treats `DONE` as a claim, and `review-execution/SKILL.md` says the implementer must not issue the final review verdict on its own work.
-- The 7 reviewer prompts all contain `blocker-finder`, `at most 3`, and either `Does Not Check` or `also does not check`.
+- The 6 reviewer prompts all contain `blocker-finder`, `at most 3`, and either `Does Not Check` or `also does not check`.
 
 FAIL:
 
@@ -652,11 +664,32 @@ FAIL:
 - Receipt output paths are missing from target prompts.
 - The helper and workflow contract disagree about verification verdict vocabulary.
 - A `topic-log.py verification` example omits `--verdict`.
-- `INCONCLUSIVE` is treated as pass, or the gate contract is missing from either the core workflow or executing-plan skill.
-- The delegation input contract is missing from `core-workflow.md`, or the DoneClaim/independent-review contract is missing from the implementer or review-execution surfaces.
-- Any of the 7 reviewer prompts lacks blocker-finder role wording, the at-most-3 cap, or an explicit non-check declaration.
+- `INCONCLUSIVE` is treated as pass, the gate contract is missing from `completion-rules.md`, or an execution-family skill restates it instead of referencing the owner file.
+- The delegation input contract is missing from `completion-rules.md`, or the DoneClaim/independent-review contract is missing from the implementer or review-execution surfaces.
+- Any of the 6 reviewer prompts lacks blocker-finder role wording, the at-most-3 cap, or an explicit non-check declaration.
 
 Fix: align runtime prompts, `core-workflow.md`, `templates/code-review-report.md`, and `scripts/as_usual_topic_log/constants.py` to the same closed vocabularies, receipt contract, DoneClaim gate, reviewer calibration, and delegation contract.
+
+### Step 11: Single-Source Ownership Check
+
+**Tool:** Bash
+
+Important rules must exist in exactly one owner file; other runtime files may only reference them with a one-line pointer. Scan for restatements of owned rule text outside its owner:
+
+```bash
+# each pattern below must match ONLY in its owner file (plus pointer lines that name the owner)
+rg -ln 'INCONCLUSIVE is not PASS|Tests alone never prove done|never records task completion' as-usual-rules skills | rg -v 'completion-rules.md' || true
+rg -ln 'Append, never overwrite|never hand-edit them|Never hand-edit them' as-usual-rules skills | rg -v 'logging-rules.md' || true
+rg -ln 'When borderline, choose the heavier gate' as-usual-rules skills | rg -v 'routing-rules.md' || true
+rg -c 'passed \| findings \| blocked.*DONE \| NEEDS_CONTEXT \| BLOCKED|Closed vocabularies are fixed' as-usual-rules/core-workflow.md skills 2>/dev/null || true
+rg -n 'IF the same action fails 3 times' as-usual-rules skills | rg -v 'routing-rules.md' || true
+```
+
+PASS: every scan is empty (rule text lives only in its owner; other files carry pointers only).
+
+FAIL: an owned rule's condition text, list, or vocabulary definition is restated outside its owner file.
+
+Fix: keep the rule in its owner (`routing-rules.md`, `logging-rules.md`, `completion-rules.md`, the owning skill, or the owning template/reviewer prompt) and replace the restatement with a one-line pointer. Skill one-line descriptions and command usage examples are allowed duplication.
 
 ## Output Format
 
@@ -677,6 +710,7 @@ Fix: align runtime prompts, `core-workflow.md`, `templates/code-review-report.md
 | Codebase exploration trust boundary | PASS/FAIL | ... |
 | Removed runtime surface | PASS/FAIL | ... |
 | Verdict vocabulary and receipt contract | PASS/FAIL | ... |
+| Single-source ownership | PASS/FAIL | ... |
 
 ### Findings
 
