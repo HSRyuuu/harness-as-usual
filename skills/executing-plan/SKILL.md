@@ -130,9 +130,9 @@ For a test-only dependency, explicitly say that it is test scoped, whether produ
 
 Use the mode approved in `plan.md`:
 
-- `inline`: the controller implements each task in the current session.
-- `subagent-driven`: the controller dispatches one fresh bounded implementer for each task, then runs one task-level review before moving on.
-- `mixed`: each task declares `inherit`, `inline`, or `subagent-driven`; `inherit` uses the plan-level mode.
+- `inline`: the controller implements and verifies each task in the current session. No per-task review file — the mandatory `review-execution` gate is the independent review of inline work.
+- `subagent-driven`: the controller dispatches one fresh bounded implementer for each task, then runs one task-level review before moving on. The task review exists to check the subagent's `DONE` claim, which the controller did not produce itself.
+- `mixed`: each task declares `inherit`, `inline`, or `subagent-driven`; `inherit` uses the plan-level mode. Per-task review follows each task's effective mode.
 
 For subagent-driven tasks:
 
@@ -205,7 +205,7 @@ python3 <plugin-root>/scripts/topic-log.py audit \
    - For `no-test`, confirm the work is genuinely untestable (configuration, generated code, throwaway prototype), record the reason, then run the planned verification or review evidence. No user approval is required.
 7. Run the task's `Verification` command and compare the result to its expected result.
 8. Record the exact command and outcome with `scripts/topic-log.py verification --verdict PASS|FAIL|INCONCLUSIVE`, including regression RED/GREEN evidence for bug fixes in the summary or task completion event. Apply `INCONCLUSIVE` consequences and surface-appropriate evidence per `as-usual-rules/completion-rules.md`.
-9. If using subagent-driven mode, run one task-level review with `task-reviewer-prompt.md`. It covers requirements fit and quality/safety in a single pass. Review details go in `execute/task-<N>-review.md` with YAML frontmatter `task`, `verdict`, and `reviewedAt`.
+9. Task-level review is for subagent-driven tasks only. Inline tasks get no per-task review file: the controller implemented and verified them directly, and the mandatory `review-execution` gate is their independent review. Do not manufacture a per-task review for inline work. For a subagent-driven task, run one task-level review with `task-reviewer-prompt.md` — it exists because the controller must independently check a subagent's `DONE` claim, and it covers requirements fit and quality/safety in a single pass. Review details go in `execute/task-<N>-review.md` with YAML frontmatter `task`, `verdict`, and `reviewedAt`.
 10. Treat reviewer responses as receipts. The receipt status must be one of `passed | findings | blocked` and must match the review file frontmatter `verdict` and the `record-task-review --status` value. If the receipt status is outside the closed vocabulary or does not match frontmatter, invalidate the result, record a note, and request the review again. Include the review file in `record-task-review --artifacts`.
 11. When review status is `findings` or `blocked` and any finding count is nonzero, include stable `--finding-ids` so fixes can resolve the findings.
 12. If the task review finds issues, record `record-task-fix --status requested`, fix or redispatch the fix, record `record-task-fix --status completed --finding-id <id>`, then rerun the task review. Do not start Task N+1 while Critical or Important task findings remain unresolved. `complete-execution` fails when unresolved task findings remain in derived status.
