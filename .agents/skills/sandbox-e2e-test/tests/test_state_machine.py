@@ -139,11 +139,9 @@ class TopicLogTests(unittest.TestCase):
                 "--verification",
                 "Final command: npm test exited 0.",
                 "--mode",
-                "tdd",
+                "test-required",
                 "--test-target",
                 "tests/review-evidence.test.ts",
-                "--red-evidence",
-                "npm test failed before implementation.",
                 "--green-evidence",
                 "npm test passed after implementation.",
                 "--expected-result",
@@ -165,9 +163,9 @@ class TopicLogTests(unittest.TestCase):
             self.assertEqual(status["verification"][0]["result"], "PASS")
             task = status["tasks"]["Task 1: Add review evidence"]
             self.assertEqual(task["completed"]["result"], "PASS")
-            self.assertEqual(task["completed"]["mode"], "tdd")
+            self.assertEqual(task["completed"]["mode"], "test-required")
 
-    def test_complete_task_rejects_tdd_without_red_and_green_evidence(self):
+    def test_complete_task_rejects_test_required_without_passing_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:
             topic_dir = self.init_topic(tmp)
 
@@ -178,25 +176,23 @@ class TopicLogTests(unittest.TestCase):
                 "--task",
                 "Task 1: Add behavior",
                 "--summary",
-                "Should reject missing RED evidence.",
+                "Should reject missing passing-test evidence.",
                 "--mode",
-                "tdd",
+                "test-required",
                 "--test-target",
                 "tests/behavior.test.ts",
-                "--green-evidence",
-                "npm test passed after implementation.",
                 "--result",
                 "PASS",
             )
 
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("TDD task requires RED evidence", result.stderr + result.stdout)
+            self.assertIn("passing-test evidence", result.stderr + result.stdout)
 
     def test_complete_task_rejects_removed_weak_verification_modes(self):
         with tempfile.TemporaryDirectory() as tmp:
             topic_dir = self.init_topic(tmp)
 
-            for mode in ("verification-only", "manual-qa", "test-first-where-possible", "strict-tdd"):
+            for mode in ("verification-only", "manual-qa", "strict-tdd", "tdd", "approved-tdd-exception"):
                 result = self.run_topic_log(
                     "complete-task",
                     "--topic-dir",
@@ -214,68 +210,44 @@ class TopicLogTests(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("Unsupported task mode", result.stderr + result.stdout)
 
-    def test_complete_task_allows_human_approved_tdd_exception_only_for_allowed_categories(self):
+    def test_complete_task_no_test_requires_reason(self):
         with tempfile.TemporaryDirectory() as tmp:
             topic_dir = self.init_topic(tmp)
 
-            missing_approval = self.run_topic_log(
+            missing_reason = self.run_topic_log(
                 "complete-task",
                 "--topic-dir",
                 str(topic_dir),
                 "--task",
                 "Task 1: Generated code",
                 "--summary",
-                "Should reject exception without human approval source.",
+                "Should reject no-test without a recorded reason.",
                 "--mode",
-                "approved-tdd-exception",
-                "--exception-category",
-                "generated-code",
+                "no-test",
                 "--result",
                 "PASS",
             )
-            self.assertNotEqual(missing_approval.returncode, 0)
-            self.assertIn("human approval", missing_approval.stderr + missing_approval.stdout)
+            self.assertNotEqual(missing_reason.returncode, 0)
+            self.assertIn("no-test task requires a recorded reason", missing_reason.stderr + missing_reason.stdout)
 
-            bad_category = self.run_topic_log(
-                "complete-task",
-                "--topic-dir",
-                str(topic_dir),
-                "--task",
-                "Task 1: Unsupported exception",
-                "--summary",
-                "Should reject unsupported exception category.",
-                "--mode",
-                "approved-tdd-exception",
-                "--exception-category",
-                "docs-only",
-                "--exception-approval",
-                "user approved in current turn",
-                "--result",
-                "PASS",
-            )
-            self.assertNotEqual(bad_category.returncode, 0)
-            self.assertIn("Invalid TDD exception category", bad_category.stderr + bad_category.stdout)
-
-            approved = self.run_topic_log(
+            with_reason = self.run_topic_log(
                 "complete-task",
                 "--topic-dir",
                 str(topic_dir),
                 "--task",
                 "Task 1: Generated code",
                 "--summary",
-                "Human approved generated-code exception.",
+                "Generated code, no behavior to test.",
                 "--mode",
-                "approved-tdd-exception",
-                "--exception-category",
-                "generated-code",
-                "--exception-approval",
-                "user approved in current turn",
+                "no-test",
+                "--no-test-reason",
+                "generated code with no hand-written behavior to test",
                 "--verification",
                 "Generated output reviewed.",
                 "--result",
                 "PASS",
             )
-            self.assertEqual(approved.returncode, 0, approved.stderr + approved.stdout)
+            self.assertEqual(with_reason.returncode, 0, with_reason.stderr + with_reason.stdout)
 
     def test_execute_event_macros_capture_subagent_review_and_sweep_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -367,7 +339,7 @@ class TopicLogTests(unittest.TestCase):
             self.assertEqual(task["commits"][0]["sha"], "abc1234")
             self.assertEqual(status["sweeps"][0]["kind"], "stale-reference")
 
-    def test_approved_tdd_exception_still_derives_task_completion(self):
+    def test_no_test_mode_still_derives_task_completion(self):
         with tempfile.TemporaryDirectory() as tmp:
             topic_dir = self.init_topic(tmp)
 
@@ -378,13 +350,11 @@ class TopicLogTests(unittest.TestCase):
                 "--task",
                 "Task 1: Generated config",
                 "--summary",
-                "Task completed with human-approved TDD exception.",
+                "Task completed as no-test (generated configuration).",
                 "--mode",
-                "approved-tdd-exception",
-                "--exception-category",
-                "configuration",
-                "--exception-approval",
-                "user approved in current turn",
+                "no-test",
+                "--no-test-reason",
+                "configuration only, no behavior to test",
                 "--result",
                 "SKIPPED",
             )
@@ -395,7 +365,7 @@ class TopicLogTests(unittest.TestCase):
             status = json.loads(status_result.stdout)
             task = status["tasks"]["Task 1: Generated config"]
             self.assertEqual(task["completed"]["result"], "SKIPPED")
-            self.assertEqual(task["completed"]["exceptionCategory"], "configuration")
+            self.assertEqual(task["completed"]["noTestReason"], "configuration only, no behavior to test")
             self.assertEqual(status["verification"], [])
 
     def test_task_review_findings_route_to_review_follow_up(self):

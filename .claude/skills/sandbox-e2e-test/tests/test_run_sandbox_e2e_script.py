@@ -56,7 +56,7 @@ class RunSandboxE2EScriptTests(unittest.TestCase):
         self.assertIn("use actor `__AS_USUAL_HOST__`", text)
         self.assertIn("the removed legacy state artifact, or `audit.jsonl` as an artifact name", text)
         self.assertIn("topic-log.py complete-task --topic-dir <topicDir>", text)
-        self.assertIn("--mode tdd --test-target <test> --red-evidence <red-command-and-result> --green-evidence <green-command-and-result>", text)
+        self.assertIn("--mode test-required --test-target <test> --red-evidence <red-command-and-result> --green-evidence <green-command-and-result>", text)
         self.assertIn("task.dispatched` event with mode `subagent-driven`", text)
         self.assertIn("Subagent dispatch evidence", text)
         self.assertIn("TDD RED/GREEN evidence", text)
