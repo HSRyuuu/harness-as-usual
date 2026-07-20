@@ -64,7 +64,7 @@ The runtime workflow operates on one coding `topic` or one find-cause `issue` in
 
 Basic cycle:
 
-1. `define-requirements`: create `question-cN.md` files only when material ambiguity exists, validate answered files, then synthesize a single `requirements.md`. Focused clarifications during requirements writing/review may happen in chat only when recorded in `audit.jsonl` through `scripts/topic-log.py`.
+1. `define-requirements`: clarify material ambiguity with the user — batched chat questions by default, a file-backed `question-cN.md` cycle only by exception (user asks for a file, many interdependent decisions need a written comparison, or chat answers keep conflicting) — recording every material answer through `scripts/topic-log.py` before synthesizing a single `requirements.md`.
 2. `plan`: write a single `plan.md` based on the approved `requirements.md`. Focused clarifications that appear during plan writing or review may be asked in chat, and the answer must be recorded in `audit.jsonl` through `scripts/topic-log.py`.
 3. `execute`: perform the work based on the plan using `inline`, `subagent-driven`, or `mixed` mode. The main agent stays controller for task order, audit events, verification, and completion claims. If a single user decision is needed during execution, pause implementation, ask in chat, record the answer in `audit.jsonl` through `scripts/topic-log.py`, and route back to requirements/plan when artifacts must change.
 4. `review-execution`: mandatory post-execution review of actual changes and recorded evidence.
@@ -165,10 +165,8 @@ Plugin development requests are classified as plugin development even when they 
 - The start-work-routed direct-execute path keeps topic audit records; explicit direct invocation bypasses using-as-usual/topic creation and is recordless. Neither path permits high-risk work.
 - `journal.jsonl` is append-only and script-managed via `scripts/journal-log.py`. Never hand-edit it. Reasoning entries cannot be mutated after conclusion; only `link-follow-up` is allowed on a concluded issue.
 - `topics/` and the `yyyyMMdd` format are legacy designs. Do not use them for new runtime artifacts.
-- `question-cN.md` and `[Answer]:` fields are for the `define-requirements` question cycle only.
-- The agent stops after creating or updating a requirements question file.
-- When the user says they answered, reread the question file from disk.
-- The user may answer question files in chat; the agent then presents a question-to-answer mapping table, gets explicit confirmation, and only after that transcribes answers into `[Answer]:` fields. Question files stay the canonical answer record.
+- Clarifying material ambiguity defaults to batched chat questions; the file-backed `question-cN.md` cycle is the exception (owned by `define-requirements`). Either way, every material answer is recorded before requirements synthesis.
+- `question-cN.md` and `[Answer]:` fields belong to the file-cycle exception only. On the file path: the agent stops after creating/updating a question file; when the user says they answered, reread the file from disk; if the user answered a file cycle in chat, present a question-to-answer mapping table, get explicit confirmation, then transcribe into `[Answer]:` fields (question files stay the canonical record on that path).
 - In requirements/plan/execute phases, focused clarifications may be asked in chat. Record the answer in `audit.jsonl` through `scripts/topic-log.py`, and rerun the affected requirements or plan review when artifacts change.
 - Broad ambiguity involving multiple decisions or a topic-boundary change should route to `define-requirements` or `start-work` instead of being compressed into one chat question.
 - Before writing requirements, read the same topic's `question-cN.md` files in order.

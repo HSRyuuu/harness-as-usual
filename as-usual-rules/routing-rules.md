@@ -41,7 +41,7 @@ When a needed decision appears during requirements, plan, or execute writing or 
     - IF the answer is material: record it in `audit.jsonl` through `scripts/topic-log.py`, update the affected artifact (`requirements.md`/`plan.md`), and rerun the relevant review before continuing.
     - IF the answer is non-material: record it and continue.
 
-The initial requirements question cycle is not clarification. Broad or initial define-requirements decisions always use file-backed `question-cN.md` cycles owned by `define-requirements`.
+The initial requirements clarification is not covered by this Clarification Routing section. Broad or initial define-requirements decisions are owned by `define-requirements`, which clarifies them in batched chat questions by default and a file-backed `question-cN.md` cycle by exception; either medium records every material answer before synthesis.
 
 ## 3. Phase Router
 
@@ -58,11 +58,11 @@ IF the current request starts a new topic or the derived phase is unclear:
     apply start-work gate routing and invoke the routed skill
     IF route is DIRECT_EXECUTE: invoke direct-execute and STOP (terminal path, see §1)
 
-IF the current request answers, confirms, or corrects question-cycle answers,
-   or the user asks to write/update requirements:
+IF the current request answers, confirms, or corrects clarification answers
+   (chat-default or file-cycle), or the user asks to write/update requirements:
     invoke define-requirements
-    # it owns chat-answer mapping confirmation, answer validation,
-    # next-cycle creation, and same-turn requirements synthesis
+    # it owns chat-default vs file-cycle choice, file-cycle answer mapping,
+    # answer validation, and same-turn requirements synthesis
 
 IF the topic is requirements-complete or plan-review AND the user requests a change
    to the completed artifact before the next approval:

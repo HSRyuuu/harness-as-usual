@@ -20,7 +20,7 @@ The purpose is to produce one reviewable `requirements.md` that both a human dev
 | `define-requirements` | Create/validate question files when needed, write `requirements.md`, review it, and stop at `requirements-complete` |
 | `writing-plan` | Write `plan.md` from the approved `requirements.md` |
 
-`define-requirements` does not write `plan.md`, execute work, or replace high-risk approval gates. File-backed `[Answer]:` fields are mandatory for broad material ambiguity. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
+`define-requirements` does not write `plan.md`, execute work, or replace high-risk approval gates. Material decisions are clarified with the user and recorded (chat by default, file-backed `question-cN.md` cycle by exception — see Clarify Ambiguity); either way every material answer is recorded before synthesis. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
 
 ## When To Use
 
@@ -46,18 +46,46 @@ If a precondition is missing, do not guess. Return to `using-as-usual` or `start
 
 After first reads:
 
-1. If material ambiguity remains, create or update the next `question-cN.md` and stop.
-2. If the user answered question files, validate them from disk.
-3. If answers are incomplete, invalid, contradictory, or still materially ambiguous, create the next `question-cN.md` and stop.
-4. If requirements are clear, write or update `requirements.md`, run review, mark `requirements-complete`, ask for plan approval, and stop.
+1. If material ambiguity remains, clarify it with the user. Default to batched chat questions; use a file-backed `question-cN.md` cycle only when an exception trigger applies (see Clarify Ambiguity).
+2. Record each answered material decision as an audit event before synthesis: `decision.recorded` for a chat answer, `question.answered` for a file answer.
+3. If answers are incomplete, invalid, contradictory, or still materially ambiguous, ask again — another chat round, or escalate to a file cycle when chat keeps failing.
+4. When ambiguity is resolved, write or update `requirements.md`, run review, mark `requirements-complete`, ask for plan approval, and stop.
 
-## Question Cycle
+## Clarify Ambiguity
 
-Question files are only for user decisions that could change requirements, plan, implementation, risk, or verification.
+Clarify only user decisions that could change requirements, plan, implementation, risk, or verification. Do not ask the user for facts the agent can discover from the repository — inspect code, docs, command availability, and file locations directly first (see Codebase-Informed Drafting). Ask only for decisions that require user preference, priority, scope, risk tolerance, or acceptance criteria.
 
-Do not ask the user for facts the agent can discover from the repository. Inspect code, docs, command availability, and file locations directly first. Ask only for decisions that require user preference, priority, scope, risk tolerance, or acceptance criteria.
+Question quality is the same in both media: one decision per question, prefer 1-5 questions per batch, give meaningful options plus `X) Other`, include a recommendation with a short reason (guidance only, never a default answer), and note in one line how each answer changes requirements, plan, implementation, risk, or verification.
 
-### Create Or Update Questions
+### Default: Chat Questions
+
+Ask the batch directly in chat as one compact, scannable block. After the user answers:
+
+- Record each material answer as a `decision.recorded` event before synthesis, so `requirements.md` `Source Inputs` and `Decisions From Questions` can trace it:
+
+```bash
+python3 <plugin-root>/scripts/topic-log.py decision \
+  --topic-dir <topic-dir> \
+  --source "chat clarification: <short label>" \
+  --summary "<the decision the user made>"
+```
+
+- Do not treat a bare approval phrase such as `ㄱㄱ`, `go`, `진행`, `ok`, or `yes` as an answer to a material question. If an answer is missing or too vague to record faithfully, ask that one question again.
+- No mapping-table ritual and no separate confirmation gate on the chat path. The user reviews the synthesized `requirements.md` before approving the plan, and that review is where a misread is caught. Keep `Decisions From Questions` explicit so a wrong reading is visible there.
+
+Chat questions are still the full requirements process, not a shortcut: they stay inside `define-requirements`, every material answer is recorded, and synthesis follows. Do not compress a broad decision set into one vague chat exchange with no recording.
+
+### Exception: File-Backed Question Cycle
+
+Use `question-cN.md` files instead of chat when any trigger applies:
+
+- the user asks to answer in a file, or wants a durable written record of the decisions;
+- the decisions are numerous and interdependent enough that a written side-by-side multi-option comparison materially helps the user decide;
+- chat answers came back contradictory or ambiguous across a round, and a written record would disambiguate.
+
+Question files carry the same quality bar as chat questions, plus the file shape below.
+
+#### Create Or Update Questions
 
 Create the next `question-cN.md` from `templates/question.md`.
 
@@ -68,14 +96,8 @@ Question artifact shape:
 - Do not include agent-only sections such as `Agent format rules` or `Agent Notes` in the generated question file.
 - Keep the visible body focused on the decisions, why they matter, how each answer affects requirements, the options, recommendation, and `[Answer]:`.
 
-Question selection:
+File shape (in addition to the shared quality bar above):
 
-- Ask one decision per question.
-- Prefer 1-5 questions per cycle.
-- Give meaningful options plus `X) Other`.
-- Include a recommendation and a short reason, but treat it as guidance only. A recommendation is never a default answer.
-- Explain how the answer will affect `requirements.md`, `plan.md`, implementation, risk, or verification.
-- Keep visible context short and decision-oriented.
 - Each question must include at least two meaningful options and a final `X) Other`; 2-5 options are recommended.
 - Leave a blank line between options.
 - Put a `---` separator immediately before and after each question block.
@@ -102,9 +124,12 @@ Use `scripts/topic-log.py` macros for audit updates. Do not hand-edit `audit.jso
 
 ### Validate Answers
 
-When the user returns saying they answered, reread `question-c1.md`, `question-c2.md`, ... from disk.
+Validation applies to answers from either medium, against the checks table below.
 
-If the user answered in chat instead of editing `[Answer]:` fields:
+- **Chat-default answers**: validate the `decision.recorded` events you captured against the checks table. There is no file to reread and no mapping table — the answers are already recorded decisions.
+- **File-cycle answers**: reread `question-c1.md`, `question-c2.md`, ... from disk, then validate the `[Answer]:` fields.
+
+The rest of this subsection (mapping table, transcription) is **file-cycle only** — it handles the case where the user chose a file cycle but then answered in chat instead of editing `[Answer]:` fields:
 
 1. Map each chat answer to exactly one question file and question number. Answers that name the question or option map directly; positional answers such as `A B C A` map to the open questions in file and question order only when the answer count matches the open question count exactly.
 2. Do not treat short approval phrases such as `ㄱㄱ`, `go`, `go ahead`, `진행`, `좋아`, `ok`, or `yes` as answers to one or more material questions. These phrases may approve requirements synthesis only when every `[Answer]:` field was already filled by the user on disk.
@@ -160,7 +185,7 @@ python3 <plugin-root>/scripts/topic-log.py decision \
   --summary "Use the selected requirements decision."
 ```
 
-After 3 cycles, if material ambiguity remains, summarize it and ask whether to run another question cycle or allow an assumption-based requirements draft. Only when the user explicitly chooses the assumption path may `requirements.md` include assumptions, each with source and risk.
+After 3 clarification rounds (chat or file), if material ambiguity remains, summarize it and ask whether to run another round or allow an assumption-based requirements draft. Only when the user explicitly chooses the assumption path may `requirements.md` include assumptions, each with source and risk.
 
 ## Memory-Informed Drafting
 
@@ -273,7 +298,7 @@ python3 <plugin-root>/scripts/topic-log.py complete-requirements \
   --requirements requirements.md \
   --summary "<summary>"
 ```
-4. Tell the user the requirements are complete and ask them to review `requirements.md` before approving the move to plan. If this topic created no `question-cN.md` files, say so explicitly in one line in the user's language (for example: "No questions were needed, so I did not create a question file.") with the short reason the question cycle was not needed.
+4. Tell the user the requirements are complete and ask them to review `requirements.md` before approving the move to plan. Point them to `Decisions From Questions` as the place to check how their clarification answers were interpreted, since chat answers are not separately confirmed before synthesis.
 5. Stop.
 
 Do not write `plan.md` until the user explicitly approves moving on.
@@ -307,7 +332,8 @@ The actual review/approval/write happens later via `manage-self-improvement` at 
 - Creating both `spec.md` and `requirements.md` for one topic.
 - Hiding business/domain rules inside generic implementation prose.
 - Writing `plan.md` before the user approves completed requirements.
-- Asking broad material decisions only in chat.
+- Asking material decisions in chat without recording each answer as a `decision.recorded` event before synthesis, or compressing a broad decision set into one vague chat exchange.
+- Defaulting to a `question-cN.md` file cycle when no exception trigger applies (chat is the default medium).
 - Guessing empty `[Answer]:` fields.
 - Transcribing chat answers into `[Answer]:` fields without showing the mapping table and getting explicit confirmation.
 - Prefilling the mapping table with recommended options the user did not choose.

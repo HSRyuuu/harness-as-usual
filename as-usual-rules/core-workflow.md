@@ -38,7 +38,7 @@ There are two `direct-execute` exceptions for clear, low-risk, reversible work:
 
 <ALWAYS>
 - re-read topic files from disk before phase decisions
-- ask broad-ambiguity decisions via file-backed question cycles, not chat-only
+- resolve broad ambiguity inside define-requirements with every material answer recorded before synthesis; never settle it in an unrecorded chat exchange
 </ALWAYS>
 
 </Inviolable_Rules>
@@ -48,7 +48,7 @@ There are two `direct-execute` exceptions for clear, low-risk, reversible work:
 - **material**: a decision or change is material if it could change any of requirements, plan, implementation approach, risk, or verification. Wording, comments, path/typo corrections, and behavior-preserving step reordering are non-material.
 - **gated implementation**: implementation needs the requirements/plan gates when it fails any `direct-execute` allow condition (clear, low-risk, reversible). Size alone does not make work gated; ambiguity or risk does.
 - **focused clarification**: a single user decision that can be resolved in the current turn. It may be material; if so, the answer must be recorded in `audit.jsonl` through `scripts/topic-log.py`, the affected artifact must be updated, and the relevant review rerun.
-- **broad ambiguity**: multiple interdependent decisions, a decision requiring a durable multi-option review, or a topic-boundary change. Broad ambiguity must go through the file-backed `define-requirements` question cycle (or `start-work` re-routing), never chat alone.
+- **broad ambiguity**: multiple interdependent decisions, a decision requiring a durable multi-option review, or a topic-boundary change. Broad ambiguity is resolved inside `define-requirements` (or `start-work` re-routing), which clarifies it in batched chat questions by default or a file-backed `question-cN.md` cycle by exception. Either medium records every material answer before synthesis; broad ambiguity is never settled in an unrecorded chat exchange.
 
 ## 0. Instruction Priority
 
@@ -68,7 +68,7 @@ Owned by `as-usual-rules/safety-rules.md`, shared with the find-cause issue work
 
 ### Hard Gates And Preferences
 
-Hard gates: requirements/plan before gated implementation (see Key Terms), file-backed answers for broad define-requirements decisions, fresh disk reads before phase decisions, fresh approval before high-risk operations, mandatory execution review before finalize, and explicit user choice before git actions.
+Hard gates: requirements/plan before gated implementation (see Key Terms), recorded answers for broad define-requirements decisions, fresh disk reads before phase decisions, fresh approval before high-risk operations, mandatory execution review before finalize, and explicit user choice before git actions.
 
 Preferences: choose the lightest sufficient workflow gate, keep artifacts compact and reviewable, prefer helper scripts for routine `topic.md`/`audit.jsonl` updates, and prefer existing project patterns over new abstractions.
 
@@ -167,7 +167,7 @@ Owned by `as-usual-rules/routing-rules.md` (§3 Phase Router).
 
 Purpose: remove ambiguities that could change requirements, plan, implementation, risk, or verification.
 
-Question cycles, chat-answer mapping, answer validation, the 3-cycle assumption escalation, and same-turn requirements synthesis are owned by `skills/define-requirements/SKILL.md`; question file shape is owned by `templates/question.md`. Hard gate (Inviolable): broad define-requirements decisions use file-backed `question-cN.md` cycles, never chat alone.
+Clarification (chat-default and file-cycle exception), chat-answer mapping, answer validation, the 3-round assumption escalation, and same-turn requirements synthesis are owned by `skills/define-requirements/SKILL.md`; question file shape is owned by `templates/question.md`. Hard gate (Inviolable): every material define-requirements decision is recorded before synthesis; chat is the default clarification medium and file-backed `question-cN.md` cycles are the exception.
 
 ## 7. Requirements Rules
 
