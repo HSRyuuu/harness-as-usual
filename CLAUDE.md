@@ -44,8 +44,7 @@ The runtime workflow operates on one coding `topic` or one find-cause `issue` in
 │       ├── requirements.md
 │       ├── plan.md
 │       ├── execute/
-│       │   ├── task-<N>-requirements-review.md
-│       │   └── task-<N>-quality-review.md
+│       │   └── task-<N>-review.md
 │       ├── clean-up/
 │       │   └── review-result-<type>.md
 │       ├── topic.md
@@ -177,7 +176,7 @@ Plugin development requests are classified as plugin development even when they 
 - `audit.jsonl` is the canonical append-only event log. Current phase, next action, blockers, approvals, and verification are derived with `scripts/topic-log.py status --json`.
 - Review verdicts use `passed | findings | blocked`, verification verdicts use `PASS | FAIL | INCONCLUSIVE`, and implementer completion uses `DONE | NEEDS_CONTEXT | BLOCKED`. `INCONCLUSIVE` is not PASS, and `DONE` is only a completion claim until the controller checks diff, evidence, and verification.
 - Subagent receipt responses return only verdict plus artifact path while detailed review files keep YAML frontmatter `verdict`.
-- Task review detail paths are `execute/task-<N>-requirements-review.md` and `execute/task-<N>-quality-review.md`; cleanup review detail paths are `clean-up/review-result-<type>.md`.
+- The task review is one pass covering requirements fit and quality/safety; its detail path is `execute/task-<N>-review.md`. Cleanup review detail paths are `clean-up/review-result-<type>.md`.
 - Public docs use `https://github.com/HSRyuuu/harness-as-usual.git` and `AS_USUAL_REPO`. Do not put private absolute paths such as `/Users/...` in public install docs.
 - `.as-usual/memory/` holds curated cross-topic knowledge. `MEMORY.md` is limited to a 3000-character budget; additional domain-specific files use the `*_MEMORY.md` naming convention. Unlike `topic/` artifacts, `.as-usual/memory/*` is a commit target — stage it explicitly when updating.
 - Do not commit draft/probe skills. Keep only stable skills in `skills/`.

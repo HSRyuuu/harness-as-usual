@@ -132,7 +132,7 @@ For a test-only dependency, explicitly say that it is test scoped, whether produ
 Use the mode approved in `plan.md`:
 
 - `inline`: the controller implements each task in the current session.
-- `subagent-driven`: the controller dispatches one fresh bounded implementer for each task, then runs task-level requirements review and quality review before moving on.
+- `subagent-driven`: the controller dispatches one fresh bounded implementer for each task, then runs one task-level review before moving on.
 - `mixed`: each task declares `inherit`, `inline`, or `subagent-driven`; `inherit` uses the plan-level mode.
 
 For subagent-driven tasks:
@@ -207,10 +207,10 @@ python3 <plugin-root>/scripts/topic-log.py audit \
    - For `approved-tdd-exception`, confirm the task has category `throwaway-prototype`, `generated-code`, or `configuration` and a human approval source from the current topic evidence. Then run the planned verification or review evidence.
 7. Run the task's `Verification` command and compare the result to its expected result.
 8. Record the exact command and outcome with `scripts/topic-log.py verification --verdict PASS|FAIL|INCONCLUSIVE`, including RED/GREEN evidence in the summary or task completion event when applicable. Apply `INCONCLUSIVE` consequences and surface-appropriate evidence per `as-usual-rules/completion-rules.md`.
-9. If using subagent-driven mode, run task-level requirements review first with `task-requirements-reviewer-prompt.md`, then task-level quality review with `task-quality-reviewer-prompt.md`. Requirements review details go in `execute/task-<N>-requirements-review.md`; quality review details go in `execute/task-<N>-quality-review.md`. Each review file must include YAML frontmatter `task`, `type`, `verdict`, and `reviewedAt`.
+9. If using subagent-driven mode, run one task-level review with `task-reviewer-prompt.md`. It covers requirements fit and quality/safety in a single pass. Review details go in `execute/task-<N>-review.md` with YAML frontmatter `task`, `verdict`, and `reviewedAt`.
 10. Treat reviewer responses as receipts. The receipt status must be one of `passed | findings | blocked` and must match the review file frontmatter `verdict` and the `record-task-review --status` value. If the receipt status is outside the closed vocabulary or does not match frontmatter, invalidate the result, record a note, and request the review again. Include the review file in `record-task-review --artifacts`.
-11. When review status is `findings` or `blocked` and any finding count is nonzero, include stable `--finding-ids` so fixes can resolve the findings. Do not start quality review until requirements review passes or all requirements findings have a disposition.
-12. If a task review finds issues, record `record-task-fix --status requested`, fix or redispatch the fix, record `record-task-fix --status completed --finding-id <id>`, then rerun the relevant task review. Do not start Task N+1 while Critical or Important task findings remain unresolved. `complete-execution` fails when unresolved task findings remain in derived status.
+11. When review status is `findings` or `blocked` and any finding count is nonzero, include stable `--finding-ids` so fixes can resolve the findings.
+12. If the task review finds issues, record `record-task-fix --status requested`, fix or redispatch the fix, record `record-task-fix --status completed --finding-id <id>`, then rerun the task review. Do not start Task N+1 while Critical or Important task findings remain unresolved. `complete-execution` fails when unresolved task findings remain in derived status.
 13. If verification cannot be run, record the reason and the remaining work.
 14. Use `scripts/topic-log.py complete-task --topic-dir <topic-dir> --task "Task N: <name>" --summary <summary> --mode tdd --test-target <target> --red-evidence <red> --green-evidence <green> --verification <verification-evidence> --result <result>` when a TDD task finishes. For an approved exception, use `--mode approved-tdd-exception --exception-category <category> --exception-approval <approval-source>` plus the planned verification or review evidence. Include changed artifacts with `--artifacts` when useful.
 15. If a task-sized commit is created before finalization because the project/user explicitly wants commit boundaries during execution, record it with `record-task-commit`. Do not create commits merely because this skill is running; post-finalize git action remains the default AsUsual boundary.

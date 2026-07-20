@@ -210,7 +210,7 @@ def build_parser() -> argparse.ArgumentParser:
     task_review = sub.add_parser("record-task-review", help="Append task-level review event.")
     task_review.add_argument("--topic-dir", required=True)
     task_review.add_argument("--task", required=True)
-    task_review.add_argument("--review-type", required=True, choices=sorted(TASK_REVIEW_TYPES))
+    task_review.add_argument("--review-type", default="task", choices=sorted(TASK_REVIEW_TYPES))
     task_review.add_argument("--status", required=True, choices=sorted(REVIEW_STATUSES))
     task_review.add_argument("--critical", type=int, default=0)
     task_review.add_argument("--important", type=int, default=0)

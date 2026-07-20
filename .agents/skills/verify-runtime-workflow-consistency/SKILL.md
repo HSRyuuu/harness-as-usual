@@ -597,8 +597,7 @@ Run:
 
 ```bash
 rg -l 'passed \| findings \| blocked' \
-  skills/executing-plan/task-requirements-reviewer-prompt.md \
-  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/executing-plan/task-reviewer-prompt.md \
   skills/review-execution/code-reviewer-prompt.md \
   skills/cleanup-code/reuse-reviewer-prompt.md \
   skills/cleanup-code/simplification-reviewer-prompt.md \
@@ -607,8 +606,7 @@ rg -l 'passed \| findings \| blocked' \
 rg -n 'Ready to finalize|DONE_WITH_CONCERNS' skills/executing-plan skills/review-execution skills/cleanup-code
 rg -l 'receipt|Review File:|Report:' \
   skills/executing-plan/implementer-prompt.md \
-  skills/executing-plan/task-requirements-reviewer-prompt.md \
-  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/executing-plan/task-reviewer-prompt.md \
   skills/review-execution/code-reviewer-prompt.md \
   skills/cleanup-code/reuse-reviewer-prompt.md \
   skills/cleanup-code/simplification-reviewer-prompt.md \
@@ -624,24 +622,21 @@ rg -n 'TASK / DELIVERABLE / SCOPE / VERIFY' as-usual-rules/completion-rules.md
 rg -n 'claim' skills/executing-plan/implementer-prompt.md
 rg -n 'must not issue the final review verdict' skills/review-execution/SKILL.md
 rg -l 'blocker-finder' \
-  skills/executing-plan/task-requirements-reviewer-prompt.md \
-  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/executing-plan/task-reviewer-prompt.md \
   skills/review-execution/code-reviewer-prompt.md \
   skills/cleanup-code/reuse-reviewer-prompt.md \
   skills/cleanup-code/simplification-reviewer-prompt.md \
   skills/cleanup-code/efficiency-reviewer-prompt.md \
   skills/cleanup-code/abstraction-reviewer-prompt.md
 rg -l 'at most 3' \
-  skills/executing-plan/task-requirements-reviewer-prompt.md \
-  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/executing-plan/task-reviewer-prompt.md \
   skills/review-execution/code-reviewer-prompt.md \
   skills/cleanup-code/reuse-reviewer-prompt.md \
   skills/cleanup-code/simplification-reviewer-prompt.md \
   skills/cleanup-code/efficiency-reviewer-prompt.md \
   skills/cleanup-code/abstraction-reviewer-prompt.md
 rg -l 'Does Not Check|also does not check' \
-  skills/executing-plan/task-requirements-reviewer-prompt.md \
-  skills/executing-plan/task-quality-reviewer-prompt.md \
+  skills/executing-plan/task-reviewer-prompt.md \
   skills/review-execution/code-reviewer-prompt.md \
   skills/cleanup-code/reuse-reviewer-prompt.md \
   skills/cleanup-code/simplification-reviewer-prompt.md \
@@ -661,7 +656,7 @@ PASS:
 - `INCONCLUSIVE is not PASS` appears in `as-usual-rules/completion-rules.md` (the single owner), and `executing-plan`/`review-execution` reference `completion-rules` instead of restating it.
 - `as-usual-rules/completion-rules.md` contains the `TASK / DELIVERABLE / SCOPE / VERIFY` delegation input contract.
 - `implementer-prompt.md` treats `DONE` as a claim, and `review-execution/SKILL.md` says the implementer must not issue the final review verdict on its own work.
-- The 7 reviewer prompts all contain `blocker-finder`, `at most 3`, and either `Does Not Check` or `also does not check`.
+- The 6 reviewer prompts all contain `blocker-finder`, `at most 3`, and either `Does Not Check` or `also does not check`.
 
 FAIL:
 
@@ -671,7 +666,7 @@ FAIL:
 - A `topic-log.py verification` example omits `--verdict`.
 - `INCONCLUSIVE` is treated as pass, the gate contract is missing from `completion-rules.md`, or an execution-family skill restates it instead of referencing the owner file.
 - The delegation input contract is missing from `completion-rules.md`, or the DoneClaim/independent-review contract is missing from the implementer or review-execution surfaces.
-- Any of the 7 reviewer prompts lacks blocker-finder role wording, the at-most-3 cap, or an explicit non-check declaration.
+- Any of the 6 reviewer prompts lacks blocker-finder role wording, the at-most-3 cap, or an explicit non-check declaration.
 
 Fix: align runtime prompts, `core-workflow.md`, `templates/code-review-report.md`, and `scripts/as_usual_topic_log/constants.py` to the same closed vocabularies, receipt contract, DoneClaim gate, reviewer calibration, and delegation contract.
 

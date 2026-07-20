@@ -111,8 +111,7 @@ Canonical topic folder:
             ├── requirements.md
             ├── plan.md
             ├── execute/
-            │   ├── task-<N>-requirements-review.md
-            │   └── task-<N>-quality-review.md
+            │   └── task-<N>-review.md
             ├── clean-up/
             │   └── review-result-<type>.md
             ├── code-review-report.md
@@ -132,7 +131,7 @@ Artifact invariants:
 - When asking for user approval or a material decision in chat or a terminal transcript, use a compact approval block instead of one dense paragraph. Include one item per line: requested action, reason, scope/files, risk or impact, rollback/recovery, and the exact user choice needed. Omit fields only when they truly do not apply. Use the user's current language for labels and prose, while preserving exact commands, paths, dependency coordinates, and code identifiers.
 - Record-layer rules for `topic.md` and `audit.jsonl` (surface roles, append-only history, derived status, closed vocabularies, audit event types) are owned by `as-usual-rules/logging-rules.md`.
 - Completion judgment rules (verification evidence by surface, `INCONCLUSIVE` handling, subagent delegation/receipts, completion claim gate) are owned by `as-usual-rules/completion-rules.md`.
-- Task review detail files use `execute/task-<N>-requirements-review.md` and `execute/task-<N>-quality-review.md`; cleanup review detail files use `clean-up/review-result-<type>.md`.
+- Task review detail files use `execute/task-<N>-review.md` (one review covering requirements fit and quality/safety); cleanup review detail files use `clean-up/review-result-<type>.md`.
 - Do not create or copy the runtime workflow prompt into the target project.
 - Do not create project-global `.as-usual/audit.jsonl`.
 - `.as-usual/memory/` holds project-scoped long-term memory (`MEMORY.md`, optional `<domain>_MEMORY.md`). This is the one allowed non-`topic/` artifact category under `.as-usual/`. Do not create other project-global artifacts.

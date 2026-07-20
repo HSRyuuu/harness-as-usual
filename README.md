@@ -153,8 +153,7 @@ AsUsual uses three branches inside `.as-usual/`: `topic/` for coding work, `issu
 │       ├── requirements.md       # single synthesized requirements doc
 │       ├── plan.md               # single execution contract
 │       ├── execute/
-│       │   ├── task-<N>-requirements-review.md
-│       │   └── task-<N>-quality-review.md
+│       │   └── task-<N>-review.md
 │       ├── clean-up/
 │       │   └── review-result-<type>.md
 │       ├── code-review-report.md

@@ -305,7 +305,7 @@ class TopicLogTests(unittest.TestCase):
                     "--task",
                     "Task 1: Add review evidence",
                     "--review-type",
-                    "requirements",
+                    "task",
                     "--status",
                     "passed",
                     "--summary",
@@ -361,7 +361,7 @@ class TopicLogTests(unittest.TestCase):
             task = status["tasks"]["Task 1: Add review evidence"]
             self.assertEqual(task["mode"], "subagent-driven")
             self.assertEqual(task["dispatches"][0]["role"], "implementer")
-            self.assertEqual(task["reviews"][0]["reviewType"], "requirements")
+            self.assertEqual(task["reviews"][0]["reviewType"], "task")
             self.assertEqual(task["reviews"][0]["status"], "passed")
             self.assertEqual(task["fixes"][0]["findingId"], "T1-Q1")
             self.assertEqual(task["commits"][0]["sha"], "abc1234")
@@ -409,7 +409,7 @@ class TopicLogTests(unittest.TestCase):
                 "--task",
                 "Task 1: Add review evidence",
                 "--review-type",
-                "quality",
+                "task",
                 "--status",
                 "findings",
                 "--important",
@@ -440,7 +440,7 @@ class TopicLogTests(unittest.TestCase):
                 "--task",
                 "Task 1: Add review evidence",
                 "--review-type",
-                "quality",
+                "task",
                 "--status",
                 "findings",
                 "--important",
@@ -497,7 +497,7 @@ class TopicLogTests(unittest.TestCase):
                 "--task",
                 "Task 1: Add review evidence",
                 "--review-type",
-                "quality",
+                "task",
                 "--status",
                 "findings",
                 "--important",

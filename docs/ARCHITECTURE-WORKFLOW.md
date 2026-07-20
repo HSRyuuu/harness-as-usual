@@ -79,8 +79,7 @@ Target project에는 runtime prompt를 복사하지 않는다. AsUsual이 활성
     │       ├── requirements.md
     │       ├── plan.md
     │       ├── execute/
-    │       │   ├── task-<N>-requirements-review.md
-    │       │   └── task-<N>-quality-review.md
+    │       │   └── task-<N>-review.md
     │       ├── clean-up/
     │       │   └── review-result-<type>.md
     │       ├── code-review-report.md
@@ -103,7 +102,7 @@ Target project에는 runtime prompt를 복사하지 않는다. AsUsual이 활성
 | `question-cN.md` | define-requirements cycle별 질문 파일. 사용자가 `[Answer]:` field에 직접 답하거나, chat으로 답하면 agent가 질문-답변 매핑 표 확인을 받은 뒤 전사한다. Topic/cycle/input provenance는 YAML front matter에 두고, 본문은 사용자 결정 질문에 집중한다. |
 | `requirements.md` | answered question files와 initial request를 합성한 단일 requirements document. |
 | `plan.md` | 승인된 requirements을 기반으로 만든 단일 execution contract. 실행 progress ledger가 아니다. Input provenance는 YAML front matter에 둔다. |
-| `execute/task-<N>-requirements-review.md`, `execute/task-<N>-quality-review.md` | task-level requirements/quality review 상세 파일. YAML front matter의 `verdict`가 canonical 판정 위치다. |
+| `execute/task-<N>-review.md` | task-level 단일 리뷰(요구사항 충족 + quality/safety) 상세 파일. YAML front matter의 `verdict`가 canonical 판정 위치다. |
 | `clean-up/review-result-<type>.md` | cleanup-code의 reuse/simplification/efficiency/abstraction 리뷰 결과 파일. YAML front matter의 `verdict`가 canonical 판정 위치다. |
 | `code-review-report.md` | execution review에서 finding이 있을 때만 생성하는 review report. Review input provenance는 YAML front matter에 둔다. |
 | `report.md` | finalize 시 생성하는 user-facing handoff summary. |
@@ -305,7 +304,7 @@ Topic log helper:
 - 실행 전에 `topic.md`, `audit.jsonl`, derived status, `requirements.md`, `plan.md`를 다시 읽는다.
 - Plan을 비판적으로 검토한 뒤 task 순서대로 실행한다. 실행 모드는 `inline`, `subagent-driven`, `mixed` 중 plan에서 승인된 값을 따른다.
 - subagent-driven task에서도 main agent가 controller로 남아 task 순서, audit event, verification, completion claim을 책임진다.
-- task reviewer는 상세 findings를 `execute/task-<N>-requirements-review.md` 또는 `execute/task-<N>-quality-review.md`에 쓰고, receipt는 폐쇄 어휘 판정과 파일 경로만 반환한다.
+- task reviewer는 requirements 충족과 quality/safety를 한 번의 리뷰로 보고, 상세 findings를 `execute/task-<N>-review.md`에 쓰며, receipt는 폐쇄 어휘 판정과 파일 경로만 반환한다.
 - 판정 어휘(closed vocabulary)는 `as-usual-rules/logging-rules.md`, 그 gate 처리(`INCONCLUSIVE`는 PASS가 아님, `DONE`은 controller 검증 전까지 완료 주장)는 `as-usual-rules/completion-rules.md`가 단일 소스로 소유한다.
 - Plan에 없는 scope를 즉흥적으로 추가하지 않는다.
 - `plan.md`를 progress ledger로 수정하지 않는다.
