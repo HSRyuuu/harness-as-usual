@@ -134,7 +134,7 @@ explicit direct-execute invocation
 
 `hand-off`는 별도 workflow step이 아니라 기존 `.as-usual/topic/...` artifact를 다른 세션에서 이어받기 위한 지원 entrypoint다. `/as-usual:hand-off <path>`처럼 topic path가 주어지면 해당 topic을 즉시 재수화하고, path가 없으면 최근 topic 후보를 읽은 뒤 사용자 확인을 거쳐 기존 phase owner skill로 라우팅한다.
 
-`direct-execute`는 clear, trivial, low-risk, reversible 작업에만 허용되는 좁은 shortcut이며 allow/deny 조건의 단일 소스는 `skills/direct-execute/SKILL.md`다. 일반적인 non-trivial implementation은 `requirements.md`와 승인된 `plan.md` gate를 지나야 한다.
+`direct-execute`는 clear, low-risk, reversible 작업에 허용되는 shortcut이며(크기가 아니라 모호성·위험으로 판단), allow/deny 조건의 단일 소스는 `skills/direct-execute/SKILL.md`다. gated implementation(모호하거나 위험하거나 되돌리기 어려운 작업)은 `requirements.md`와 승인된 `plan.md` gate를 지나야 한다.
 
 종단 경로는 세 가지다.
 
@@ -504,7 +504,7 @@ find-cause는 topic과 평행한 두 번째 작업 단위 `issue`다. 코드를 
 - `core-workflow.md`에는 runtime usage rule만 둔다.
 - Plugin development guide와 install guide는 runtime prompt에 섞지 않는다.
 - Target project에는 prompt를 복사하지 않고 `.as-usual/topic/...` artifact만 만든다.
-- Non-trivial implementation은 `requirements.md`와 approved `plan.md`를 거친다.
+- Gated implementation(모호·위험·비가역 작업; 단지 큰 것은 아님)은 `requirements.md`와 approved `plan.md`를 거친다.
 - Execution 후에는 mandatory `review-execution`을 거친다.
 - `cleanup-code`은 optional이며 사용자 승인 후에만 실행한다.
 - `finalize`는 post-finalize git action 선택을 묻는 데서 멈춘다.
