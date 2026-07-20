@@ -35,14 +35,27 @@ These are the only valid recorded values. Their gate consequences are defined in
 
 ## Audit Events
 
+Topic lifecycle:
+
 - `topic.created`
 - `start_work.routed`
+- `topic.finalized`
+- `git_action.selected`
+
+Requirements and plan:
+
 - `question.created`
 - `question.answered`
 - `requirements.completed`
 - `plan.completed`
+
+Approvals:
+
 - `approval.execution`
 - `approval.high_risk`
+
+Execution tasks:
+
 - `task.started`
 - `task.dispatched`
 - `task.review_completed`
@@ -53,32 +66,26 @@ These are the only valid recorded values. Their gate consequences are defined in
 - `verification.recorded`
 - `sweep.completed`
 - `execution.completed`
+
+Review and cleanup:
+
 - `review.completed`
 - `code_cleanup.skipped`
 - `code_cleanup.completed`
-- `topic.finalized`
-- `git_action.selected`
+
+Cross-cutting:
+
 - `note.recorded`
 - `decision.recorded`
 - `blocker.recorded`
 - `blocker.resolved`
 - `artifact.recorded`
+
+Self-improvement (finalize):
+
 - `memory.candidate`
 - `memory.recorded`
 - `skill.created`
 - `skill.candidate`
 
-## Failure Handling
-
-When the same failure repeats, use this circuit breaker:
-
-```text
-IF the same action fails 3 times:
-    STOP retrying the same approach
-    record failure pattern through scripts/topic-log.py
-    append audit event
-    reassess whether the requirements, plan, environment, or assumption is wrong
-    ask the user only if the next step requires a decision that files cannot answer
-```
-
-Do not hide failures with optimistic wording. Record the evidence and next required action.
+Failure control flow (the repeated-failure circuit breaker) is owned by `as-usual-rules/routing-rules.md`; recording the failure evidence follows the Write Rules above.

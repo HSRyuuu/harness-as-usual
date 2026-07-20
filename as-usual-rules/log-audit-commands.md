@@ -10,9 +10,7 @@ python3 <plugin-root>/scripts/topic-log.py <command> --topic-dir <topic-dir> ...
 
 ## Usage Rules
 
-- Write `topic.md` and `audit.jsonl` only through `scripts/topic-log.py`. Never hand-edit them.
-- Prefer the highest-level command that matches the transition over composing multiple low-level `audit` calls.
-- If the helper cannot express a needed update, stop and report the missing helper capability so the helper can be extended. Do not hand-edit as a workaround.
+Write/read rules for `topic.md` and `audit.jsonl` (helper-only updates, no hand-editing, macro preference) are owned by `as-usual-rules/logging-rules.md`. This file owns only the command syntax below.
 
 ## Command Categories
 
