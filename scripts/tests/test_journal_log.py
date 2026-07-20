@@ -38,6 +38,9 @@ class JournalLogTestBase(unittest.TestCase):
         lines = (issue_dir / "journal.jsonl").read_text(encoding="utf-8").splitlines()
         return [json.loads(line) for line in lines if line.strip()]
 
+    def write_conclusion(self, issue_dir):
+        (issue_dir / "conclusion.md").write_text("# Conclusion\n", encoding="utf-8")
+
 
 class JournalLogInitTests(JournalLogTestBase):
     def test_init_creates_journal_problem_and_created_entry(self):
@@ -256,6 +259,7 @@ class JournalLogStatusAndConcludeTests(JournalLogTestBase):
     def test_conclude_records_lifecycle_and_status_becomes_concluded(self):
         with tempfile.TemporaryDirectory() as tmp:
             issue_dir, _ = self.seed_confirmed(tmp)
+            self.write_conclusion(issue_dir)
             result = self.run_journal_log(
                 "conclude", "--issue-dir", str(issue_dir),
                 "--summary", "root cause: dns cache expiry",
@@ -290,12 +294,23 @@ class JournalLogStatusAndConcludeTests(JournalLogTestBase):
             )
             self.assertEqual(missing.returncode, 1)
             self.assertIn("reason", missing.stderr)
+            self.write_conclusion(issue_dir)
             forced = self.run_journal_log(
                 "conclude", "--issue-dir", str(issue_dir), "--summary", "inconclusive",
                 "--force-without-confirmed", "--reason", "cannot reproduce in local env",
             )
             self.assertEqual(forced.returncode, 0, forced.stderr)
             self.assertEqual(self.status_json(issue_dir)["issueStatus"], "concluded")
+
+    def test_conclude_refuses_without_conclusion_md(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            issue_dir, _ = self.seed_confirmed(tmp)
+            result = self.run_journal_log(
+                "conclude", "--issue-dir", str(issue_dir), "--summary", "done",
+            )
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("conclusion.md", result.stderr)
+            self.assertEqual(self.status_json(issue_dir)["issueStatus"], "open")
 
     def test_conclude_cancelled_closes_issue_without_confirmed_gate(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -324,6 +339,7 @@ class JournalLogStatusAndConcludeTests(JournalLogTestBase):
     def test_conclude_refuses_already_closed_issue(self):
         with tempfile.TemporaryDirectory() as tmp:
             issue_dir, _ = self.seed_confirmed(tmp)
+            self.write_conclusion(issue_dir)
             self.run_journal_log(
                 "conclude", "--issue-dir", str(issue_dir), "--summary", "done",
             )
@@ -336,6 +352,7 @@ class JournalLogStatusAndConcludeTests(JournalLogTestBase):
     def test_reasoning_mutations_refused_after_conclude(self):
         with tempfile.TemporaryDirectory() as tmp:
             issue_dir, seq = self.seed_confirmed(tmp)
+            self.write_conclusion(issue_dir)
             self.run_journal_log(
                 "conclude", "--issue-dir", str(issue_dir), "--summary", "done",
             )
@@ -367,6 +384,7 @@ class JournalLogStatusAndConcludeTests(JournalLogTestBase):
     def test_link_follow_up_after_conclude_records_lifecycle_link(self):
         with tempfile.TemporaryDirectory() as tmp:
             issue_dir, _ = self.seed_confirmed(tmp)
+            self.write_conclusion(issue_dir)
             self.run_journal_log(
                 "conclude", "--issue-dir", str(issue_dir), "--summary", "done",
             )

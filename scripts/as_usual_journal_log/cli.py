@@ -129,6 +129,11 @@ def cmd_conclude(args: argparse.Namespace) -> int:
             )
         if not args.reason:
             raise JournalError("--force-without-confirmed requires --reason")
+    if args.status == "concluded" and not (issue_dir / "conclusion.md").exists():
+        raise JournalError(
+            "conclusion.md not found: write it from templates/conclusion.md "
+            "before recording closure (not required for --status cancelled)"
+        )
     if args.status == "cancelled" and not args.reason:
         raise JournalError(
             "conclude --status cancelled requires --reason: record why the "

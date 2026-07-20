@@ -68,6 +68,8 @@ thought process can be reconstructed at the end and resumed across sessions.
    evidence, or an explicit "could not reproduce because ... " judgment as the
    evidence text); `journal-log.py conclude` requires at least one confirmed
    entry, and `--force-without-confirmed` requires a recorded `--reason`.
+   `conclude --status concluded` also requires `conclusion.md` to already
+   exist in the issue directory — write it before recording closure.
 3. Read-only by default: reading code, running the app, and analyzing logs
    are free. Writing reproduction tests/scripts requires an explicit user
    request or approval recorded with `journal-log.py approve`. Production
