@@ -262,9 +262,9 @@ Do not force this exact domain or wording. Use it as a shape: domain heading plu
 - `Open Questions`: only non-blocking confirmations; material ambiguity must be resolved before completion.
 - `Acceptance Criteria`: list user-checkable outcomes.
 
-## Self Review
+## Review
 
-Before running the reviewer prompt, use `requirements-document-reviewer-prompt.md` as the canonical checklist and fix obvious issues in `requirements.md`.
+Review `requirements.md` in a single pass. Read `requirements-document-reviewer-prompt.md` from this skill directory, follow it as the reviewer in the current session, and fix findings in `requirements.md` as you go. Do not run a separate self-review pre-pass and then a second formal pass over the same checklist — the same agent reading the same checklist twice adds ceremony, not independence. One applied pass is the review.
 
 Do not maintain a second copy of the review criteria in this skill. The reviewer prompt owns:
 
@@ -274,19 +274,11 @@ Do not maintain a second copy of the review criteria in this skill. The reviewer
 - the mapping from `passed` or `issues-fixed` to `Status: requirements-complete`,
 - the mapping from unresolved blocking issues to `Status: blocked`.
 
-Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
-
-## Reviewer Prompt
-
-After self-review passes, read `requirements-document-reviewer-prompt.md` from this skill directory and follow it as a reviewer prompt in the current session.
-
-If the reviewer finds fixable issues, update `requirements.md` directly and rerun the relevant checks.
-
-If the reviewer needs focused user input, update `requirements.md` and rerun checks once resolved. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
+If the pass finds fixable issues, update `requirements.md` directly and rerun the affected checks until they pass. If it needs focused user input, update `requirements.md` and rerun the affected checks once resolved. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
 
 ## Complete Requirements
 
-When self-review and reviewer-prompt checks pass:
+When the review pass checks pass:
 
 1. Fill `requirements.md` `Review Status`: set `Status: requirements-complete`, `Reviewer Result: passed` or `issues-fixed`, `Reviewed At` to the current timestamp, and one-line `Review Notes` in the user's language.
 2. Fill `Requirements Review Checks` as a markdown checkbox list, using `[x]` for passed checks and `[ ]` only for unresolved checks, then fill `Requirements Review Findings` and `Requirements Review Actions Taken`.

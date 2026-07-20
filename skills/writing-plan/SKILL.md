@@ -162,9 +162,11 @@ Do not silently decide test, CI, commit, PR, release, or deploy policy unless th
 - Verification commands are allowed when they are part of a task's success check.
 - Commit, PR, release, and deploy behavior stays outside this plan unless the topic explicitly specified it. If the topic needs such a policy and it is undecided, ask a focused chat clarification when it can be resolved in the current turn; otherwise route to `define-requirements` instead of inventing one.
 
-## Self Review
+## Review
 
-After writing the complete plan, use `plan-document-reviewer-prompt.md` as the canonical checklist and fix obvious issues in `plan.md`.
+After writing the complete plan, review `plan.md` in a single pass. Read `plan-document-reviewer-prompt.md` from this skill directory, follow it as the reviewer in the current session, and fix findings in `plan.md` as you go. Do not run a separate self-review pre-pass and then a second formal pass over the same checklist — the same agent reading the same checklist twice adds ceremony, not independence. One applied pass is the review.
+
+Do not require a subagent. The reviewer prompt is a portable prompt file so Claude and Codex can both run the same review.
 
 Do not maintain a second copy of the review criteria in this skill. The reviewer prompt owns:
 
@@ -174,19 +176,11 @@ Do not maintain a second copy of the review criteria in this skill. The reviewer
 - the mapping from `passed` or `issues-fixed` to `Status: plan-complete`,
 - the mapping from unresolved blocking issues to `Status: blocked`.
 
-Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
-
-## Reviewer Prompt
-
-After self-review passes, read `plan-document-reviewer-prompt.md` from this skill directory and follow it as a reviewer prompt in the current session.
-
-Do not require a subagent. The reviewer prompt is a portable prompt file so Claude and Codex can both run the same review.
-
-If the reviewer finds fixable issues, update `plan.md` directly and rerun the relevant reviewer checks. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
+If the pass finds fixable issues, update `plan.md` directly and rerun the affected checks until they pass. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
 
 ## Complete Plan
 
-When self-review and reviewer-prompt checks pass:
+When the review pass checks pass:
 
 1. Fill `plan.md` `Review Status`: set `Status: plan-complete`, `Reviewer Result: passed` (or `issues-fixed` if the reviewer fixed findings), `Reviewed At` to the current timestamp, and a one-line `Review Notes` in the user's language. Fill `Plan Review Checks` as a markdown checkbox list, using `[x]` for passed checks and `[ ]` only for unresolved checks. Then fill `Plan Review Findings` and `Plan Review Actions Taken`; write check result values, findings, and actions in the user's language unless they are canonical status values.
 2. Run `scripts/topic-log.py complete-plan` to record `plan.completed`.
@@ -211,10 +205,10 @@ Do not start execution until the user explicitly approves, for example by saying
 
 When the topic is `plan-review` and the user requests a change before approving execution, route by impact:
 
-- If the change is non-material (wording, clearer steps, exact file path correction, ordering clarification that does not change scope, requirements, risk, implementation strategy, or verification policy), update `plan.md` here, rerun self-review and the relevant reviewer checks, refresh `Review Status`, record the revision in `audit.jsonl`, and stop at `plan-review` again.
+- If the change is non-material (wording, clearer steps, exact file path correction, ordering clarification that does not change scope, requirements, risk, implementation strategy, or verification policy), update `plan.md` here, rerun the relevant review checks, refresh `Review Status`, record the revision in `audit.jsonl`, and stop at `plan-review` again.
 - If the change affects scope, requirements, risk, implementation strategy, acceptance criteria, or verification policy, stop before editing `plan.md` and follow Clarification Routing in `as-usual-rules/routing-rules.md`. Update `plan.md` and rerun plan review only after the decision is routed and recorded.
 
-Example — non-material (absorb here): "Task 순서 설명을 더 분명히", "파일 경로 오타 수정". → update plan.md, rerun self-review + reviewer checks, stay plan-review.
+Example — non-material (absorb here): "Task 순서 설명을 더 분명히", "파일 경로 오타 수정". → update plan.md, rerun review checks, stay plan-review.
 
 Example — material (route via Clarification Routing): "DB 마이그레이션 방식을 in-memory H2에서 공유 스테이징으로 변경" (changes risk + acceptance + verification). → ask focused clarification; route to define-requirements if requirements change.
 
@@ -243,4 +237,4 @@ The actual review/approval/write happens later via `manage-self-improvement` at 
 - Restating the template's per-section authoring rules inside `plan.md` instead of just following them.
 - Silently deciding test, CI, commit, PR, release, or deploy policy the requirements/plan never decided.
 - Writing the plan from memory or from stale requirements.
-- Skipping the reviewer prompt because self-review passed.
+- Skipping the review pass, or splitting it back into a self-review pre-pass plus a separate reviewer-prompt pass.

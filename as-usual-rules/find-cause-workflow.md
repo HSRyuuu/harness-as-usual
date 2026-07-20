@@ -95,16 +95,25 @@ formality on the investigation.
 
 ## User Interview
 
-Interview the user in grilling style: one question at a time, each with your
-recommended answer. Never ask what the codebase or logs can answer directly.
+Interview in grilling style: each question carries your recommended answer,
+and you never ask what the codebase or logs can answer directly. Batch or
+sequence by question shape rather than always asking one at a time:
+
+- Independent facts (symptoms, impact, reproduction conditions, boundary) can
+  be asked as one compact batch of 1-5 questions, the same way the coding
+  workflow batches requirements clarification.
+- A judgment call that depends on the user weighing evidence is asked on its
+  own, sequentially, so the user is not answering blind.
 
 Trigger an interview when:
 
 1. Entering the issue: capture symptoms, impact, reproduction conditions,
-   and problem boundary into `problem.md`.
+   and problem boundary into `problem.md`. These are independent facts —
+   prefer one batched round over a slow one-at-a-time march.
 2. A domain/background knowledge gap blocks the investigation.
 3. Hypotheses conflict, or evidence contradicts the user's stated belief:
-   summarize the evidence so far and ask for the user's judgment.
+   summarize the evidence so far and ask for the user's judgment. Ask this one
+   at a time — it is a judgment call, not a fact-gathering batch.
 
 Record interview answers as journal `interview` entries and transcribe
 domain knowledge into `problem.md` Background Knowledge.
