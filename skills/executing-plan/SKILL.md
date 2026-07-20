@@ -33,7 +33,7 @@ Before executing, confirm:
 - `topic.md` and `audit.jsonl` identify the current topic.
 - `requirements.md` exists and is the basis of the plan.
 - `plan.md` exists as the completed execution contract with dependency-ordered `## Task N` sections.
-- `plan.md` includes `Execution Task Index` as a navigation summary that maps 1:1 to the detailed `## Task N` sections.
+- When the plan has 4 or more tasks, `plan.md` includes `Execution Task Index` as a navigation summary that maps 1:1 to the detailed `## Task N` sections; smaller plans may omit it.
 - `plan.md` declares an `Execution Mode` of `inline`, `subagent-driven`, or `mixed`, plus task-level execution modes when `mixed`.
 - The user explicitly approved or requested execution in the current turn.
 
@@ -77,9 +77,9 @@ Read and use these sources in this order, from disk, before editing any implemen
 Stop before executing and record the gap through `scripts/topic-log.py blocker` or `note` when any of these is true:
 
 - A task is missing a dependency note, file/area, interface, test strategy, step, or verification.
-- `Execution Task Index` is missing, uses checkboxes/status/progress notes, has rows that do not map 1:1 to detailed `## Task N: <name>` sections, or contradicts any detailed task section.
+- The plan has 4 or more tasks but no `Execution Task Index`, or a present index uses checkboxes/status/progress notes, has rows that do not map 1:1 to detailed `## Task N: <name>` sections, or contradicts any detailed task section.
 - The plan lacks `Execution Mode`, or a `mixed` plan lacks task-level execution modes.
-- The plan introduces or changes an execution entrypoint, external dependency, time-based behavior, state changes outside the normal request/response path, or runtime metadata/resource dependency, but lacks a sufficient `Execution Surface` contract for invocation, required configuration/inputs, external dependencies, test environment/resource setup, time control when applicable, success/failure signals, or idempotency/retry behavior.
+- The plan introduces or changes an execution entrypoint, external dependency, time-based behavior, state changes outside the normal request/response path, or runtime metadata/resource dependency, but has no `Execution Surface` section or lacks a sufficient contract for invocation, required configuration/inputs, external dependencies, test environment/resource setup, time control when applicable, success/failure signals, or idempotency/retry behavior.
 - A task is missing Safety fields: risk level, high-risk operations, reversibility, separate approval, or rollback/recovery notes.
 - A task uses anything other than `tdd` or `approved-tdd-exception`.
 - An `approved-tdd-exception` task lacks category `throwaway-prototype`, `generated-code`, or `configuration`, or lacks a human approval source.
@@ -180,7 +180,7 @@ Example — good compact high-risk approval block:
 - 롤백: 두 파일 git revert
 - 필요한 선택: 이 설치를 승인하시겠습니까? (yes/no)
 
-Use `Execution Task Index` to orient task order, gates, and verification at a glance. Before starting or dispatching a task, read the full detailed `## Task N: <name>` section and treat that detailed task section as the execution contract. If the index and detailed task disagree, stop and return to `writing-plan`; do not choose one silently.
+When the plan includes `Execution Task Index`, use it to orient task order, gates, and verification at a glance. Before starting or dispatching a task, read the full detailed `## Task N: <name>` section and treat that detailed task section as the execution contract. If the index and detailed task disagree, stop and return to `writing-plan`; do not choose one silently.
 
 For each `## Task N` in plan order:
 

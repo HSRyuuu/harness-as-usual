@@ -81,108 +81,30 @@ Confirm one topic can produce one coherent `plan.md` before writing it.
 
 ## Write Or Update Plan
 
-Create or update `plan.md` from `templates/plan.md`. `templates/plan.md` is the single source of truth for the plan's section list and order; do not maintain a separate section list here. Do not create multiple plan files for one topic.
+Create or update `plan.md` from `templates/plan.md`. The template is the single source of truth for the plan's section list, order, each section's shape, and the detailed per-section authoring rules (carried as in-template comments). Do not maintain a second copy of those rules here, and do not create multiple plan files for one topic.
 
-Write the plan content the user must review in the user's current or clearly preferred conversation language unless the user requests another language. Preserve canonical task headings (`## Task N: <name>`), status values, mode values, risk values, file paths, commands, code identifiers, and quoted source text exactly. Do not preserve English helper labels or default values inside sections when they are user-facing prose; translate or rewrite them in the user's language.
+Fill the template's YAML front matter with plan input provenance (topic folder, requirements, topic file, audit, status command, answered question files in cycle order). Do not recreate the old `### Inputs` subsection under `## Overview`.
 
-Preserve canonical section headings and canonical task headings (`## Task N: <name>`) for agent readability. `plan.md` is a reviewed execution contract, not a progress ledger; execution progress belongs in `audit.jsonl` through `scripts/topic-log.py`.
-
-### Plan Metadata Front Matter
-
-Use the YAML front matter at the top of `templates/plan.md` for plan input provenance:
-
-- `topic`: the current `yyyy-MM-dd-<topic>` folder name.
-- `requirements`: `requirements.md`.
-- `topicFile`: `topic.md`.
-- `audit`: `audit.jsonl`.
-- `statusCommand`: `scripts/topic-log.py status --json`.
-- `questionFiles`: answered `question-cN.md` files in cycle order, or `[]` when no question files exist.
-
-Do not recreate the old `### Inputs` subsection under `## Overview`. Source inputs belong in front matter so the body can stay focused on the execution contract.
+Write the plan content the user must review in the user's current or clearly preferred conversation language unless the user requests another language. Preserve canonical section headings, task headings (`## Task N: <name>`), status values, mode values, risk values, file paths, commands, code identifiers, and quoted source text exactly; translate user-facing helper labels and prose. `plan.md` is a reviewed execution contract, not a progress ledger; execution progress belongs in `audit.jsonl` through `scripts/topic-log.py`.
 
 ### Authoring Steps
 
-1. Extract `Global Constraints` from the requirements and answered question decisions. Copy project-wide values (version floors, naming/copy rules, platform requirements, "do not change" notes) verbatim. Every task implicitly inherits this section.
-2. Analyze the dependency graph before fixing task order: prerequisites, interfaces, generated artifacts, migrations, and build/test order. Record this in `Dependency Analysis` and `Ordering Rationale`. Use user-language sublabels and prose inside these sections; do not copy English labels such as `Upstream prerequisites` unless the user's preferred language is English.
-3. If dependency analysis reveals that the implementation mechanism would contradict or materially reinterpret `requirements.md`, stop. Do not silently absorb the contradiction into the plan. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
-4. Decide task order from the dependency analysis, then write each `## Task N: <name>`.
-5. Choose `Execution Mode` for the plan: `inline`, `subagent-driven`, or `mixed`. Prefer `subagent-driven` only when tasks have bounded context and the host can dispatch fresh subagents; otherwise use `inline` or record an explicit fallback.
-6. Fill `Execution Surface` when the plan introduces or changes an execution entrypoint, external dependency, time-based behavior, state changes outside the normal request/response path, or runtime metadata/resource dependency. If none apply, write `Applicability: None` and keep the remaining fields concise or `None`.
-7. Fill `Acceptance Criteria Coverage Matrix` so every `AC<N>` from `requirements.md` maps to a task, test target or review evidence, and exact assertion/evidence. If an acceptance criterion cannot be verified, record the gap and route back before completing the plan.
-8. Fill `Decision Contracts` when the plan includes classification, parsing, dispatch/routing, state transition, retry/idempotency, logging, or output formatting logic. Use an ordered decision table, token set, allowed values, or concrete examples so executors do not infer edge cases from prose. If none apply, write `None`.
-9. For each task, fill `Purpose`, task-level `Execution Mode`, `Depends On`, `Files`, `Interfaces` (`Consumes` / `Produces`), `Safety`, `Test Strategy`, `Steps`, `Verification` (a command and its expected result), and `Notes`. In `Test Strategy`, default to `tdd` and name the `Test target` that execution should record through `verification.recorded` or `task.completed` events. Use `approved-tdd-exception` only for a human-approved exception in one allowed category: `throwaway-prototype`, `generated-code`, or `configuration`. Keep canonical field names and enum/status values stable, but write explanations, expected results, rollback notes, and review notes in the user's language.
-10. Fill `Execution Task Index` after detailed tasks are drafted. It is a navigation summary, not a replacement for `## Task N` sections or task `Steps`. Each row must map 1:1 to one detailed `## Task N: <name>` section and summarize `Outcome`, `Depends On`, `Edit Surface`, `Gate`, and `Verification` from that task using compact user-language prose.
-11. Do not use checkboxes, status fields, completion marks, or progress notes in `Execution Task Index`; execution progress belongs in `audit.jsonl`.
-12. Keep task identity in the `## Task N: <name>` heading. Do not add per-task status fields; execution progress belongs in `audit.jsonl`.
-13. Fill `Verification Strategy` and the `Review And Handoff` sections (`Manual QA Gate`, `Recovery Notes`, `Completion Criteria`).
+1. Extract `Global Constraints` from the requirements and answered question decisions, copying project-wide values verbatim. Then analyze the dependency graph — prerequisites, interfaces, generated artifacts, migrations, build/test order — record it in `Dependency Analysis` and `Ordering Rationale`, and decide task order from it. If the implementation mechanism would contradict or materially reinterpret `requirements.md`, stop and follow Clarification Routing in `as-usual-rules/routing-rules.md`.
+2. Choose the plan-level `Execution Mode` (`inline`, `subagent-driven`, or `mixed`). Prefer `subagent-driven` only when tasks have bounded context and the host can dispatch fresh subagents; otherwise use `inline` or record an explicit fallback.
+3. Write each `## Task N: <name>` following the template's task section shape (`Purpose`, task-level `Execution Mode`, `Depends On`, `Files`, `Interfaces`, `Safety`, `Test Strategy`, `Steps`, `Verification` with a runnable command and expected result, `Notes`). Default `Test Strategy` to `tdd` with a named `Test target`; see Test Strategy and Safety below.
+4. Fill the cross-cutting sections per the template comments: `Acceptance Criteria Coverage Matrix` (always), `Execution Surface` and `Decision Contracts` (conditional — see Conditional Sections), `Execution Task Index` (only when the plan has 4 or more tasks), `Verification Strategy`, and the `Review And Handoff` sections.
+5. Keep execution progress out of the plan: no checkboxes, per-task status fields, completion marks, or progress notes anywhere. Task identity is the `## Task N: <name>` heading; progress belongs in `audit.jsonl`.
 
-### Execution Task Index
+### Conditional Sections
 
-Use this section to improve executor readiness and context budgeting. It gives the controller a quick action-space map before reading the detailed task contracts.
+The template comments own the trigger lists and field-level rules; this is the routing summary:
 
-Rules:
+- `Acceptance Criteria Coverage Matrix`: always required. One row per `AC<N>`; do not complete the plan while any row has an unresolved gap — record the gap and route back instead.
+- `Execution Surface`: required when the plan introduces or changes an execution entrypoint, external dependency, time-based behavior, state changes outside the normal request/response path, or runtime metadata/resource dependency. Delete the section when no signal applies.
+- `Decision Contracts`: required when implementation behavior depends on classification, dispatch/routing, state transition, retry/idempotency, logging or output formatting tests depend on, or malformed-input fallback. Delete the section when none apply.
+- `Execution Task Index`: required only when the plan has 4 or more tasks; delete it for smaller plans. When present, it is a navigation summary whose rows map 1:1 to detailed `## Task N: <name>` sections.
 
-- Keep it as a markdown table with `Task`, `Outcome`, `Depends On`, `Edit Surface`, `Gate`, and `Verification`.
-- The `Task` value must exactly match the detailed task heading, such as `Task 1: Add Booking.createdAt`.
-- `Outcome` states the intended result, not progress.
-- `Depends On` summarizes task ordering. Use `None` or a localized none value for independent tasks.
-- `Edit Surface` names the main files, modules, or directories at a compact level.
-- `Gate` names approvals or blockers the executor must remember, such as `None`, `Fresh high-risk approval before dependency change`, or a localized equivalent.
-- `Verification` names the task's runnable verification command or a compact reference to it.
-- If the index conflicts with a detailed task section, treat that as a plan defect and fix `plan.md` before execution.
-- Do not put task steps, detailed safety analysis, rollback notes, RED/GREEN evidence, or review findings here; those belong in detailed task sections, review sections, or `audit.jsonl`.
-
-### Execution Surface
-
-Use this section to make runtime behavior testable without hard-coding technology-specific rules into AsUsual.
-
-Fill it when any of these signals appear in the requirements, question answers, project files, or planned tasks:
-
-- A new or changed execution entrypoint, such as an API endpoint, CLI command, batch job, scheduled task, worker, message consumer, webhook, migration script, or one-off script.
-- An external dependency, such as a relational/NoSQL database, message broker, cache, lock service, object storage, search index, third-party API, mounted filesystem, or framework runtime metadata tables/resources.
-- Time-based behavior, such as expiration, TTL, retry delay, scheduling, settlement date, debounce/throttle windows, or time-window queries.
-- State changes outside the normal request/response path, such as direct SQL updates, async consumers, background workers, batch updates, repair scripts, or migration/backfill code.
-
-When applicable, specify:
-
-- `Entrypoint`: the concrete runtime entrypoint name and type.
-- `Invocation`: how a human, scheduler, test, or runtime calls it.
-- `Required configuration / inputs`: env vars, properties, arguments, job parameters, topics, schema names, or required resources.
-- `External dependencies`: required services/resources, whether they are real, embedded, mocked, fake, or containerized in tests.
-- `Test environment`: how schema, fixture data, topics, metadata tables, buckets, queues, or equivalent resources are prepared without accidentally using production/shared resources.
-- `Time control`: how tests make time deterministic, such as a fixed clock, injected clock, explicit timestamp parameter, or fixed fixture timestamps.
-- `Success / failure signal`: response, exit code, job status, emitted event, DB state, output file, log/metric, or assertion.
-- `Idempotency / retry behavior`: what happens on re-run, duplicate delivery, partial completion, timeout, stale locks, already-processed state, or retry.
-
-If the appropriate technical choice can be inferred from the existing project patterns, choose it and record the reasoning. Ask the user only when the choice changes scope, risk, cost, operational policy, acceptance criteria, or verification policy.
-
-### Acceptance Criteria Coverage Matrix
-
-Use this section to prevent requirements coverage from becoming a vague claim.
-
-Rules:
-
-- Include one row for every `AC<N>` in `requirements.md`.
-- Map each acceptance criterion to the task that satisfies it.
-- Name the test target, command, review step, or manual QA evidence that proves it.
-- Name the exact assertion, token, state, output, or inspection evidence. For logs and text output, specify the token set or message template that tests may depend on.
-- If the only evidence is a final sweep or code review, say that explicitly.
-- Do not complete the plan while any row has an unresolved gap.
-
-### Decision Contracts
-
-Use this section when implementation behavior depends on an ordered choice or classification that prose could leave ambiguous.
-
-Include a decision contract when the plan contains any of these:
-
-- payload, parser, validation, or file-format classification,
-- event or message dispatch,
-- state transition,
-- conflict, duplicate, retry, or idempotency behavior,
-- logging or user-visible output formatting that tests depend on,
-- fallback behavior for malformed, unknown, missing, or contradictory inputs.
-
-Use the lightest precise format: an ordered table, allowed-value list, logging token set, API response examples, or before/after examples. For ordered tables, say that the first matching row wins. If a decision contract would change or contradict requirements, return to `define-requirements` instead of completing the plan.
+A signal that applies with no matching section is a plan defect, the same as a missing required section.
 
 ### Interface Consistency
 
@@ -317,6 +239,8 @@ The actual review/approval/write happens later via `manage-self-improvement` at 
 - Leaving placeholders, undefined references, or a verification block without a runnable command and expected result.
 - Mismatched `Consumes`/`Produces` names or signatures across tasks.
 - Omitting Safety fields or marking a high-risk operation as not needing separate approval.
+- Omitting a conditional section (`Execution Surface`, `Decision Contracts`, `Execution Task Index`) when its trigger applies, or padding the plan with empty conditional sections when it does not.
+- Restating the template's per-section authoring rules inside `plan.md` instead of just following them.
 - Silently deciding test, CI, commit, PR, release, or deploy policy the requirements/plan never decided.
 - Writing the plan from memory or from stale requirements.
 - Skipping the reviewer prompt because self-review passed.
