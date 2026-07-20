@@ -10,7 +10,8 @@ AsUsual은 세 계층으로 동작한다.
 
 | 계층 | 위치 | 역할 |
 | --- | --- | --- |
-| Coding-topic runtime contract | `as-usual-rules/core-workflow.md` | Coding topic의 canonical workflow prompt. phase routing, hard gate, artifact contract, topic/audit 규칙을 정의한다. |
+| Coding-topic runtime contract | `as-usual-rules/core-workflow.md` | Coding topic의 canonical workflow entrypoint. 전역 invariant, artifact contract, phase entry gate를 정의하고 세부 규칙은 rule file로 위임한다. |
+| Single-source rule files | `as-usual-rules/routing-rules.md`, `as-usual-rules/logging-rules.md`, `as-usual-rules/completion-rules.md`, `as-usual-rules/log-audit-commands.md` | 라우팅, 기록, 완료 판정, 명령어의 단일 소유 파일. core-workflow와 skill들은 포인터로만 참조한다. |
 | Find-cause runtime contract | `as-usual-rules/find-cause-workflow.md` | Find-cause issue의 canonical workflow prompt. journal contract, investigation gates, conclusion 규칙을 정의한다. |
 | Runtime skills | `skills/` | 각 workflow 단계에서 agent가 실제로 따라야 하는 phase별 prompt. |
 | Work-unit artifacts | target project의 `.as-usual/topic/yyyy-MM-dd-<topic>/`, `.as-usual/issue/yyyy-MM-dd-<slug>/` | coding topic과 find-cause issue별 source of truth를 저장한다. |
@@ -22,6 +23,10 @@ as-usual/
 ├── PROJECT_IDENTITY.md
 ├── as-usual-rules/
 │   ├── core-workflow.md
+│   ├── routing-rules.md
+│   ├── logging-rules.md
+│   ├── completion-rules.md
+│   ├── log-audit-commands.md
 │   └── find-cause-workflow.md
 ├── hooks/
 │   ├── session-start
@@ -160,7 +165,7 @@ hook 출력은 호스트별 형식 분기를 포함한다: Claude Code(`CLAUDE_P
 
 `using-as-usual`은 다음을 수행한다.
 
-- full `as-usual-rules/core-workflow.md`를 읽는다.
+- `as-usual-rules/core-workflow.md`(entrypoint)를 읽고, 진행 단계에 필요한 rule file(`routing-rules.md`, `logging-rules.md`, `completion-rules.md`)을 참조한다.
 - AsUsual이 활성화되면 `using-as-usual`이 `.as-usual/topic/` 아래 active topic 후보를 찾는다.
 - 기존 topic이면 `topic.md`를 먼저 읽고 `audit.jsonl`, derived status, 연결된 artifact를 읽는다.
 - 새 topic이면 `yyyy-MM-dd-<topic>` folder를 만들고 `scripts/topic-log.py init`으로 `topic.md`와 `audit.jsonl`을 초기화한다.
@@ -301,7 +306,7 @@ Topic log helper:
 - Plan을 비판적으로 검토한 뒤 task 순서대로 실행한다. 실행 모드는 `inline`, `subagent-driven`, `mixed` 중 plan에서 승인된 값을 따른다.
 - subagent-driven task에서도 main agent가 controller로 남아 task 순서, audit event, verification, completion claim을 책임진다.
 - task reviewer는 상세 findings를 `execute/task-<N>-requirements-review.md` 또는 `execute/task-<N>-quality-review.md`에 쓰고, receipt는 폐쇄 어휘 판정과 파일 경로만 반환한다.
-- 리뷰 판정은 `passed | findings | blocked`, 검증 판정은 `PASS | FAIL | INCONCLUSIVE`, 구현 완료 보고는 `DONE | NEEDS_CONTEXT | BLOCKED`를 사용한다. `INCONCLUSIVE`는 PASS가 아니며, `DONE`은 controller가 diff/evidence/verification을 확인하기 전까지 완료 주장이므로 task 완료나 execution-complete의 근거가 될 수 없다.
+- 판정 어휘(closed vocabulary)는 `as-usual-rules/logging-rules.md`, 그 gate 처리(`INCONCLUSIVE`는 PASS가 아님, `DONE`은 controller 검증 전까지 완료 주장)는 `as-usual-rules/completion-rules.md`가 단일 소스로 소유한다.
 - Plan에 없는 scope를 즉흥적으로 추가하지 않는다.
 - `plan.md`를 progress ledger로 수정하지 않는다.
 - task progress, dispatch, task review/fix loop, verification command, result, final sweep, blocker는 `scripts/topic-log.py`로 `audit.jsonl`에 기록한다.

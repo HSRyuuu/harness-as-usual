@@ -29,7 +29,11 @@ Run the same smoke tests repeatedly after AsUsual harness changes.
 
 | File                                                | Purpose                           |
 | --------------------------------------------------- | --------------------------------- |
-| `as-usual-rules/core-workflow.md`                   | canonical runtime workflow        |
+| `as-usual-rules/core-workflow.md`                   | canonical runtime workflow entrypoint |
+| `as-usual-rules/routing-rules.md`                   | single-source routing rules       |
+| `as-usual-rules/logging-rules.md`                   | single-source record rules        |
+| `as-usual-rules/completion-rules.md`                | single-source completion rules    |
+| `as-usual-rules/log-audit-commands.md`              | canonical topic-log command set   |
 | `as-usual-rules/find-cause-workflow.md`              | canonical find-cause workflow     |
 | `hooks/session-start`                               | SessionStart context injection    |
 | `hooks/run-hook.cmd`                                | hook runner                       |
@@ -102,19 +106,23 @@ Run:
 ```bash
 test -s as-usual-rules/core-workflow.md
 test -s as-usual-rules/find-cause-workflow.md
+test -s as-usual-rules/routing-rules.md
+test -s as-usual-rules/logging-rules.md
+test -s as-usual-rules/completion-rules.md
+test -s as-usual-rules/log-audit-commands.md
 ```
 
 PASS:
 
-- Both canonical workflow files exist and are non-empty.
+- Both canonical workflow files and the single-source rule files exist and are non-empty.
 
 FAIL:
 
-- Either canonical workflow file is missing or empty.
+- Any canonical workflow or rule file is missing or empty.
 
 Fix:
 
-- keep runtime rules in `as-usual-rules/core-workflow.md` only.
+- keep runtime workflow rules under `as-usual-rules/` (`core-workflow.md` entrypoint plus the single-source rule files); do not scatter them elsewhere.
 
 ### Step 3: Hook Injection Smoke Test
 

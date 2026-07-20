@@ -8,7 +8,7 @@ runtime workflow and project identity, see [`../README.md`](../README.md) and
 
 ```text
 as-usual/
-├── as-usual-rules/core-workflow.md   # canonical runtime workflow (read on disk)
+├── as-usual-rules/                   # runtime workflow entrypoints + single-source rule files
 ├── .agents/                          # Codex marketplace + maintainer-only skills
 ├── .claude-plugin/                   # Claude plugin + marketplace manifest
 ├── .codex-plugin/                    # Codex plugin manifest
