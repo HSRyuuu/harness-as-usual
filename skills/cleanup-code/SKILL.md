@@ -94,7 +94,7 @@ If cleanup changes files, rerun relevant verification:
 - Rerun narrower commands when they cover the cleanup safely.
 - If verification cannot be rerun, record why and what remains.
 
-Record exact commands and outcomes with `scripts/topic-log.py verification --verdict PASS|FAIL|INCONCLUSIVE`.
+Record exact commands and outcomes with `scripts/topic-log.py verification --verdict PASS|FAIL|INCONCLUSIVE`. Completion judgment follows `as-usual-rules/completion-rules.md`: verification evidence by surface and `INCONCLUSIVE` handling.
 
 ### Step 5: Record And Route
 

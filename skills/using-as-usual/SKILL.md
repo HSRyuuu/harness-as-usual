@@ -100,7 +100,7 @@ When no active topic exists and the user is starting a new topic:
 
 ## Phase Handoff
 
-After activation and first reads, use the phase router and Required Skills section in `as-usual-rules/core-workflow.md`.
+After activation and first reads, use the phase router in `as-usual-rules/routing-rules.md` and the Required Skills section in `as-usual-rules/core-workflow.md`.
 
 This skill should not duplicate phase procedures. Its job is to hand off to the owning skill:
 

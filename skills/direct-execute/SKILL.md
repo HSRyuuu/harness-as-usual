@@ -68,7 +68,7 @@ Do not silently switch entry paths. A routed entry keeps its topic and audit con
 ### Workflow
 
 1. Execute the approved trivial work.
-2. Run the clear, immediate verification method recorded by `start-work`.
+2. Run the clear, immediate verification method recorded by `start-work`. Verification evidence follows `as-usual-rules/completion-rules.md`: evidence must match the surface, and an unverifiable result is `INCONCLUSIVE`, not done.
 3. Record the result, verification outcome, and terminal next action:
 
 ```bash

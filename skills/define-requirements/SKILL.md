@@ -20,7 +20,7 @@ The purpose is to produce one reviewable `requirements.md` that both a human dev
 | `define-requirements` | Create/validate question files when needed, write `requirements.md`, review it, and stop at `requirements-complete` |
 | `writing-plan` | Write `plan.md` from the approved `requirements.md` |
 
-`define-requirements` does not write `plan.md`, execute work, or replace high-risk approval gates. File-backed `[Answer]:` fields are mandatory for broad material ambiguity. Follow Clarification Routing in `core-workflow.md` for any decision discovered here.
+`define-requirements` does not write `plan.md`, execute work, or replace high-risk approval gates. File-backed `[Answer]:` fields are mandatory for broad material ambiguity. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
 
 ## When To Use
 
@@ -149,6 +149,8 @@ Validation checks:
 | Contradiction | Answers conflict with each other or the latest request | Create a contradiction-focused next-cycle question |
 | Material ambiguity | A decision remains that could change requirements/plan | Create the next question cycle |
 
+Treat constrained answers such as "B, but only for admin" as `Decision + Constraint` when the selected option and added constraint are compatible; if the selection conflicts with the added explanation, create a contradiction-focused next-cycle question.
+
 Classify validated answers as decisions, constraints, risks, acceptance criteria, or non-blocking open questions. Use `question.answered` only for answer transcription. Record durable decisions extracted from validated answers separately:
 
 ```bash
@@ -247,7 +249,7 @@ Do not maintain a second copy of the review criteria in this skill. The reviewer
 - the mapping from `passed` or `issues-fixed` to `Status: requirements-complete`,
 - the mapping from unresolved blocking issues to `Status: blocked`.
 
-Follow Clarification Routing in `core-workflow.md` for any decision discovered here.
+Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
 
 ## Reviewer Prompt
 
@@ -255,7 +257,7 @@ After self-review passes, read `requirements-document-reviewer-prompt.md` from t
 
 If the reviewer finds fixable issues, update `requirements.md` directly and rerun the relevant checks.
 
-If the reviewer needs focused user input, update `requirements.md` and rerun checks once resolved. Follow Clarification Routing in `core-workflow.md` for any decision discovered here.
+If the reviewer needs focused user input, update `requirements.md` and rerun checks once resolved. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
 
 ## Complete Requirements
 
@@ -281,7 +283,7 @@ Do not write `plan.md` until the user explicitly approves moving on.
 When the topic is `requirements-complete` and the user requests a change before approving the plan:
 
 - If the change is a wording, clarity, or acceptance-criteria tweak that does not change material scope, domain behavior, implementation, risk, or verification, update `requirements.md`, rerun review checks, record the revision, and stop at `requirements-complete`.
-- If the change affects scope, domain behavior, implementation, risk, verification, or plan basis, stop before editing `requirements.md` and follow Clarification Routing in `core-workflow.md`. Update `requirements.md`, rerun review checks, and stop at `requirements-complete` only after the decision is routed and recorded.
+- If the change affects scope, domain behavior, implementation, risk, verification, or plan basis, stop before editing `requirements.md` and follow Clarification Routing in `as-usual-rules/routing-rules.md`. Update `requirements.md`, rerun review checks, and stop at `requirements-complete` only after the decision is routed and recorded.
 
 Example — non-material (absorb here): "체크인 안내 문구 오타 수정", "Acceptance Criteria 문장을 더 명확히". → update requirements.md, rerun checks, stay requirements-complete.
 

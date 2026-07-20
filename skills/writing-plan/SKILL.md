@@ -25,7 +25,7 @@ Use it only after `using-as-usual` has completed activation and first reads, and
 
 `writing-plan` does not execute work and does not write `requirements.md`. It produces one reviewed execution contract and stops before any implementation.
 
-File-backed `[Answer]:` fields are mandatory for `define-requirements` question cycles only. Follow Clarification Routing in `core-workflow.md` for any decision discovered here.
+File-backed `[Answer]:` fields are mandatory for `define-requirements` question cycles only. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
 
 ## Preconditions
 
@@ -104,7 +104,7 @@ Do not recreate the old `### Inputs` subsection under `## Overview`. Source inpu
 
 1. Extract `Global Constraints` from the requirements and answered question decisions. Copy project-wide values (version floors, naming/copy rules, platform requirements, "do not change" notes) verbatim. Every task implicitly inherits this section.
 2. Analyze the dependency graph before fixing task order: prerequisites, interfaces, generated artifacts, migrations, and build/test order. Record this in `Dependency Analysis` and `Ordering Rationale`. Use user-language sublabels and prose inside these sections; do not copy English labels such as `Upstream prerequisites` unless the user's preferred language is English.
-3. If dependency analysis reveals that the implementation mechanism would contradict or materially reinterpret `requirements.md`, stop. Do not silently absorb the contradiction into the plan. Follow Clarification Routing in `core-workflow.md` for any decision discovered here.
+3. If dependency analysis reveals that the implementation mechanism would contradict or materially reinterpret `requirements.md`, stop. Do not silently absorb the contradiction into the plan. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
 4. Decide task order from the dependency analysis, then write each `## Task N: <name>`.
 5. Choose `Execution Mode` for the plan: `inline`, `subagent-driven`, or `mixed`. Prefer `subagent-driven` only when tasks have bounded context and the host can dispatch fresh subagents; otherwise use `inline` or record an explicit fallback.
 6. Fill `Execution Surface` when the plan introduces or changes an execution entrypoint, external dependency, time-based behavior, state changes outside the normal request/response path, or runtime metadata/resource dependency. If none apply, write `Applicability: None` and keep the remaining fields concise or `None`.
@@ -252,7 +252,7 @@ Do not maintain a second copy of the review criteria in this skill. The reviewer
 - the mapping from `passed` or `issues-fixed` to `Status: plan-complete`,
 - the mapping from unresolved blocking issues to `Status: blocked`.
 
-Follow Clarification Routing in `core-workflow.md` for any decision discovered here.
+Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
 
 ## Reviewer Prompt
 
@@ -260,7 +260,7 @@ After self-review passes, read `plan-document-reviewer-prompt.md` from this skil
 
 Do not require a subagent. The reviewer prompt is a portable prompt file so Claude and Codex can both run the same review.
 
-If the reviewer finds fixable issues, update `plan.md` directly and rerun the relevant reviewer checks. Follow Clarification Routing in `core-workflow.md` for any decision discovered here.
+If the reviewer finds fixable issues, update `plan.md` directly and rerun the relevant reviewer checks. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
 
 ## Complete Plan
 
@@ -290,7 +290,7 @@ Do not start execution until the user explicitly approves, for example by saying
 When the topic is `plan-review` and the user requests a change before approving execution, route by impact:
 
 - If the change is non-material (wording, clearer steps, exact file path correction, ordering clarification that does not change scope, requirements, risk, implementation strategy, or verification policy), update `plan.md` here, rerun self-review and the relevant reviewer checks, refresh `Review Status`, record the revision in `audit.jsonl`, and stop at `plan-review` again.
-- If the change affects scope, requirements, risk, implementation strategy, acceptance criteria, or verification policy, stop before editing `plan.md` and follow Clarification Routing in `core-workflow.md`. Update `plan.md` and rerun plan review only after the decision is routed and recorded.
+- If the change affects scope, requirements, risk, implementation strategy, acceptance criteria, or verification policy, stop before editing `plan.md` and follow Clarification Routing in `as-usual-rules/routing-rules.md`. Update `plan.md` and rerun plan review only after the decision is routed and recorded.
 
 Example — non-material (absorb here): "Task 순서 설명을 더 분명히", "파일 경로 오타 수정". → update plan.md, rerun self-review + reviewer checks, stay plan-review.
 

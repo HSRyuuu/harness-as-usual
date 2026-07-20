@@ -26,11 +26,11 @@ Before routing, confirm:
 
 ## Routing Principle
 
-Use the canonical routing principle and Route table in `core-workflow.md` §4 (Start Work Gate Routing); do not maintain a second copy here. Treat the High-Risk Operation Gate as a hard gate, and when borderline, choose the heavier gate.
+Use the canonical routing principle and Route table in `as-usual-rules/routing-rules.md` (Start-Work Gate Routing); do not maintain a second copy here. Treat the High-Risk Operation Gate as a hard gate, and when borderline, choose the heavier gate.
 
 ## Route Table
 
-Use the canonical Route table in `core-workflow.md` §4 (Start Work Gate Routing) to choose the route. Do not maintain a second copy here.
+Use the canonical Route table in `as-usual-rules/routing-rules.md` (Start-Work Gate Routing) to choose the route. Do not maintain a second copy here.
 
 ## Direct Execute Gate Reference
 

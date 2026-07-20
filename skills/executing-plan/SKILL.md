@@ -223,7 +223,7 @@ Stop and report, after recording an audit event, when:
 
 - A blocker appears (missing dependency, failing setup, unclear instruction).
 - A high-risk operation lacks explicit current-turn approval, rollback/recovery notes, or a matching plan Safety entry.
-- The same verification or repair loop fails 3 times. Then follow the Failure Handling circuit breaker in `core-workflow.md` and record the command attempted, failure pattern, suspected cause, whether the requirements/plan/environment/assumptions may be wrong, and the next recommended phase.
+- The same verification or repair loop fails 3 times. Then follow the Failure Handling circuit breaker in `as-usual-rules/routing-rules.md` and record the command attempted, failure pattern, suspected cause, whether the requirements/plan/environment/assumptions may be wrong, and the next recommended phase.
 - Implementation reveals a new user decision that could change requirements, plan, implementation, risk, or verification. Pause implementation, ask a focused chat clarification when it can be resolved in the current turn, record the answer in `audit.jsonl`, and return to `writing-plan` or `define-requirements` if artifacts must change. Use `define-requirements` only for a durable multi-question decision cycle or topic-boundary change.
 - A requirements/plan contradiction appears. Return to the necessary earlier phase.
 

@@ -52,6 +52,7 @@ If git is unavailable, review the changed files named in `audit.jsonl`, `plan.md
 - Do not ask about code cleanup or finalize as `complete` or `follow-up-needed` while Critical or Important findings remain unresolved.
 - Do not let Important findings proceed toward commit/PR without a fix and passing re-review. If the user declines the fix, record a blocker and finalize as `blocked`.
 - Do not treat code cleanup as a replacement for correctness review.
+- Completion judgment follows `as-usual-rules/completion-rules.md`: verification evidence by surface, `INCONCLUSIVE` handling, and the completion claim gate.
 
 ## Preferences
 
