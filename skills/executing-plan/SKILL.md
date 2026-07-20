@@ -52,12 +52,10 @@ Read and use these sources in this order, from disk, before editing any implemen
 - Do not execute from a stale, incomplete, or internally inconsistent plan.
 - Do not use subagent-driven execution unless the plan marks the mode and the host can dispatch fresh bounded subagents. If the plan requests subagents but the host cannot provide them, follow the plan's fallback or stop for user confirmation when the quality/risk tradeoff is material.
 - Do not run high-risk operations without a matching plan Safety entry and fresh explicit user approval immediately before the operation.
-- Do not declare execution complete without recorded verification evidence or an explicit skipped-verification reason.
-- A subagent `DONE` report is a claim. Do not record `task.completed` from a `DONE` receipt alone; inspect the diff/evidence and run or confirm verification first.
+- Completion judgment follows `as-usual-rules/completion-rules.md`: verification evidence by surface, `INCONCLUSIVE` handling, subagent `DONE` treated as a claim until controller-verified, and the completion claim gate.
 - Do not write implementation code before RED evidence for a `tdd` task.
 - Do not mark a `tdd` task complete without test target, RED evidence, and GREEN evidence.
 - Do not mark an `approved-tdd-exception` task complete without an allowed category (`throwaway-prototype`, `generated-code`, or `configuration`) and a human approval source.
-- Do not move to Task N+1 while Task N has unresolved task review findings, missing required verification, or an unresolved route-back decision.
 - Do not skip `review-execution` after successful execution completion.
 
 ## Preferences
@@ -208,7 +206,7 @@ python3 <plugin-root>/scripts/topic-log.py audit \
    - If code is written before RED evidence, stop, record the violation, and restart that task from a failing test unless the user explicitly approves an allowed exception.
    - For `approved-tdd-exception`, confirm the task has category `throwaway-prototype`, `generated-code`, or `configuration` and a human approval source from the current topic evidence. Then run the planned verification or review evidence.
 7. Run the task's `Verification` command and compare the result to its expected result.
-8. Record the exact command and outcome with `scripts/topic-log.py verification --verdict PASS|FAIL|INCONCLUSIVE`, including RED/GREEN evidence in the summary or task completion event when applicable. INCONCLUSIVE is not PASS: an `INCONCLUSIVE` task cannot be recorded complete and blocks `execution-complete` until re-verified or explicitly decided by the user. Record the surface-appropriate evidence type in the verification summary/notes.
+8. Record the exact command and outcome with `scripts/topic-log.py verification --verdict PASS|FAIL|INCONCLUSIVE`, including RED/GREEN evidence in the summary or task completion event when applicable. Apply `INCONCLUSIVE` consequences and surface-appropriate evidence per `as-usual-rules/completion-rules.md`.
 9. If using subagent-driven mode, run task-level requirements review first with `task-requirements-reviewer-prompt.md`, then task-level quality review with `task-quality-reviewer-prompt.md`. Requirements review details go in `execute/task-<N>-requirements-review.md`; quality review details go in `execute/task-<N>-quality-review.md`. Each review file must include YAML frontmatter `task`, `type`, `verdict`, and `reviewedAt`.
 10. Treat reviewer responses as receipts. The receipt status must be one of `passed | findings | blocked` and must match the review file frontmatter `verdict` and the `record-task-review --status` value. If the receipt status is outside the closed vocabulary or does not match frontmatter, invalidate the result, record a note, and request the review again. Include the review file in `record-task-review --artifacts`.
 11. When review status is `findings` or `blocked` and any finding count is nonzero, include stable `--finding-ids` so fixes can resolve the findings. Do not start quality review until requirements review passes or all requirements findings have a disposition.

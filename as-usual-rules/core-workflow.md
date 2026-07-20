@@ -155,21 +155,13 @@ Artifact invariants:
 - Structural headings inside an artifact (for example the question file's `### Why This Matters`, `### Requirements Impact`, `### Options`, `**Recommendation**:`, and `✅ Enter your answer.`) may stay in canonical English or be consistently translated into the user's language, but their order and count are fixed to the canonical structure. Do not add, drop, or reorder them, and never translate the `[Answer]:` marker or option letters.
 - Optimize user-facing artifacts for review, not internal trace dumping. `question-cN.md` and `requirements.md` should be easy for the user to scan; keep agent-only format rules in comments or skills, use short paragraphs, group long lists by theme when useful, and avoid exhaustive source lists in the main reading path when a compact trace is enough.
 - When asking for user approval or a material decision in chat or a terminal transcript, use a compact approval block instead of one dense paragraph. Include one item per line: requested action, reason, scope/files, risk or impact, rollback/recovery, and the exact user choice needed. Omit fields only when they truly do not apply. Use the user's current language for labels and prose, while preserving exact commands, paths, dependency coordinates, and code identifiers.
-- `topic.md` is a low-churn resume document for durable context: initial request, topic boundary, durable decisions, constraints, and artifact index. Do not use it as a current snapshot, task list, progress ledger, or verification log.
-- `audit.jsonl` is the canonical append-only event history. Current phase, next action, blockers, approvals, verification, and linked artifacts are derived from it by `scripts/topic-log.py status --json`.
-- Review detail files record their canonical verdict in YAML frontmatter `verdict`, and that verdict must match the corresponding audit status. This file/frontmatter/audit consistency applies regardless of host or subagent availability.
+- Record-layer rules for `topic.md` and `audit.jsonl` (surface roles, append-only history, derived status, closed vocabularies, audit event types) are owned by `as-usual-rules/logging-rules.md`.
+- Completion judgment rules (verification evidence by surface, `INCONCLUSIVE` handling, subagent delegation/receipts, completion claim gate) are owned by `as-usual-rules/completion-rules.md`.
 - Task review detail files use `execute/task-<N>-requirements-review.md` and `execute/task-<N>-quality-review.md`; cleanup review detail files use `clean-up/review-result-<type>.md`.
-- When a subagent is used, detailed outputs go to files and the subagent response returns only a verdict plus artifact path receipt. The receipt verdict must match the review file frontmatter and audit status.
-- Closed vocabularies are fixed as review `passed | findings | blocked`, verification `PASS | FAIL | INCONCLUSIVE`, and implementer completion `DONE | NEEDS_CONTEXT | BLOCKED`.
-- INCONCLUSIVE is not PASS. Subagent timeout, no response, unverifiable results, and ambiguous results are recorded as `INCONCLUSIVE` and treated as gate failure: the task cannot be recorded complete and execution cannot proceed to `execution-complete` until re-verification passes or the user explicitly decides.
-- Verification evidence must match the surface: CLI/script/test = re-run command plus actual output, API = actual call record (request/response), UI = screenshot or a recorded user manual check. Tests alone never prove done. If surface-appropriate evidence cannot be obtained, the verdict is `INCONCLUSIVE`; record the evidence description in the verification event summary/notes.
 - Do not create or copy the runtime workflow prompt into the target project.
 - Do not create project-global `.as-usual/audit.jsonl`.
 - `.as-usual/memory/` holds project-scoped long-term memory (`MEMORY.md`, optional `<domain>_MEMORY.md`). This is the one allowed non-`topic/` artifact category under `.as-usual/`. Do not create other project-global artifacts.
 - Do not use the legacy plural-`topics` folder or compact `yyyyMMdd` date format for new artifacts.
-- Update `topic.md` and `audit.jsonl` only through `scripts/topic-log.py`; prefer the phase-transition macro that matches the transition over composing multiple low-level audit calls. See `as-usual-rules/log-audit-commands.md` for the canonical command set. If the helper cannot express a needed runtime update, stop and report the missing helper capability instead of hand-editing those files.
-- Initialize a new topic with `scripts/topic-log.py init`, which creates `topic.md`, creates `audit.jsonl`, records the initial request, and appends the first `topic.created` event.
-- Use host-specific audit actors such as `codex` or `claude`; do not use the generic actor value `agent`.
 - After creating a topic, tell the user the topic path in one line so they can correct the topic/slug early.
 
 ## 3. Required First Reads
@@ -430,17 +422,16 @@ Execute invariants:
 - Critically review the plan first. Stop before executing when it lacks the task contract required by `writing-plan`, contradicts the requirements, or conflicts with the user's latest request.
 - Execute tasks in plan order. Use the plan-approved execution mode: `inline`, `subagent-driven`, or `mixed`. The main agent remains the controller and owns task order, audit events, verification, and user-facing claims.
 - For subagent-driven tasks, dispatch one fresh bounded implementer per task, pass only bounded task context, record `task.dispatched`, and keep the controller responsible for diff inspection, task review, verification, and completion claims.
-- Every subagent delegation message must include `TASK / DELIVERABLE / SCOPE / VERIFY` fields and be self-contained: the child cannot see the parent conversation. This delegation input contract pairs with the receipt output contract (artifact path plus closed vocabulary verdict). Child output, including a `DONE` report, is a claim until the controller verifies it against files, diffs, and evidence; receiving `DONE` alone never records task completion.
+- Subagent delegation and receipt acceptance follow `as-usual-rules/completion-rules.md`: the `TASK / DELIVERABLE / SCOPE / VERIFY` input contract, and `DONE` treated as a claim until controller-verified.
 - Before editing, inspect nearby files for naming, formatting, error handling, testing, and integration style, then follow the surrounding project conventions.
 - Before executing any high-risk operation, confirm the plan marks it correctly, ask for fresh user approval using a compact approval block, and record approval plus rollback/recovery notes through `scripts/topic-log.py`. If the operation was not planned, stop and return to `writing-plan` or `define-requirements` as needed before asking for approval.
 - Do not mutate `plan.md` as a progress ledger. Record task start, progress, blockers, commands, and outcomes in `audit.jsonl` through `scripts/topic-log.py`.
 - Follow each task's test strategy, then run the verification specified by the task and record the exact command and outcome. For `tdd`, record test target, RED failing-test evidence before implementation, and GREEN passing-test evidence after implementation. For `approved-tdd-exception`, record the allowed category, human approval source, and planned verification or review evidence. If verification cannot be run, record the reason and remaining work.
-- Do not move to Task N+1 or record `execution.completed` while Task N has unresolved Critical or Important task-level findings, missing required TDD evidence, missing verification evidence, or unresolved route-back decisions.
 - If implementation reveals a new user decision that could change requirements, plan, implementation, risk, or verification, stop implementation and follow Clarification Routing. Return to `writing-plan` or `define-requirements` if artifacts must change.
 - If the same verification or repair loop fails 3 times, stop and follow the Failure Handling circuit breaker.
 - Do not automatically enter commit, PR, release, deploy, or retrospective behavior after execution.
 
-Execution completion claim rule: do not say execution is complete until `audit.jsonl` records completed work, verification performed or skipped with reason, task dispatch/review/fix evidence when applicable, final sweep evidence required by the plan, and remaining issues.
+Execution completion claims follow the completion claim gate and verdict consequences in `as-usual-rules/completion-rules.md`.
 
 ## 10. Review Execution Rules
 
@@ -518,92 +509,17 @@ Git action invariants:
 
 ## 13. Topic Log Rules
 
-`topic.md` is the low-churn resume surface. It should be compact but sufficient enough to orient a fresh session to durable context. Do not update it for per-task progress, verification attempts, or transient next steps.
+Record-layer behavior (write/read rules, typed observation fields, closed vocabularies, audit event types) is owned by `as-usual-rules/logging-rules.md`. Command syntax is owned by `as-usual-rules/log-audit-commands.md`. Do not maintain a second copy of either here.
 
-For topic and audit updates, use the audit-first helper. `<plugin-root>` is the installed AsUsual plugin root (the directory containing `scripts/` and `skills/`); resolve it from the SessionStart hook announcement or the parent directory of the running skill:
+For invocation, `<plugin-root>` is the installed AsUsual plugin root (the directory containing `scripts/` and `skills/`); resolve it from the SessionStart hook announcement or the parent directory of the running skill:
 
 ```bash
 python3 <plugin-root>/scripts/topic-log.py ...
 ```
 
-`as-usual-rules/log-audit-commands.md` is the canonical reference for the full command set, grouped by role (phase-transition macros, in-phase recorders, and read-only commands). Prefer the highest-level command that matches the transition over composing multiple low-level `audit` calls. Do not maintain a second command list here.
-
-Do not hand-edit `topic.md` or `audit.jsonl`. If the helper cannot express a needed update, stop and report the missing helper capability so the helper can be extended.
-
-Required durable topic information:
-
-- topic name
-- initial request
-- topic boundary
-- durable decisions
-- constraints
-- linked question/requirements/plan/review/report/audit files
-
-Derived status should come from `scripts/topic-log.py status --topic-dir <topic-dir> --json`:
-
-- phase
-- next action
-- linked artifacts
-- blockers
-- approvals
-- verification evidence
-- remaining issues
-
-`audit.jsonl` is an append-only event log. Record facts, not a polished summary. New audit events should include typed observation fields: `status` (`success`, `warning`, or `error`), `summary`, `phase`, `nextAction`, and when applicable `errorKind`, `retryHint`, and `stopCondition`.
-
-`verification.recorded` events must include the `verification --verdict` value (`PASS | FAIL | INCONCLUSIVE`) in event data.
-
-Run `scripts/topic-log.py validate --topic-dir <topic-dir>` before claiming a topic is structurally complete. Use `scripts/topic-log.py record-sweep` for E2E, stale-reference, mirror, or harness quality evidence.
-
-Audit events to append:
-
-- `topic.created`
-- `start_work.routed`
-- `question.created`
-- `question.answered`
-- `requirements.completed`
-- `plan.completed`
-- `approval.execution`
-- `approval.high_risk`
-- `task.started`
-- `task.dispatched`
-- `task.review_completed`
-- `task.fix_requested`
-- `task.fix_completed`
-- `task.commit_recorded`
-- `task.completed`
-- `verification.recorded`
-- `sweep.completed`
-- `execution.completed`
-- `review.completed`
-- `code_cleanup.skipped`
-- `code_cleanup.completed`
-- `topic.finalized`
-- `git_action.selected`
-- `note.recorded`
-- `decision.recorded`
-- `blocker.recorded`
-- `blocker.resolved`
-- `artifact.recorded`
-- `memory.candidate`
-- `memory.recorded`
-- `skill.created`
-- `skill.candidate`
-
 ## 14. Failure Handling
 
-When the same failure repeats, use this circuit breaker:
-
-```text
-IF the same action fails 3 times:
-    STOP retrying the same approach
-    record failure pattern through scripts/topic-log.py
-    append audit event
-    reassess whether the requirements, plan, environment, or assumption is wrong
-    ask the user only if the next step requires a decision that files cannot answer
-```
-
-Do not hide failures with optimistic wording. Record the evidence and next required action.
+The repeated-failure circuit breaker (stop after 3 identical failures, record, reassess) is owned by `as-usual-rules/logging-rules.md`. Do not hide failures with optimistic wording.
 
 ## 15. Anti-Patterns
 
@@ -626,9 +542,6 @@ Avoid these behaviors.
 - Creating artifacts with the legacy plural-`topics` folder and compact `yyyyMMdd` date format.
 - Splitting `requirements.md` into a multi-file requirements set.
 - Silently deciding still-undecided test/commit/PR policy.
-- Overwriting `audit.jsonl` history with a summary instead of appending.
-- Treating `topic.md` as a progress ledger or current-status snapshot.
-- Declaring completion without verification evidence or an explicit "not verified because..." record.
 - Finalizing without execution review.
 - Running code cleanup automatically without user approval.
 - Calling a host `/simplify` command instead of `cleanup-code`.

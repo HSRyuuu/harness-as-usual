@@ -101,7 +101,8 @@ Plugin development requests are classified as plugin development even when they 
 
 | Task | Location | Notes |
 | --- | --- | --- |
-| Runtime workflow rules | `as-usual-rules/core-workflow.md` | canonical coding-topic workflow read when AsUsual activates |
+| Runtime workflow rules | `as-usual-rules/core-workflow.md` | canonical coding-topic workflow entrypoint read when AsUsual activates |
+| Record/completion rule files | `as-usual-rules/logging-rules.md`, `as-usual-rules/completion-rules.md` | single-source owners for record-layer rules and completion judgment; referenced by core-workflow and skills |
 | Find-cause workflow rules | `as-usual-rules/find-cause-workflow.md` | canonical find-cause `issue` workflow; read when find-cause activates |
 | Find-cause skill + templates | `skills/find-cause/SKILL.md`, `templates/problem.md`, `templates/conclusion.md` | owns the `.as-usual/issue/` lifecycle; `problem.md`/`conclusion.md` are its artifacts |
 | Issue journal helper | `scripts/journal-log.py`, `scripts/as_usual_journal_log/` | initializes/append/derives the append-only `journal.jsonl`; enforces evidence + conclusion gates |
@@ -156,7 +157,8 @@ Plugin development requests are classified as plugin development even when they 
 
 ## CONVENTIONS
 
-- Keep the coding-topic runtime workflow in the single file `as-usual-rules/core-workflow.md`, and the find-cause runtime workflow in the single file `as-usual-rules/find-cause-workflow.md`. These are the only two runtime workflow prompts.
+- Keep the coding-topic runtime workflow anchored in `as-usual-rules/core-workflow.md` (entrypoint), and the find-cause runtime workflow in `as-usual-rules/find-cause-workflow.md`. These are the only two runtime workflow prompts.
+- Important rules live in exactly one owner file; other files may only reference them with a one-line pointer, never restate conditions or lists. `as-usual-rules/logging-rules.md` owns record write/read/interpretation rules (topic.md/audit.jsonl, closed vocabularies, audit events, failure circuit breaker); `as-usual-rules/completion-rules.md` owns completion judgment (verification evidence, verdict consequences, subagent receipts, completion claim gate).
 - The canonical topic path is `.as-usual/topic/yyyy-MM-dd-<topic>/`; the canonical find-cause issue path is `.as-usual/issue/yyyy-MM-dd-<slug>/`.
 - The single source for `direct-execute` allow/deny conditions is `skills/direct-execute/SKILL.md`; `start-work` references and applies those conditions when routing.
 - The start-work-routed direct-execute path keeps topic audit records; explicit direct invocation bypasses using-as-usual/topic creation and is recordless. Neither path permits high-risk work.
