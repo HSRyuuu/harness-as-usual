@@ -24,7 +24,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 
 ## When To Run
 
-- After changing `as-usual-rules/core-workflow.md`
+- After changing `as-usual-rules/core-workflow.md` or `as-usual-rules/safety-rules.md`
 - After changing public runtime skills under `skills/**`
 - After changing `templates/requirements.md`, `templates/plan.md`, `templates/question.md`, `templates/topic.md`, `templates/code-review-report.md`, or `templates/report.md`
 - After changing runtime helper scripts under `scripts/**`
@@ -42,6 +42,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 | `as-usual-rules/routing-rules.md` | single-source owner: gate routing, clarification routing, phase router, failure circuit breaker |
 | `as-usual-rules/logging-rules.md` | single-source owner: record write/read rules, closed vocabularies, audit event types |
 | `as-usual-rules/completion-rules.md` | single-source owner: completion judgment, verification evidence, subagent receipt contract |
+| `as-usual-rules/safety-rules.md` | single-source owner: trust boundary and high-risk operation gate, shared by both workflows |
 | `as-usual-rules/log-audit-commands.md` | canonical topic-log command set |
 | `as-usual-rules/find-cause-workflow.md` | canonical find-cause issue workflow contract |
 | `skills/using-as-usual/SKILL.md` | runtime activation and first-read behavior |
@@ -92,6 +93,7 @@ for f in \
   as-usual-rules/routing-rules.md \
   as-usual-rules/logging-rules.md \
   as-usual-rules/completion-rules.md \
+  as-usual-rules/safety-rules.md \
   as-usual-rules/log-audit-commands.md \
   as-usual-rules/find-cause-workflow.md \
   skills/using-as-usual/SKILL.md \
@@ -350,6 +352,8 @@ Run:
 ```bash
 rg -n 'High-Risk Operation Gate|high-risk operation|file deletion|bulk formatting|package installation|dependency changes|DB migration|schema changes|environment variable|\\.env|secret|credential|CI/CD|deploy|release|git push|force push|untrusted|Trust Boundary|data and evidence|prompt-injection|review-fixes-needed|address-review-findings|Safety|Risk Level|Separate Approval Required|Reversibility|Safety Gates|execution approved' \
   as-usual-rules/core-workflow.md \
+  as-usual-rules/safety-rules.md \
+  as-usual-rules/find-cause-workflow.md \
   as-usual-rules/routing-rules.md \
   as-usual-rules/logging-rules.md \
   skills/start-work/SKILL.md \
@@ -367,7 +371,7 @@ rg -n 'High-Risk Operation Gate|high-risk operation|file deletion|bulk formattin
 
 PASS:
 
-- `core-workflow.md` defines a trust boundary for external/project content and a high-risk operation gate.
+- `as-usual-rules/safety-rules.md` is the single owner of the trust boundary and the high-risk operation gate; `core-workflow.md` and `find-cause-workflow.md` reference it instead of restating the operation list.
 - `as-usual-rules/logging-rules.md`, `templates/topic.md`, and `topic-log.py` define `audit.jsonl` as the canonical event history and `topic-log.py status --json` as the derived status surface.
 - The `direct-execute` skill owns the allow/deny conditions and denies high-risk operations on both entry paths; `start-work` applies those conditions when routing.
 - `templates/plan.md`, `writing-plan`, and the plan reviewer prompt all require execution mode and task Safety fields: risk level, high-risk operations, reversibility, separate approval, and rollback/recovery notes.

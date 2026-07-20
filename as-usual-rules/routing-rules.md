@@ -32,7 +32,7 @@ Detailed `direct-execute` allow and deny checks are owned by the `direct-execute
 
 When a needed decision appears during requirements, plan, or execute writing or review, route it by shape:
 
-- IF the decision involves a high-risk operation: use the High-Risk Operation Gate in `core-workflow.md`.
+- IF the decision involves a high-risk operation: use the High-Risk Operation Gate in `as-usual-rules/safety-rules.md`.
 - ELSE IF it is broad ambiguity (multiple interdependent decisions, durable multi-option review, or topic-boundary change): route to `define-requirements` or `start-work`, record the routing through `scripts/topic-log.py`, and stop.
 - ELSE (focused clarification, single decision resolvable in the current turn): ask in chat.
     - IF the answer is material: record it in `audit.jsonl` through `scripts/topic-log.py`, update the affected artifact (`requirements.md`/`plan.md`), and rerun the relevant review before continuing.

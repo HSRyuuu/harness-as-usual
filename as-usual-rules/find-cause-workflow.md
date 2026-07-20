@@ -17,9 +17,9 @@ thought process can be reconstructed at the end and resumed across sessions.
 - Never modify production code in a find-cause issue. When the user wants
   the fix implemented, propose a follow-up coding topic.
 - `as-usual-rules/core-workflow.md` still owns coding topics. This file owns
-  issues only. Shared principles apply unchanged: the Trust Boundary,
+  issues only. Shared safety gates apply unchanged: the Trust Boundary,
   secret-handling rules, and the High-Risk Operation Gate defined in
-  core-workflow.md.
+  `as-usual-rules/safety-rules.md`.
 
 ## Artifact Contract
 
@@ -73,8 +73,8 @@ thought process can be reconstructed at the end and resumed across sessions.
    request or approval recorded with `journal-log.py approve`. Production
    code changes are always out of scope.
 4. High-risk operations (production access, shared-DB queries, etc.) follow
-   core-workflow.md's High-Risk Operation Gate; record the fresh approval
-   with `journal-log.py approve`.
+   the High-Risk Operation Gate in `as-usual-rules/safety-rules.md`; record
+   the fresh approval with `journal-log.py approve`.
 5. Before ending a turn, record this turn's reasoning in the journal. If the
    turn produced any finding, decision, hypothesis, confirmation, or
    retraction, at least one matching journal entry must be appended before the

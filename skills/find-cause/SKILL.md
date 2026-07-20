@@ -11,9 +11,11 @@ acting, then follow it. This skill adds only operational defaults.
 
 ## First Reads
 
-1. Read `as-usual-rules/find-cause-workflow.md` from the AsUsual plugin
-   root (the parent directory of the `skills/` directory containing this
-   skill, or the path announced by the SessionStart hook).
+1. Read `as-usual-rules/find-cause-workflow.md` and
+   `as-usual-rules/safety-rules.md` (the shared Trust Boundary and
+   High-Risk Operation Gate) from the AsUsual plugin root (the parent
+   directory of the `skills/` directory containing this skill, or the path
+   announced by the SessionStart hook).
 2. For an existing issue: read `problem.md`, then run
    `python3 <plugin-root>/scripts/journal-log.py status --issue-dir <dir> --json`,
    then read `conclusion.md` if it exists. Use `view --issue-dir <dir> --md`

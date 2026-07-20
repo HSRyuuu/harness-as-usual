@@ -31,7 +31,7 @@ Runtime surfaces seen or executed by a target-project user who installed the AsU
 | `hooks/session-start` | SessionStart context injection source |
 | `hooks/run-hook.cmd` | hook runner used for smoke output |
 | `as-usual-rules/core-workflow.md` | canonical runtime workflow entrypoint read when AsUsual activates |
-| `as-usual-rules/routing-rules.md`, `as-usual-rules/logging-rules.md`, `as-usual-rules/completion-rules.md`, `as-usual-rules/log-audit-commands.md` | runtime-facing single-source rule files |
+| `as-usual-rules/routing-rules.md`, `as-usual-rules/logging-rules.md`, `as-usual-rules/completion-rules.md`, `as-usual-rules/safety-rules.md`, `as-usual-rules/log-audit-commands.md` | runtime-facing single-source rule files |
 | `as-usual-rules/find-cause-workflow.md` | canonical find-cause issue workflow |
 | `skills/using-as-usual/SKILL.md` | public runtime activation skill |
 | `skills/hand-off/SKILL.md` | public runtime hand-off resume skill |
