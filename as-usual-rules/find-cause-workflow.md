@@ -125,12 +125,23 @@ continue in the same turn:
 4. Record closure: `journal-log.py conclude --issue-dir <dir> --summary ...`
    (use `--status cancelled` with the reason when the user abandons the
    investigation).
-5. Offer a follow-up coding topic. If accepted, create it with the existing
-   `scripts/topic-log.py init`, pass `conclusion.md` as a source input, and
-   link both directions: the topic records the conclusion path, and the
-   journal records the topic path via `journal-log.py link-follow-up
+5. Offer the follow-up coding topic. The follow-up target depends on how this
+   investigation was entered:
+   - **Entered by route-out from a coding topic** (start-work recorded
+     `route-start-work --route find-cause`, and that topic is parked at
+     `routed-to-find-cause`): reuse that parked topic. Do not create a new
+     topic. Feed `conclusion.md` into that topic's requirements and resume it
+     at the `requirements` route (see the Phase Router resume row in
+     `as-usual-rules/routing-rules.md`).
+   - **Entered directly at activation** (no coding topic exists): if the user
+     accepts a follow-up, create a fresh topic with `scripts/topic-log.py
+     init` and pass `conclusion.md` as a source input.
+
+   Either way, link both directions: the topic records the conclusion path,
+   and the journal records the topic path via `journal-log.py link-follow-up
    --issue-dir <dir> --topic-dir <topic-dir>` (pass `--follow-up` to
-   `conclude` instead when the topic already exists at conclusion time).
+   `conclude` instead when the topic already exists at conclusion time — which
+   is always the case on the reuse path).
 
 Do not ask the git-action question for issues. Confirming the cause and
 stopping without a follow-up topic is a normal terminal path.

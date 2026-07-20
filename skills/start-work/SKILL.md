@@ -1,6 +1,6 @@
 ---
 name: start-work
-description: Use after AsUsual is active and first reads are complete to route a new or resumed topic to requirements, plan, execute, or direct-execute.
+description: Use after AsUsual is active and first reads are complete to route a new or resumed topic to requirements, plan, execute, direct-execute, or find-cause.
 ---
 
 # Start Work
@@ -51,7 +51,7 @@ Use `scripts/topic-log.py route-start-work` from the plugin root for route recor
 ```bash
 python3 <plugin-root>/scripts/topic-log.py route-start-work \
   --topic-dir <topic-dir> \
-  --route <requirements|plan|execute|direct-execute> \
+  --route <requirements|plan|execute|direct-execute|find-cause> \
   --reason "<reason>"
 ```
 
@@ -66,3 +66,5 @@ When the route is `plan`, hand off to `writing-plan`. It analyzes dependencies, 
 When the route is `execute`, hand off to `executing-plan`. It rereads topic/audit/requirements/plan artifacts, critically reviews the plan, executes tasks in the approved execution mode, records audit events for progress, task review loops, sweeps, and verification, then invokes `review-execution` after successful execution completion or stops at a blocker.
 
 When the route is `direct-execute`, hand off to `direct-execute`. It executes the clear low-risk work and records the result, verification, and terminal completion (`direct-execute-complete`).
+
+When the route is `find-cause`, the recorded route parks this topic at phase `routed-to-find-cause` (next action `investigate-cause`) and hands off to the `find-cause` skill, which owns the separate `.as-usual/issue/` investigation. Record the created issue path on this topic (via `note` or `artifact.recorded`) so the parked topic points to its investigation. When the issue concludes, its `conclusion.md` feeds this same topic's requirements per the reuse path in `as-usual-rules/routing-rules.md` and `as-usual-rules/find-cause-workflow.md`. Do not write `requirements.md` for a cause-unknown bug instead of routing here.

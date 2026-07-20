@@ -140,11 +140,14 @@ def cmd_route_start_work(args: argparse.Namespace) -> None:
     timestamp = args.timestamp or current_timestamp()
     next_action = args.next_action or ROUTE_NEXT_ACTIONS[args.route]
     validate_enum("nextAction", next_action, NEXT_ACTIONS)
+    # find-cause routes the topic out to a separate issue work unit; the topic
+    # parks at routed-to-find-cause until the investigation's conclusion feeds it.
+    phase = "routed-to-find-cause" if args.route == "find-cause" else "start-work"
     append_audit(
         topic,
         event="start_work.routed",
         actor=args.actor,
-        phase="start-work",
+        phase=phase,
         artifacts=["topic.md", "audit.jsonl"],
         route=args.route,
         initial_request_ref="topic.md#Initial Request",

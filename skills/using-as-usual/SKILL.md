@@ -14,7 +14,7 @@ This skill is the entry-point helper for activation and first reads in the AsUsu
 | `hand-off` | Resume an existing topic from an explicit hand-off command, a supplied topic path, or a cross-session resume, then route to the current owner skill |
 | `find-cause` | Own the whole `.as-usual/issue/` investigation lifecycle per `as-usual-rules/find-cause-workflow.md`; not a coding topic phase |
 | `using-as-usual` | Identify activation, confirm `core-workflow.md`, perform `.as-usual/topic/` first reads, and initialize new topic `topic.md`/`audit.jsonl` |
-| `start-work` | After first reads, route a new topic or unclear current phase to requirements, plan, execute, or direct-execute |
+| `start-work` | After first reads, route a new topic or unclear current phase to requirements, plan, execute, direct-execute, or find-cause |
 | `direct-execute` | Receive a start-work route for an active topic or handle an explicit recordless direct invocation for clear low-risk reversible work |
 | `define-requirements` | Create/validate `question-cN.md` files when needed, write/review `requirements.md`, and ask for plan approval |
 | `writing-plan` | Analyze dependencies, write/review `plan.md`, and ask for execution approval |

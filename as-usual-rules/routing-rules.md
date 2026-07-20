@@ -27,7 +27,9 @@ Route table:
 
 Detailed `direct-execute` allow and deny checks are owned by the `direct-execute` skill; `start-work` applies them when routing. Any high-risk operation denies `direct-execute`.
 
-`find-cause` routes out of the coding topic into a separate work unit: record the routing decision in `audit.jsonl` through `scripts/topic-log.py`, then hand off to the `find-cause` skill, which owns the `.as-usual/issue/` investigation per `as-usual-rules/find-cause-workflow.md`. When the issue concludes, its `conclusion.md` feeds this topic's requirements (link both directions per that workflow's Conclusion rules). Do not write `requirements.md` for a cause-unknown bug instead of routing here.
+`find-cause` routes out of the coding topic into a separate work unit. Record `route-start-work --route find-cause` through `scripts/topic-log.py`; this parks the topic at phase `routed-to-find-cause` with next action `investigate-cause` (a known parked state, not an orphan-open topic). Then hand off to the `find-cause` skill, which owns the `.as-usual/issue/` investigation per `as-usual-rules/find-cause-workflow.md`. Once the issue directory exists, record its path on this topic (via `note` or `artifact.recorded`) so the parked topic points to its investigation.
+
+Because this route-out happens from an already-created coding topic, that topic is **reused** when the issue concludes: its `conclusion.md` feeds this same topic's requirements and the topic resumes at the `requirements` route (see the Phase Router resume row). The find-cause conclusion links both directions (issue→topic via `link-follow-up`, topic→issue via the recorded issue path). This reuse path is distinct from a find-cause investigation entered directly at activation with no coding topic, which instead creates a fresh follow-up topic at conclusion — see `as-usual-rules/find-cause-workflow.md` Conclusion. Do not write `requirements.md` for a cause-unknown bug instead of routing here.
 
 `direct-execute` is a lightweight terminal path: it does not join the finalize/git-action path. If the user afterwards explicitly asks to commit or run another git action, handle it as ordinary chat; the `git-action` skill is for finalized topics only. Never run a git action without an explicit user request.
 
@@ -90,6 +92,8 @@ Post-execution routing is a lookup on derived status:
 
 | Derived Phase | Next Action / Trigger | Route |
 | --- | --- | --- |
+| `routed-to-find-cause` | `investigate-cause` (issue still open) | `find-cause` (resume the linked `.as-usual/issue/` investigation) |
+| `routed-to-find-cause` | linked issue concluded; `conclusion.md` feeds this topic | `requirements` (reuse this topic; route with `route-start-work --route requirements`) |
 | `execution-complete` | — | `review-execution` |
 | `review-fixes-needed` | `address-review-findings` | `review-execution` (finding disposition rules owned there) |
 | `review-complete` | `decide-code-cleanup` | `review-execution` |

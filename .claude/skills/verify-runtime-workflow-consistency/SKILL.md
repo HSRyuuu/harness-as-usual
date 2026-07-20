@@ -273,6 +273,82 @@ FAIL:
 
 Fix: align `find-cause-workflow.md`, `skills/find-cause/SKILL.md`, the journal helper, and its tests as one runtime contract.
 
+### Step 2c: Route And Phase Vocabulary Sync Check
+
+**Tool:** Bash
+
+The route/phase/next-action names used in runtime rules must exist as members of the closed enums in `scripts/as_usual_topic_log/constants.py`. A name documented in the rules but absent from `constants.py` is unrecordable — `route-start-work`/`audit` reject it and `validate` fails — so the workflow dead-ends. This check catches that drift.
+
+Run:
+
+```bash
+python3 - <<'PY'
+import re, sys
+from pathlib import Path
+
+sys.path.insert(0, "scripts")
+from as_usual_topic_log.constants import ROUTES, PHASES, NEXT_ACTIONS, ROUTE_NEXT_ACTIONS
+
+problems = []
+
+# Every route named in the Start-Work Route table must be a ROUTES member.
+# Scope to the table under the `| Route | Use When |` header only, so the
+# Phase Router's derived-phase lookup table is not misread as routes.
+routing = Path("as-usual-rules/routing-rules.md").read_text(encoding="utf-8").splitlines()
+table_routes = set()
+in_route_table = False
+for line in routing:
+    if re.match(r"^\|\s*Route\s*\|\s*Use When\s*\|", line):
+        in_route_table = True
+        continue
+    if in_route_table:
+        if not line.lstrip().startswith("|"):
+            break  # table ended
+        if set(line.replace("|", "").strip()) <= {"-", " "}:
+            continue  # separator row
+        m = re.match(r"^\|\s*`([a-z][a-z-]+)`\s*\|", line)
+        if m:
+            table_routes.add(m.group(1))
+for r in table_routes:
+    if r not in ROUTES:
+        problems.append(f"routing-rules.md Route table names `{r}` but it is not in constants.ROUTES")
+
+# find-cause parked-state vocabulary must be wired end to end.
+for name, enum, label in [
+    ("find-cause", ROUTES, "ROUTES"),
+    ("routed-to-find-cause", PHASES, "PHASES"),
+    ("investigate-cause", NEXT_ACTIONS, "NEXT_ACTIONS"),
+]:
+    if name not in enum:
+        problems.append(f"`{name}` missing from constants.{label}")
+if "find-cause" not in ROUTE_NEXT_ACTIONS:
+    problems.append("`find-cause` missing from constants.ROUTE_NEXT_ACTIONS")
+
+# Every ROUTE_NEXT_ACTIONS value must itself be a valid NEXT_ACTIONS member.
+for route, na in ROUTE_NEXT_ACTIONS.items():
+    if na not in NEXT_ACTIONS:
+        problems.append(f"ROUTE_NEXT_ACTIONS[{route!r}] = {na!r} is not in constants.NEXT_ACTIONS")
+
+if problems:
+    print("VOCAB_SYNC_FAIL")
+    for p in problems:
+        print(" -", p)
+else:
+    print("VOCAB_SYNC_OK")
+PY
+```
+
+PASS: output is `VOCAB_SYNC_OK`.
+
+- Every route in the `routing-rules.md` Route table is a `constants.ROUTES` member.
+- `find-cause` / `routed-to-find-cause` / `investigate-cause` are present in `ROUTES` / `PHASES` / `NEXT_ACTIONS`, and `find-cause` maps to a valid next action in `ROUTE_NEXT_ACTIONS`.
+
+FAIL: any `VOCAB_SYNC_FAIL` line.
+
+- A route/phase/next-action is documented in the runtime rules but missing from the `constants.py` enum, so the helper cannot record it.
+
+Fix: add the missing member to the enum in `scripts/as_usual_topic_log/constants.py` (and its `ROUTE_NEXT_ACTIONS` mapping when it is a route), or remove the stale name from the rules.
+
 ### Step 3: Requirements Template And Reviewer Vocabulary Check
 
 **Tools:** Read, Bash
@@ -701,6 +777,7 @@ Fix: keep the rule in its owner (`routing-rules.md`, `logging-rules.md`, `comple
 | Required files | PASS/FAIL | ... |
 | Route ownership | PASS/FAIL | ... |
 | Hook/activation alignment | PASS/FAIL | ... |
+| Route/phase vocabulary sync | PASS/FAIL | ... |
 | Find-cause journal contract | PASS/FAIL | ... |
 | Requirements review vocabulary | PASS/FAIL | ... |
 | Ambiguity and assumptions | PASS/FAIL | ... |

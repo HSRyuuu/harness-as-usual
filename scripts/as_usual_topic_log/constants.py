@@ -26,6 +26,7 @@ PHASES = {
     "git-action",
     "git-action-complete",
     "direct-execute-complete",
+    "routed-to-find-cause",
     "blocked",
 }
 
@@ -50,6 +51,7 @@ NEXT_ACTIONS = {
     "finalize",
     "git-action-decision",
     "git-action",
+    "investigate-cause",
     "none",
 }
 
@@ -72,7 +74,7 @@ REVIEW_STATUSES = {"passed", "findings", "blocked"}
 VERIFICATION_VERDICTS = {"PASS", "FAIL", "INCONCLUSIVE"}
 AUDIT_STATUSES = {"success", "warning", "error"}
 GIT_ACTIONS = {"none", "commit", "commit + push", "commit + push + PR"}
-ROUTES = {"requirements", "plan", "execute", "direct-execute"}
+ROUTES = {"requirements", "plan", "execute", "direct-execute", "find-cause"}
 EXECUTION_MODES = {"inline", "subagent-driven", "mixed"}
 TASK_REVIEW_TYPES = {"task"}
 TASK_ROLES = {"implementer", "reviewer", "controller"}
@@ -84,6 +86,7 @@ ROUTE_NEXT_ACTIONS = {
     "plan": "write-plan",
     "execute": "execute",
     "direct-execute": "execute",
+    "find-cause": "investigate-cause",
 }
 ARTIFACT_KEYS = {"question", "requirements", "plan", "codeReviewReport", "report", "audit", "topic"}
 ARTIFACT_FIELD_BY_FILE = {
