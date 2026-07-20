@@ -91,7 +91,7 @@ Write the plan content the user must review in the user's current or clearly pre
 
 1. Extract `Global Constraints` from the requirements and answered question decisions, copying project-wide values verbatim. Then analyze the dependency graph — prerequisites, interfaces, generated artifacts, migrations, build/test order — record it in `Dependency Analysis` and `Ordering Rationale`, and decide task order from it. If the implementation mechanism would contradict or materially reinterpret `requirements.md`, stop and follow Clarification Routing in `as-usual-rules/routing-rules.md`.
 2. Choose the plan-level `Execution Mode` (`inline`, `subagent-driven`, or `mixed`). Prefer `subagent-driven` only when tasks have bounded context and the host can dispatch fresh subagents; otherwise use `inline` or record an explicit fallback.
-3. Write each `## Task N: <name>` following the template's task section shape (`Purpose`, task-level `Execution Mode`, `Depends On`, `Files`, `Interfaces`, `Safety`, `Test Strategy`, `Steps`, `Verification` with a runnable command and expected result, `Notes`). Default `Test Strategy` to `tdd` with a named `Test target`; see Test Strategy and Safety below.
+3. Write each `## Task N: <name>` following the template's task section shape (`Purpose`, task-level `Execution Mode`, `Depends On`, `Files`, `Interfaces`, `Safety`, `Test Strategy`, `Steps`, `Verification` with a runnable command and expected result, `Notes`). Default `Test Strategy` to `test-required` with a named `Test target`; see Test Strategy and Safety below.
 4. Fill the cross-cutting sections per the template comments: `Acceptance Criteria Coverage Matrix` (always), `Execution Surface` and `Decision Contracts` (conditional — see Conditional Sections), `Execution Task Index` (only when the plan has 4 or more tasks), `Verification Strategy`, and the `Review And Handoff` sections.
 5. Keep execution progress out of the plan: no checkboxes, per-task status fields, completion marks, or progress notes anywhere. Task identity is the `## Task N: <name>` heading; progress belongs in `audit.jsonl`.
 
@@ -128,14 +128,14 @@ Every task must contain the concrete content an executor needs. These are plan d
 
 Choose a test strategy mode for every task. This is task-level verification design, not a project-wide test/CI policy.
 
-TDD is mandatory for implementation tasks. The plan should assume behavior-by-behavior RED/GREEN/REFACTOR, not one large batch of all failing tests. If a task looks hard to test, treat that as a design signal first: define a simpler API, interface seam, dependency injection point, or smaller unit that can be driven by a failing test. Exploratory code may be used only as throwaway learning; the actual implementation returns to TDD.
+Tests are required for implementation tasks; test-first (write the failing test before the code) is a technique, not a mandate. The distinction is by task kind, not ceremony:
 
 | Mode | Use When | Plan Must Include |
 | --- | --- | --- |
-| `tdd` | Any feature, behavior change, bug fix, refactor, parser/transformer behavior, API contract logic, UI behavior with a test harness, CLI behavior, integration boundary, or other code where implementation can be driven by tests. | Test target, RED failing test command and expected failure, GREEN implementation/pass command, refactor check, and evidence to record. |
-| `approved-tdd-exception` | Only when the human explicitly approves skipping TDD for `throwaway-prototype`, `generated-code`, or `configuration`. | Exception category, approval source, verification command or review evidence, expected result, and evidence to record. |
+| `test-required` | Any feature, behavior change, bug fix, refactor, parser/transformer behavior, API contract logic, CLI/UI behavior with a test harness, integration boundary, or other testable code. | Test target and the passing-test evidence to record. For a **bug fix**, also a regression RED test (a failing test that reproduces the bug before the fix) — the regression proof is mandatory for bug fixes and optional otherwise. |
+| `no-test` | Genuinely untestable or not-worth-testing work: configuration, generated code, or a throwaway prototype. | The reason tests are skipped, to record. No separate user approval is required. |
 
-Do not plan `approved-tdd-exception` just because the task feels awkward to test. First make the boundary testable. If an exception is still needed, ask the user and record the approval source. If the selected mode could change scope, risk, or acceptance criteria, ask a focused clarification and record the answer before completing the plan.
+Reach for `no-test` only when the work is truly untestable, not when a testable boundary feels awkward — first try a simpler API, interface seam, dependency injection point, or smaller unit. If the mode choice could change scope, risk, or acceptance criteria, ask a focused clarification and record the answer before completing the plan.
 
 ### Safety
 

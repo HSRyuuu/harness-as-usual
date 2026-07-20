@@ -29,7 +29,6 @@ from .constants import (
     TASK_FIX_STATUSES,
     TASK_REVIEW_TYPES,
     TASK_ROLES,
-    TDD_EXCEPTION_CATEGORIES,
 )
 from .paths import audit_path, require_existing_topic_dir, topic_dir, topic_md_path
 from .status import derive_status
@@ -86,21 +85,16 @@ def cmd_complete_task(args: argparse.Namespace) -> None:
     if args.mode not in TASK_COMPLETION_MODES:
         allowed = ", ".join(sorted(TASK_COMPLETION_MODES))
         raise SystemExit(f"Unsupported task mode: {args.mode or '<empty>'}. Allowed modes: {allowed}")
-    if args.mode == "tdd":
+    if args.mode == "test-required":
         if not args.test_target:
-            raise SystemExit("TDD task requires test target evidence.")
-        if not args.red_evidence:
-            raise SystemExit("TDD task requires RED evidence before implementation.")
+            raise SystemExit("test-required task requires a test target.")
         if not args.green_evidence:
-            raise SystemExit("TDD task requires GREEN evidence after implementation.")
-    if args.mode == "approved-tdd-exception":
-        if args.exception_category not in TDD_EXCEPTION_CATEGORIES:
-            allowed = ", ".join(sorted(TDD_EXCEPTION_CATEGORIES))
-            raise SystemExit(
-                f"Invalid TDD exception category: {args.exception_category or '<empty>'}. Allowed categories: {allowed}"
-            )
-        if not args.exception_approval:
-            raise SystemExit("TDD exception requires human approval source.")
+            raise SystemExit("test-required task requires passing-test evidence (--green-evidence).")
+        # Regression RED evidence (--red-evidence) is required for bug fixes only;
+        # that requirement is enforced by the plan and review, not this gate.
+    if args.mode == "no-test":
+        if not args.no_test_reason:
+            raise SystemExit("no-test task requires a recorded reason (--no-test-reason).")
     topic = require_existing_topic_dir(args.topic_dir)
     append_audit(
         topic,
@@ -121,8 +115,7 @@ def cmd_complete_task(args: argparse.Namespace) -> None:
             "greenEvidence": args.green_evidence,
             "expectedResult": args.expected_result,
             "result": args.result,
-            "exceptionCategory": args.exception_category,
-            "exceptionApproval": args.exception_approval,
+            "noTestReason": args.no_test_reason,
             "artifacts": split_csv(args.artifacts),
         },
     )

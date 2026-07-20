@@ -183,7 +183,7 @@ Purpose: turn completed requirements into one reviewable, executable `plan.md`.
 
 Entry gate: audit-derived status is `requirements-complete`, the user approved moving to plan or asked to write/update it, and the plan is based on current `requirements.md` content, not memory.
 
-Ownership: `templates/plan.md` owns the section list and order; `skills/writing-plan/SKILL.md` owns authoring, dependency analysis, task contracts (safety, test strategy including mandatory TDD, runnable verification, acceptance-criteria coverage), self-review, and revision routing; `skills/writing-plan/plan-document-reviewer-prompt.md` owns the review checklist. One topic produces one `plan.md`; execution progress belongs in `audit.jsonl`, never in `plan.md`.
+Ownership: `templates/plan.md` owns the section list and order; `skills/writing-plan/SKILL.md` owns authoring, dependency analysis, task contracts (safety, test strategy — tests required with test-first as technique, `no-test` only for untestable work, runnable verification, acceptance-criteria coverage), self-review, and revision routing; `skills/writing-plan/plan-document-reviewer-prompt.md` owns the review checklist. One topic produces one `plan.md`; execution progress belongs in `audit.jsonl`, never in `plan.md`.
 
 ## 9. Execute Rules
 

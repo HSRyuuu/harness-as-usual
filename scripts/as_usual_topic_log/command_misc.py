@@ -29,7 +29,6 @@ from .constants import (
     TASK_FIX_STATUSES,
     TASK_REVIEW_TYPES,
     TASK_ROLES,
-    TDD_EXCEPTION_CATEGORIES,
     VERIFICATION_VERDICTS,
 )
 from .paths import audit_path, require_existing_topic_dir, topic_dir, topic_md_path

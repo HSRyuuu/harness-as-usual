@@ -78,8 +78,7 @@ TASK_REVIEW_TYPES = {"task"}
 TASK_ROLES = {"implementer", "reviewer", "controller"}
 TASK_FIX_STATUSES = {"requested", "completed"}
 SWEEP_KINDS = {"final", "stale-reference", "mirror", "verification", "custom"}
-TASK_COMPLETION_MODES = {"tdd", "approved-tdd-exception"}
-TDD_EXCEPTION_CATEGORIES = {"throwaway-prototype", "generated-code", "configuration"}
+TASK_COMPLETION_MODES = {"test-required", "no-test"}
 ROUTE_NEXT_ACTIONS = {
     "requirements": "answer-questions",
     "plan": "write-plan",

@@ -153,14 +153,19 @@ review sections, or audit.jsonl.
 
 ### Test Strategy
 
-- Mode: tdd | approved-tdd-exception
+<!--
+Mode: test-required is the default — name a Test target and the passing-test
+evidence to record. Regression RED (a failing test that reproduces the issue
+before the fix) is required for bug fixes and optional otherwise. Use no-test
+only for genuinely untestable work (configuration, generated code, throwaway
+prototype); record the reason. no-test needs no separate user approval.
+-->
+
+- Mode: test-required | no-test
 - Test target:
-- RED:
-- GREEN:
-- Refactor check:
-- Exception Category: None | throwaway-prototype | generated-code | configuration
-- Exception Approval:
-- Evidence to record:
+- Regression RED (bug fixes):
+- Test evidence:
+- no-test reason:
 
 ### Steps
 

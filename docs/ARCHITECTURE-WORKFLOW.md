@@ -309,7 +309,7 @@ Topic log helper:
 - Plan에 없는 scope를 즉흥적으로 추가하지 않는다.
 - `plan.md`를 progress ledger로 수정하지 않는다.
 - task progress, dispatch, task review/fix loop, verification command, result, final sweep, blocker는 `scripts/topic-log.py`로 `audit.jsonl`에 기록한다.
-- `tdd` task는 test target, RED-before-implementation, GREEN-after-implementation evidence를 기록해야 한다. Non-TDD task는 `approved-tdd-exception`으로만 기록할 수 있고, category는 `throwaway-prototype`, `generated-code`, `configuration` 중 하나여야 하며 human approval source가 필요하다.
+- `test-required` task는 test target과 passing-test evidence를 기록해야 하며, bug fix인 경우 regression RED(수정 전 버그를 재현하는 실패 테스트) evidence도 필수다. Test-first는 기본 기법이지만 bug fix가 아닌 작업은 passing test + behavior coverage 기록으로 충분하다. Test가 불가능한 작업(configuration, generated code, throwaway prototype)만 `no-test`로 기록하며 사유를 남긴다(별도 user approval 불필요).
 - high-risk operation은 실행 직전에 fresh user approval을 다시 받아야 한다.
 - execution completion 후 같은 turn에서 `review-execution`을 호출한다.
 

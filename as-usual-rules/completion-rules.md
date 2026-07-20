@@ -11,7 +11,7 @@ Single source of truth for when work may be recorded or claimed as complete. App
 ## Verdict Consequences
 
 - `INCONCLUSIVE` is not `PASS`. Subagent timeout, no response, unverifiable results, and ambiguous results are recorded as `INCONCLUSIVE` and treated as gate failure: the task cannot be recorded complete and execution cannot proceed to `execution-complete` until re-verification passes or the user explicitly decides.
-- Do not move to Task N+1 or record `execution.completed` while Task N has unresolved Critical or Important task-level findings, missing required TDD evidence, missing verification evidence, or unresolved route-back decisions.
+- Do not move to Task N+1 or record `execution.completed` while Task N has unresolved Critical or Important task-level findings, missing required test evidence (passing-test evidence for a `test-required` task, plus regression RED for a bug fix), missing verification evidence, or unresolved route-back decisions.
 
 ## Subagent Delegation And Receipts
 

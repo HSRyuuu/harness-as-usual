@@ -18,10 +18,9 @@ These inputs form the delegation contract: TASK = the exact `plan.md` task text,
 ## Rules
 
 - Follow the task text exactly. Do not expand scope.
-- Use TDD exactly as required by the task: write one minimal failing test for the next behavior, verify RED, implement the smallest change, verify GREEN, then refactor.
-- For `tdd`, produce RED evidence before implementation and GREEN evidence after implementation.
-- If testing looks impossible, first report the testability problem and the smaller API, interface boundary, dependency injection, or unit that would make it testable. Do not choose an exception yourself.
-- Use `approved-tdd-exception` only when the controller provides an allowed category and human approval source.
+- Follow the task's `Test Strategy`. For a `test-required` task, deliver passing tests covering the behavior and report the passing-test evidence. If the task is a bug fix, first write a regression test that fails against the current code (report that RED evidence), then implement the fix and report it passing (GREEN). Test-first behavior-by-behavior is the recommended technique, but for non-bug-fix work the required evidence is the passing test plus behavior coverage, not a RED-before-code trace.
+- If testing looks impossible, first report the testability problem and the smaller API, interface boundary, dependency injection, or unit that would make it testable. Do not choose `no-test` yourself.
+- Use `no-test` only when the controller's task specifies it (genuinely untestable configuration, generated code, or throwaway prototype).
 - If context is insufficient, return `NEEDS_CONTEXT` with the exact missing information.
 - If the plan is wrong or unsafe, return `BLOCKED` with the reason and suggested route-back.
 - Your `DONE` status is a claim, not a completion: the controller verifies your output against files, diffs, and evidence before recording completion.

@@ -53,15 +53,14 @@ Read and use these sources in this order, from disk, before editing any implemen
 - Do not use subagent-driven execution unless the plan marks the mode and the host can dispatch fresh bounded subagents. If the plan requests subagents but the host cannot provide them, follow the plan's fallback or stop for user confirmation when the quality/risk tradeoff is material.
 - Do not run high-risk operations without a matching plan Safety entry and fresh explicit user approval immediately before the operation.
 - Completion judgment follows `as-usual-rules/completion-rules.md`: verification evidence by surface, `INCONCLUSIVE` handling, subagent `DONE` treated as a claim until controller-verified, and the completion claim gate.
-- Do not write implementation code before RED evidence for a `tdd` task.
-- Do not mark a `tdd` task complete without test target, RED evidence, and GREEN evidence.
-- Do not mark an `approved-tdd-exception` task complete without an allowed category (`throwaway-prototype`, `generated-code`, or `configuration`) and a human approval source.
+- Do not mark a `test-required` task complete without a test target and passing-test evidence. For a bug fix, also require regression RED evidence (a failing test that reproduces the bug before the fix).
+- Do not mark a `no-test` task complete without a recorded reason. `no-test` is only for genuinely untestable work (configuration, generated code, throwaway prototype); it needs no user approval but is not an escape hatch for awkward-to-test code.
 - Do not skip `review-execution` after successful execution completion.
 
 ## Preferences
 
 - Prefer the existing codebase's naming, formatting, test, and error-handling patterns.
-- Prefer making the task boundary testable over requesting a TDD exception.
+- Prefer making the task boundary testable over choosing `no-test`.
 - Prefer the planned verification command over ad hoc substitutes unless the plan is revised.
 - Prefer subagent-driven execution for isolated, bounded tasks when the host supports it; use inline for tightly coupled or context-heavy tasks.
 - Prefer stopping and routing back to the owning phase over improvising scope.
@@ -81,8 +80,8 @@ Stop before executing and record the gap through `scripts/topic-log.py blocker` 
 - The plan lacks `Execution Mode`, or a `mixed` plan lacks task-level execution modes.
 - The plan introduces or changes an execution entrypoint, external dependency, time-based behavior, state changes outside the normal request/response path, or runtime metadata/resource dependency, but has no `Execution Surface` section or lacks a sufficient contract for invocation, required configuration/inputs, external dependencies, test environment/resource setup, time control when applicable, success/failure signals, or idempotency/retry behavior.
 - A task is missing Safety fields: risk level, high-risk operations, reversibility, separate approval, or rollback/recovery notes.
-- A task uses anything other than `tdd` or `approved-tdd-exception`.
-- An `approved-tdd-exception` task lacks category `throwaway-prototype`, `generated-code`, or `configuration`, or lacks a human approval source.
+- A task uses anything other than `test-required` or `no-test`.
+- A `no-test` task lacks a concrete reason, or is used for testable code that was merely awkward to test.
 - A high-risk operation is present but `Separate Approval Required` is not `yes`.
 - A `Consumes` name has no matching `Produces` in an earlier task.
 - The plan contradicts `requirements.md` or the latest request.
@@ -201,18 +200,17 @@ python3 <plugin-root>/scripts/topic-log.py audit \
 4. If the task includes a high-risk operation, stop immediately before that operation and ask for fresh user approval using the approval request format above. Include the exact operation, target files/resources, reversibility, and rollback/recovery notes. Do not proceed until the approval is explicit in the current turn. Use `approve-high-risk` (above) to append `approval.high_risk`. If approval is denied or unclear, record a blocker and stop.
 5. Follow the task's steps exactly. The plan is the contract; do not improvise scope.
 6. Follow the task's `Test Strategy`.
-   - For `tdd`, work behavior by behavior: write one minimal failing test for the next behavior, run it and record RED command/output before implementation, implement only enough code to pass, run it and record GREEN command/output, then refactor while keeping tests green. Repeat for the next behavior.
-   - If you cannot see how to test a behavior, assume the boundary is too coupled or unclear before assuming TDD is impossible. Try a simpler API, interface boundary, dependency injection, smaller unit, or existing harness. Exploration is allowed only as throwaway learning; discard exploratory implementation and return to RED/GREEN/REFACTOR.
-   - If code is written before RED evidence, stop, record the violation, and restart that task from a failing test unless the user explicitly approves an allowed exception.
-   - For `approved-tdd-exception`, confirm the task has category `throwaway-prototype`, `generated-code`, or `configuration` and a human approval source from the current topic evidence. Then run the planned verification or review evidence.
+   - For `test-required`, deliver passing tests that cover the task's behavior and record the passing-test evidence. For a **bug fix**, first write a regression test that fails against the current code (record that RED evidence), then implement the fix and record it passing (GREEN). Test-first behavior-by-behavior RED/GREEN is a good default technique, but for non-bug-fix work the required record is the passing test plus behavior coverage, not a RED-before-code trace.
+   - If you cannot see how to test a behavior, assume the boundary is too coupled or unclear before assuming it is untestable. Try a simpler API, interface boundary, dependency injection, smaller unit, or existing harness. Choose `no-test` only when the work is genuinely untestable.
+   - For `no-test`, confirm the work is genuinely untestable (configuration, generated code, throwaway prototype), record the reason, then run the planned verification or review evidence. No user approval is required.
 7. Run the task's `Verification` command and compare the result to its expected result.
-8. Record the exact command and outcome with `scripts/topic-log.py verification --verdict PASS|FAIL|INCONCLUSIVE`, including RED/GREEN evidence in the summary or task completion event when applicable. Apply `INCONCLUSIVE` consequences and surface-appropriate evidence per `as-usual-rules/completion-rules.md`.
+8. Record the exact command and outcome with `scripts/topic-log.py verification --verdict PASS|FAIL|INCONCLUSIVE`, including regression RED/GREEN evidence for bug fixes in the summary or task completion event. Apply `INCONCLUSIVE` consequences and surface-appropriate evidence per `as-usual-rules/completion-rules.md`.
 9. If using subagent-driven mode, run one task-level review with `task-reviewer-prompt.md`. It covers requirements fit and quality/safety in a single pass. Review details go in `execute/task-<N>-review.md` with YAML frontmatter `task`, `verdict`, and `reviewedAt`.
 10. Treat reviewer responses as receipts. The receipt status must be one of `passed | findings | blocked` and must match the review file frontmatter `verdict` and the `record-task-review --status` value. If the receipt status is outside the closed vocabulary or does not match frontmatter, invalidate the result, record a note, and request the review again. Include the review file in `record-task-review --artifacts`.
 11. When review status is `findings` or `blocked` and any finding count is nonzero, include stable `--finding-ids` so fixes can resolve the findings.
 12. If the task review finds issues, record `record-task-fix --status requested`, fix or redispatch the fix, record `record-task-fix --status completed --finding-id <id>`, then rerun the task review. Do not start Task N+1 while Critical or Important task findings remain unresolved. `complete-execution` fails when unresolved task findings remain in derived status.
 13. If verification cannot be run, record the reason and the remaining work.
-14. Use `scripts/topic-log.py complete-task --topic-dir <topic-dir> --task "Task N: <name>" --summary <summary> --mode tdd --test-target <target> --red-evidence <red> --green-evidence <green> --verification <verification-evidence> --result <result>` when a TDD task finishes. For an approved exception, use `--mode approved-tdd-exception --exception-category <category> --exception-approval <approval-source>` plus the planned verification or review evidence. Include changed artifacts with `--artifacts` when useful.
+14. Use `scripts/topic-log.py complete-task --topic-dir <topic-dir> --task "Task N: <name>" --summary <summary> --mode test-required --test-target <target> --green-evidence <passing-test> --verification <verification-evidence> --result <result>` when a `test-required` task finishes; add `--red-evidence <regression-red>` for a bug fix. For untestable work, use `--mode no-test --no-test-reason <reason>` plus the planned verification or review evidence. Include changed artifacts with `--artifacts` when useful.
 15. If a task-sized commit is created before finalization because the project/user explicitly wants commit boundaries during execution, record it with `record-task-commit`. Do not create commits merely because this skill is running; post-finalize git action remains the default AsUsual boundary.
 
 Do not mutate `plan.md` to track progress. Progress lives in `audit.jsonl`. Edit `plan.md` only when the user explicitly asks for a plan revision, in which case return to `writing-plan`.
@@ -233,7 +231,7 @@ Declare execution complete only after `audit.jsonl` records:
 
 - completed work,
 - verification performed, with exact commands and outcomes,
-- task-level verification mappings in `task.completed` events when the plan has task test targets or RED/GREEN evidence,
+- task-level verification mappings in `task.completed` events when the plan has task test targets or regression RED/GREEN evidence,
 - task dispatch/review/fix evidence when subagents or task-level review loops were used,
 - final sweep evidence for stale references, mirror checks, or consistency scans required by the plan,
 - verification skipped and why,
@@ -316,5 +314,5 @@ The actual review/approval/write happens later via `manage-self-improvement` at 
 - Stopping after successful execution without invoking `review-execution`.
 - Letting subagent output replace controller verification.
 - Starting Task N+1 while Task N has unresolved task review findings.
-- Treating "hard to test" as permission to skip TDD without first simplifying the boundary and getting human approval for an allowed exception.
+- Treating "hard to test" as permission to choose `no-test` without first simplifying the boundary to make it testable.
 - Entering commit, PR, release, deploy, or retrospective behavior the topic never decided.
