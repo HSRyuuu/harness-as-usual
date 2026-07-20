@@ -20,8 +20,16 @@
 
 ## Source Inputs
 
+<!--
+List only material inputs. On the chat-default clarification path there are no
+question files; the trace is the recorded decisions. On the file-cycle exception
+path, list each answered question-cN.md. Keep whichever lines apply and delete
+the rest — do not leave an empty "Question files" line when clarification was
+chat-based.
+-->
 - Initial request: `topic.md#Initial Request` and `audit.jsonl` event `topic.created`
-- Question files:
+- Recorded decisions: material `decision.recorded` events from chat clarification
+- Question files (file-cycle exception only):
   - `question-c1.md`
 - Other references:
   - None
