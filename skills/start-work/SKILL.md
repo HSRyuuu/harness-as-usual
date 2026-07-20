@@ -26,7 +26,7 @@ Before routing, confirm:
 
 ## Routing Principle
 
-Use the canonical routing principle and Route table in `as-usual-rules/routing-rules.md` (Start-Work Gate Routing); do not maintain a second copy here. Treat the High-Risk Operation Gate as a hard gate, and when borderline, choose the heavier gate.
+Use the canonical routing principle and Route table in `as-usual-rules/routing-rules.md` (Start-Work Gate Routing); do not maintain a second copy here. Treat the High-Risk Operation Gate as a hard gate. Borderline cases are a judgment call per the Routing Principle: take the lighter gate for low-risk reversible work and record the reason; escalate only for real risk or genuinely interdependent decisions, not for size.
 
 ## Route Table
 
@@ -65,4 +65,4 @@ When the route is `plan`, hand off to `writing-plan`. It analyzes dependencies, 
 
 When the route is `execute`, hand off to `executing-plan`. It rereads topic/audit/requirements/plan artifacts, critically reviews the plan, executes tasks in the approved execution mode, records audit events for progress, task review loops, sweeps, and verification, then invokes `review-execution` after successful execution completion or stops at a blocker.
 
-When the route is `direct-execute`, hand off to `direct-execute`. It executes the trivial work and records the result, verification, and terminal completion (`direct-execute-complete`).
+When the route is `direct-execute`, hand off to `direct-execute`. It executes the clear low-risk work and records the result, verification, and terminal completion (`direct-execute-complete`).

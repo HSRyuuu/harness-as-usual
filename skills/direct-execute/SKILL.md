@@ -1,6 +1,6 @@
 ---
 name: direct-execute
-description: Use when the user directly invokes direct-execute for fast trivial work, or when start-work routes an active AsUsual topic to direct-execute.
+description: Use when the user directly invokes direct-execute for fast clear low-risk work, or when start-work routes an active AsUsual topic to direct-execute.
 ---
 
 # Direct Execute
@@ -9,7 +9,7 @@ description: Use when the user directly invokes direct-execute for fast trivial 
 
 This skill owns the complete `direct-execute` contract: the allow and deny conditions, the start-work-routed execution path, and the recordless direct entrypoint.
 
-It is a lightweight terminal path for clear, trivial, low-risk, reversible work. It does not join the `review-execution`, `finalize`, or `git-action` pipeline.
+It is a lightweight terminal path for clear, low-risk, reversible work. The gate is ambiguity and risk, not size: a larger but unambiguous, low-risk, reversible change can go direct. It does not join the `review-execution`, `finalize`, or `git-action` pipeline.
 
 ## Responsibility Boundary
 
@@ -26,21 +26,22 @@ The allow and deny conditions below are the single source of truth. `start-work`
 Use `direct-execute` only when all conditions below are true.
 
 - The request and expected outcome are clear.
-- The change scope is small and isolated.
 - It does not change public API, data model, auth/security, migration, deployment, dependency policy, or user-visible behavior.
-- It does not include any high-risk operation from `core-workflow.md`.
+- It does not include any high-risk operation from `as-usual-rules/safety-rules.md`.
 - There is no decision the user must make among multiple viable approaches.
 - The verification method is clear and can be run or recorded immediately.
 - Failure would be easy to reverse.
 
-Examples include documentation typo fixes, obvious formatting cleanup, single-file comment/copy corrections, read-only inspection, or a small mechanical step inside an already approved plan.
+Scope size is not an allow condition. A change that spans several files or is non-trivial in volume still qualifies when it is unambiguous, low-risk, and reversible. What disqualifies it is ambiguity (an open design decision) or risk, not size.
+
+Examples include documentation typo fixes, obvious formatting cleanup, comment/copy corrections, read-only inspection, a mechanical rename across several files, or a small step inside an already approved plan.
 
 ## Deny Conditions
 
 Do not use `direct-execute` if any condition below is true.
 
 - It is a new feature, behavior change, API change, schema change, or permission/security change.
-- It requires a multi-file or multi-component design decision.
+- It requires an unresolved design decision (which approach, which interface, which trade-off). A change that touches many files but has one obvious correct shape is not disqualified by this.
 - It could change user-facing UX, product wording, business rules, or acceptance criteria.
 - It asks for a test, release, commit, PR, or deploy policy that the topic has not yet decided.
 - It includes file deletion, bulk formatting, package installation, dependency changes, DB migration or schema changes, environment/secret changes, CI/CD changes, deploy/release, git push, or force push.
@@ -48,7 +49,7 @@ Do not use `direct-execute` if any condition below is true.
 - The verification method is unclear or failure risk is high.
 - There is no skip rationale to record in `audit.jsonl` beyond "it seems simple".
 
-The high-risk operation definition in `core-workflow.md` is a hard gate. High-risk work is never allowed through either entry path.
+The high-risk operation definition in `as-usual-rules/safety-rules.md` is a hard gate. High-risk work is never allowed through either entry path.
 
 ## Entry Selection
 
@@ -67,7 +68,7 @@ Do not silently switch entry paths. A routed entry keeps its topic and audit con
 
 ### Workflow
 
-1. Execute the approved trivial work.
+1. Execute the approved work.
 2. Run the clear, immediate verification method recorded by `start-work`. Verification evidence follows `as-usual-rules/completion-rules.md`: evidence must match the surface, and an unverifiable result is `INCONCLUSIVE`, not done.
 3. Record the result, verification outcome, and terminal next action:
 

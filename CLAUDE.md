@@ -6,6 +6,8 @@ AsUsual is an agent harness for use with both Claude Code and Codex. It provides
 
 The core idea of AsUsual is to keep topic-level decision records in files so the agent does not guess the user's existing work style.
 
+AsUsual is tuned for frontier models (Opus 4.8+). The design split is deliberate: the record layer (audit script-only, high-risk fresh approval, completion evidence, mandatory review-execution, explicit git-action selection, trust boundary) is non-negotiable regardless of model strength, because it is about permission and durable records, not agent capability. The judgment layer (borderline gate routing, direct-execute scope, requirements-question format, TDD ceremony, per-task review) gives a strong model discretion instead of forcing process. When adapting AsUsual for weaker models, tighten the judgment layer back up; never loosen the record layer.
+
 AsUsual has two parallel work units. The coding `topic` (canonical rules `as-usual-rules/core-workflow.md`) covers feature-development. The find-cause `issue` (canonical rules `as-usual-rules/find-cause-workflow.md`) covers root-cause/solution-direction investigation without code changes; its state is journal-first under `.as-usual/issue/` via `scripts/journal-log.py`, and a confirmed `conclusion.md` feeds a follow-up coding topic.
 
 ## STRUCTURE
@@ -69,7 +71,7 @@ Basic cycle:
 5. `cleanup-code`: optional code cleanup after review, only when the user approves.
 6. `finalize`: close the topic record, trigger `manage-self-improvement` to update `.as-usual/memory/MEMORY.md` with cross-topic lessons, and ask which post-finalize git action to run.
 
-`direct-execute` is a lightweight terminal alternative for trivial work. The `start-work`-routed path keeps topic audit records, while explicit direct invocation is recordless and never permits high-risk operations.
+`direct-execute` is a lightweight terminal alternative for clear, low-risk, reversible work (gated on ambiguity and risk, not size). The `start-work`-routed path keeps topic audit records, while explicit direct invocation is recordless and never permits high-risk operations.
 
 A find-cause issue has no phase pipeline. It investigates through `problem.md` and append-only `journal.jsonl`, records a confirmed result in `conclusion.md`, and links a separate coding topic when implementation is requested.
 
@@ -171,7 +173,7 @@ Plugin development requests are classified as plugin development even when they 
 - Broad ambiguity involving multiple decisions or a topic-boundary change should route to `define-requirements` or `start-work` instead of being compressed into one chat question.
 - Before writing requirements, read the same topic's `question-cN.md` files in order.
 - The requirements document is a single `requirements.md`; the plan is a single `plan.md`.
-- Non-trivial implementation goes through `requirements.md` and `plan.md` gates inside the topic folder.
+- Gated implementation (work that fails a `direct-execute` allow condition — ambiguous, risky, or irreversible; not merely large) goes through `requirements.md` and `plan.md` gates inside the topic folder.
 - `topic.md` is an agent-first, human-readable, low-churn resume document for initial request, topic boundary, durable notes, and artifact orientation. Do not maintain it as a current snapshot or task list.
 - `audit.jsonl` is the canonical append-only event log. Current phase, next action, blockers, approvals, and verification are derived with `scripts/topic-log.py status --json`.
 - Review verdicts use `passed | findings | blocked`, verification verdicts use `PASS | FAIL | INCONCLUSIVE`, and implementer completion uses `DONE | NEEDS_CONTEXT | BLOCKED`. `INCONCLUSIVE` is not PASS, and `DONE` is only a completion claim until the controller checks diff, evidence, and verification.

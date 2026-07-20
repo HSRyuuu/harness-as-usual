@@ -7,7 +7,7 @@ Your role is not to jump directly into implementation like a generic coding assi
 
 `start-work -> define-requirements -> writing-plan -> executing-plan -> review-execution -> optional cleanup-code -> finalize -> git-action`
 
-`direct-execute` remains a narrow shortcut for trivial work, has its own direct invocation entrypoint, and does not force the full post-execution review path.
+`direct-execute` is a shortcut for clear, low-risk, reversible work (gated on ambiguity and risk, not size), has its own direct invocation entrypoint, and does not force the full post-execution review path.
 
 Record the user's intent, questions, answers, approvals, plan, progress, and verification evidence in topic artifacts so the same context can be resumed in later sessions.
 
@@ -19,7 +19,7 @@ When AsUsual is active, chat memory is supporting context. Topic files are the s
 
 Before creating or changing implementation, confirm that there is a completed `requirements.md`, an approved `plan.md`, and audit evidence that the topic is ready to execute.
 
-There are two `direct-execute` exceptions for clear, trivial, low-risk, reversible work:
+There are two `direct-execute` exceptions for clear, low-risk, reversible work:
 
 1. When `start-work` routes to `direct-execute`, record the route reason, skipped gates, verification plan, result, and verification in `audit.jsonl` through `scripts/topic-log.py`.
 2. When the user directly invokes the `direct-execute` skill, execute without topic artifacts or audit records. The skill must still apply its allow/deny checks, and no confirmation may allow a high-risk operation.
@@ -46,7 +46,7 @@ There are two `direct-execute` exceptions for clear, trivial, low-risk, reversib
 ## Key Terms
 
 - **material**: a decision or change is material if it could change any of requirements, plan, implementation approach, risk, or verification. Wording, comments, path/typo corrections, and behavior-preserving step reordering are non-material.
-- **non-trivial**: implementation is non-trivial if it fails any `direct-execute` allow condition (clear, trivial, low-risk, reversible).
+- **gated implementation**: implementation needs the requirements/plan gates when it fails any `direct-execute` allow condition (clear, low-risk, reversible). Size alone does not make work gated; ambiguity or risk does.
 - **focused clarification**: a single user decision that can be resolved in the current turn. It may be material; if so, the answer must be recorded in `audit.jsonl` through `scripts/topic-log.py`, the affected artifact must be updated, and the relevant review rerun.
 - **broad ambiguity**: multiple interdependent decisions, a decision requiring a durable multi-option review, or a topic-boundary change. Broad ambiguity must go through the file-backed `define-requirements` question cycle (or `start-work` re-routing), never chat alone.
 
@@ -68,7 +68,7 @@ Owned by `as-usual-rules/safety-rules.md`, shared with the find-cause issue work
 
 ### Hard Gates And Preferences
 
-Hard gates: requirements/plan before non-trivial implementation, file-backed answers for broad define-requirements decisions, fresh disk reads before phase decisions, fresh approval before high-risk operations, mandatory execution review before finalize, and explicit user choice before git actions.
+Hard gates: requirements/plan before gated implementation (see Key Terms), file-backed answers for broad define-requirements decisions, fresh disk reads before phase decisions, fresh approval before high-risk operations, mandatory execution review before finalize, and explicit user choice before git actions.
 
 Preferences: choose the lightest sufficient workflow gate, keep artifacts compact and reviewable, prefer helper scripts for routine `topic.md`/`audit.jsonl` updates, and prefer existing project patterns over new abstractions.
 
@@ -245,7 +245,7 @@ When AsUsual is active, use `using-as-usual` first. The canonical runtime workfl
 | `find-cause` | The request is a root-cause/solution-direction investigation without code changes, start-work gate routing routes to `find-cause`, or a `.as-usual/issue/` investigation is being resumed; owns the issue lifecycle per `as-usual-rules/find-cause-workflow.md` |
 | `using-as-usual` | AsUsual activates; owns activation confirmation and first reads |
 | `start-work` | New topic or the next phase is unclear after first reads |
-| `direct-execute` | Route is direct-execute after start-work gate routing, or the user explicitly invokes it for trivial low-risk work (recordless direct entry; high-risk never allowed) |
+| `direct-execute` | Route is direct-execute after start-work gate routing, or the user explicitly invokes it for clear low-risk reversible work (recordless direct entry; high-risk never allowed) |
 | `define-requirements` | Route is `requirements`, answered question files need validation, or the user asks to write/update requirements |
 | `writing-plan` | User approves moving from completed requirements to plan, or asks to write/update `plan.md` |
 | `executing-plan` | `requirements.md` and `plan.md` are current and the user explicitly approves or requests execution |

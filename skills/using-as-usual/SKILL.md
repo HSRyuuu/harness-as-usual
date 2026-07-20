@@ -15,7 +15,7 @@ This skill is the entry-point helper for activation and first reads in the AsUsu
 | `find-cause` | Own the whole `.as-usual/issue/` investigation lifecycle per `as-usual-rules/find-cause-workflow.md`; not a coding topic phase |
 | `using-as-usual` | Identify activation, confirm `core-workflow.md`, perform `.as-usual/topic/` first reads, and initialize new topic `topic.md`/`audit.jsonl` |
 | `start-work` | After first reads, route a new topic or unclear current phase to requirements, plan, execute, or direct-execute |
-| `direct-execute` | Receive a start-work route for an active topic or handle an explicit recordless direct invocation for trivial work |
+| `direct-execute` | Receive a start-work route for an active topic or handle an explicit recordless direct invocation for clear low-risk reversible work |
 | `define-requirements` | Create/validate `question-cN.md` files when needed, write/review `requirements.md`, and ask for plan approval |
 | `writing-plan` | Analyze dependencies, write/review `plan.md`, and ask for execution approval |
 | `executing-plan` | Execute the reviewed plan using the approved execution mode and record progress, review loops, sweeps, and verification |

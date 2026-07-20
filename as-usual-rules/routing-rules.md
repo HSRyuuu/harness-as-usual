@@ -7,7 +7,7 @@ Activation and first reads are owned by `using-as-usual` and `core-workflow.md`;
 ## Routing Principle
 
 - Choose the lightest sufficient gate for the current work instead of skipping gates.
-- When borderline, choose the heavier gate.
+- Borderline cases are the agent's judgment call, not an automatic escalation. When a request is low-risk and reversible, take the lighter gate and record the one-line reason in `audit.jsonl`. Escalate to the heavier gate only when the risk is real (a high-risk operation, hard-to-reverse change, or production/shared surface) or when several interdependent decisions genuinely need durable multi-option review. Do not route to a heavier gate merely because a request is large or unfamiliar; size and complexity are not risk.
 - Derived status (`scripts/topic-log.py status --json`) is the default route source. An explicit user request for a later phase wins only when that phase's gate preconditions hold; otherwise name the missing gate, record it, and route through start-work gate routing instead of silently obeying either side.
 - Record every routing decision in `audit.jsonl` through `scripts/topic-log.py`.
 
@@ -22,7 +22,7 @@ Route table:
 | `requirements` | The request is ambiguous, a user decision could change requirements/plan/implementation/risk/verification, or clear work still needs durable requirements review. |
 | `plan` | There is a completed/current `requirements.md`, the user approved moving on to plan, and execution order, files/areas, and verification surface need to be defined. |
 | `execute` | There are completed/current `requirements.md` and approved/current `plan.md`, the plan matches the latest request, and the user asked to execute. |
-| `direct-execute` | The work is clear, trivial, low-risk, reversible, and does not create durable requirements/plan decisions. |
+| `direct-execute` | The work is clear (unambiguous request and outcome), low-risk, reversible, and does not create durable requirements/plan decisions. Scale and file count do not disqualify it; ambiguity and risk do. |
 | `find-cause` | The request reports a bug or unexpected behavior whose root cause is unconfirmed, and the cause itself is the open question — writing `requirements.md` would mean guessing the cause. |
 
 Detailed `direct-execute` allow and deny checks are owned by the `direct-execute` skill; `start-work` applies them when routing. Any high-risk operation denies `direct-execute`.
