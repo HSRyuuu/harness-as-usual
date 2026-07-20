@@ -1,25 +1,36 @@
 ---
 name: manage-self-improvement
-description: Use when AsUsual finalize triggers the self-improvement pass to analyze a completed topic and, after user approval, update long-term memory and add/patch project-local skills.
+description: Use when AsUsual finalize (for a completed topic) or find-cause conclusion (for a concluded issue) triggers the self-improvement pass to analyze the work and, after user approval, update long-term memory and add/patch project-local skills.
 ---
 
 # Manage Self-Improvement
 
 Self-improvement analysis + apply pass. Triggered by `finalize` before the topic
-record is closed. NOT a workflow phase — it adds no phase/next-action.
+record is closed, or by `find-cause` at issue conclusion. NOT a workflow phase —
+it adds no phase/next-action.
 
-`finalize` owns the approval gate; this skill owns the actual writes (memory record,
-skill create/patch). `finalize` itself must not implement topic work.
+The triggering controller (`finalize` for topics, the `find-cause` controller for
+issues) owns the approval gate; this skill owns the actual writes (memory record,
+skill create/patch). The controller itself must not implement topic/issue work.
 
 ## Inputs (read in order)
 
-`topic.md`, `audit.jsonl`, `question-c*.md`, `requirements.md`, `plan.md`,
-`code-review-report.md`, `report.md` (if already written; finalize runs this pass
-*before* writing `report.md`, so on the first finalize use the recorded execution/review
+For a coding topic (triggered by `finalize`): `topic.md`, `audit.jsonl`,
+`question-c*.md`, `requirements.md`, `plan.md`, `code-review-report.md`,
+`report.md` (if already written; finalize runs this pass *before* writing
+`report.md`, so on the first finalize use the recorded execution/review
 evidence and any draft summary instead), current diff summary, existing
 `.as-usual/memory/*`, existing project-local skills (`.agents/skills/`, `.claude/skills/`).
 
 Focus on the gap: initial intent (question/requirements) → plan → actual result (diff/review evidence).
+
+For a find-cause issue (triggered at conclusion): `problem.md`,
+`journal-log.py view --issue-dir <dir> --md`, `conclusion.md`, existing
+`.as-usual/memory/*`, existing project-local skills. Focus on knowledge that
+outlives the issue: confirmed cause patterns, domain knowledge from interviews,
+and reusable diagnostic steps. Record applied memory updates as a journal
+`decision` entry via `journal-log.py add` (there is no `audit.jsonl` for issues) —
+before `conclude` runs, since the journal rejects entries after closure.
 
 ## Two-pass procedure
 

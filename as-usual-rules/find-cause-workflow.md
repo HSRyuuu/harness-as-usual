@@ -14,6 +14,9 @@ thought process can be reconstructed at the end and resumed across sessions.
 
 - find-cause is a separate work unit (`issue`), parallel to the coding
   workflow's `topic`. It runs before, and never inside, the coding workflow.
+- A coding topic may route here: when start-work gate routing
+  (`as-usual-rules/routing-rules.md`) meets a cause-unknown bug, it records
+  the routing in the topic's `audit.jsonl` and hands off to this workflow.
 - Never modify production code in a find-cause issue. When the user wants
   the fix implemented, propose a follow-up coding topic.
 - `as-usual-rules/core-workflow.md` still owns coding topics. This file owns
@@ -114,18 +117,20 @@ continue in the same turn:
 1. Write `conclusion.md` from `templates/conclusion.md` and self-review it.
 2. If reproduction code exists, ask the user: delete it, or keep it as a
    regression-test seed for the follow-up topic.
-3. Record closure: `journal-log.py conclude --issue-dir <dir> --summary ...`
+3. Offer memory candidates for knowledge that outlives the issue via the
+   `manage-self-improvement` skill; reflect only after explicit user
+   approval. This runs before closure because applied memory updates are
+   recorded as journal `decision` entries, and the journal rejects entries
+   after conclusion.
+4. Record closure: `journal-log.py conclude --issue-dir <dir> --summary ...`
    (use `--status cancelled` with the reason when the user abandons the
    investigation).
-4. Offer a follow-up coding topic. If accepted, create it with the existing
+5. Offer a follow-up coding topic. If accepted, create it with the existing
    `scripts/topic-log.py init`, pass `conclusion.md` as a source input, and
    link both directions: the topic records the conclusion path, and the
    journal records the topic path via `journal-log.py link-follow-up
    --issue-dir <dir> --topic-dir <topic-dir>` (pass `--follow-up` to
    `conclude` instead when the topic already exists at conclusion time).
-5. Offer memory candidates for knowledge that outlives the issue via the
-   `manage-self-improvement` skill; reflect only after explicit user
-   approval.
 
 Do not ask the git-action question for issues. Confirming the cause and
 stopping without a follow-up topic is a normal terminal path.

@@ -23,8 +23,11 @@ Route table:
 | `plan` | There is a completed/current `requirements.md`, the user approved moving on to plan, and execution order, files/areas, and verification surface need to be defined. |
 | `execute` | There are completed/current `requirements.md` and approved/current `plan.md`, the plan matches the latest request, and the user asked to execute. |
 | `direct-execute` | The work is clear, trivial, low-risk, reversible, and does not create durable requirements/plan decisions. |
+| `find-cause` | The request reports a bug or unexpected behavior whose root cause is unconfirmed, and the cause itself is the open question — writing `requirements.md` would mean guessing the cause. |
 
 Detailed `direct-execute` allow and deny checks are owned by the `direct-execute` skill; `start-work` applies them when routing. Any high-risk operation denies `direct-execute`.
+
+`find-cause` routes out of the coding topic into a separate work unit: record the routing decision in `audit.jsonl` through `scripts/topic-log.py`, then hand off to the `find-cause` skill, which owns the `.as-usual/issue/` investigation per `as-usual-rules/find-cause-workflow.md`. When the issue concludes, its `conclusion.md` feeds this topic's requirements (link both directions per that workflow's Conclusion rules). Do not write `requirements.md` for a cause-unknown bug instead of routing here.
 
 `direct-execute` is a lightweight terminal path: it does not join the finalize/git-action path. If the user afterwards explicitly asks to commit or run another git action, handle it as ordinary chat; the `git-action` skill is for finalized topics only. Never run a git action without an explicit user request.
 

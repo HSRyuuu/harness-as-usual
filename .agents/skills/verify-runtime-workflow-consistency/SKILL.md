@@ -20,7 +20,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 9. Confirm the self-improvement memory surface is aligned across workflow rules, runtime skills, templates, and audit helpers.
 10. Confirm codebase exploration output is treated as untrusted evidence and its subagent assignment is self-contained.
 11. Confirm verdict vocabularies and receipt contracts stay aligned across prompts, workflow rules, templates, and audit helpers.
-12. Confirm find-cause journal gates, command examples, hand-off routing, and post-conclusion mutation rules stay aligned.
+12. Confirm find-cause journal gates, command examples, hand-off routing, and post-conclusion mutation rules stay aligned, the start-work `find-cause` route in `routing-rules.md` matches the find-cause workflow's coding-topic entry rules, and skills referenced by the find-cause Conclusion procedure (such as `manage-self-improvement`) accept issue artifacts (`problem.md`, journal view, `conclusion.md`) as inputs.
 
 ## When To Run
 

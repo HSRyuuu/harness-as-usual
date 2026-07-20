@@ -243,6 +243,7 @@ When AsUsual is active, use `using-as-usual` first. The canonical runtime workfl
 | Skill | Invoke When |
 | --- | --- |
 | `hand-off` | User invokes an AsUsual hand-off command or asks to resume an existing topic path from another session; not a workflow phase |
+| `find-cause` | The request is a root-cause/solution-direction investigation without code changes, start-work gate routing routes to `find-cause`, or a `.as-usual/issue/` investigation is being resumed; owns the issue lifecycle per `as-usual-rules/find-cause-workflow.md` |
 | `using-as-usual` | AsUsual activates; owns activation confirmation and first reads |
 | `start-work` | New topic or the next phase is unclear after first reads |
 | `direct-execute` | Route is direct-execute after start-work gate routing, or the user explicitly invokes it for trivial low-risk work (recordless direct entry; high-risk never allowed) |
