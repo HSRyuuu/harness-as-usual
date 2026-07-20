@@ -229,7 +229,7 @@ Fix:
 Run:
 
 ```bash
-rg -n 'uncontrolled implementation|Requirements misunderstanding|DB/API|High-risk|requirements\.md|plan\.md|topic\.md|audit\.jsonl|topic-log\.py|inline|subagent-driven|mixed|controller|TDD|approved exception|throwaway-prototype|generated-code|configuration|Execution review|post-finalize|git action|human-friendly requirements|domain-specific rules|find-cause|issue artifacts|journal\.jsonl|journal-log\.py|conclusion\.md|production code|separately linked coding topic' PROJECT_IDENTITY.md
+rg -n 'uncontrolled implementation|Requirements misunderstanding|DB/API|High-risk|requirements\.md|plan\.md|topic\.md|audit\.jsonl|topic-log\.py|inline|subagent-driven|mixed|controller|test evidence|test-required|no-test|regression test|Execution review|post-finalize|git action|human-friendly requirements|domain-specific rules|find-cause|issue artifacts|journal\.jsonl|journal-log\.py|conclusion\.md|production code|separately linked coding topic' PROJECT_IDENTITY.md
 ```
 
 PASS:
@@ -242,7 +242,7 @@ PASS:
   - `requirements.md` and `plan.md` gates,
   - `topic.md`, `audit.jsonl`, and `topic-log.py status --json`,
   - inline/subagent-driven/mixed execution with the main agent as controller,
-  - mandatory TDD evidence and human-approved exception categories for non-TDD tasks,
+  - required test evidence (test-required with passing-test evidence, regression RED for bug fixes) and `no-test` limited to untestable work with a recorded reason,
   - mandatory execution review,
   - post-finalize git action selection,
   - the human-readable/domain-specific role of `requirements.md`.
@@ -284,9 +284,9 @@ rg -n 'find-cause|\.as-usual/issue|problem\.md|journal\.jsonl|conclusion\.md|jou
 PASS:
 
 - Durable documents agree on the current topic artifact model: `question-cN.md`, `requirements.md`, `plan.md`, `topic.md`, `audit.jsonl`, and derived status through `scripts/topic-log.py`.
-- Durable documents agree that `define-requirements` owns file-backed questions plus requirements writing/review.
-- Durable documents agree that non-trivial implementation requires completed requirements and an approved plan.
-- Durable documents agree that `direct-execute` is limited to trivial, low-risk, reversible work; its start-work-routed path is audited, explicit direct invocation is recordless, and neither path permits high-risk work.
+- Durable documents agree that `define-requirements` owns clarification (batched chat by default, file-backed question cycle by exception) plus requirements writing/review, and that every material answer is recorded before synthesis.
+- Durable documents agree that gated implementation (ambiguous, risky, or irreversible work — not merely large) requires completed requirements and an approved plan.
+- Durable documents agree that `direct-execute` is limited to clear, low-risk, reversible work gated on ambiguity and risk rather than size; its start-work-routed path is audited, explicit direct invocation is recordless, and neither path permits high-risk work.
 - Durable documents agree that execution review is mandatory, code cleanup is optional/user-approved, and git actions happen only after finalization and explicit user selection.
 - When the artifact model or self-improvement surface changes, durable documents agree that `.as-usual/` has both `topic/` and `memory/` branches; `manage-self-improvement` and `search-long-term-memory` are the self-improvement and recall skills; and `.as-usual/memory/*` is the memory commit exception while topic artifacts remain excluded by default.
 - Durable documents agree that find-cause uses `.as-usual/issue/`, `problem.md`, append-only `journal.jsonl`, `conclusion.md`, and `scripts/journal-log.py`, and that implementation routes to a separately linked coding topic.

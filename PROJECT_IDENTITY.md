@@ -25,7 +25,7 @@ AsUsual prioritizes preventing these failures, in this order.
 
 1. Requirements misunderstanding
    - The agent must not silently convert unclear intent into implementation.
-   - Broad ambiguity should go through file-backed `define-requirements` questions.
+   - Broad ambiguity should go through `define-requirements`, with every material answer recorded before synthesis (batched chat questions by default, a file-backed question cycle by exception).
    - Material requirements, plan, implementation, risk, or verification decisions must be recorded.
 
 2. Missed DB/API or behavior impact
@@ -46,21 +46,23 @@ Therefore the workflow must treat uncertainty, hidden impact, and unverified cla
 
 AsUsual should keep enough friction to prevent careless changes, but not so much ceremony that ordinary safe work becomes impossible.
 
+AsUsual is tuned for frontier models (Opus 4.8+), which draws a deliberate line. The record layer — script-managed audit history, fresh approval for high-risk operations, completion backed by evidence, mandatory execution review, explicit git-action selection, and the trust boundary — is non-negotiable regardless of model strength, because it governs permission and durable records, not agent capability. The judgment layer — how borderline routing is decided, how wide `direct-execute` reaches, whether clarification is chat or file-backed, how much test-first ceremony a task carries, and when a per-task review runs — gives a capable model discretion instead of forcing process. Adapting AsUsual for weaker models means tightening the judgment layer back up; it never means loosening the record layer.
+
 ## Runtime Principles
 
 - Topic artifacts are the source of truth; chat memory is supporting context.
 - Find-cause issue artifacts are also source of truth: `problem.md` is the living snapshot, `journal.jsonl` is the append-only reasoning record managed through `scripts/journal-log.py`, and `conclusion.md` records the confirmed result with evidence provenance.
 - Find-cause work never modifies production code. Implementation starts as a separately linked coding topic after the cause or solution direction is confirmed.
-- Non-trivial implementation requires a completed `requirements.md` and approved `plan.md`.
-- `direct-execute` is a narrow exception for clear, trivial, low-risk, reversible work. The start-work-routed path remains auditable, while explicit direct invocation is intentionally recordless; neither path may run high-risk operations.
-- Requirements questions are file-backed when the answer can materially change the work.
+- Gated implementation — work that is ambiguous, risky, or hard to reverse — requires a completed `requirements.md` and approved `plan.md`. Size alone does not gate; ambiguity and risk do.
+- `direct-execute` is an exception for clear, low-risk, reversible work, gated on ambiguity and risk rather than size. The start-work-routed path remains auditable, while explicit direct invocation is intentionally recordless; neither path may run high-risk operations.
+- Material requirements decisions are clarified with the user and recorded before synthesis. The medium is batched chat questions by default and a file-backed `question-cN.md` cycle by exception; either way the decisions are recorded, not lost to an ephemeral chat exchange.
 - `requirements.md` should read like a human-friendly requirements definition document: domain-specific rules, constraints, invariants, side effects, and acceptance criteria should be explicit enough for both a human developer and an agent to plan from it.
 - Focused clarifications may happen in chat only when the answer is recorded in `audit.jsonl` through `scripts/topic-log.py`; add a durable note to `topic.md` only when the clarification changes lasting topic context.
 - Plans are execution contracts, not progress ledgers.
 - Plans identify execution surfaces when work changes entrypoints, external dependencies, time-based behavior, out-of-request state changes, or runtime metadata/resources.
 - Execute may use inline, subagent-driven, or mixed task execution, but the main agent remains the controller for task order, evidence, review/fix loops, and completion claims.
 - Execution progress and verification evidence live in canonical `audit.jsonl`; current phase and next action are derived with `scripts/topic-log.py status --json`.
-- Behavior/API/domain logic, bug fixes, and refactors require TDD evidence: test target, RED before implementation, GREEN after implementation, and refactor check. Non-TDD execution is allowed only as a human-approved exception for `throwaway-prototype`, `generated-code`, or `configuration`.
+- Behavior/API/domain logic, bug fixes, and refactors require test evidence: a named test target and passing-test evidence. Test-first is a technique, not a mandate — a bug fix must include a regression test that fails before the fix (RED) and passes after (GREEN), while other work records the passing test plus behavior coverage. Skipping tests (`no-test`) is limited to genuinely untestable work (configuration, generated code, throwaway prototype) with a recorded reason, and needs no separate approval.
 - `topic.md` is agent-first, human-readable, and low-churn: it carries initial request, boundary, durable notes, and artifact orientation, not a constantly maintained snapshot.
 - Execution review is mandatory before finalization.
 - Code cleanup is optional and user-approved.

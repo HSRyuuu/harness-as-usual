@@ -23,7 +23,7 @@ The main agent remains the execution controller in every mode. Subagents may imp
 
 `executing-plan` does not write `requirements.md` or `plan.md`, and does not author new plans. If the plan must change, it returns to the owning phase.
 
-File-backed `[Answer]:` fields are mandatory for `define-requirements` question cycles only. During execution, pause and ask focused chat clarifications when a missing decision can be resolved in the current turn; record the answer in `audit.jsonl` before continuing or routing back to `writing-plan`/`define-requirements`.
+File-backed `[Answer]:` fields belong to the `define-requirements` file-cycle exception only; do not use them here. During execution, pause and ask focused chat clarifications when a missing decision can be resolved in the current turn; record the answer in `audit.jsonl` before continuing or routing back to `writing-plan`/`define-requirements`.
 
 ## Preconditions
 

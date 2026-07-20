@@ -11,7 +11,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 
 1. Confirm phase routing is consistent from activation through requirements definition, plan, execute, execution review, finalize, and git action.
 2. Confirm SessionStart hook activation guidance and `using-as-usual` activation rules stay semantically aligned.
-3. Confirm `define-requirements` remains the single owner of file-backed questions, requirements synthesis, and review.
+3. Confirm `define-requirements` remains the single owner of clarification (batched chat by default, file-backed question cycle by exception), requirements synthesis, and review.
 4. Confirm `templates/requirements.md`, `define-requirements`, and the requirements reviewer prompt use the same review/status vocabulary.
 5. Confirm `templates/plan.md`, `writing-plan`, and the plan reviewer prompt use the same review/status vocabulary.
 6. Confirm assumption, open-question, and affected-surface rules are not contradictory.
@@ -50,7 +50,7 @@ Verify the runtime workflow contract across the files that jointly define AsUsua
 | `skills/find-cause/SKILL.md` | find-cause issue lifecycle and journal command usage |
 | `skills/start-work/SKILL.md` | route selection after activation |
 | `skills/direct-execute/SKILL.md` | direct-execute gate ownership, routed execution, and recordless direct entry |
-| `skills/define-requirements/SKILL.md` | file-backed question cycle, answer validation, requirements synthesis, review, and requirements revision routing |
+| `skills/define-requirements/SKILL.md` | clarification (chat-default and file-cycle exception), answer validation, requirements synthesis, review, and requirements revision routing |
 | `skills/define-requirements/requirements-document-reviewer-prompt.md` | local requirements reviewer criteria and output shape |
 | `skills/writing-plan/SKILL.md` | plan synthesis, dependency analysis, review, and plan revision routing |
 | `skills/writing-plan/plan-document-reviewer-prompt.md` | local plan reviewer criteria and output shape |
@@ -323,7 +323,7 @@ rg -n 'Assumptions|Open Questions|Affected Surface|material ambiguity|chat clari
 
 PASS:
 
-- Initial or broad material ambiguity routes through `define-requirements` unless the explicit 3-cycle escalation allows an assumption-based draft.
+- Initial or broad material ambiguity routes through `define-requirements` unless the explicit 3-round escalation allows an assumption-based draft.
 - Focused clarifications discovered during requirements, plan, or execute may be asked in chat only when the decision can be resolved in the current turn.
 - Chat clarification answers are recorded in `audit.jsonl` through `scripts/topic-log.py` before affected artifacts are updated or execution continues; durable topic context is added to `topic.md` only when needed.
 - Broad multi-question decision cycles and topic-boundary changes route to `define-requirements` or `start-work`, not a single chat answer.
@@ -375,7 +375,7 @@ PASS:
 - `as-usual-rules/logging-rules.md`, `templates/topic.md`, and `topic-log.py` define `audit.jsonl` as the canonical event history and `topic-log.py status --json` as the derived status surface.
 - The `direct-execute` skill owns the allow/deny conditions and denies high-risk operations on both entry paths; `start-work` applies those conditions when routing.
 - `templates/plan.md`, `writing-plan`, and the plan reviewer prompt all require execution mode and task Safety fields: risk level, high-risk operations, reversibility, separate approval, and rollback/recovery notes.
-- `templates/plan.md`, `writing-plan`, `executing-plan`, and the plan/review prompts preserve mandatory TDD evidence mapping through `Test target`, RED/GREEN evidence, approved TDD exception category/approval source, `verification.recorded`, and structured `task.completed` fields.
+- `templates/plan.md`, `writing-plan`, `executing-plan`, and the plan/review prompts preserve the test-evidence mapping through `Test target`, passing-test evidence, regression RED evidence for bug fixes, the `no-test` reason for untestable work, `verification.recorded`, and structured `task.completed` fields.
 - `executing-plan` supports inline/subagent-driven/mixed execution while keeping the main agent as controller and requiring task review/fix evidence before moving on.
 - `executing-plan` records current-turn execution approval and requires fresh user approval before high-risk operations.
 - `review-execution` and `code-reviewer-prompt.md` check secret leaks, prompt-injection risk, high-risk operation evidence, and review finding dispositions.
@@ -680,7 +680,7 @@ Important rules must exist in exactly one owner file; other runtime files may on
 # each pattern below must match ONLY in its owner file (plus pointer lines that name the owner)
 rg -ln 'INCONCLUSIVE is not PASS|Tests alone never prove done|never records task completion' as-usual-rules skills | rg -v 'completion-rules.md' || true
 rg -ln 'Append, never overwrite|never hand-edit them|Never hand-edit them' as-usual-rules skills | rg -v 'logging-rules.md' || true
-rg -ln 'When borderline, choose the heavier gate' as-usual-rules skills | rg -v 'routing-rules.md' || true
+rg -ln 'Borderline cases are the agent.s judgment call|size and complexity are not risk' as-usual-rules skills | rg -v 'routing-rules.md' || true
 rg -c 'passed \| findings \| blocked.*DONE \| NEEDS_CONTEXT \| BLOCKED|Closed vocabularies are fixed' as-usual-rules/core-workflow.md skills 2>/dev/null || true
 rg -n 'IF the same action fails 3 times' as-usual-rules skills | rg -v 'routing-rules.md' || true
 ```

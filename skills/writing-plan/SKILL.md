@@ -25,7 +25,7 @@ Use it only after `using-as-usual` has completed activation and first reads, and
 
 `writing-plan` does not execute work and does not write `requirements.md`. It produces one reviewed execution contract and stops before any implementation.
 
-File-backed `[Answer]:` fields are mandatory for `define-requirements` question cycles only. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
+File-backed `[Answer]:` fields belong to the `define-requirements` file-cycle exception only; do not use them here. Follow Clarification Routing in `as-usual-rules/routing-rules.md` for any decision discovered here.
 
 ## Preconditions
 
