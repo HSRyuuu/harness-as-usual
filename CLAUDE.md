@@ -124,6 +124,7 @@ Plugin development requests are classified as plugin development even when they 
 | Aggregate verification | `.agents/skills/verify-implementation/SKILL.md` | runs registered verification skills in sequence |
 | Skill registry maintenance | `.agents/skills/manage-skills/SKILL.md` | synchronizes verification skill coverage and AGENTS.md registration lists |
 | Local plugin toggle guide | `.agents/skills/turn-on-off-as-usual/SKILL.md` | handles local Claude/Codex plugin on/off while developing |
+| Release/publish guide | `.agents/skills/publish-as-usual/SKILL.md` | explicit-only release loop: verify, commit, lockstep version bump, push `main`, update GitHub-installed plugin |
 | Claude install docs | `docs/CLAUDE-PLUGIN-SETTING.md`, `.claude-plugin/` | public install flow; do not include private absolute paths |
 | Codex install/reload docs | `docs/CODEX-PLUGIN-SETTING.md`, `.codex-plugin/`, `.agents/plugins/` | Codex GitHub/local marketplace and snapshot reload flow |
 
@@ -151,7 +152,7 @@ Plugin development requests are classified as plugin development even when they 
 | Workflow consistency skill | Project-local Skill | `.agents/skills/verify-runtime-workflow-consistency/SKILL.md` | semantic consistency checks across runtime workflow files |
 | Project identity verification skill | Project-local Skill | `.agents/skills/verify-project-identity/SKILL.md` | durable project identity and maintainer docs alignment checks |
 | Verification registry | Project-local Skill | `.agents/skills/verify-implementation/SKILL.md`, `.agents/skills/manage-skills/SKILL.md` | aggregate verification and verification skill registry management |
-| Local admin skills | Project-local Skill | `.agents/skills/turn-on-off-as-usual/SKILL.md` | local plugin on/off |
+| Local admin skills | Project-local Skill | `.agents/skills/turn-on-off-as-usual/SKILL.md`, `.agents/skills/publish-as-usual/SKILL.md` | local plugin on/off; explicit-only release/publish loop |
 | Templates | Markdown | `templates/*.md` | topic artifact creation baseline |
 | Codex plugin | JSON | `.codex-plugin/plugin.json` | Codex plugin metadata, skills, hooks |
 | Claude/Codex marketplace | JSON | `.claude-plugin/`, `.agents/plugins/` | GitHub or local-directory marketplace registration |

@@ -132,6 +132,7 @@ Plugin development 요청은 위 신호가 있어도 plugin development로 분�
 | Skill registry maintenance | `.agents/skills/manage-skills/SKILL.md` | 검증 skill coverage와 AGENTS.md 등록 목록을 동기화한다. |
 | Maintainer skill mirror sync | `.agents/skills/skill-registry-sync/SKILL.md` | `.agents/skills`와 `.claude/skills` 중 최신 변경사항을 기준으로 다른 쪽을 동기화한다. |
 | Local plugin toggle guide | `.agents/skills/turn-on-off-as-usual/SKILL.md` | 개발 중 local Claude/Codex plugin on/off를 다룬다. |
+| Release/publish guide | `.agents/skills/publish-as-usual/SKILL.md` | 명시적 요청에서만 실행하는 release loop: verify, commit, 두 manifest 버전 lockstep bump, `main` push, GitHub 설치 plugin 갱신. |
 | Sandbox E2E harness test | `.agents/skills/sandbox-e2e-test/SKILL.md` | hardcoded `as-usual-test-project`에서 Codex 기반 실제 AsUsual runtime E2E를 실행하고 `docs/test/` 보고서를 만든다. |
 | E2E result analysis | `.agents/skills/analyze-e2e-results/SKILL.md` | `docs/test/` 아래 기존 sandbox E2E 결과물에서 harness 문제점과 증거 품질을 검토한다. |
 | Claude install docs | `docs/CLAUDE-PLUGIN-SETTING.md`, `.claude-plugin/` | public install flow. private absolute path를 넣지 않는다. |
@@ -164,7 +165,7 @@ Plugin development 요청은 위 신호가 있어도 plugin development로 분�
 | Workflow consistency skill | Project-local Skill | `.agents/skills/verify-runtime-workflow-consistency/SKILL.md` | runtime workflow 관련 파일 간 의미적 일관성 검증 |
 | Project identity verification skill | Project-local Skill | `.agents/skills/verify-project-identity/SKILL.md` | durable project identity와 maintainer docs alignment 검증 |
 | Verification registry | Project-local Skill | `.agents/skills/verify-implementation/SKILL.md`, `.agents/skills/manage-skills/SKILL.md` | 통합 검증과 검증 skill registry 관리 |
-| Test and local admin skills | Project-local Skill | `.agents/skills/sandbox-e2e-test/SKILL.md`, `.agents/skills/analyze-e2e-results/SKILL.md`, `.agents/skills/turn-on-off-as-usual/SKILL.md`, `.agents/skills/skill-registry-sync/SKILL.md` | sandbox E2E, E2E 결과 분석, local plugin on/off, maintainer skill mirror sync |
+| Test and local admin skills | Project-local Skill | `.agents/skills/sandbox-e2e-test/SKILL.md`, `.agents/skills/analyze-e2e-results/SKILL.md`, `.agents/skills/turn-on-off-as-usual/SKILL.md`, `.agents/skills/publish-as-usual/SKILL.md`, `.agents/skills/skill-registry-sync/SKILL.md` | sandbox E2E, E2E 결과 분석, local plugin on/off, release/publish, maintainer skill mirror sync |
 | Templates | Markdown | `templates/*.md` | topic artifact 생성 기준 |
 | Codex plugin | JSON | `.codex-plugin/plugin.json` | Codex plugin metadata, skills, hooks |
 | Claude/Codex marketplace | JSON | `.claude-plugin/`, `.agents/plugins/` | GitHub 또는 local-directory marketplace registration |
