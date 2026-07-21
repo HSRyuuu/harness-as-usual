@@ -185,7 +185,16 @@ When the review pass checks pass:
 1. Fill `plan.md` `Review Status`: set `Status: plan-complete`, `Reviewer Result: passed` (or `issues-fixed` if the reviewer fixed findings), `Reviewed At` to the current timestamp, and a one-line `Review Notes` in the user's language. Fill `Plan Review Checks` as a markdown checkbox list, using `[x]` for passed checks and `[ ]` only for unresolved checks. Then fill `Plan Review Findings` and `Plan Review Actions Taken`; write check result values, findings, and actions in the user's language unless they are canonical status values.
 2. Run `scripts/topic-log.py complete-plan` to record `plan.completed`.
 3. Confirm derived status now routes to execution approval.
-4. Tell the user the plan is ready and ask them to review `plan.md` before approving execution. Respond in the user's current conversation language. Canonical English form: `The plan is ready for review. Please review plan.md; if it looks good, approve execution and I will run it.`
+4. Tell the user the plan is ready, ask them to review `plan.md`, and present the execution-mode choice. Always show both modes as a numbered list and mark the mode the plan selected in its `Execution Mode` (Authoring Step 2) as `(recommended)`, with a one-line reason. Respond in the user's current conversation language. Canonical English form:
+
+   ```
+   The plan is ready for review. Please review plan.md, then choose how to execute:
+   1. subagent-driven — dispatch one fresh bounded implementer per task
+   2. inline — I implement and verify each task in this session
+   Recommended: <N> (<one-line reason>). Reply 1 or 2, or approve to run the recommended mode.
+   ```
+
+   If the plan's `Execution Mode` is `mixed`, keep `mixed` as the recommended option, still list 1 and 2, and note that `mixed` runs each task in its declared mode.
 5. Stop.
 
 Use:
@@ -199,7 +208,7 @@ python3 <plugin-root>/scripts/topic-log.py complete-plan \
 
 Do not compose separate low-level audit calls when the macro command can express the transition. Do not hand-edit `audit.jsonl`; if the helper cannot express the update, stop and report the missing helper capability.
 
-Do not start execution until the user explicitly approves, for example by saying "go ahead" or "execute".
+Do not start execution until the user explicitly approves, for example by saying "go ahead", "execute", or by choosing an execution mode (`1`/`2`). If the user picks a mode different from the plan's `Execution Mode`, update that field in `plan.md` and record the change in `audit.jsonl` through `scripts/topic-log.py` before execution begins.
 
 ## Plan Revision Before Execute Approval
 
