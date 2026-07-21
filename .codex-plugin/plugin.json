@@ -1,6 +1,6 @@
 {
   "name": "as-usual",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "An agent harness that helps coding agents follow a team's usual workflow through topic-level questions, requirements, plans, and state.",
   "author": {
     "name": "Happy Hsryu"
