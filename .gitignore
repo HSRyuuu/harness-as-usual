@@ -17,6 +17,8 @@
 # Local-only development workspaces
 /commands/
 /scratchpad/
+.claude/before-refactor/
+.claude/worktrees/
 
 # Local test run logs
 docs/test/
