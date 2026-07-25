@@ -50,9 +50,12 @@ claims. A skill that documents a phase the script would reject is a defect.
 
 Every gate the docs describe as enforced must actually be enforced, and every
 refusal the script can produce should be documented where an agent would hit it.
-Current set: verdict required on verification, evidence required on confirm,
-review required before execution approval, `conclusion.md` required to finalize an
-issue, sealed records reject non-link appends, blocked files reject `move`.
+Current set: closed vocabulary and per-unit phase subsets, verdict required on
+verification, evidence required on confirm, reason required on cancel, review
+required before execution approval, a recorded verification required to finalize
+a `topic` or `direct-work`, `conclusion.md` plus at least one confirmed entry
+required to finalize an `issue`, sealed records reject non-link appends, blocked
+files reject `move`.
 
 A rule described as enforced but not implemented is worse than one described as
 discretionary — it teaches the agent to rely on something that will not stop it.
@@ -62,6 +65,13 @@ discretionary — it teaches the agent to rely on something that will not stop i
 `core-rules.md` §4 owns them. Other files may reference a rule by number or name,
 but must not restate its conditions. Check especially that the skills do not grow
 their own copies of the high-risk list or the completion criteria.
+
+One exception, and only one: a `*-prompt.md` dispatched to a subagent may restate
+whatever it needs, because the child cannot read the rules files. A reviewer told
+to check that high-risk operations were approved is useless without knowing what
+counts as high-risk. The rule being enforced is single ownership among files the
+*same reader* reads — a subagent is a different reader with no access. Restating
+in a file the controller itself reads is still a violation.
 
 ### 4. Owner matrices are complete and mutually consistent
 

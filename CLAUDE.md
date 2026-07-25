@@ -148,8 +148,11 @@ Everything else is the agent's judgment. These are not.
 7. Before asking for execution approval, review the plan critically and fix what
    you find.
 
-Rules 3, 6, and 7 plus record sealing and the move restriction are enforced by
-`scripts/as-usual-record.py`, which refuses rather than warns.
+Rules 3 and 7, plus the closed vocabulary, record sealing, and the move
+restriction, are enforced by `scripts/as-usual-record.py`, which refuses rather
+than warns. Rule 3 in two places: a `topic` or `direct-work` cannot finalize
+without a recorded verification, and an `issue` needs `conclusion.md` plus at
+least one confirmed entry. Rule 6 only holds indirectly, through `init --unit`.
 
 ## WHERE TO LOOK
 
