@@ -50,7 +50,7 @@ rg -n "takeaway|recommend|avoid|decision|tradeoff" "$REFERENCE_ROOT"
 - When comparing multiple references, name the references that were actually searched and compare their tradeoffs before recommending an AsUsual decision.
 - When references make different choices, compare the difference and separately judge whether AsUsual should adopt, adapt, or avoid each pattern.
 - If the user asks how to change AsUsual, separate `reference finding` from `proposed AsUsual decision`.
-- Do not copy raw reference-analysis text into `as-usual-rules/core-workflow.md`, hook payloads, or runtime skills.
+- Do not copy raw reference-analysis text into `as-usual-rules/core-rules.md`, hook payloads, or runtime skills.
 - Old paths in source-map files do not override current repository conventions. Recheck current files before proposing changes.
 
 ## When References Are Insufficient

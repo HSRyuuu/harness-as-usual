@@ -67,7 +67,7 @@ PLUGIN_ROOT="$(find "$HOME/.codex/plugins/cache/harness-as-usual/as-usual" -mind
 test -n "$PLUGIN_ROOT"
 jq '.name,.version,.hooks' "$PLUGIN_ROOT/.codex-plugin/plugin.json"
 PLUGIN_ROOT="$PLUGIN_ROOT" bash "$PLUGIN_ROOT/hooks/run-hook.cmd" session-start \
-  | jq '{event: .hookSpecificOutput.hookEventName, hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), hasFindCause: (.hookSpecificOutput.additionalContext | contains("find-cause")), hasNoFullCore: (.hookSpecificOutput.additionalContext | contains("## 8. Plan Rules") | not)}'
+  | jq '{event: .hookSpecificOutput.hookEventName, hasEntrySkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), isOneSentence: (.hookSpecificOutput.additionalContext | split(". ") | length <= 2), hasNoRules: (.hookSpecificOutput.additionalContext | contains("as-usual-rules/") | not)}'
 ```
 
 ## Troubleshooting

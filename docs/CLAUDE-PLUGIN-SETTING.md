@@ -60,7 +60,7 @@ Run the hook directly from the repository during development:
 ```bash
 cd "$AS_USUAL_REPO"
 CLAUDE_PLUGIN_ROOT="$AS_USUAL_REPO" bash hooks/run-hook.cmd session-start \
-  | jq '{event: .hookSpecificOutput.hookEventName, hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), hasFindCause: (.hookSpecificOutput.additionalContext | contains("find-cause")), hasNoFullCore: (.hookSpecificOutput.additionalContext | contains("## 8. Plan Rules") | not)}'
+  | jq '{event: .hookSpecificOutput.hookEventName, hasEntrySkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")), isOneSentence: (.hookSpecificOutput.additionalContext | split(". ") | length <= 2), hasNoRules: (.hookSpecificOutput.additionalContext | contains("as-usual-rules/") | not)}'
 ```
 
 ## Troubleshooting
@@ -85,7 +85,7 @@ Then install `as-usual@harness-as-usual` again.
 
 ### Hook Does Not Inject Harness Context
 
-The hook intentionally injects only a one-sentence capability summary containing `using-as-usual` and `find-cause`. It does not inject the full workflow or force AsUsual onto ordinary requests.
+The hook intentionally injects only a one-sentence capability summary naming the single entry point `using-as-usual`. It does not inject the runtime rules, candidate work folders, or memory content, and it does not force AsUsual onto ordinary requests.
 
 Check that `hooks/hooks.json`, `hooks/session-start`, and `hooks/run-hook.cmd` exist in the installed version, then start a new session.
 
