@@ -42,14 +42,12 @@ available.
 
 ### Pass 1 — propose (read-only)
 
-1. Collect the recorded `memory` candidates and anything the intent→result gap
-   surfaced.
-2. Re-validate each against `references/memory-update.md`: is it still true, and
-   is it reusable beyond this one work unit? Drop what is not, with a reason.
-3. Deduplicate against existing `.as-usual/memory/*`.
-4. Evaluate skill candidates against `references/skill-improvement.md` — patch an
-   existing skill, create a new one, or skip. Flag the ambiguous ones.
-5. Return the proposal. Write nothing.
+Review the recorded `memory` candidates plus whatever the gap analysis
+surfaced. Keep what is still true and reusable beyond this one unit — drop the
+rest with a reason — and deduplicate against existing `.as-usual/memory/*`.
+Evaluate skill candidates against `references/skill-improvement.md` (patch,
+create, or skip) and flag the ambiguous ones. Return the proposal; write
+nothing.
 
 ### Approval — the caller
 

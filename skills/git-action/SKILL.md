@@ -39,12 +39,10 @@ job. Stop.
 
 ## Inspect Before Staging
 
-- current branch and upstream,
-- staged, unstaged, and untracked files,
-- whether the branch is `main` or `master`,
-- whether the tree holds changes unrelated to this work,
-- whether `.as-usual/` files changed,
-- the last ~30 commits, for message style and language.
+Look before touching anything: the branch and its upstream, what is staged,
+unstaged, and untracked, whether the tree holds changes unrelated to this work,
+whether `.as-usual/` files changed, and the recent commit history for message
+style and language.
 
 If the tree holds unrelated changes, ask before staging them. Never
 `git add .` — stage paths explicitly, always.
@@ -56,12 +54,12 @@ out unless the project says otherwise or the user asks.
 ## Commits
 
 Split by what can be reverted independently — by module, by concern, new files
-versus modifications. As a rough guide, 3+ changed files usually means at least
-2 commits, 10+ usually means several.
+versus modifications. One catch-all commit across unrelated concerns is the
+thing to avoid; the count follows from the work.
 
-Match the repository's existing message style and language; you just read 30
-examples of it. If the split and the messages follow obviously from the work and
-the changed files, proceed. If not, propose the grouping, ask, and stop.
+Match the repository's existing message style and language; you just read the
+history. If the split and the messages follow obviously from the work and the
+changed files, proceed. If not, propose the grouping, ask, and stop.
 
 ## Push
 
