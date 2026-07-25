@@ -79,7 +79,7 @@ Install docs use `https://github.com/HSRyuuu/harness-as-usual.git` and
 ## 5. No discretion meta-commentary
 
 ```bash
-rg -n -i 'your call|your judgment|deliberately left|you are trusted|up to you|your discretion|not a gate|feel free' \
+rg -n -i "your call|your judgment|your discretion|[a-z]'s judgment|deliberately left|you are trusted|up to you|not a gate|feel free" \
   as-usual-rules/ skills/ templates/ \
   && echo "FAIL: the runtime surface announces its own freedom" || echo "PASS"
 ```

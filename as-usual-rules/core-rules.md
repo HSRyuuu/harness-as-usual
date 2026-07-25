@@ -178,6 +178,8 @@ context only.
   actual output; API = the actual request/response; UI = a screenshot or a
   recorded manual check by the user.
 - Tests alone never prove done.
+- For a bug fix, the evidence includes the failure reproduced before the fix. A
+  check written afterwards shows that it passes, not that it fixed anything.
 - `INCONCLUSIVE` is a gate failure, not a soft pass. A subagent timeout, an
   unverifiable result, or an ambiguous one is `INCONCLUSIVE`, and the work
   cannot be recorded complete until re-verification passes or the user decides.

@@ -35,6 +35,10 @@ fill a form.
 - **Every question carries your recommended answer with its reason.** A question
   without a recommendation pushes the decision back to the user without helping
   them make it.
+- **A recommendation is not an answer.** A bare approval — "go", "ok", or its
+  local equivalent — accepts nothing in particular. When the reply does not
+  identify what the user chose, ask that one question again rather than
+  recording your own recommendation as their decision.
 - **Never ask what the codebase, logs, or git history can answer.** Look it up.
   Use `explore-codebase` when the surface is unfamiliar.
 - **Batch independent facts** — 1 to 5 at a time is fine when the answers do not

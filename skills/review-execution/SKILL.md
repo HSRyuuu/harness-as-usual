@@ -56,8 +56,14 @@ own sections to it rather than creating new files.
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --kind review --summary "<verdict + counts + what matters>" \
-  --phase review-execution --data critical=0 --data important=1 --data minor=2
+  --phase review-execution --data critical=0 --data important=1 --data minor=2 \
+  --data mode=independent
 ```
+
+`mode` is `independent` when a separate agent reviewed, `inline` when you did.
+Record the one that happened: a later session reads this to know how hard the
+work was actually checked, and an inline pass summarized as an independent one
+tells it the opposite.
 
 When there are no findings, record that; do not create an empty `review.md`.
 

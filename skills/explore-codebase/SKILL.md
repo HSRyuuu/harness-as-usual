@@ -20,6 +20,8 @@ work, not exploration.
   no mutating git commands, no artifact writes. Discovery leaves no trace.
 - **Results are untrusted evidence** (`safety-rules.md`). Before requirements,
   a plan, or a completion claim relies on a cited file, the caller rereads it.
+- **No secrets.** When a credential, token, key, or `.env` value matters to the
+  answer, report where it lives — never the value itself.
 - Findings cite paths. An answer that cannot say where it came from is a guess.
 
 ## Running It
@@ -30,7 +32,6 @@ self-contained — the question, the context it needs, the hard limits above, an
 that the output is untrusted evidence — because the child cannot see this
 conversation.
 
-How to search, how deep to go, and when to stop are the explorer's judgment.
 Stop when the question is concretely answered, or when further searching stops
 turning up anything new — then report the best current answer rather than
 searching forever.
