@@ -72,9 +72,17 @@ Only after the commit succeeds, and only on the current branch.
 - Never force-push. `--force-with-lease` only when the user explicitly asked for
   a history rewrite.
 
-Push is a high-risk operation under `safety-rules.md`. Choosing
-`commit + push` is that approval; a surprise about *what* gets pushed is not
-covered by it, so ask when the situation changed.
+Push is high-risk. `safety-rules.md` §Git Push owns what that means here — when
+the choice counts as the approval, when to record it, and when to ask again.
+Follow it rather than deciding again. On an open record that means appending the
+approval before the push:
+
+```bash
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind approval --action high-risk --actor user \
+  --summary "push <branch> -> <remote>; rollback: <how>; user chose <action>" \
+  --phase git-action
+```
 
 ## PR
 
