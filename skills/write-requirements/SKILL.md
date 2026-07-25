@@ -51,11 +51,8 @@ checked, it is not a requirement yet.
 requirements document contains — completeness, traceability, constraint coverage,
 consistency, unlabeled assumptions, plan readiness, boundary clarity.
 
-It is a **reference, not a gate**. Read it when the work is unfamiliar or the
-requirements feel thin, and use it to improve the document. There is no checklist
-to pass, no review status to fill in, and no review section inside
-`requirements.md`. The user reviewing the document before approving the plan is
-the real review.
+Use it to improve the document. The user reviewing the document before approving
+the plan is the real review.
 
 ## Finishing
 

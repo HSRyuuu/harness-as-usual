@@ -118,15 +118,13 @@ keeps it.
 - Never translate code identifiers, commands, paths, API names, or quoted source.
 - Structural headings may stay canonical English or be translated consistently,
   but their order and count are fixed.
-- Optimize for the user's reading, not for trace dumping. Short paragraphs,
-  grouped lists, compact traces.
-- When asking for approval or a material decision, use a compact block with one
-  item per line: requested action, reason, scope/files, risk, rollback, and the
-  exact choice needed. Omit only what truly does not apply.
+- When asking for approval or a material decision, cover the requested action,
+  its reason, scope/files, risk, rollback, and the exact choice needed. Omit
+  only what truly does not apply.
 
 ## 4. The Seven Core Rules
 
-Everything else in AsUsual is your judgment. These seven are not.
+These seven rules are absolute.
 
 1. **Every work unit has `contexts.md` and `audit.jsonl`, and the record is
    written only through `as-usual-record.py`.** Never hand-edit `audit.jsonl`.
@@ -147,14 +145,7 @@ Everything else in AsUsual is your judgment. These seven are not.
    entry; the script refuses the execution approval without one.
 
 The script enforces 3 and 7 mechanically, plus the closed vocabulary, the
-record's append-only sealing, and the move restriction. The rest you enforce.
-
-### What is deliberately left to you
-
-Whether a post-execution review is worth running, how tasks are tested, whether
-to delegate to subagents, whether to run a document checklist, how deep to go on
-verification sweeps. Propose what fits the work. The standing default for any
-discretionary item: **if the user states a preference, follow it.**
+record's append-only sealing, and the move restriction.
 
 ## 5. Record Layer
 
@@ -194,9 +185,7 @@ context only.
   evidence before recording anything.
 - Do not say the work is complete until the record holds what was done, the
   verification (or an explicit "not verified because …"), and the remaining issues.
-- Do not hide a failure with optimistic wording. If the same action fails three
-  times, stop repeating it, record the pattern, and reassess whether the
-  requirements, plan, environment, or an assumption is wrong.
+- Do not hide a failure with optimistic wording.
 
 ## 7. Transitions Between Units
 
@@ -218,13 +207,9 @@ investigation spawns several follow-ups, each gets its own folder and link.
 
 ## 8. Instruction Priority
 
-| Priority | Source |
-| --- | --- |
-| 1 | The user's explicit instruction in the current turn (unless it conflicts with safety policy) |
-| 2 | Target project instructions and conventions |
-| 3 | The current work unit's `contexts.md`, `audit.jsonl`, and completed artifacts |
-| 4 | This file and the owner skill |
-| 5 | Default agent behavior |
+The current work unit's `contexts.md`, `audit.jsonl`, and completed artifacts
+outrank this file and the owner skill — what was agreed with the user beats what
+the workflow expects. Target project instructions and conventions sit above both.
 
 ## 9. Skills
 

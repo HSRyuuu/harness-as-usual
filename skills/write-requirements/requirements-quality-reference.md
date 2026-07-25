@@ -1,10 +1,9 @@
 # Requirements Quality Reference
 
-What a good `requirements.md` contains. This is a **reference, not a gate** —
-there is no checklist to pass and no review status to fill in. Read it when the
-work is unfamiliar or the document feels thin, and use it to make the document
-better. The user reviewing the requirements before approving the plan is the
-real review.
+What a good `requirements.md` contains. Use it to make the document better; it
+produces no checklist, no review status, and no review section inside
+`requirements.md`. The user reviewing the requirements before approving the plan
+is the real review.
 
 ## What To Look At
 

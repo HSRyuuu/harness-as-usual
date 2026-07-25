@@ -9,8 +9,8 @@ Owns the `direct-work` pipeline: development where **what to do is already
 settled**, so agreeing requirements would be ceremony, but the work is still
 worth a record.
 
-This is the closest thing AsUsual has to plain plan-mode: you are trusted with
-most of the decisions. What stays fixed is that the work leaves evidence behind.
+The pipeline is short and often asks the user nothing. What stays fixed is that
+the work leaves evidence behind.
 
 This skill is a declaration, not a procedure. Read `as-usual-rules/core-rules.md`
 first.

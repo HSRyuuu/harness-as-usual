@@ -27,8 +27,8 @@ Four lenses — reuse, simplification, efficiency, and abstraction.
 `cleanup-reviewer-prompt.md` in this directory defines them and the reviewer
 contract: reviewers only report; applying and recording stay here.
 
-Run them as parallel subagents when the host supports it, otherwise inline. How
-you run them is your call; what matters is that all four lenses get applied.
+Run them as parallel subagents when the host supports it, otherwise inline. All
+four lenses get applied either way.
 
 **Review only the changed code and the context needed to judge it.** Cleanup that
 wanders into untouched code is scope creep wearing a different hat.

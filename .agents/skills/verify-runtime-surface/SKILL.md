@@ -76,7 +76,28 @@ rg -n '/Users/|/home/[a-z]' README.md docs/ skills/ templates/ as-usual-rules/ \
 Install docs use `https://github.com/HSRyuuu/harness-as-usual.git` and
 `AS_USUAL_REPO`, never someone's home directory.
 
-## 5. Vocabulary is user-facing
+## 5. No discretion meta-commentary
+
+```bash
+rg -n -i 'your call|your judgment|deliberately left|you are trusted|up to you|your discretion|not a gate|feel free' \
+  as-usual-rules/ skills/ templates/ \
+  && echo "FAIL: the runtime surface announces its own freedom" || echo "PASS"
+```
+
+Runtime prompts carry instructions and facts. Where the agent is meant to decide,
+the prompt simply says nothing — it never announces that a decision is being left
+open, or that a rule is not enforced. A sentence explaining what the agent is
+free to do is a design note, and design notes belong in `CLAUDE.md`/`AGENTS.md`.
+
+Rewrite rather than delete when the sentence also carries an instruction: "X is
+your call. Do not ask the user" becomes "Decide X yourself. Do not ask the user."
+
+Not a violation: instructions about the shape of an artifact, such as
+`plan-quality-reference.md` saying it is a "reference, not a checklist **to fill
+in**" — that tells the agent not to write a filled-in checklist into `plan.md`,
+which is a deliverable rule, not a grant of freedom.
+
+## 6. Vocabulary is user-facing
 
 Read the runtime prompts and check they speak about the user's work — work units,
 decisions, plans, verification — rather than about this repository's internals.

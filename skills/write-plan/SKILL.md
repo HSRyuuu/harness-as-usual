@@ -56,8 +56,8 @@ Under **Safety**, name any high-risk operation the task involves (see
 `safety-rules.md`) along with its rollback. Recording it here does not grant
 permission: it still needs fresh approval immediately before it runs.
 
-How the work gets executed — inline or delegated to subagents, how tests are
-structured — is your call. Do not ask the user to choose.
+Decide yourself how the work gets executed — inline or delegated to subagents,
+how tests are structured. Do not ask the user to choose.
 
 `plan.md` is a contract, not a ledger. Progress goes in `audit.jsonl`.
 
