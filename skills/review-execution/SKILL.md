@@ -66,9 +66,12 @@ When there are no findings, record that; do not create an empty `review.md`.
 Every Critical and Important finding reaches one of these before the work closes:
 
 - **fixed** — and re-reviewed to a clean result,
-- **rejected** — with a concrete technical reason, and re-reviewed,
-- **accepted by the user** — the user was told the risk in plain terms and chose
-  to ship anyway. Record the decision and who made it.
+- **rejected** — with a concrete technical reason, and re-reviewed.
+
+An `Important` finding has one more way out: **accepted by the user** — the user
+was told the risk in plain terms and chose to ship anyway. Record the decision
+and who made it. `Critical` has no such door: consent decides whether to ship,
+not whether the work is done.
 
 `Minor` findings may simply be deferred.
 
@@ -76,8 +79,8 @@ If fixes need implementation, route back: `execute-plan` when the existing plan
 covers them, otherwise `write-plan` or `write-requirements`. Do not implement
 fixes inside this skill and then review your own fix in the same breath.
 
-If the user leaves a Critical finding unresolved and does not accept the risk,
-record a `blocker` and stop. That is a real state, not a failure to report.
+If a Critical finding is left unresolved, record a `blocker` and close the unit
+as blocked. That is a real state, not a failure to report.
 
 ## Handing Back
 

@@ -17,12 +17,13 @@ Findings only. A clean review needs no file at all; record it as an event instea
 
 (The work cannot honestly be called done with this outstanding. File and line,
 why it matters, what to do. Each needs a disposition before the work closes:
-fixed and re-reviewed, rejected with a technical reason, or accepted by the user
-after being told the risk in plain terms.)
+fixed and re-reviewed, or rejected with a technical reason. One left standing
+closes the unit as blocked.)
 
 ### Important
 
-(Must be resolved before the work closes. Same dispositions as Critical.)
+(Must be resolved before the work closes. Same dispositions as Critical, plus
+accepted by the user after being told the risk in plain terms.)
 
 ### Minor
 
