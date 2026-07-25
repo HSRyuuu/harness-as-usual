@@ -381,7 +381,7 @@ what they were protecting.
 | `skills/write-plan/` | + `plan-quality-reference.md` |
 | `skills/execute-plan/` | + `implementer-prompt.md`, `task-reviewer-prompt.md` |
 | `skills/review-execution/` | + `code-reviewer-prompt.md` |
-| `skills/cleanup-code/` | + four lens prompts |
+| `skills/cleanup-code/` | + `cleanup-reviewer-prompt.md` (four lenses) |
 | `skills/finalize/`, `git-action/` | close-out |
 | `skills/explore-codebase/`, `search-long-term-memory/`, `manage-self-improvement/` | utilities |
 | `templates/contexts.md` | the common document |

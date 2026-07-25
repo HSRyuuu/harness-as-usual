@@ -27,11 +27,9 @@ memory.
 **Read the actual changes.** `git diff` or the changed files themselves. An
 execution summary is a claim about the diff, not the diff.
 
-`code-reviewer-prompt.md` in this directory holds the review categories and the
-finding quality gate — requirements and plan alignment, correctness and risk,
-silent failure, trust-boundary and injection surface, secret leaks, high-risk
-operation evidence, verification quality, code quality. Use it to steer the
-review.
+`code-reviewer-prompt.md` in this directory holds the reviewer brief — what to
+check and what counts as a reportable finding. Use it when dispatching a
+separate reviewer; the reviewer reports, and recording stays here.
 
 **The implementer does not clear their own work.** When the host supports it,
 run the review as a separate agent or subagent, giving it the artifacts, the

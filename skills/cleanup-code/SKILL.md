@@ -23,14 +23,9 @@ that goes back through `review-execution`.
 
 ## Reviewing
 
-Four lenses, each with a prompt file in this directory:
-
-| Lens | Prompt | Looks for |
-| --- | --- | --- |
-| Reuse | `reuse-reviewer-prompt.md` | existing helpers, shared APIs, logic duplicated locally |
-| Simplification | `simplification-reviewer-prompt.md` | needless branching, ceremony, indirection, over-engineering |
-| Efficiency | `efficiency-reviewer-prompt.md` | wasted loops, repeated work, avoidable I/O, needless allocation |
-| Abstraction | `abstraction-reviewer-prompt.md` | whether the code sits where the surrounding codebase would put it |
+Four lenses — reuse, simplification, efficiency, and abstraction.
+`cleanup-reviewer-prompt.md` in this directory defines them and the reviewer
+contract: reviewers only report; applying and recording stay here.
 
 Run them as parallel subagents when the host supports it, otherwise inline. How
 you run them is your call; what matters is that all four lenses get applied.
