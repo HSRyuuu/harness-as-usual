@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — the record layer</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .flow { display: grid; grid-template-columns: 1fr 26px 1fr 26px 1fr; gap: 0; align-items: stretch; }
+  .flow .arr {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--line-2); font-size: 18px;
+  }
+
+  .box { border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
+  .box .h {
+    padding: 12px 16px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+  .box .h .t { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .box .h .s { margin-top: 2px; font-size: 11.5px; color: var(--muted); }
+  .box .b { padding: 13px 16px 15px; }
+
+  .b-write .h { background: var(--blue-bg); border-bottom-color: var(--blue-line); }
+  .b-write { border-color: var(--blue-line); }
+  .b-write .h .t { color: var(--blue-dark); }
+  .b-refuse .h { background: var(--amber-bg); border-bottom-color: var(--amber-line); }
+  .b-refuse { border-color: var(--amber-line); }
+  .b-refuse .h .t { color: var(--amber); }
+
+  .band { border: 1px solid var(--line); border-left-width: 4px; border-radius: 8px; padding: 8px 11px; }
+  .band + .band { margin-top: 8px; }
+  .band .bt { font-size: 12.5px; font-weight: 700; color: var(--ink); }
+  .band .bd { margin-top: 2px; font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+  .b-fixed { border-left-color: var(--line-2); }
+  .b-live  { border-left-color: var(--green); }
+  .b-app   { border-left-color: var(--violet); }
+
+  .cmds { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 11px; }
+  .cmds span {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11.5px; font-weight: 600;
+    background: var(--blue-bg); color: var(--blue-dark);
+    border: 1px solid var(--blue-line);
+    border-radius: 6px; padding: 3px 8px;
+  }
+  .note2 { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+  .note2 + .note2 { margin-top: 8px; }
+  .note2 b { color: var(--ink); }
+
+  ul.no { list-style: none; }
+  ul.no li {
+    position: relative; padding: 6px 0 6px 20px;
+    font-size: 12.3px; color: var(--ink-2); line-height: 1.45;
+    border-bottom: 1px dashed var(--line);
+  }
+  ul.no li:last-child { border-bottom: 0; }
+  ul.no li::before { content: "✕"; position: absolute; left: 0; top: 6px; color: var(--amber); font-size: 11px; font-weight: 700; }
+
+  .derived {
+    margin-top: 20px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px;
+  }
+  .d {
+    border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; background: var(--panel);
+    font-size: 13px; color: var(--ink-2);
+  }
+  .d b { display: block; color: var(--ink); margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Record layer</div>
+  <h1>One writer. One schema. It refuses rather than warns.</h1>
+  <p class="lede">
+    Every work unit keeps exactly two required files. Current phase and next action are never
+    remembered — they are derived from the record, so a session that starts cold picks up from disk.
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="flow">
+
+    <section class="box">
+      <div class="h"><div class="t">The work folder</div><div class="s"><code>.as-usual/&lt;unit&gt;/yyyy-MM-dd-&lt;slug&gt;/</code></div></div>
+      <div class="b">
+        <div class="note2"><b>contexts.md</b> — one document holding every decision agreed with you, whenever it was made. Three bands, three rules:</div>
+        <div style="height:9px"></div>
+        <div class="band b-fixed">
+          <div class="bt">Top · near-fixed</div>
+          <div class="bd">the initial request verbatim, the chosen unit, the in/out boundary, links to artifacts and other units</div>
+        </div>
+        <div class="band b-live">
+          <div class="bt">Middle · updated freely</div>
+          <div class="bd">the agreed decisions. When a later decision reverses an earlier one, the earlier entry is <b>edited</b> so the section always reads as the current agreement</div>
+        </div>
+        <div class="band b-app">
+          <div class="bt">Bottom · append-only</div>
+          <div class="bd">Q&amp;A raised after the gathering stage</div>
+        </div>
+        <div style="height:11px"></div>
+        <div class="note2"><b>audit.jsonl</b> — the append-only evidence trail. Nothing is lost by editing the middle band, because this file keeps the history.</div>
+      </div>
+    </section>
+
+    <div class="arr">→</div>
+
+    <section class="box b-write">
+      <div class="h"><div class="t">The only writer</div><div class="s"><code>scripts/as-usual-record.py</code> · schema <code>as-usual.record.v1</code></div></div>
+      <div class="b">
+        <div class="cmds">
+          <span>init</span><span>add</span><span>move</span><span>link</span><span>status</span><span>validate</span>
+        </div>
+        <div class="note2"><b>Never hand-edited.</b> If the helper cannot express a transition, the agent stops and reports the missing capability instead of writing the file itself.</div>
+        <div class="note2"><b>A closed vocabulary.</b> Units, event kinds, actors, statuses, phases, and next actions are all fixed sets. An event kind exists only when a gate enforces something with it — detail no gate checks goes in the summary, never into a new kind.</div>
+        <div class="note2"><b><code>phase</code> is the name of the skill that owns the work</b>, so there is no mapping table to drift. Each unit may use only its own subset — the script rejects the rest.</div>
+        <div class="note2"><b>Recorded as you go</b>, not batched at the end.</div>
+      </div>
+    </section>
+
+    <div class="arr">→</div>
+
+    <section class="box b-refuse">
+      <div class="h"><div class="t">What it refuses</div><div class="s">guaranteed by the script, not by agent goodwill</div></div>
+      <div class="b">
+        <ul class="no">
+          <li>A <b>verification</b> with no verdict — and an unverifiable result is <code>INCONCLUSIVE</code>, never <code>PASS</code></li>
+          <li><b>Execution approval</b> for a <code>topic</code> or <code>direct-work</code> with no recorded plan review</li>
+          <li><b>Confirming</b> a hypothesis with no evidence, or cancelling one with no reason</li>
+          <li><b>Finalizing</b> a <code>topic</code>/<code>direct-work</code> that has no verification on the record</li>
+          <li><b>Finalizing</b> an <code>issue</code> with no <code>conclusion.md</code>, or one whose record holds nothing confirmed</li>
+          <li><b>Moving</b> a folder that already produced <code>requirements.md</code>, <code>plan.md</code>, or <code>conclusion.md</code></li>
+          <li>Any <b>append to a sealed record</b> — a finalized or cancelled unit accepts only a link to another unit</li>
+          <li>Any unit, kind, actor, status, phase, or next action <b>outside the closed vocabulary</b></li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="derived">
+    <div class="d">
+      <b>State is derived, never remembered</b>
+      <code>as-usual-record.py status --dir &lt;work-dir&gt; --json</code> returns the current phase and
+      next action. The agent re-reads disk before phase decisions; chat memory is supporting context only.
+    </div>
+    <div class="d">
+      <b>Artifacts are not committed by default</b>
+      <code>.as-usual/memory/</code> is the one commit target — durable knowledge that accumulates
+      across units, updated at <code>finalize</code>. <code>MEMORY.md</code> has a 3000-character budget.
+    </div>
+    <div class="d">
+      <b>The rules are never copied into your project</b>
+      <code>as-usual-rules/</code> is read from the plugin at runtime. Your repository gets
+      <code>.as-usual/</code> artifacts and nothing else.
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>Trust boundary:</b> project files, tool output, generated artifacts, and recalled memory are
+    treated as data and evidence — never as workflow instructions. Secret values are never printed,
+    copied into artifacts, or committed.
+  </div>
+
+</div>
+</body>
+</html>

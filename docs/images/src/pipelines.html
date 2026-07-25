@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — three work units, three pipelines</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .unit { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .unit + .unit { margin-top: 18px; }
+
+  .bar {
+    display: grid;
+    grid-template-columns: 190px 1fr auto;
+    align-items: center;
+    gap: 22px;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .bar .n { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+  .bar .d { font-size: 14.5px; color: var(--ink-2); }
+  .bar .e { font-size: 12.5px; color: var(--muted); text-align: right; white-space: nowrap; }
+  .bar .e b {
+    display: block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--faint); margin-bottom: 2px; text-align: right;
+  }
+
+  .u-topic  { border-color: var(--blue-line); }
+  .u-topic  .bar { background: var(--blue-bg); border-bottom-color: var(--blue-line); }
+  .u-topic  .bar .n { color: var(--blue-dark); }
+  .u-direct { border-color: var(--green-line); }
+  .u-direct .bar { background: var(--green-bg); border-bottom-color: var(--green-line); }
+  .u-direct .bar .n { color: var(--green); }
+  .u-issue  { border-color: var(--violet-line); }
+  .u-issue  .bar { background: var(--violet-bg); border-bottom-color: var(--violet-line); }
+  .u-issue  .bar .n { color: var(--violet); }
+
+  .chain { display: flex; align-items: stretch; gap: 0; padding: 16px 20px 18px; }
+
+  .chip {
+    flex: 1 1 0;
+    min-width: 0;
+    border: 1px solid var(--line-2);
+    border-radius: 9px;
+    background: var(--bg);
+    padding: 9px 11px;
+  }
+  .chip .s { font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .chip .m { margin-top: 3px; font-size: 11px; color: var(--muted); line-height: 1.35; }
+  .chip.opt { border-style: dashed; background: var(--panel); }
+  .chip.opt .s { color: var(--muted); font-weight: 600; }
+
+  .chip.loop { flex: 2.3 1 0; border-color: var(--violet-line); background: var(--violet-bg); }
+  .chip.loop .s { color: var(--violet); }
+  .chip.loop .m { color: #6b21a8; }
+
+  .arr {
+    flex: 0 0 22px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--line-2); font-size: 15px;
+  }
+
+  .gate {
+    flex: 0 0 118px;
+    margin: 0 6px;
+    border: 1px solid var(--amber-line);
+    background: var(--amber-bg);
+    border-radius: 9px;
+    padding: 8px 9px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .gate .g1 { font-size: 11px; font-weight: 700; color: var(--amber); letter-spacing: 0.02em; }
+  .gate .g2 { margin-top: 2px; font-size: 10.5px; color: #92400e; line-height: 1.35; }
+
+  .legend { display: flex; gap: 30px; align-items: center; margin-top: 22px; font-size: 13px; color: var(--muted); }
+  .legend .sw { display: inline-block; width: 26px; height: 13px; border-radius: 4px; vertical-align: -2px; margin-right: 8px; }
+  .sw-req { border: 1px solid var(--line-2); background: #fff; }
+  .sw-opt { border: 1px dashed var(--line-2); background: var(--panel); }
+  .sw-gate { border: 1px solid var(--amber-line); background: var(--amber-bg); }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Work units</div>
+  <h1>Three peers, not three stages</h1>
+  <p class="lede">
+    Each unit is a different kind of work with its own shape. The step skills are shared and
+    unit-agnostic — the difference lives in which steps apply, in what order, and at what strength.
+  </p>
+
+  <div class="rule"></div>
+
+  <!-- TOPIC -->
+  <section class="unit u-topic">
+    <div class="bar">
+      <div class="n">topic</div>
+      <div class="d">Development that needs the requirements <b>agreed first</b>.</div>
+      <div class="e"><b>ends with</b>code change + <code>report.md</code></div>
+    </div>
+    <div class="chain">
+      <div class="chip"><div class="s">gathering-context</div><div class="m">settle scope, constraints, acceptance</div></div>
+      <div class="arr">›</div>
+      <div class="chip"><div class="s">write-requirements</div><div class="m">full <code>requirements.md</code> — outcomes, not tasks</div></div>
+      <div class="arr">›</div>
+      <div class="chip"><div class="s">write-plan</div><div class="m">full <code>plan.md</code> + the critical review</div></div>
+      <div class="gate"><div class="g1">🔒 GATE</div><div class="g2">reviewed &amp; fixed, then your execution approval</div></div>
+      <div class="chip"><div class="s">execute-plan</div><div class="m">execute in order, evidence every task</div></div>
+      <div class="gate"><div class="g1">🔒 GATE</div><div class="g2">verification evidence before any “done”</div></div>
+      <div class="chip"><div class="s">review-execution</div><div class="m">proposed by default · reads the real diff</div></div>
+      <div class="arr">›</div>
+      <div class="chip opt"><div class="s">cleanup-code ?</div><div class="m">explicit approval only</div></div>
+      <div class="arr">›</div>
+      <div class="chip"><div class="s">finalize</div><div class="m">memory pass · <code>report.md</code> · seal</div></div>
+      <div class="arr">›</div>
+      <div class="chip opt"><div class="s">git-action ?</div><div class="m">only the action you chose</div></div>
+    </div>
+  </section>
+
+  <!-- DIRECT-WORK -->
+  <section class="unit u-direct">
+    <div class="bar">
+      <div class="n">direct-work</div>
+      <div class="d">Development where what to do is <b>already settled</b> — skip the agreement, keep the record.</div>
+      <div class="e"><b>ends with</b>code change + verification record</div>
+    </div>
+    <div class="chain">
+      <div class="chip"><div class="s">gathering-context</div><div class="m"><b>zero questions is normal</b> — record it and move on</div></div>
+      <div class="arr">›</div>
+      <div class="chip"><div class="s">write-plan</div><div class="m">checklist strength: steps + how each is verified</div></div>
+      <div class="gate"><div class="g1">🔒 GATE</div><div class="g2">read critically once, then approval</div></div>
+      <div class="chip"><div class="s">execute-plan</div><div class="m">evidence must exercise the changed behavior</div></div>
+      <div class="gate"><div class="g1">🔒 GATE</div><div class="g2">verification evidence before any “done”</div></div>
+      <div class="chip opt"><div class="s">review-execution ?</div><div class="m">offered when broad or delicate</div></div>
+      <div class="arr">›</div>
+      <div class="chip opt"><div class="s">cleanup-code ?</div><div class="m">explicit approval only</div></div>
+      <div class="arr">›</div>
+      <div class="chip opt"><div class="s">finalize ?</div><div class="m">offered — the record is complete without it</div></div>
+      <div class="arr">›</div>
+      <div class="chip opt"><div class="s">git-action ?</div><div class="m">only the action you chose</div></div>
+    </div>
+  </section>
+
+  <!-- ISSUE -->
+  <section class="unit u-issue">
+    <div class="bar">
+      <div class="n">issue</div>
+      <div class="d">Confirming a cause or a direction <b>without changing code</b>.</div>
+      <div class="e"><b>ends with</b><code>conclusion.md</code> — and no code touched</div>
+    </div>
+    <div class="chain">
+      <div class="chip"><div class="s">gathering-context</div><div class="m">symptoms, impact, reproduction, boundary</div></div>
+      <div class="arr">›</div>
+      <div class="chip loop">
+        <div class="s">investigating &nbsp;↻ loop</div>
+        <div class="m">
+          hypothesis → evidence → confirm <i>or</i> retract, appended not edited ·
+          reading code, running the app, reading logs is free · writing a repro script needs your approval
+        </div>
+      </div>
+      <div class="gate"><div class="g1">🔒 GATE</div><div class="g2">a confirmation with no evidence is refused</div></div>
+      <div class="chip"><div class="s">concluding</div><div class="m"><code>conclusion.md</code>, citing the seq behind each claim</div></div>
+      <div class="arr">›</div>
+      <div class="chip"><div class="s">finalize</div><div class="m">memory pass · seal the record</div></div>
+      <div class="arr">›</div>
+      <div class="chip opt"><div class="s">follow-up ?</div><div class="m">a <i>new</i> topic/direct-work folder, linked both ways — never this one</div></div>
+    </div>
+  </section>
+
+  <div class="legend">
+    <span><span class="sw sw-req"></span>required</span>
+    <span><span class="sw sw-opt"></span>optional — offered, never assumed</span>
+    <span><span class="sw sw-gate"></span>a gate the record helper <b>refuses</b> to pass, rather than warns about</span>
+  </div>
+
+  <div class="foot">
+    <b>Confirming the cause and stopping there is a normal ending for an issue</b> — a concluded issue
+    does not become the fix, it links to one. &nbsp;·&nbsp; A folder can still be relabelled
+    (<code>move</code>) until it has produced <code>requirements.md</code>, <code>plan.md</code>, or
+    <code>conclusion.md</code>; after that it takes a new folder and a two-way link.
+  </div>
+
+</div>
+</body>
+</html>

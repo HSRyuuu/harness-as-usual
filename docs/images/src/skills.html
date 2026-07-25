@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — the 15 runtime skills</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .layer { display: grid; grid-template-columns: 152px 1fr; gap: 20px; align-items: stretch; }
+  .layer + .layer { margin-top: 14px; }
+
+  .tag {
+    border-radius: 12px;
+    padding: 14px 14px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .tag .t { font-size: 13px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+  .tag .c { margin-top: 4px; font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+
+  .t-entry { background: var(--blue-bg);   border: 1px solid var(--blue-line); }
+  .t-entry .t { color: var(--blue-dark); }
+  .t-own   { background: var(--violet-bg); border: 1px solid var(--violet-line); }
+  .t-own .t { color: var(--violet); }
+  .t-step  { background: var(--green-bg);  border: 1px solid var(--green-line); }
+  .t-step .t { color: var(--green); }
+  .t-util  { background: var(--panel);     border: 1px solid var(--line); }
+  .t-util .t { color: var(--muted); }
+
+  .grid { display: grid; gap: 12px; }
+  .g1 { grid-template-columns: 1fr; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+
+  .sk {
+    border: 1px solid var(--line);
+    border-top-width: 3px;
+    border-radius: 10px;
+    padding: 11px 13px 12px;
+    background: var(--bg);
+  }
+  .sk .n { font-size: 13.5px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+  .sk .n span { font-weight: 500; font-size: 11px; color: var(--faint); }
+  .sk .r { margin-top: 4px; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+
+  .k-entry { border-top-color: var(--blue); }
+  .k-own   { border-top-color: var(--violet); }
+  .k-step  { border-top-color: var(--green); }
+  .k-util  { border-top-color: var(--line-2); }
+
+  .sk.wide { display: grid; grid-template-columns: 230px 1fr; gap: 18px; align-items: center; }
+  .sk.wide .r { margin-top: 0; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Skill layer</div>
+  <h1>15 runtime skills, four jobs</h1>
+  <p class="lede">
+    One entry point decides. Three owners declare. Eight steps do the work and never ask which unit
+    called them. Three utilities are available to anyone. Every boundary here exists so the same
+    question is answered in exactly one place.
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="layer">
+    <div class="tag t-entry"><div class="t">Entry</div><div class="c">the single door</div></div>
+    <div class="grid g1">
+      <div class="sk k-entry wide">
+        <div class="n">using-as-usual</div>
+        <div class="r">Decides whether the harness applies at all, classifies the work into one unit, creates or resumes the folder, and hands off. Owns no pipeline of its own — and does not force the workflow onto a request just because the plugin is installed.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="tag t-own"><div class="t">Owners</div><div class="c">declarations, not procedures</div></div>
+    <div class="grid g3">
+      <div class="sk k-own">
+        <div class="n">run-topic</div>
+        <div class="r">Declares which steps a <code>topic</code> runs, in what order, at what strength, and which gates stand between them.</div>
+      </div>
+      <div class="sk k-own">
+        <div class="n">run-direct-work</div>
+        <div class="r">The short pipeline: often asks nothing, still leaves evidence. Routes back for reclassification when a design decision surfaces.</div>
+      </div>
+      <div class="sk k-own">
+        <div class="n">run-issue</div>
+        <div class="r">The one owner that also owns a procedure — the investigation loop and the conclusion, because nothing else calls them.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="tag t-step"><div class="t">Steps</div><div class="c">shared · unit-agnostic · strength comes from the caller</div></div>
+    <div class="grid g4">
+      <div class="sk k-step">
+        <div class="n">gathering-context</div>
+        <div class="r">The only skill that interviews you. Recommends an answer with every question, batches independent facts, asks judgment calls one at a time — and writes the answers down for you.</div>
+      </div>
+      <div class="sk k-step">
+        <div class="n">write-requirements <span>topic only</span></div>
+        <div class="r">Turns the agreed context into one reviewable <code>requirements.md</code>: rules, constraints, invariants, acceptance — outcomes, not tasks.</div>
+      </div>
+      <div class="sk k-step">
+        <div class="n">write-plan</div>
+        <div class="r">Writes the execution contract, then <b>critically reviews it and fixes what it finds before you are asked to approve anything</b>.</div>
+      </div>
+      <div class="sk k-step">
+        <div class="n">execute-plan</div>
+        <div class="r">Executes the approved plan without drifting from it and records each task's verification evidence. Delegation is its call; the evidence is not.</div>
+      </div>
+      <div class="sk k-step">
+        <div class="n">review-execution</div>
+        <div class="r">Reviews the actual diff against what was asked — not the summary of it. Findings land in <code>review.md</code> and reach a disposition before the work closes.</div>
+      </div>
+      <div class="sk k-step">
+        <div class="n">cleanup-code <span>approval only</span></div>
+        <div class="r">Behavior-preserving improvement of the change surface — reuse what exists, cut ceremony — then re-verified.</div>
+      </div>
+      <div class="sk k-step">
+        <div class="n">finalize</div>
+        <div class="r">Reviews what is worth remembering, checks the record can carry a fresh session, writes <code>report.md</code>, and seals it.</div>
+      </div>
+      <div class="sk k-step">
+        <div class="n">git-action <span>your choice only</span></div>
+        <div class="r">Runs the git action you picked — none, commit, commit + push, or commit + push + PR. Nothing else, and nothing unchosen.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="tag t-util"><div class="t">Utilities</div><div class="c">not workflow phases</div></div>
+    <div class="grid g3">
+      <div class="sk k-util">
+        <div class="n">explore-codebase <span>read-only</span></div>
+        <div class="r">Answers a concrete question about the repository by reading it. Discovers facts; what to do with them stays with the caller.</div>
+      </div>
+      <div class="sk k-util">
+        <div class="n">search-long-term-memory <span>read-only</span></div>
+        <div class="r">Recalls only what is relevant from <code>.as-usual/memory/</code>. Usually dispatched as a subagent so the caller's context stays clean.</div>
+      </div>
+      <div class="sk k-util">
+        <div class="n">manage-self-improvement</div>
+        <div class="r">Turns what a unit taught into something the next one can use: proposes memory and skill updates, applies the approved ones.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>The rule that keeps this honest:</b> a step skill containing <code>if unit == topic</code> is
+    the exact defect this design removes. Strength differences live in the owner's matrix and in what
+    the caller passes — never inside the step.
+  </div>
+
+</div>
+</body>
+</html>

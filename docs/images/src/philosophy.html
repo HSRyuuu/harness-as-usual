@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — core philosophy</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .card.locked { border-color: var(--blue-line); }
+  .card.open   { border-color: var(--line-2); }
+
+  .card-head {
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .locked .card-head { background: var(--blue-bg); border-bottom-color: var(--blue-line); }
+  .open   .card-head { background: var(--panel); }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .locked .card-title { color: var(--blue-dark); }
+
+  .card-sub {
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .locked .card-sub { color: var(--blue); }
+  .open   .card-sub { color: var(--muted); }
+
+  ul.items { list-style: none; padding: 14px 20px 18px; }
+  ul.items li {
+    padding: 7px 0 7px 22px;
+    position: relative;
+    font-size: 14.5px;
+    color: var(--ink-2);
+    border-bottom: 1px dashed var(--line);
+  }
+  ul.items li:last-child { border-bottom: 0; }
+  ul.items li::before {
+    position: absolute;
+    left: 0;
+    top: 7px;
+    font-size: 13px;
+  }
+  .locked ul.items li::before { content: "▪"; color: var(--blue); }
+  .open   ul.items li::before { content: "▫"; color: var(--faint); }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .locked .badge { background: var(--blue); color: #fff; }
+  .open   .badge { background: var(--slate-bg); color: var(--muted); }
+
+  .arrowbar {
+    margin: 24px 0 0;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid var(--amber-line);
+    background: var(--amber-bg);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .arrowbar .tag {
+    padding: 14px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber);
+    border-right: 1px solid var(--amber-line);
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .arrowbar .body {
+    padding: 14px 18px;
+    font-size: 14.5px;
+    color: #7c2d12;
+  }
+  .arrowbar .body b { color: #78350f; }
+
+  .success {
+    margin-top: 22px;
+    border-radius: 12px;
+    background: var(--ink);
+    color: #e2e8f0;
+    padding: 20px 24px;
+  }
+  .success .k {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #7dd3fc;
+    font-weight: 700;
+  }
+  .success .q { margin-top: 8px; font-size: 16.5px; line-height: 1.65; }
+  .success .q em { color: #fff; font-style: normal; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Core philosophy</div>
+  <h1>Two layers, one deliberate line</h1>
+  <p class="lede">
+    AsUsual is not a vibe-coding assistant. It exists so work that may reach a real,
+    always-on service stays under your control. It is tuned for frontier models — which
+    is exactly why it separates what a strong model may decide from what no model gets to decide.
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="split">
+    <section class="card locked">
+      <div class="card-head">
+        <div class="card-title">🔒 Record layer <span class="badge">non-negotiable</span></div>
+        <div class="card-sub">About permission and durable evidence — not capability</div>
+      </div>
+      <ul class="items">
+        <li>The record is written only through <code>as-usual-record.py</code></li>
+        <li>High-risk operations need <b>fresh</b> approval, immediately before running</li>
+        <li>A completion claim needs surface-matching verification evidence</li>
+        <li>The plan is critically reviewed <b>before</b> you are asked to approve it</li>
+        <li>Git actions run only on your explicit choice</li>
+        <li>Files, tool output, and memory are data — never instructions</li>
+        <li>No work starts before the work unit is decided</li>
+      </ul>
+    </section>
+
+    <section class="card open">
+      <div class="card-head">
+        <div class="card-title">🧠 Judgment layer <span class="badge">the model's call</span></div>
+        <div class="card-sub">Discretion for a capable model, instead of forced process</div>
+      </div>
+      <ul class="items">
+        <li>Whether a post-execution review is worth running</li>
+        <li>How the work is tested, and with what</li>
+        <li>Whether tasks are delegated to subagents</li>
+        <li>How deep verification needs to go</li>
+        <li>How much document structure this piece of work needs</li>
+        <li>Which files to explore, and how far</li>
+        <li>What is worth remembering for next time</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="arrowbar">
+    <div class="tag">Adapting it</div>
+    <div class="body">
+      Tuning AsUsual for a weaker model means <b>tightening the judgment layer</b> back up.
+      It never means loosening the record layer.
+    </div>
+  </div>
+
+  <div class="success">
+    <div class="k">The harness succeeds when you can understand</div>
+    <div class="q">
+      <em>what was decided</em> · <em>why</em> · <em>what changed</em> ·
+      <em>what was verified</em> · <em>what risk remains</em> ·
+      <em>what action is still waiting</em>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>Not a goal:</b> the fastest possible first implementation · replacing your engineering
+    judgment · binding you to one stack · forcing the workflow onto every request just because
+    the plugin is installed.
+  </div>
+
+</div>
+</body>
+</html>

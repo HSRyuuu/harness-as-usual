@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — one door, one classification</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .chain { display: flex; align-items: center; gap: 0; margin-bottom: 26px; }
+  .chain .node {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 11px 16px;
+    font-size: 14px;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .chain .node b { color: var(--ink); }
+  .chain .node.entry {
+    background: var(--blue-bg);
+    border-color: var(--blue-line);
+    color: var(--blue-dark);
+    font-weight: 700;
+  }
+  .chain .node small { display: block; font-size: 11.5px; color: var(--muted); font-weight: 400; }
+  .chain .arr { color: var(--line-2); font-size: 19px; padding: 0 12px; }
+
+  .tree { display: grid; grid-template-columns: 380px 1fr; gap: 30px; align-items: start; }
+
+  .qbox {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .qbox + .qbox { margin-top: 16px; }
+  .qbox .qh {
+    background: var(--slate-bg);
+    padding: 11px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .qbox .qb { padding: 14px 16px; font-size: 15px; font-weight: 600; color: var(--ink); }
+  .qbox .qa { border-top: 1px dashed var(--line); padding: 10px 16px; font-size: 13.5px; color: var(--muted); }
+  .qbox .qa span.k { color: var(--ink-2); font-weight: 600; }
+  .qbox .qa span.v { float: right; font-weight: 700; }
+
+  .units { display: grid; gap: 14px; }
+  .unit {
+    display: grid;
+    grid-template-columns: 180px 1fr 320px;
+    align-items: center;
+    gap: 18px;
+    border: 1px solid var(--line);
+    border-left-width: 5px;
+    border-radius: 12px;
+    padding: 15px 18px;
+    background: var(--bg);
+  }
+  .unit .name { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+  .unit .what { font-size: 14.5px; color: var(--ink-2); }
+  .unit .ends {
+    font-size: 12.5px;
+    color: var(--muted);
+    border-left: 1px solid var(--line);
+    padding-left: 16px;
+  }
+  .unit .ends b { display: block; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-bottom: 3px; }
+
+  .u-topic  { border-color: var(--blue-line);   border-left-color: var(--blue); }
+  .u-topic  .name { color: var(--blue-dark); }
+  .u-direct { border-color: var(--green-line);  border-left-color: var(--green); }
+  .u-direct .name { color: var(--green); }
+  .u-issue  { border-color: var(--violet-line); border-left-color: var(--violet); }
+  .u-issue  .name { color: var(--violet); }
+  .u-none   { border-color: var(--line);        border-left-color: var(--line-2); background: var(--panel); }
+  .u-none   .name { color: var(--muted); }
+
+  .notes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 26px; }
+  .note {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 18px;
+    background: var(--panel);
+    font-size: 13.5px;
+    color: var(--ink-2);
+  }
+  .note b { display: block; color: var(--ink); margin-bottom: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Entry &amp; classification</div>
+  <h1>One door. One classification. Then it gets out of the way.</h1>
+  <p class="lede">
+    The SessionStart hook announces one capability and one entry point in a single sentence —
+    no rules, no folder list, no memory. Everything else is read from disk only when it is needed.
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="chain">
+    <div class="node">Your request</div>
+    <div class="arr">→</div>
+    <div class="node"><b>SessionStart hook</b><small>one sentence · injects no rules</small></div>
+    <div class="arr">→</div>
+    <div class="node entry">using-as-usual<small>the single entry point</small></div>
+    <div class="arr">→</div>
+    <div class="node"><b>classify once</b><small>two questions, fixed order</small></div>
+  </div>
+
+  <div class="tree">
+    <div>
+      <div class="qbox">
+        <div class="qh">Question 1</div>
+        <div class="qb">Is the deliverable a code change, or an understanding?</div>
+        <div class="qa"><span class="k">understanding</span><span class="v" style="color:var(--violet)">issue</span></div>
+        <div class="qa"><span class="k">code change</span><span class="v" style="color:var(--muted)">↓ Q2</span></div>
+      </div>
+      <div class="qbox">
+        <div class="qh">Question 2</div>
+        <div class="qb">Is it clear, low-risk, and reversible?</div>
+        <div class="qa"><span class="k">yes</span><span class="v" style="color:var(--green)">direct-work</span></div>
+        <div class="qa"><span class="k">no</span><span class="v" style="color:var(--blue-dark)">topic</span></div>
+      </div>
+    </div>
+
+    <div class="units">
+      <div class="unit u-topic">
+        <div class="name">topic</div>
+        <div class="what">Development that needs the requirements <b>agreed first</b>.</div>
+        <div class="ends"><b>ends with</b>code change + <code>report.md</code></div>
+      </div>
+      <div class="unit u-direct">
+        <div class="name">direct-work</div>
+        <div class="what">Development where what to do is <b>already settled</b>.</div>
+        <div class="ends"><b>ends with</b>code change + verification record</div>
+      </div>
+      <div class="unit u-issue">
+        <div class="name">issue</div>
+        <div class="what">Confirming a cause or a direction <b>without changing code</b>.</div>
+        <div class="ends"><b>ends with</b><code>conclusion.md</code></div>
+      </div>
+      <div class="unit u-none">
+        <div class="name">just do it</div>
+        <div class="what">No harness at all. No folder, no record — the safety gates still apply.</div>
+        <div class="ends"><b>ends with</b>nothing on disk</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="note">
+      <b>You pick — it does not argue.</b>
+      The agent classifies and recommends with a reason, then presents all four options once.
+      Choosing against the recommendation ends the discussion; there is no re-pitch.
+    </div>
+    <div class="note">
+      <b>Size is not a criterion.</b>
+      A mechanical rename across thirty files is <code>direct-work</code>. A two-line change to how
+      sessions expire is not. Ambiguity and risk are what push work up to <code>topic</code>.
+    </div>
+    <div class="note">
+      <b>Resume from disk, not from chat.</b>
+      Ask to continue anything and <code>using-as-usual</code> finds it — whether this session
+      started it or another one, days ago, did.
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>Can't decide?</b> An <code>inbox/</code> folder is created and narrowed down through
+    <code>gathering-context</code>, then <code>move</code>d into the chosen unit. &nbsp;·&nbsp;
+    <b>A bug with an unknown cause</b> is an <code>issue</code> even when the eventual fix is one line.
+  </div>
+
+</div>
+</body>
+</html>

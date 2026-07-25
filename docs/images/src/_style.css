@@ -1,0 +1,91 @@
+/* Shared style for AsUsual README diagrams.
+   Rendered at 1600px wide (landscape), captured full-page at 2x. */
+
+:root {
+  --ink: #0f172a;
+  --ink-2: #334155;
+  --muted: #64748b;
+  --faint: #94a3b8;
+  --line: #e2e8f0;
+  --line-2: #cbd5e1;
+  --bg: #ffffff;
+  --panel: #f8fafc;
+
+  --blue: #2563eb;
+  --blue-dark: #1e40af;
+  --blue-bg: #eff6ff;
+  --blue-line: #bfdbfe;
+
+  --violet: #6d28d9;
+  --violet-bg: #f5f3ff;
+  --violet-line: #ddd6fe;
+
+  --green: #047857;
+  --green-bg: #ecfdf5;
+  --green-line: #a7f3d0;
+
+  --amber: #b45309;
+  --amber-bg: #fffbeb;
+  --amber-line: #fde68a;
+
+  --slate-bg: #f1f5f9;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  width: 1600px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+    Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sheet {
+  padding: 40px 52px 44px;
+}
+
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+
+h1 {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 8px 0 6px;
+}
+
+.lede {
+  font-size: 15.5px;
+  color: var(--muted);
+  max-width: 1150px;
+}
+
+.rule {
+  height: 1px;
+  background: var(--line);
+  margin: 26px 0;
+}
+
+.foot {
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.foot b { color: var(--ink-2); }
