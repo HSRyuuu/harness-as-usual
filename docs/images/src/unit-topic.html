@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — the topic pipeline</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .eyebrow { color: var(--blue); }
+  h1 .u { color: var(--blue-dark); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .step { border-color: var(--blue-line); }
+  .step.opt { border-color: var(--line-2); }
+
+  .endsbar {
+    margin-top: 16px;
+    display: flex; align-items: center; gap: 18px;
+    background: var(--ink); color: #e2e8f0;
+    border-radius: 13px; padding: 16px 22px;
+  }
+  .endsbar .k {
+    font-size: 13px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #7dd3fc; white-space: nowrap;
+  }
+  .endsbar .v { font-size: 19px; color: #fff; font-weight: 600; }
+  .endsbar .v code { color: #bae6fd; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Work unit — 1 of 3</div>
+  <h1><span class="u">topic</span> — agree the requirements first</h1>
+  <p class="lede">
+    Development where what to build is <b>not yet settled</b>: ambiguous, risky, or hard to reverse.
+    The only unit that writes a <code>requirements.md</code>, and the only one that always ends with a report.
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="row">
+    <div class="step">
+      <div class="tagline">Step 1</div>
+      <div class="nm">gathering-context</div>
+      <div class="dt">The agent interviews you and writes the answers down for you.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step">
+      <div class="tagline">Step 2</div>
+      <div class="nm">write-requirements</div>
+      <div class="dt">One reviewable <code>requirements.md</code> — outcomes, not tasks.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step">
+      <div class="tagline">Step 3</div>
+      <div class="nm">write-plan</div>
+      <div class="dt">The execution contract: surfaces, dependencies, rollback, verification commands.</div>
+    </div>
+  </div>
+
+  <div class="gateband">
+    <div class="g">🔒 Gate</div>
+    <div class="x">The plan is <b>critically reviewed and fixed</b> before you are asked to approve execution.</div>
+  </div>
+
+  <div class="row">
+    <div class="step">
+      <div class="tagline">Step 4</div>
+      <div class="nm">execute-plan</div>
+      <div class="dt">Executed in order, without drifting. Evidence recorded per task.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step">
+      <div class="tagline">Step 5 · proposed by default</div>
+      <div class="nm">review-execution</div>
+      <div class="dt">Reads the <b>real diff</b>, not the summary. Findings land in <code>review.md</code>.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step opt">
+      <div class="tagline">Step 6 · optional</div>
+      <div class="nm">cleanup-code</div>
+      <div class="dt">Behavior-preserving cleanup, then re-verified. Explicit approval only.</div>
+    </div>
+  </div>
+
+  <div class="gateband">
+    <div class="g">🔒 Gate</div>
+    <div class="x">No completion without <b>verification evidence that matches the surface</b> — and <code>INCONCLUSIVE</code> is not <code>PASS</code>.</div>
+  </div>
+
+  <div class="row">
+    <div class="step">
+      <div class="tagline">Step 7</div>
+      <div class="nm">finalize</div>
+      <div class="dt">Memory pass, <code>report.md</code>, and the record is sealed.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step opt">
+      <div class="tagline">Step 8 · your choice only</div>
+      <div class="nm">git-action</div>
+      <div class="dt">none · commit · commit + push · commit + push + PR. Never one you did not pick.</div>
+    </div>
+  </div>
+
+  <div class="endsbar">
+    <div class="k">Ends with</div>
+    <div class="v">a code change + <code>report.md</code>, on a sealed record</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="sw sw-req"></span>required</span>
+    <span><span class="sw sw-opt"></span>optional — offered, never assumed</span>
+    <span><span class="sw sw-gate"></span>a gate the record helper <b>refuses</b> to pass, rather than warns about</span>
+  </div>
+
+  <div class="foot">
+    <b>Artifacts:</b> <code>contexts.md</code> · <code>audit.jsonl</code> · <code>requirements.md</code> ·
+    <code>plan.md</code> · <code>review.md</code> · <code>report.md</code> &nbsp;·&nbsp;
+    <b>If an unknown cause turns up mid-topic</b>, the topic stays where it is and a separate
+    <code>issue</code> is created beside it and linked.
+  </div>
+
+</div>
+</body>
+</html>

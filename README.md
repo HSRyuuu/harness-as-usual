@@ -186,13 +186,13 @@ and are read from the plugin at runtime — **never copied into your project**.
 They are peers, not stages of one pipeline. Each is a different kind of work with
 its own shape, its own gates, and its own ending.
 
-![Three peers, not three stages — the topic, direct-work, and issue pipelines side by side](docs/images/03-work-units.png)
-
 ### `topic` — the requirements have to be agreed first
 
 Development where what to build is not yet settled: ambiguous, risky, or hard to
 reverse. It is the only unit that produces a `requirements.md`, and the only one
 that always ends with a `report.md`.
+
+![The topic pipeline — gathering-context, write-requirements, write-plan, the plan-review gate, execute-plan, review-execution, cleanup-code, the evidence gate, finalize, git-action](docs/images/03-unit-topic.png)
 
 ```text
 gathering-context → write-requirements → write-plan(+critical review) → execute-plan
@@ -213,6 +213,8 @@ it is — a separate `issue` folder is created beside it and the two are linked.
 
 Clear, low-risk, reversible development. Agreeing requirements would be ceremony,
 but the work is still worth a record. Often asks you nothing at all.
+
+![The direct-work pipeline — gathering-context, a checklist-strength write-plan, the plan-review gate, execute-plan, optional review and cleanup, the evidence gate, optional finalize and git-action](docs/images/04-unit-direct-work.png)
 
 ```text
 gathering-context → write-plan(checklist + review) → execute-plan
@@ -237,6 +239,8 @@ Investigation in general: root cause, solution direction, or feasibility. The li
 against requirements work is what it takes to answer — **if you know and the agent
 can just ask, that is requirements; if it has to be found in code, logs, or an
 experiment, that is an issue.**
+
+![The issue pipeline — gathering-context, the investigating loop of hypothesis, evidence and confirm-or-retract, the evidence gate, concluding, finalize, and an optional linked follow-up](docs/images/05-unit-issue.png)
 
 ```text
 gathering-context → investigating (loop) → concluding → finalize → git-action?
@@ -272,7 +276,7 @@ The script decides which applies, not the agent.
 Fifteen runtime skills with four jobs. One entry point decides, three owners
 declare, eight steps do the work, three utilities are available to anyone.
 
-![15 runtime skills, four jobs — entry, owners, steps, utilities](docs/images/04-skills.png)
+![15 runtime skills, four jobs — entry, owners, steps, utilities](docs/images/06-skills.png)
 
 <table>
 <thead>
@@ -311,7 +315,7 @@ declare, eight steps do the work, three utilities are available to anyone.
 Every unit keeps exactly two required files; the rest depends on the unit. One
 script writes all of them, for all three units, and it refuses rather than warns.
 
-![One writer, one schema — the work folder, as-usual-record.py, and what it refuses](docs/images/05-record-layer.png)
+![One writer, one schema — the work folder, as-usual-record.py, and what it refuses](docs/images/07-record-layer.png)
 
 ```text
 .as-usual/

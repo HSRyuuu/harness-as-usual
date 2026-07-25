@@ -5,74 +5,57 @@
 <title>AsUsual — the record layer</title>
 <link rel="stylesheet" href="_style.css">
 <style>
-  .flow { display: grid; grid-template-columns: 1fr 26px 1fr 26px 1fr; gap: 0; align-items: stretch; }
-  .flow .arr {
-    display: flex; align-items: center; justify-content: center;
-    color: var(--line-2); font-size: 18px;
-  }
+  .two { display: grid; grid-template-columns: 1fr 44px 1fr; align-items: stretch; }
+  .two .ar { display: flex; align-items: center; justify-content: center; color: var(--line-2); font-size: 30px; }
 
-  .box { border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
-  .box .h {
-    padding: 12px 16px;
-    background: var(--panel);
-    border-bottom: 1px solid var(--line);
-  }
-  .box .h .t { font-size: 15px; font-weight: 700; color: var(--ink); }
-  .box .h .s { margin-top: 2px; font-size: 11.5px; color: var(--muted); }
-  .box .b { padding: 13px 16px 15px; }
+  .box { border: 2px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .box .h { padding: 13px 18px; background: var(--panel); border-bottom: 2px solid var(--line); }
+  .box .h .t { font-size: 21px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; }
+  .box .h .s { margin-top: 2px; font-size: 15px; color: var(--muted); }
+  .box .b { padding: 14px 18px 16px; }
 
-  .b-write .h { background: var(--blue-bg); border-bottom-color: var(--blue-line); }
-  .b-write { border-color: var(--blue-line); }
+  .b-write { border-color: var(--blue); }
+  .b-write .h { background: var(--blue-bg); border-bottom-color: var(--blue); }
   .b-write .h .t { color: var(--blue-dark); }
-  .b-refuse .h { background: var(--amber-bg); border-bottom-color: var(--amber-line); }
-  .b-refuse { border-color: var(--amber-line); }
-  .b-refuse .h .t { color: var(--amber); }
 
-  .band { border: 1px solid var(--line); border-left-width: 4px; border-radius: 8px; padding: 8px 11px; }
+  .band { border: 2px solid var(--line); border-left-width: 6px; border-radius: 10px; padding: 9px 13px; }
   .band + .band { margin-top: 8px; }
-  .band .bt { font-size: 12.5px; font-weight: 700; color: var(--ink); }
-  .band .bd { margin-top: 2px; font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+  .band .bt { font-size: 16.5px; font-weight: 800; color: var(--ink); }
+  .band .bd { margin-top: 2px; font-size: 15px; color: var(--muted); line-height: 1.4; }
   .b-fixed { border-left-color: var(--line-2); }
   .b-live  { border-left-color: var(--green); }
   .b-app   { border-left-color: var(--violet); }
 
-  .cmds { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 11px; }
+  .cmds { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 13px; }
   .cmds span {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 11.5px; font-weight: 600;
+    font-size: 15px; font-weight: 700;
     background: var(--blue-bg); color: var(--blue-dark);
-    border: 1px solid var(--blue-line);
-    border-radius: 6px; padding: 3px 8px;
+    border: 1.5px solid var(--blue-line); border-radius: 7px; padding: 4px 11px;
   }
-  .note2 { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
-  .note2 + .note2 { margin-top: 8px; }
-  .note2 b { color: var(--ink); }
+  .n2 { font-size: 16px; color: var(--ink-2); line-height: 1.45; }
+  .n2 + .n2 { margin-top: 9px; }
+  .n2 b { color: var(--ink); }
 
-  ul.no { list-style: none; }
-  ul.no li {
-    position: relative; padding: 6px 0 6px 20px;
-    font-size: 12.3px; color: var(--ink-2); line-height: 1.45;
-    border-bottom: 1px dashed var(--line);
-  }
-  ul.no li:last-child { border-bottom: 0; }
-  ul.no li::before { content: "✕"; position: absolute; left: 0; top: 6px; color: var(--amber); font-size: 11px; font-weight: 700; }
+  .refuse { margin-top: 18px; border: 2px solid var(--amber-line); background: var(--amber-bg); border-radius: 14px; overflow: hidden; }
+  .refuse .rh { padding: 13px 20px; border-bottom: 2px solid var(--amber-line); display: flex; align-items: baseline; gap: 14px; }
+  .refuse .rh .t { font-size: 21px; font-weight: 800; color: var(--amber); letter-spacing: -0.02em; }
+  .refuse .rh .s { font-size: 15px; color: #92400e; }
+  .refuse .rb { padding: 6px 20px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 26px; }
+  .refuse .it { position: relative; padding: 9px 0 9px 26px; font-size: 16px; color: #7c2d12; line-height: 1.4; border-bottom: 1px dashed #fde68a; }
+  .refuse .it::before { content: "✕"; position: absolute; left: 0; top: 9px; color: var(--amber); font-weight: 800; }
+  .refuse .it b { color: #78350f; }
 
-  .derived {
-    margin-top: 20px;
-    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px;
-  }
-  .d {
-    border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; background: var(--panel);
-    font-size: 13px; color: var(--ink-2);
-  }
-  .d b { display: block; color: var(--ink); margin-bottom: 4px; }
+  .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+  .d { border: 2px solid var(--line); border-radius: 12px; padding: 13px 17px; background: var(--panel); font-size: 15.5px; color: var(--ink-2); line-height: 1.45; }
+  .d b { display: block; color: var(--ink); font-size: 16.5px; margin-bottom: 4px; }
 </style>
 </head>
 <body>
 <div class="sheet">
 
   <div class="eyebrow">Record layer</div>
-  <h1>One writer. One schema. It refuses rather than warns.</h1>
+  <h1>One writer. It refuses rather than warns.</h1>
   <p class="lede">
     Every work unit keeps exactly two required files. Current phase and next action are never
     remembered — they are derived from the record, so a session that starts cold picks up from disk.
@@ -80,80 +63,67 @@
 
   <div class="rule"></div>
 
-  <div class="flow">
-
+  <div class="two">
     <section class="box">
       <div class="h"><div class="t">The work folder</div><div class="s"><code>.as-usual/&lt;unit&gt;/yyyy-MM-dd-&lt;slug&gt;/</code></div></div>
       <div class="b">
-        <div class="note2"><b>contexts.md</b> — one document holding every decision agreed with you, whenever it was made. Three bands, three rules:</div>
-        <div style="height:9px"></div>
+        <div class="n2" style="margin-bottom:10px"><b>contexts.md</b> — one document holding every decision agreed with you. Three bands, three rules:</div>
         <div class="band b-fixed">
           <div class="bt">Top · near-fixed</div>
-          <div class="bd">the initial request verbatim, the chosen unit, the in/out boundary, links to artifacts and other units</div>
+          <div class="bd">the initial request verbatim, the chosen unit, the in/out boundary, links</div>
         </div>
         <div class="band b-live">
           <div class="bt">Middle · updated freely</div>
-          <div class="bd">the agreed decisions. When a later decision reverses an earlier one, the earlier entry is <b>edited</b> so the section always reads as the current agreement</div>
+          <div class="bd">the agreed decisions. A reversal <b>edits</b> the earlier entry, so it always reads as the current agreement</div>
         </div>
         <div class="band b-app">
           <div class="bt">Bottom · append-only</div>
           <div class="bd">Q&amp;A raised after the gathering stage</div>
         </div>
-        <div style="height:11px"></div>
-        <div class="note2"><b>audit.jsonl</b> — the append-only evidence trail. Nothing is lost by editing the middle band, because this file keeps the history.</div>
+        <div class="n2" style="margin-top:11px"><b>audit.jsonl</b> — the append-only evidence trail. Nothing is lost by editing the middle band, because this file keeps the history.</div>
       </div>
     </section>
 
-    <div class="arr">→</div>
+    <div class="ar">→</div>
 
     <section class="box b-write">
       <div class="h"><div class="t">The only writer</div><div class="s"><code>scripts/as-usual-record.py</code> · schema <code>as-usual.record.v1</code></div></div>
       <div class="b">
-        <div class="cmds">
-          <span>init</span><span>add</span><span>move</span><span>link</span><span>status</span><span>validate</span>
-        </div>
-        <div class="note2"><b>Never hand-edited.</b> If the helper cannot express a transition, the agent stops and reports the missing capability instead of writing the file itself.</div>
-        <div class="note2"><b>A closed vocabulary.</b> Units, event kinds, actors, statuses, phases, and next actions are all fixed sets. An event kind exists only when a gate enforces something with it — detail no gate checks goes in the summary, never into a new kind.</div>
-        <div class="note2"><b><code>phase</code> is the name of the skill that owns the work</b>, so there is no mapping table to drift. Each unit may use only its own subset — the script rejects the rest.</div>
-        <div class="note2"><b>Recorded as you go</b>, not batched at the end.</div>
+        <div class="cmds"><span>init</span><span>add</span><span>move</span><span>link</span><span>status</span><span>validate</span></div>
+        <div class="n2"><b>Never hand-edited.</b> If the helper cannot express a transition, the agent stops and reports the missing capability instead of writing the file itself.</div>
+        <div class="n2"><b>A closed vocabulary.</b> Units, event kinds, actors, statuses, phases, and next actions are all fixed sets. An event kind exists only when a gate enforces something with it.</div>
+        <div class="n2"><b><code>phase</code> is the name of the skill that owns the work</b>, so there is no mapping table to drift. Each unit may use only its own subset.</div>
+        <div class="n2"><b>Recorded as you go</b>, not batched at the end.</div>
       </div>
     </section>
-
-    <div class="arr">→</div>
-
-    <section class="box b-refuse">
-      <div class="h"><div class="t">What it refuses</div><div class="s">guaranteed by the script, not by agent goodwill</div></div>
-      <div class="b">
-        <ul class="no">
-          <li>A <b>verification</b> with no verdict — and an unverifiable result is <code>INCONCLUSIVE</code>, never <code>PASS</code></li>
-          <li><b>Execution approval</b> for a <code>topic</code> or <code>direct-work</code> with no recorded plan review</li>
-          <li><b>Confirming</b> a hypothesis with no evidence, or cancelling one with no reason</li>
-          <li><b>Finalizing</b> a <code>topic</code>/<code>direct-work</code> that has no verification on the record</li>
-          <li><b>Finalizing</b> an <code>issue</code> with no <code>conclusion.md</code>, or one whose record holds nothing confirmed</li>
-          <li><b>Moving</b> a folder that already produced <code>requirements.md</code>, <code>plan.md</code>, or <code>conclusion.md</code></li>
-          <li>Any <b>append to a sealed record</b> — a finalized or cancelled unit accepts only a link to another unit</li>
-          <li>Any unit, kind, actor, status, phase, or next action <b>outside the closed vocabulary</b></li>
-        </ul>
-      </div>
-    </section>
-
   </div>
 
-  <div class="derived">
+  <section class="refuse">
+    <div class="rh"><div class="t">What it refuses</div><div class="s">guaranteed by the script, not by agent goodwill</div></div>
+    <div class="rb">
+      <div class="it">A <b>verification</b> with no verdict — and an unverifiable result is <code>INCONCLUSIVE</code>, never <code>PASS</code></div>
+      <div class="it"><b>Finalizing</b> a <code>topic</code>/<code>direct-work</code> that has no verification on the record</div>
+      <div class="it"><b>Execution approval</b> for a <code>topic</code> or <code>direct-work</code> with no recorded plan review</div>
+      <div class="it"><b>Finalizing</b> an <code>issue</code> with no <code>conclusion.md</code>, or nothing confirmed</div>
+      <div class="it"><b>Confirming</b> a hypothesis with no evidence, or cancelling one with no reason</div>
+      <div class="it"><b>Moving</b> a folder that already produced its own output</div>
+      <div class="it">Any <b>append to a sealed record</b> — a closed unit accepts only a link to another unit</div>
+      <div class="it">Anything <b>outside the closed vocabulary</b></div>
+    </div>
+  </section>
+
+  <div class="notes">
     <div class="d">
       <b>State is derived, never remembered</b>
-      <code>as-usual-record.py status --dir &lt;work-dir&gt; --json</code> returns the current phase and
-      next action. The agent re-reads disk before phase decisions; chat memory is supporting context only.
+      <code>status --dir &lt;work-dir&gt; --json</code> returns the current phase and next action. Disk is re-read before phase decisions.
     </div>
     <div class="d">
       <b>Artifacts are not committed by default</b>
-      <code>.as-usual/memory/</code> is the one commit target — durable knowledge that accumulates
-      across units, updated at <code>finalize</code>. <code>MEMORY.md</code> has a 3000-character budget.
+      <code>.as-usual/memory/</code> is the one commit target — durable knowledge across units, updated at <code>finalize</code>.
     </div>
     <div class="d">
-      <b>The rules are never copied into your project</b>
-      <code>as-usual-rules/</code> is read from the plugin at runtime. Your repository gets
-      <code>.as-usual/</code> artifacts and nothing else.
+      <b>Rules are never copied into your project</b>
+      <code>as-usual-rules/</code> is read from the plugin at runtime. Your repo gets <code>.as-usual/</code> artifacts and nothing else.
     </div>
   </div>
 

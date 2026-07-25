@@ -1,10 +1,11 @@
 /* Shared style for AsUsual README diagrams.
-   Rendered at 1600px wide (landscape), captured full-page at 2x. */
+   Designed at 1120px wide so type stays legible when GitHub renders the image
+   at ~900px. Captured full-page at 2x, then downscaled to 1680px. */
 
 :root {
   --ink: #0f172a;
   --ink-2: #334155;
-  --muted: #64748b;
+  --muted: #5b6b7f;
   --faint: #94a3b8;
   --line: #e2e8f0;
   --line-2: #cbd5e1;
@@ -26,7 +27,7 @@
 
   --amber: #b45309;
   --amber-bg: #fffbeb;
-  --amber-line: #fde68a;
+  --amber-line: #fcd34d;
 
   --slate-bg: #f1f5f9;
 }
@@ -34,58 +35,116 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  width: 1600px;
+  width: 1300px;
   background: var(--bg);
   color: var(--ink);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
     Arial, sans-serif;
-  font-size: 15px;
+  font-size: 18px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-.sheet {
-  padding: 40px 52px 44px;
-}
+.sheet { padding: 32px 40px 34px; }
 
 code, .mono {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
+  font-size: 0.94em;
 }
 
 .eyebrow {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--blue);
 }
 
 h1 {
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 8px 0 6px;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 10px 0 8px;
 }
 
-.lede {
-  font-size: 15.5px;
-  color: var(--muted);
-  max-width: 1150px;
-}
+.lede { font-size: 19px; color: var(--muted); max-width: 1180px; }
 
-.rule {
-  height: 1px;
-  background: var(--line);
-  margin: 26px 0;
-}
+.rule { height: 1px; background: var(--line); margin: 18px 0; }
 
 .foot {
-  margin-top: 26px;
-  padding-top: 16px;
+  margin-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid var(--line);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--muted);
 }
-
 .foot b { color: var(--ink-2); }
+
+/* ---------- shared pipeline flow ---------- */
+
+.row { display: flex; align-items: stretch; gap: 0; }
+.row + .row { margin-top: 0; }
+
+.step {
+  flex: 1 1 0;
+  min-width: 0;
+  border: 2px solid var(--line-2);
+  border-radius: 14px;
+  background: var(--bg);
+  padding: 15px 18px 16px;
+}
+.step .nm {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.step .dt { margin-top: 6px; font-size: 16px; color: var(--muted); line-height: 1.4; }
+.step .tagline {
+  display: inline-block;
+  margin-bottom: 7px;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.step.opt { border-style: dashed; background: var(--panel); }
+.step.opt .nm { color: var(--muted); }
+
+.ar {
+  flex: 0 0 46px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--line-2); font-size: 30px; font-weight: 300;
+}
+
+.gateband {
+  margin: 12px 0;
+  border: 2px solid var(--amber-line);
+  background: var(--amber-bg);
+  border-radius: 12px;
+  padding: 11px 18px;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.gateband .g {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--amber);
+  white-space: nowrap;
+}
+.gateband .x { font-size: 17px; color: #7c2d12; }
+.gateband .x b { color: #78350f; }
+
+.legend { display: flex; gap: 30px; align-items: center; margin-top: 14px; font-size: 15.5px; color: var(--muted); flex-wrap: wrap; }
+.legend .sw { display: inline-block; width: 30px; height: 15px; border-radius: 5px; vertical-align: -2px; margin-right: 9px; }
+.sw-req { border: 2px solid var(--line-2); background: #fff; }
+.sw-opt { border: 2px dashed var(--line-2); background: var(--panel); }
+.sw-gate { border: 2px solid var(--amber-line); background: var(--amber-bg); }

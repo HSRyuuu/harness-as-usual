@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — the issue pipeline</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .eyebrow { color: var(--violet); }
+  h1 .u { color: var(--violet); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .step { border-color: var(--violet-line); }
+  .step.opt { border-color: var(--line-2); }
+
+  .loopbox {
+    flex: 1.9 1 0;
+    border: 2px solid var(--violet);
+    background: var(--violet-bg);
+    border-radius: 14px;
+    padding: 15px 18px 16px;
+  }
+  .loopbox .tagline {
+    display: inline-block; margin-bottom: 7px;
+    font-size: 12.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--violet);
+  }
+  .loopbox .nm {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--violet);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .cycle { display: flex; align-items: center; gap: 10px; margin-top: 11px; }
+  .cycle .c {
+    flex: 1 1 0;
+    background: #fff; border: 1.5px solid var(--violet-line); border-radius: 9px;
+    padding: 8px 10px; text-align: center;
+    font-size: 15.5px; font-weight: 700; color: #5b21b6;
+  }
+  .cycle .cc { color: var(--violet); font-size: 20px; }
+
+  .freebar { display: flex; gap: 12px; margin-top: 12px; }
+  .freebar div {
+    flex: 1 1 0; border-radius: 9px; padding: 9px 13px; font-size: 15.5px; line-height: 1.35;
+  }
+  .freebar .free { background: var(--green-bg); border: 1.5px solid var(--green-line); color: #065f46; }
+  .freebar .ask  { background: var(--amber-bg); border: 1.5px solid var(--amber-line); color: #92400e; }
+  .freebar .no   { background: #fef2f2;         border: 1.5px solid #fecaca;          color: #991b1b; }
+  .freebar b { display: block; font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+
+  .endsbar {
+    margin-top: 16px;
+    display: flex; align-items: center; gap: 18px;
+    background: var(--ink); color: #e2e8f0;
+    border-radius: 13px; padding: 16px 22px;
+  }
+  .endsbar .k {
+    font-size: 13px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #c4b5fd; white-space: nowrap;
+  }
+  .endsbar .v { font-size: 19px; color: #fff; font-weight: 600; }
+  .endsbar .v code { color: #ddd6fe; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Work unit — 3 of 3</div>
+  <h1><span class="u">issue</span> — confirm a cause, without changing code</h1>
+  <p class="lede">
+    Investigation in general: root cause, solution direction, or feasibility. <b>If you know and the
+    agent can just ask, that is requirements. If it has to be found in code, logs, or an experiment,
+    that is an issue.</b>
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="row">
+    <div class="step">
+      <div class="tagline">Step 1</div>
+      <div class="nm">gathering-context</div>
+      <div class="dt">Symptoms, impact, reproduction conditions, and the boundary of the investigation.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="loopbox">
+      <div class="tagline">Step 2 · the investigation loop</div>
+      <div class="nm">investigating &nbsp;↻</div>
+      <div class="cycle">
+        <div class="c">form a hypothesis</div>
+        <div class="cc">→</div>
+        <div class="c">gather evidence</div>
+        <div class="cc">→</div>
+        <div class="c">confirm <i>or</i> retract</div>
+      </div>
+      <div class="freebar">
+        <div class="free"><b>Free</b>read code · run the app · analyze logs</div>
+        <div class="ask"><b>Needs approval</b>writing a reproduction test or script</div>
+        <div class="no"><b>Never</b>modifying production code</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gateband">
+    <div class="g">🔒 Gate</div>
+    <div class="x">A confirmation <b>requires evidence</b>; a retraction requires the contradicting reason. Transitions are appended, never edited.</div>
+  </div>
+
+  <div class="row">
+    <div class="step">
+      <div class="tagline">Step 3</div>
+      <div class="nm">concluding</div>
+      <div class="dt">Writes <code>conclusion.md</code>, citing the record entries that back each claim.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step">
+      <div class="tagline">Step 4</div>
+      <div class="nm">finalize</div>
+      <div class="dt">Memory pass, and the record is sealed.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step opt">
+      <div class="tagline">Step 5 · optional</div>
+      <div class="nm">follow-up</div>
+      <div class="dt">A <b>new</b> <code>topic</code>/<code>direct-work</code> folder, linked both ways — never this one.</div>
+    </div>
+  </div>
+
+  <div class="gateband">
+    <div class="g">🔒 Gate</div>
+    <div class="x">An issue cannot finalize without <code>conclusion.md</code>, nor on a record holding <b>nothing confirmed</b>.</div>
+  </div>
+
+  <div class="endsbar">
+    <div class="k">Ends with</div>
+    <div class="v">a <code>conclusion.md</code> you can rely on — and no code touched</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="sw sw-req"></span>required</span>
+    <span><span class="sw sw-opt"></span>optional — offered, never assumed</span>
+    <span><span class="sw sw-gate"></span>a gate the record helper <b>refuses</b> to pass, rather than warns about</span>
+  </div>
+
+  <div class="foot">
+    <b>Artifacts:</b> <code>contexts.md</code> (also the living investigation snapshot) ·
+    <code>audit.jsonl</code> · <code>evidence/</code> · <code>conclusion.md</code> &nbsp;·&nbsp;
+    <b>Confirming the cause and stopping there is a normal ending.</b> A concluded issue never becomes
+    the fix — it links to one.
+  </div>
+
+</div>
+</body>
+</html>

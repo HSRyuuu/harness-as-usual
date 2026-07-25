@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — the direct-work pipeline</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .eyebrow { color: var(--green); }
+  h1 .u { color: var(--green); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .step { border-color: var(--green-line); }
+  .step.opt { border-color: var(--line-2); }
+
+  .endsbar {
+    margin-top: 16px;
+    display: flex; align-items: center; gap: 18px;
+    background: var(--ink); color: #e2e8f0;
+    border-radius: 13px; padding: 16px 22px;
+  }
+  .endsbar .k {
+    font-size: 13px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #6ee7b7; white-space: nowrap;
+  }
+  .endsbar .v { font-size: 19px; color: #fff; font-weight: 600; }
+  .endsbar .v code { color: #a7f3d0; }
+
+  .callout {
+    margin-top: 16px;
+    border: 2px solid var(--green-line);
+    background: var(--green-bg);
+    border-radius: 12px;
+    padding: 13px 20px;
+    font-size: 17px;
+    color: #065f46;
+  }
+  .callout b { color: #064e3b; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Work unit — 2 of 3</div>
+  <h1><span class="u">direct-work</span> — what to do is already settled</h1>
+  <p class="lede">
+    Clear, low-risk, reversible development. Agreeing requirements would be ceremony, but the work is
+    still worth a record. Often asks you nothing at all.
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="row">
+    <div class="step">
+      <div class="tagline">Step 1 · zero questions is normal</div>
+      <div class="nm">gathering-context</div>
+      <div class="dt">If nothing is open, that fact is recorded and the work moves on.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step">
+      <div class="tagline">Step 2 · checklist strength</div>
+      <div class="nm">write-plan</div>
+      <div class="dt">Steps plus how each one gets verified. Not a full plan document.</div>
+    </div>
+  </div>
+
+  <div class="gateband">
+    <div class="g">🔒 Gate</div>
+    <div class="x">Lighter than a topic's, but it happens: the checklist is <b>read critically once and fixed</b> before you approve execution.</div>
+  </div>
+
+  <div class="row">
+    <div class="step">
+      <div class="tagline">Step 3</div>
+      <div class="nm">execute-plan</div>
+      <div class="dt">The verification must exercise the changed behavior — "it compiles" is not evidence.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step opt">
+      <div class="tagline">Step 4 · optional</div>
+      <div class="nm">review-execution</div>
+      <div class="dt">Offered when the change was broad or touched something delicate.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step opt">
+      <div class="tagline">Step 5 · optional</div>
+      <div class="nm">cleanup-code</div>
+      <div class="dt">Behavior-preserving cleanup, re-verified. Explicit approval only.</div>
+    </div>
+  </div>
+
+  <div class="gateband">
+    <div class="g">🔒 Gate</div>
+    <div class="x">No completion without <b>verification evidence that matches the surface</b> — and <code>INCONCLUSIVE</code> is not <code>PASS</code>.</div>
+  </div>
+
+  <div class="row">
+    <div class="step opt">
+      <div class="tagline">Step 6 · optional</div>
+      <div class="nm">finalize</div>
+      <div class="dt">Offered at the end. The record is already complete without it.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step opt">
+      <div class="tagline">Step 7 · your choice only</div>
+      <div class="nm">git-action</div>
+      <div class="dt">none · commit · commit + push · commit + push + PR. Never one you did not pick.</div>
+    </div>
+  </div>
+
+  <div class="endsbar">
+    <div class="k">Ends with</div>
+    <div class="v">a code change whose last recorded event is a <b>passing verification</b></div>
+  </div>
+
+  <div class="callout">
+    <b>Route back for reclassification</b> when gathering reveals a decision between viable approaches,
+    a contract or product surface (API, data model, auth, migration, deployment, business rules), work
+    that is hard to reverse or verify, or an unconfirmed cause behind it — that last one is an
+    <code>issue</code>.
+  </div>
+
+  <div class="legend">
+    <span><span class="sw sw-req"></span>required</span>
+    <span><span class="sw sw-opt"></span>optional — offered, never assumed</span>
+    <span><span class="sw sw-gate"></span>a gate the record helper <b>refuses</b> to pass, rather than warns about</span>
+  </div>
+
+  <div class="foot">
+    <b>Artifacts:</b> <code>contexts.md</code> · <code>audit.jsonl</code> · <code>plan.md</code> —
+    plus <code>review.md</code>/<code>report.md</code> only if those steps run. &nbsp;·&nbsp;
+    <b>Size is not the test:</b> a mechanical rename across thirty files belongs here; a two-line change
+    to how sessions expire does not.
+  </div>
+
+</div>
+</body>
+</html>
