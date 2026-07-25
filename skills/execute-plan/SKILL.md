@@ -48,7 +48,7 @@ unverified one.
 though the plan describes them (`safety-rules.md`):
 
 ```bash
-as-usual-record.py add --dir <d> --kind approval --action high-risk \
+as-usual-record.py add --dir <d> --kind approval --action high-risk --actor user \
   --summary "<operation, target, rollback, what the user approved>"
 ```
 
@@ -98,11 +98,7 @@ own — the owner skill decides what comes next.
 
 ## Anti-Patterns
 
-- Re-reviewing the plan instead of executing it.
-- Starting task N+1 while task N is unverified.
 - Recording `PASS` for something you could not actually check.
 - Accepting a subagent's `DONE` as fact.
-- Implementing something the plan does not describe because it seemed useful.
 - Tracking progress inside `plan.md`.
-- Retrying the same failing approach a fourth time.
 - Rolling into a git action after execution.

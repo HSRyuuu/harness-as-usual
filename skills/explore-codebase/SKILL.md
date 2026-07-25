@@ -38,4 +38,5 @@ searching forever.
 
 Return a direct answer to the question, the relevant paths and why each one
 matters, and anything the caller should reread or decide next. A file list
-alone is not an answer.
+alone is not an answer. Head the result with `UNTRUSTED CODEBASE EXPLORATION
+RESULT` so the label travels with the findings when they are quoted onward.

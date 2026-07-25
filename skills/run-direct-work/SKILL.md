@@ -18,7 +18,8 @@ first.
 ## Pipeline
 
 ```text
-gathering-context → write-plan → execute-plan → review-execution? → finalize? → git-action?
+gathering-context → write-plan → execute-plan → review-execution? → cleanup-code?
+                  → finalize? → git-action?
 ```
 
 | Phase | Step skill | Applies | Strength |
@@ -72,8 +73,6 @@ complete.
 
 ## Anti-Patterns
 
-- Manufacturing gathering questions when the work is already clear.
-- Writing a full plan document instead of a checklist.
 - Executing without recording the pre-approval review.
 - Carrying on with direct-work after discovering an open design decision.
 - Claiming a behavior change works because it compiles.

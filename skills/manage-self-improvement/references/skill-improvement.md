@@ -24,8 +24,9 @@ Compare each candidate to existing registered skills:
 ## Direct creation (Pass 2, after approval)
 
 This skill creates/patches the skill file directly. Follow writing-skills conventions
-(name, trigger-rich description, procedure, verification). Record with
-`record-skill --state created`. User-deferred candidates: `record-skill --state candidate`.
+(name, trigger-rich description, procedure, verification). Record it with
+`add --kind memory`, saying whether the skill was created or left as a
+user-deferred candidate.
 
 ## Destination (project-local)
 
@@ -44,5 +45,5 @@ use; direct creation is the default. Not enforced routing.
 `summary`, `rationale` (which of 3-of-5), `kind` (new|patch), `patchTarget`,
 `brief` (trigger / steps / verification), `dest`.
 
-When recording the candidate, pass the outline through the `record-skill --brief`
-argument. Do not invent a separate audit key for the outline.
+When recording the candidate, carry the outline in the entry's `--summary` or
+`--data`. Do not invent a separate event kind for it.

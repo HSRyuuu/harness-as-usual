@@ -66,8 +66,10 @@ is a claim about the code; the re-run is the evidence for it.
 
 ## Recording
 
-Append the cleanup outcome as a section in `review.md` — the same document the
-execution review used. Do not create separate per-lens files.
+When something was applied, append the cleanup outcome as a section in
+`review.md` — the same document the execution review used. Do not create
+separate per-lens files, and do not create `review.md` just to say nothing was
+found; that outcome is the event below and nothing more.
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
@@ -81,7 +83,4 @@ Then route to `finalize`.
 - Running without the user's explicit approval.
 - Running before the correctness review.
 - Using cleanup as the bug finder.
-- Refactoring code the work never touched.
-- Changing behavior and calling it cleanup.
 - Claiming behavior is preserved without re-running verification.
-- Creating a separate report file per lens instead of a section in `review.md`.

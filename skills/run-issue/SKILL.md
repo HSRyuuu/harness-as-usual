@@ -114,7 +114,6 @@ Do not ask the git-action question by default.
 - Writing a reproduction script before the user approved it.
 - Confirming a hypothesis on reasoning alone, with no evidence.
 - Leaving a disproven confirmation standing instead of cancelling it.
-- Batching a session's reasoning into one event at the end.
 - Ending a turn with new reasoning unrecorded.
 - Writing `conclusion.md` after recording closure.
 - Turning this folder into the follow-up implementation instead of linking to one.

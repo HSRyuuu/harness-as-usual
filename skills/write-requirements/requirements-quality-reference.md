@@ -5,42 +5,47 @@ produces no checklist, no review status, and no review section inside
 `requirements.md`. The user reviewing the requirements before approving the plan
 is the real review.
 
-## What To Look At
+## What To Check
 
-- `contexts.md` — the decisions the requirements are supposed to reflect
-- the current `requirements.md`
-- `templates/requirements.md`
-- project files the requirements depend on
+Read `contexts.md` — the decisions the requirements are supposed to reflect —
+the current `requirements.md`, and the project files it depends on. Then check:
 
-## Qualities
+- **Traceability** — the initial request comes from the top band of
+  `contexts.md`, and every user decision traces to its Decisions band or a
+  recorded `decision` event. Nothing material that was agreed is missing from
+  scope, requirements, risks, constraints, or acceptance criteria.
+- **Concreteness** — sections hold real content, not `TBD`, an unexplained
+  `TODO`, a `<placeholder>`, or leftover example text. Requirements are grouped,
+  specific rules rather than implementation wishes.
+- **Constraint coverage** — validation, state transitions, concurrency,
+  duplicate and conflict prevention, integrations, side effects, failure
+  handling, authorization, and timing are explicit wherever they apply.
+- **Consistency** — no two sections describe incompatible mechanisms for the
+  same behavior. When inspecting the repository turns up a fact that would force
+  a different mechanism, that lands in the requirements, a risk, or an accepted
+  constraint before planning starts.
+- **Labelled assumptions** — anything the requirements depend on but the user
+  never confirmed appears under `Constraints & Assumptions` with its source and
+  the risk if it is wrong. An unlabelled assumption buried in another section is
+  the one to catch.
+- **No open material decision** — nothing unresolved could still change the
+  implementation, the risk, the verification, or the plan's scope.
+- **Plan readiness** — a planner can infer the likely files, dependencies,
+  constraints, and verification direction from this document alone, without chat
+  memory and without a separate `spec.md`. Out Of Scope is specific enough to
+  stop accidental expansion.
 
-| Category | What To Check |
-| --- | --- |
-| Completeness | Required template sections are filled with concrete content. No `TBD`, unexplained `TODO`, placeholder bracket such as `<...>`, leftover example trace, or empty required section remains. |
-| Human readability | A human developer can scan the document and understand what should be built, what should not be built, and what rules/constraints matter. |
-| Agent readiness | An agent can use `requirements.md` as the single source for `plan.md` without relying on chat memory or a separate `spec.md`. |
-| Source traceability | Initial request comes from the Initial Request section of `contexts.md`; user decisions trace to the Decisions section of `contexts.md` or recorded `decision` events. |
-| Decision coverage | Every material decision in `contexts.md` is reflected in scope, requirements, risk, acceptance criteria, or constraints. |
-| Domain rule clarity | `Domain Requirements` contains grouped, concrete business/domain rules rather than vague implementation wishes. |
-| Constraint coverage | Important validation, state transition, concurrency, duplicate/conflict prevention, integration, side-effect, failure, authorization, timing, and verification constraints are explicit when relevant. |
-| Consistency | Goal, scope, domain requirements, functional requirements, risks, and acceptance criteria do not contradict each other. |
-| Technical decision consistency | The requirements do not describe two incompatible mechanisms for the same behavior. If repository inspection reveals a technical fact that would force a different implementation mechanism, the requirement, risk, or accepted constraint records it before planning. |
-| Material ambiguity | No unresolved user decision could change implementation, risk, verification, or plan scope. |
-| Assumptions | Any claim the requirements depend on but the user did not explicitly confirm appears in `Assumptions` with its source and the risk if it is wrong. Block unlabeled assumptions embedded in other sections. |
-| Affected surface | `Affected Surface` is filled when the work is code-facing and the area is knowable, or set to a user-language none/N/A statement with a concrete reason. |
-| Plan readiness | A planner can infer likely files/areas, dependencies, constraints, and verification direction from `requirements.md` alone. |
-| Boundary clarity | Out-of-scope prevents accidental expansion. |
-| None / N/A handling | Optional sections may be explicitly none. Accept none/N/A statements written in the user's language. Do not require invented NFRs, risks, assumptions, or affected files. |
-| User-language consistency | Structural/canonical headings may stay canonical English or be consistently translated to the user's language, with order and count fixed; status values, source traces, code identifiers, commands, and paths stay canonical. Other user-facing prose should follow the user's preferred language. |
-| YAGNI | The requirements do not add unrequested features or process beyond the topic. |
+A section that has nothing in it is left out, and a section may be explicitly
+none in the user's language. Do not manufacture risks, assumptions, or
+non-functional requirements to fill one.
 
 ## Calibration
 
-Worth fixing: anything that would cause a flawed plan, a wrong implementation, or a
-misunderstanding by the user.
+Worth fixing: anything that would cause a flawed plan, a wrong implementation, or
+a misunderstanding by the user.
 
-Not worth fixing: style preferences, minor wording, or a section being short when it
-is still clear.
+Not worth fixing: style preferences, minor wording, or a section being short when
+it is still clear.
 
 ## Using This Reference
 

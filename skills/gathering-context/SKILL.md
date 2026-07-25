@@ -41,8 +41,7 @@ fill a form.
   recording your own recommendation as their decision.
 - **Never ask what the codebase, logs, or git history can answer.** Look it up.
   Use `explore-codebase` when the surface is unfamiliar.
-- **Batch independent facts** — 1 to 5 at a time is fine when the answers do not
-  depend on each other.
+- **Batch independent facts** when the answers do not depend on each other.
 - **Ask judgment calls one at a time.** When the user must weigh evidence or
   trade-offs, a batch makes them answer blind. Ask, wait, then use the answer to
   shape the next question.
@@ -59,19 +58,11 @@ its risk, and let the user accept it or decide.
 Everything agreed goes into `contexts.md` in the work folder — one document, no
 matter which stage produced it.
 
-**Middle band — Decisions.** Write what was agreed, not a transcript. Keep it
-readable: what was decided, and enough of why that a later session does not
-re-litigate it.
-
-This band is **live**. When a later decision reverses an earlier one, **edit the
-earlier entry** so the section always reads as the current agreement. Do not
-leave contradictions side by side for the reader to resolve. The history is not
-lost — `audit.jsonl` is append-only and keeps it.
-
-**Bottom band — Q&A Log.** Once the caller has moved past gathering (a
-requirements or plan document exists), additional questions and their answers are
-**appended** here rather than merged into the decisions. Never edit or remove an
-entry in this band.
+The three bands and their mutability are defined in `core-rules.md` §3. What
+matters while writing them: the Decisions band holds what was agreed, not a
+transcript — what was decided, and enough of why that a later session does not
+re-litigate it. Never leave two contradicting decisions side by side for the
+reader to resolve.
 
 **Record each material decision** as you go:
 
@@ -99,11 +90,6 @@ proceed.
 ## Anti-Patterns
 
 - Branching on the calling unit (`if topic … if issue …`).
-- Asking a question you could have answered by reading the code.
-- Asking without a recommendation.
-- Batching a judgment call together with unrelated facts.
-- Asking questions to satisfy the step when nothing is actually open.
 - Appending a reversed decision below the old one instead of editing it.
 - Editing the append-only Q&A band.
-- Making the user open a file to answer.
 - Continuing past an unanswered question by assuming the answer.

@@ -49,5 +49,7 @@ manually and by whom.)
 
 ## Acceptance Criteria Coverage
 
-(Which task satisfies which acceptance criterion. A criterion with no task behind
-it is a gap in the plan.)
+(Which task satisfies which acceptance criterion, and what proves it — the
+command, review, or manual check. A criterion with no task behind it is a gap in
+the plan; one whose task verification never exercises it is the same gap wearing
+a task number.)

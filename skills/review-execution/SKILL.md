@@ -20,7 +20,9 @@ once it runs, its findings have to reach a disposition before the work closes.
 - The diff or the changed files can be inspected.
 
 If execution did not finish, go back to `execute-plan`. Never review from chat
-memory.
+memory. When the diff genuinely cannot be inspected, review against the files
+`plan.md` and `audit.jsonl` name, and record that the coverage was reduced and
+why — a review run on less evidence must not read like a full one.
 
 ## Reviewing
 
@@ -63,7 +65,8 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
 `mode` is `independent` when a separate agent reviewed, `inline` when you did.
 Record the one that happened: a later session reads this to know how hard the
 work was actually checked, and an inline pass summarized as an independent one
-tells it the opposite.
+tells it the opposite. The verdict in the event and the one in `review.md` are
+the same word — two answers in the record is worse than either.
 
 When there are no findings, record that; do not create an empty `review.md`.
 
@@ -93,11 +96,8 @@ as blocked. That is a real state, not a failure to report.
 Summarize for the user in this order: what was implemented, what the verification
 showed, what the review found. Put the next decision at the bottom, not the top.
 
-Then offer cleanup — code cleanup is optional and never runs on its own:
-
-```text
-실행 리뷰까지 마쳤습니다. 코드 정리(cleanup)를 진행할까요, 아니면 바로 마무리할까요?
-```
+Then offer cleanup, in the user's language — clean up now, or close the work.
+Code cleanup is optional and never runs on its own.
 
 Cleanup is reuse, simplification, efficiency, and abstraction level — not bug
 hunting. If cleanup later turns up a correctness bug, that comes back through
@@ -108,10 +108,9 @@ command such as `/simplify`.
 
 ## Anti-Patterns
 
-- Reviewing the implementer's summary instead of the diff.
-- Issuing a verdict on your own implementation without re-reading the files.
 - Creating a separate report file per review instead of appending to `review.md`.
 - Asking about cleanup while a Critical finding has no disposition.
-- Recording `accepted by the user` without having told them the actual risk.
+- Recording `accepted by the user` without having told them the actual risk, or
+  recording it at all for a Critical finding.
 - Treating cleanup as the bug finder.
 - Forcing fixes for Minor findings.

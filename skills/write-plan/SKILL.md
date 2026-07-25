@@ -38,15 +38,8 @@ If something is open that the plan cannot be written without, call
 
 ## Writing
 
-Follow `templates/plan.md`:
-
-| Section | Holds |
-| --- | --- |
-| Goal & Constraints | what this plan achieves and what bounds it |
-| Approach | the order of work and why — dependencies, what has to land first |
-| Tasks | each with purpose, files, steps, verification, and safety |
-| Verification Strategy | how the whole thing gets checked, not just per task |
-| Acceptance Criteria Coverage | which task satisfies which criterion |
+Follow `templates/plan.md` — it carries the sections and what each one holds,
+including which of them a `direct-work` checklist can leave out.
 
 Per task, **verification must be runnable** — a command with an expected result,
 not "confirm it works". For a behavior change, the verification has to exercise
@@ -92,8 +85,8 @@ Then, in one compact block:
 
 - what the plan will do, in a line or two,
 - anything risky in it, with the rollback,
-- **how it will be executed** — state it, do not offer a menu:
-  "인라인으로 실행합니다" / "태스크별 서브에이전트로 실행합니다",
+- **how it will be executed** — inline or delegated per task. State it in the
+  user's language; do not offer a menu,
 - what you need: approval to execute.
 
 Stop and wait. If the user wants a different execution approach, they will say
@@ -113,9 +106,6 @@ so; follow it.
 - Asking for execution approval before the review is recorded.
 - Treating the review as a formality — reading the plan and finding nothing every
   time.
-- Writing the plan from memory or from stale requirements.
-- Naming files without opening them.
 - Verification that cannot be run, or that only proves the code compiles.
-- Offering the user a choice of execution mode.
 - Tracking task status inside `plan.md`.
 - Deciding test, commit, release, or deploy policy the work never agreed.

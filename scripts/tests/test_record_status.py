@@ -107,11 +107,15 @@ def test_status_lists_approvals_and_confirmations(make_unit, run):
         "repro script approved",
         "--action",
         "execution",
+        "--actor",
+        "user",
     )
 
     status = derive_status(work_dir)
     assert status["confirmed"] == [2]
     assert status["approvals"][0]["action"] == "execution"
+    # A resuming session reads status, not the raw log: who approved has to survive here.
+    assert status["approvals"][0]["actor"] == "user"
 
 
 def test_move_allowed_flips_once_output_exists(make_unit):

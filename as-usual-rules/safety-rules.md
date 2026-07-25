@@ -66,7 +66,7 @@ approval:
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
-  --kind approval --action high-risk \
+  --kind approval --action high-risk --actor user \
   --summary "<operation, target, rollback, and what the user approved>"
 ```
 

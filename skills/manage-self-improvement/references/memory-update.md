@@ -11,8 +11,8 @@ unverified guesses, long procedures (those become skills).
 ## Two write moments
 
 - Immediate capture: during requirements/plan/execute, when the user states an explicit
-  long-term rule ("always X", "in this project always Y"), append `memory.candidate`
-  only (no write, no approval). Use `record-memory-candidate`.
+  long-term rule ("always X", "in this project always Y"), record it with
+  `add --kind memory` only — no write to `.as-usual/memory/`, no approval yet.
 - Finalize batch: this skill re-validates and applies after approval.
 
 ## Candidate re-validation (run in Pass 1)
@@ -42,5 +42,5 @@ Bad (do not store): `2026-06-28 user asked about kafka; I explained localhost:90
 
 ## Approval wording (controller presents)
 
-"다음 memory를 추가/갱신하려 합니다 — 승인할 항목을 알려주세요:" followed by an
-item-by-item list. Apply only approved items.
+Say what will be added or updated, in the user's language, then list the items
+one by one and ask which to approve. Apply only the approved ones.

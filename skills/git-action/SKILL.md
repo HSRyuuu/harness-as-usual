@@ -31,7 +31,8 @@ For an open record:
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
-  --kind decision --summary "git action selected: <action>" --phase git-action
+  --kind approval --action git-action --actor user \
+  --summary "git action selected: <action>" --phase git-action
 ```
 
 If the action is `none`, that (or saying so in chat, when sealed) is the whole
@@ -101,10 +102,7 @@ reported as success is worse than the failure.
 
 - Running any git command the user did not choose.
 - `git add .`.
-- One catch-all commit across unrelated changes.
-- Staging unrelated work because it happened to be in the tree.
 - Committing work-unit artifacts without policy or approval.
 - Pushing to `main`/`master` without asking.
 - Force-pushing without an explicit request.
-- Opening a PR before the push landed.
 - Reporting success for a step that did not run.

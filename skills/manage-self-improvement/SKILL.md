@@ -88,8 +88,6 @@ unit event, since that unit's record is closed.
 
 - Writing memory without the user's approval.
 - Interrupting the work to write memory instead of recording a candidate.
-- Reflecting something that only applies to this one work unit.
-- Duplicating what `.as-usual/memory/` already says.
 - Blowing the `MEMORY.md` budget instead of consolidating.
 - Trying to append to a sealed record.
 

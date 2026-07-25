@@ -91,6 +91,7 @@ def _approvals(events: list[JsonObject]) -> list[JsonObject]:
         {
             "seq": entry.get("seq"),
             "action": entry.get("data", {}).get("action"),
+            "actor": entry.get("actor"),
             "summary": entry.get("summary"),
         }
         for entry in events

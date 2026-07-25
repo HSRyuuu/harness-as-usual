@@ -57,15 +57,18 @@ Examples:
 
 ```bash
 # a decision agreed with the user (update contexts.md in the same turn)
-add --dir <d> --kind decision --summary "재시도는 지수 백오프로 확정" \
+# summaries are prose: write them in the user's language, like the artifacts
+add --dir <d> --kind decision --summary "retries settled on exponential backoff" \
     --phase gathering-context --next-action write-requirements
 
 # the pre-approval plan review that core rule 7 requires
-add --dir <d> --kind review --summary "계획 검토: 2건 발견, 모두 개선" \
+add --dir <d> --kind review --summary "plan review: 2 findings, both fixed" \
     --phase write-plan --data findings=2
 
 # execution approval (refused unless a review entry already exists)
-add --dir <d> --kind approval --summary "사용자 실행 승인" --action execution
+# --actor user: the approval belongs to whoever gave it, not to the recorder
+add --dir <d> --kind approval --action execution --actor user \
+    --summary "<what the user approved>"
 
 # verification with real output
 add --dir <d> --kind verification --verdict PASS \
@@ -73,10 +76,10 @@ add --dir <d> --kind verification --verdict PASS \
 
 # confirming a hypothesis in an issue
 add --dir <d> --kind status-change --target 2 --to confirmed \
-    --evidence "동시 50요청에서 100% 재현" --summary "가설 확정"
+    --evidence "reproduced 100% at 50 concurrent requests" --summary "hypothesis confirmed"
 
 # closing
-add --dir <d> --kind lifecycle --event finalized --summary "종료" --next-action none
+add --dir <d> --kind lifecycle --event finalized --summary "closed" --next-action none
 ```
 
 ## move

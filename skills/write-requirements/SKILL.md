@@ -26,24 +26,13 @@ with just that item. Its answer lands in the `contexts.md` Q&A band, and a
 
 ## Writing
 
-Follow `templates/requirements.md` for the section list and order:
+Follow `templates/requirements.md` — it carries the sections, their order, and
+what each one holds. Add a section when the work genuinely needs one, and leave
+out any that would be empty; padding with headings to look thorough is worse
+than a short document.
 
-| Section | Holds |
-| --- | --- |
-| Goal | what this work is for, in the user's terms |
-| Scope | In / Out. Out-of-scope is what stops the work from creeping |
-| Requirements | what must be true when it is done — behavior and rules, not implementation |
-| Constraints & Assumptions | limits that bind the solution, plus anything you assumed without confirmation and the risk if it is wrong |
-| Risks | what could go wrong, and what it would cost |
-| Acceptance Criteria | how anyone can check it is done |
-
-Add a section when the work genuinely needs one. The template is a floor, not a
-ceiling — but do not pad it with empty headings to look thorough. An optional
-section with nothing in it should simply be absent.
-
-Write for the user's review: short paragraphs, concrete statements, no trace
-dumps. State requirements as outcomes, not as tasks. If a requirement cannot be
-checked, it is not a requirement yet.
+Write for the user's review. State requirements as outcomes, not as tasks. If a
+requirement cannot be checked, it is not a requirement yet.
 
 ## Quality Reference
 
@@ -67,9 +56,9 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
 `awaiting-user`, because moving to the plan is the user's approval, not an
 automatic transition.
 
-Then tell the user the requirements are ready, point them at the Decisions
-section so they can check how their answers were read, and ask whether to move to
-the plan. Stop there — writing the plan needs their approval.
+Then tell the user the requirements are ready, point them at the Decisions band
+of `contexts.md` so they can check how their answers were read, and ask whether
+to move to the plan. Stop there — writing the plan needs their approval.
 
 ## Revising
 
@@ -84,9 +73,7 @@ When the user asks for a change before approving the plan:
 ## Anti-Patterns
 
 - Writing requirements from chat memory instead of `contexts.md`.
-- Guessing at something `contexts.md` left open.
 - Writing requirements for a bug whose cause is unconfirmed — that is an `issue`.
 - Filling in placeholder or `TBD` sections to satisfy the template.
 - Adding a review status block or checklist output to `requirements.md`.
-- Describing implementation steps instead of required outcomes.
 - Splitting one topic across several requirements documents.

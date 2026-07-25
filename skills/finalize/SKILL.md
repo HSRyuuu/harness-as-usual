@@ -89,9 +89,9 @@ unit.
 Ask which git action to run. Never choose for the user, and never run one
 unasked (core rule 4).
 
-```text
-마무리했습니다. git 작업은 어떻게 할까요?
+Ask in the user's language, and offer exactly these four:
 
+```text
 - none
 - commit
 - commit + push
@@ -104,11 +104,8 @@ usually nothing to commit.
 
 ## Anti-Patterns
 
-- Closing before the unit's own outcome exists.
 - Closing as cancelled without the user's explicit decision and a reason.
 - Continuing the abandoned work after a cancelled close.
-- Reporting complete while a Critical finding has no disposition.
 - Inventing verification results to fill the report.
 - Writing memory directly instead of delegating, or reflecting without approval.
 - Running git commands, creating a PR, releasing, or deploying from here.
-- Asking an open "what next?" instead of the four git options.

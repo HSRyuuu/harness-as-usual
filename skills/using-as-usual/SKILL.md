@@ -143,8 +143,6 @@ Stop and tell the user what you need when:
 
 - Classifying and starting work in the same breath, without offering the choice.
 - Creating a folder before the unit is decided.
-- Re-classifying when the user invoked an owner skill directly.
-- Repeating the four options after the user has chosen.
 - Recording anything when the user chose "just do it".
 - Reporting another session's work as complete without checking diffs yourself.
 - Running an owner skill's pipeline here instead of handing off.
