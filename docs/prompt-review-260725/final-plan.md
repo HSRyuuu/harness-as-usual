@@ -214,7 +214,28 @@ rg -n -i "your call|your judgment|deliberately left|you are trusted|up to you|yo
 
 히트 0이어야 통과. 변경 후 `.claude/skills/` 미러 동기화(`skill-registry-sync`).
 
-## Phase 3 — Medium 유실 복원
+## Phase 3 — Medium 유실 복원 ✅ 완료
+
+R-09는 Phase 1에서 처리됐으므로 5건. 8개 파일 +19/−6줄 — 전부 문단이 아닌 문장
+단위 복원.
+
+| # | 복원 형태 | 위치 |
+| --- | --- | --- |
+| R-05 | "A recommendation is not an answer." — bare approval은 아무것도 고르지 않은 것이며, 자기 추천안을 사용자 결정으로 기록하지 말 것. 한국어 리터럴(`ㄱㄱ`) 대신 "or its local equivalent"로 언어 중립화(P4 선반영) | `gathering-context/SKILL.md:38-41` |
+| R-06 | 기법이 아닌 **증거** 요구만 — "For a bug fix, the evidence includes the failure reproduced before the fix." | `core-rules.md:184-185`, `implementer-prompt.md:16` |
+| R-07 | `--data mode=independent\|inline`. `--data`는 자유형 key=value라 게이트·어휘 변경 불필요 (E2E 확인: `{'critical':'0','mode':'independent'}`) | `review-execution/SKILL.md:57-64` |
+| R-08 | 리뷰어 프롬프트에 high-risk 정의·승인 필수 내용·과잉분류 금지를 인라인 (자식은 `safety-rules.md`를 못 읽음) | `code-reviewer-prompt.md:24` |
+| R-10 | "**No secrets.** … report where it lives — never the value itself." | `explore-codebase/SKILL.md:23-24` |
+
+**Phase 2가 놓친 N1 1건 발견.** `explore-codebase:33` "are the **explorer's**
+judgment"는 2인칭만 잡던 검사를 빠져나갔다. 문장을 삭제하고 검사 패턴에
+`[a-z]'s judgment`를 추가했다.
+
+**검증:** 재량 선언 0건 · 사어휘 0건 · pytest 59 passed · hook · 미러 일치.
+
+---
+
+### (원 계획) Phase 3 상세
 
 | # | 조치 | 대상 |
 | --- | --- | --- |
@@ -300,12 +321,18 @@ Phase 단위, 경로 명시 스테이징(`git add .` 금지).
 
 ## 완료 기준
 
-- **R-01~R-04 복원 완료** (+ R-04는 `scripts/tests/` 케이스 추가).
-- R-05~R-10 복원 완료. R-11~R-16은 복원했거나 "복원 불요" 사유를 기록.
-- 승인 경계 완화(Critical/Important disposition)에 대한 사용자 결정 반영.
-- N1 인벤토리 7건 처리 + 재량 선언 grep 히트 0.
-- `core-rules.md`의 스크립트 집행 주장이 실측과 일치.
-- 댕글링 참조 6곳 해소.
+- ✅ **R-01~R-04 복원 완료** (+ R-04는 `scripts/tests/` 케이스 추가).
+- ✅ R-05~R-10 복원 완료. R-11~R-16은 Phase 4에서 복원하거나 "복원 불요" 사유 기록.
+- ✅ 승인 경계 완화(Critical disposition)에 대한 사용자 결정 반영.
+- ✅ N1 인벤토리 8건 + 후속 1건 처리, 재량 선언 grep 히트 0.
+- ✅ `core-rules.md`의 스크립트 집행 주장이 실측과 일치.
+- 댕글링 참조 6곳 해소 (Phase 4).
 - 검증 스킬 4종 통과, pytest 통과, hook smoke 통과.
 - 런타임 표면 어디에도 "무엇이 왜 비워졌는지"가 설명되지 않는다.
-- 스냅샷 정리: `rm -rf .claude/before-refactor`.
+- 스냅샷 정리: `rm -rf .claude/before-refactor` (`.gitignore` 항목은 다음 감사에
+  대비해 남겨 둔다).
+- **작업 문서 제거 (사용자 결정).** 전체 완료 후 이 리뷰 폴더
+  `docs/prompt-review-260725/`를 포함한 아카이브 작업 문서를 저장소에서 지운다.
+  대상 확인 필요: `docs/superpowers/plans/**`, `docs/improvement-260704/**`.
+  이것이 `verify-runtime-surface` §4(사설 경로) 상시 실패도 함께 해소한다 —
+  히트가 전부 그 아카이브들에 있다.
