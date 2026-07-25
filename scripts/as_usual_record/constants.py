@@ -35,7 +35,6 @@ KINDS = {
     "hypothesis",
     "status-change",
     "blocker",
-    "artifact",
     "memory",
     "note",
 }
@@ -43,7 +42,6 @@ KINDS = {
 LIFECYCLE_EVENTS = {
     "created",
     "unit-selected",
-    "phase-entered",
     "finalized",
     "cancelled",
     "linked",

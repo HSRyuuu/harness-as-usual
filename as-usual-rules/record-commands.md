@@ -46,7 +46,7 @@ Kind-specific flags:
 
 | Kind | Required | Flags |
 | --- | --- | --- |
-| `lifecycle` | `--event` | `created` · `unit-selected` · `phase-entered` · `finalized` · `cancelled` · `linked` |
+| `lifecycle` | `--event` | `created` · `unit-selected` · `finalized` · `cancelled` · `linked` |
 | `verification` | `--verdict` | `PASS` · `FAIL` · `INCONCLUSIVE` |
 | `approval` | `--action` | `high-risk` · `execution` · `git-action` |
 | `status-change` | `--target <seq>`, `--to` | `--to confirmed` needs `--evidence`; `--to cancelled` needs `--reason` |
