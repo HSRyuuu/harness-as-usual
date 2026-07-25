@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "as-usual",
-      "description": "An agent harness that helps coding agents follow a team's usual workflow through topic-level questions, requirements, plans, and state.",
+      "description": "An agent harness that routes each request into one of three recorded work units \u2014 topic, direct-work, or issue \u2014 and keeps the decisions, plan, and verification evidence in files so a later session can resume from disk.",
       "source": "./",
       "author": {
         "name": "Happy Hsryu"
