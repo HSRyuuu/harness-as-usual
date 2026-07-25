@@ -256,8 +256,11 @@ stop retrying after the same failure three times.
 
 **`review-execution`** — reads the actual diff, not the summary of it. Findings
 go to `review.md` in three severities; Critical and Important each reach a
-disposition — fixed and re-reviewed, rejected with a technical reason, or
-accepted by a user who was told the real risk — before the work closes.
+disposition — fixed and re-reviewed, or rejected with a technical reason —
+before the work closes. An Important finding may also be accepted by a user who
+was told the real risk. A Critical one may not: consent decides whether to ship,
+not whether the work is done, so an unresolved Critical closes the unit as
+blocked.
 
 **`cleanup-code`** — user-approved only, after the correctness review. Four
 lenses (reuse, simplification, efficiency, abstraction) over the changed code
@@ -348,7 +351,9 @@ Script refusals, each naming the rule it enforces:
 verification requires --verdict
 confirming requires --evidence
 the plan must be critically reviewed before execution approval
+cannot finalize without a recorded verification
 issue cannot be finalized without conclusion.md
+issue cannot be finalized without a confirmed entry
 record is finalized … only lifecycle link entries may be appended
 cannot move … it already produced requirements.md
 phase X is not used by unit Y
