@@ -29,9 +29,9 @@ not subagents did the typing.
 **Per task:**
 
 1. Do the work as the plan describes it.
-2. Run the task's verification. Evidence must match the surface — a command plus
-   its real output, an actual request/response, a screenshot or the user's
-   recorded manual check. Tests alone never prove done.
+2. Run the task's verification. What counts as evidence is owned by
+   `core-rules.md` §6 — it must match the surface, and tests alone never prove
+   done.
 3. Record it.
 
 ```bash
@@ -82,8 +82,11 @@ owner skill:
 
 ```bash
 as-usual-record.py add --dir <d> --kind work --summary "execution complete: <summary>" \
-  --phase execute-plan --next-action review-execution
+  --phase execute-plan --next-action awaiting-user
 ```
+
+`awaiting-user`, because what happens next — a review, cleanup, or closing — is
+the owner's proposal and the user's decision, not an automatic transition.
 
 Say what was done and what the evidence was. Do not claim completion while any
 task is unverified, any blocker is open, or any high-risk step ran unapproved.

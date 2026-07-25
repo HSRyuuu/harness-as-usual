@@ -64,8 +64,11 @@ Record the artifact and hand back:
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --kind artifact --summary "requirements.md written" \
-  --phase write-requirements --next-action write-plan
+  --phase write-requirements --next-action awaiting-user
 ```
+
+`awaiting-user`, because moving to the plan is the user's approval, not an
+automatic transition.
 
 Then tell the user the requirements are ready, point them at the Decisions
 section so they can check how their answers were read, and ask whether to move to

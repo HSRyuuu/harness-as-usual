@@ -17,14 +17,25 @@ If you are here without that, you are in the wrong place.
 - The work being committed is actually finished — its verification is recorded.
 - The record has been read, so commit messages can reflect what was done.
 
-Record the selection first:
+**Check the record's state first** — `finalize` usually asks the git question
+*after* sealing, so by the time this skill runs the record often accepts no more
+events:
+
+- **Record still open** (a direct-work unit that skipped finalize, or a pre-seal
+  call): record the selection, and later the outcome, as events.
+- **Record sealed**: skip the record entirely and report in chat. This is by
+  design, not a gap — the commits themselves are the durable evidence, in git's
+  own history. Do not try to append; the helper will refuse.
+
+For an open record:
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --kind decision --summary "git action selected: <action>" --phase git-action
 ```
 
-If the action is `none`, that record is the whole job. Stop.
+If the action is `none`, that (or saying so in chat, when sealed) is the whole
+job. Stop.
 
 ## Inspect Before Staging
 

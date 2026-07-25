@@ -108,7 +108,6 @@ ACTORS = {"claude", "codex", "user", "system"}
 VERDICTS = {"PASS", "FAIL", "INCONCLUSIVE"}
 STATUS_CHANGE_STATES = {"confirmed", "cancelled"}
 APPROVAL_ACTIONS = {"high-risk", "execution", "git-action"}
-GIT_ACTIONS = {"none", "commit", "commit + push", "commit + push + PR"}
 
 # Units whose execution approval must be preceded by a plan review (core rule 7).
 PLAN_REVIEW_UNITS = {"topic", "direct-work"}
