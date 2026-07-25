@@ -69,12 +69,17 @@ and `.claude/skills/`.
 ## 4. No private paths in public docs
 
 ```bash
-rg -n '/Users/|/home/[a-z]' README.md docs/ skills/ templates/ as-usual-rules/ \
+git grep -n -E '/Users/|/home/[a-z]' -- README.md docs/ skills/ templates/ as-usual-rules/ \
   && echo "FAIL: machine-specific path in public surface" || echo "PASS"
 ```
 
 Install docs use `https://github.com/HSRyuuu/harness-as-usual.git` and
 `AS_USUAL_REPO`, never someone's home directory.
+
+`git grep` rather than `rg` on purpose: it searches tracked files only, and what
+ships is what the repository tracks. Local-only output such as `docs/test/` is
+gitignored and never reaches a user, so walking the working tree instead would
+fail forever on files that are not part of the plugin.
 
 ## 5. No discretion meta-commentary
 
