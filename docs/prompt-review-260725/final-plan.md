@@ -251,7 +251,36 @@ R-06은 P3(위임안)의 결정과 **모순되지 않는다** — 기법과 어�
 
 R-01·R-09는 같은 문단(§2 4번 옵션)을 만지므로 Phase 1과 병합 가능.
 
-## Phase 4 — Low 유실 + 잔여 P 항목 + 부수 발견
+## Phase 4 — Low 유실 + 잔여 P 항목 + 부수 발견 ✅ 완료
+
+21개 파일 +105/−142줄. 복원 16건을 모두 넣고도 표면은 2,517 → **2,491줄**로
+줄었다 — P5·P6·P8이 복원분보다 많이 걷어냈다.
+
+**Low 복원 6건.** R-11·R-14는 어휘 정합까지 해결했다 — 승인이 `--actor user`로
+기록되고 git action 선택이 `--kind approval --action git-action`이 되면서
+`APPROVAL_ACTIONS`의 `git-action`과 `ACTORS`의 `user`가 고아 어휘를 벗어났다.
+추가로 `status.py::_approvals`가 `actor`를 투영하도록 고쳤다 — 재개 세션은 원본
+로그가 아니라 `status --json`을 읽으므로, 투영하지 않으면 R-11이 실질 효과가
+없다. E2E 확인: 세 승인이 모두 `approvals`에 `actor: user`로 나타난다.
+
+**P8 판단 기록.** `Affected Surface`는 **복원하지 않았다.** 실제 파일을 지목하는
+것은 plan의 일이고(`plan-quality-reference` Concreteness), `Plan readiness`
+항목이 그것이 지키려던 바를 이미 요구한다. 19행 표 → 7개 체크로 재작성.
+
+**P5 판단 기준.** 본문 문장의 단순 반전만 삭제하고, 교차 파일 규칙·스크립트
+게이트 귀결·본문에 없는 실패 모드는 남겼다. 95줄 중 약 1/3 삭제, 게이트를 담은
+항목은 하나도 지우지 않았다. `run-topic`은 5개 전부 유지 — 기준점 파일.
+
+**P4 확대.** 감사가 지목한 3곳 외에 `record-commands.md` 예시 4곳과
+`memory-update.md` 승인 문구에도 한국어 리터럴이 있었다. 런타임 표면의 한국어
+리터럴은 이제 0건.
+
+**검증:** 재량 선언 0 · 사어휘 0 · 한국어 리터럴 0 · 댕글링 섹션 참조 0 ·
+제거된 표면 0 · pytest 59 passed · hook · manifest · 미러 일치.
+
+---
+
+### (원 계획) Phase 4 상세
 
 **Low 복원 (6건, 선택적):** R-11(`--actor user` 귀속) · R-12(리뷰 verdict 일치)
 · R-13(diff 불가 시 한계 기록) · R-14(git action을 typed approval로) ·
