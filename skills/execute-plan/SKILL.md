@@ -35,8 +35,10 @@ not subagents did the typing.
 3. Record it.
 
 ```bash
-as-usual-record.py add --dir <d> --kind work --summary "Task N: <what changed>" --phase execute-plan
-as-usual-record.py add --dir <d> --kind verification --verdict PASS \
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind work --summary "Task N: <what changed>" --phase execute-plan
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind verification --verdict PASS \
   --summary "<command + actual result>" --phase execute-plan
 ```
 
@@ -48,16 +50,19 @@ unverified one.
 though the plan describes them (`safety-rules.md`):
 
 ```bash
-as-usual-record.py add --dir <d> --kind approval --action high-risk --actor user \
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind approval --action high-risk --actor user \
   --summary "<operation, target, rollback, what the user approved>"
 ```
 
 When you hand a task to a subagent, the message must be self-contained — the
-child cannot see this conversation. Give it TASK, DELIVERABLE, SCOPE, VERIFY,
-and SAFETY: which high-risk operations the task involves and whether each is
-already approved, since the child cannot read `safety-rules.md`.
-`implementer-prompt.md` and `task-reviewer-prompt.md` in this directory hold
-ready-made versions of that contract.
+child cannot see this conversation. Give it TASK, SCOPE, VERIFY, CONTEXT, and
+SAFETY: which high-risk operations the task involves and whether each is already
+approved, since the child cannot read `safety-rules.md`. Tell it to do the work
+itself and not to delegate further — you are the controller, and a chain of
+children you did not authorize is not one. `implementer-prompt.md` and
+`task-reviewer-prompt.md` in this directory hold ready-made versions of that
+contract.
 
 A subagent's `DONE` is a claim. Check it against the diff and the evidence before
 recording anything. If you cannot verify it, it is `INCONCLUSIVE`.
@@ -83,7 +88,8 @@ When every task is done and verified, record completion and hand back to the
 owner skill:
 
 ```bash
-as-usual-record.py add --dir <d> --kind work --summary "execution complete: <summary>" \
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind work --summary "execution complete: <summary>" \
   --phase execute-plan --next-action awaiting-user
 ```
 

@@ -35,7 +35,7 @@ Before sealing, hand to `manage-self-improvement` (prefer a subagent).
 
 Candidates accumulate as `memory` events throughout the work, so this pass is a
 review, not a hunt. It proposes; the user approves item by item; only then is
-anything written to `.as-usual/memory/`. If nothing survives, record that — "no
+anything written to `docs/memory/`. If nothing survives, record that — "no
 candidates" is a real result.
 
 Run this for a cancelled close too. An abandoned unit often carries the most
@@ -63,7 +63,9 @@ recorded artifacts — never invent a verification result.
 
 ## 3. Report And Close
 
-Write `report.md` from `templates/report.md` (skip it for a cancelled close). It
+Write `report.md` from `templates/report.md`, unless the folder already holds the
+unit's own closing document — a `conclusion.md` is that document, and a second
+summary beside it only splits the story. Skip it for a cancelled close too. It
 is the readable summary for a person, not a replacement for the record: what was
 built, the decisions that matter, the verification with its actual commands and
 results, the review outcome, and what remains.

@@ -88,8 +88,10 @@ If fixes need implementation, route back: `execute-plan` when the existing plan
 covers them, otherwise `write-plan` or `write-requirements`. Do not implement
 fixes inside this skill and then review your own fix in the same breath.
 
-If a Critical finding is left unresolved, record a `blocker` and close the unit
-as blocked. That is a real state, not a failure to report.
+If a Critical finding is left unresolved, record a `blocker` and set the unit to
+`--phase blocked --next-action awaiting-user`. It stays **open** — blocked is a
+unit waiting on a decision, not a way to close one, and there is no closing event
+for it. Say so plainly; it is a real state, not a failure to report.
 
 ## Handing Back
 

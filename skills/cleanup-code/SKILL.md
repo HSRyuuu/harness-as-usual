@@ -67,16 +67,24 @@ is a claim about the code; the re-run is the evidence for it.
 ## Recording
 
 When something was applied, append the cleanup outcome as a section in
-`review.md` — the same document the execution review used. Do not create
-separate per-lens files, and do not create `review.md` just to say nothing was
-found; that outcome is the event below and nothing more.
+`review.md` — the same document the execution review used, following its Cleanup
+section (Mode / Applied / Not applied / Re-verification). Do not create separate
+per-lens files, and do not create `review.md` just to say nothing was found; that
+outcome is the event below and nothing more.
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
-  --kind review --summary "cleanup: <what changed, or none>" --phase cleanup-code
+  --kind review --summary "cleanup: <what changed, or none>" --phase cleanup-code \
+  --data mode=independent
 ```
 
-Then route to `finalize`.
+`mode` is `independent` when the four lenses ran as separate subagents and
+`inline` when you ran them yourself. It records how much scrutiny the cleanup
+actually got; an inline pass logged as an independent one claims the opposite.
+
+Then route to `finalize` — unless the re-verification came back `FAIL`. A failing
+re-run means the cleanup was not behavior-preserving: revert it or route back to
+`execute-plan` to fix it. Do not close on top of it.
 
 ## Anti-Patterns
 

@@ -40,6 +40,8 @@ as they are handled, not at the end.)
 
 <!-- Added by cleanup-code when it runs. Omit the section entirely otherwise. -->
 
+**Mode** — independent (four lenses as separate subagents) | inline.
+
 **Applied** — what changed, and why it is behavior-preserving.
 
 **Not applied** — findings that failed the safety tests, kept as follow-up.
