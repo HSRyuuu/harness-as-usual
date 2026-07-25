@@ -12,7 +12,7 @@ unverified guesses, long procedures (those become skills).
 
 - Immediate capture: during requirements/plan/execute, when the user states an explicit
   long-term rule ("always X", "in this project always Y"), record it with
-  `add --kind memory` only — no write to `.as-usual/memory/`, no approval yet.
+  `add --kind memory` only — no write to `docs/memory/`, no approval yet.
 - Finalize batch: this skill re-validates and applies after approval.
 
 ## Candidate re-validation (run in Pass 1)

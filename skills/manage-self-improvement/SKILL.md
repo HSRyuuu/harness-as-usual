@@ -22,7 +22,7 @@ Same shape for all three units. Read in this order:
 3. The unit's own output — `requirements.md` / `plan.md` / `review.md` for
    development work, `conclusion.md` for an issue.
 4. The current diff summary, when the work changed code.
-5. Existing `.as-usual/memory/*` and existing project-local skills
+5. Existing `docs/memory/*` and existing project-local skills
    (`.agents/skills/`, `.claude/skills/`).
 
 Look at **the gap**: what was intended, what was planned, what actually happened.
@@ -44,7 +44,7 @@ available.
 
 Review the recorded `memory` candidates plus whatever the gap analysis
 surfaced. Keep what is still true and reusable beyond this one unit — drop the
-rest with a reason — and deduplicate against existing `.as-usual/memory/*`.
+rest with a reason — and deduplicate against existing `docs/memory/*`.
 Evaluate skill candidates against `references/skill-improvement.md` (patch,
 create, or skip) and flag the ambiguous ones. Return the proposal; write
 nothing.
@@ -60,7 +60,7 @@ For approved items only:
 
 1. Update memory per `references/memory-update.md` — simplify, consolidate,
    deduplicate, and stay inside the 3000-character budget for `MEMORY.md`.
-   If `.as-usual/memory/MEMORY.md` does not exist, create the directory and
+   If `docs/memory/MEMORY.md` does not exist, create the directory and
    initialize it from `<plugin-root>/templates/MEMORY.md`.
 2. Create or patch project-local skills per `references/skill-improvement.md`.
 3. Record what was written:
@@ -68,7 +68,7 @@ For approved items only:
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --kind memory --summary "<what was reflected, and where>" \
-  --data files=.as-usual/memory/MEMORY.md
+  --data files=docs/memory/MEMORY.md
 ```
 
 4. Self-check: skill frontmatter and description present, `MEMORY.md` within
@@ -81,7 +81,7 @@ failure.
 
 Run before the record is sealed — a finalized record accepts no further events.
 If the unit is already sealed and the user asks to reflect something later, write
-the memory anyway and tell them it is recorded in `.as-usual/memory/` without a
+the memory anyway and tell them it is recorded in `docs/memory/` without a
 unit event, since that unit's record is closed.
 
 ## Anti-Patterns

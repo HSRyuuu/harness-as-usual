@@ -14,7 +14,7 @@ the point.
 ```text
 ┌─ hook ────────── announces the capability and one entry point, one sentence
 ├─ rules ───────── what is true for every work unit (3 files)
-├─ skills ──────── entry · 3 unit owners · 7 shared steps · 3 utilities
+├─ skills ──────── entry · 3 unit owners · 8 shared steps · 3 utilities
 └─ record ──────── one script, one schema, append-only, refuses rather than warns
 ```
 
@@ -391,7 +391,7 @@ what they were protecting.
 | `skills/explore-codebase/`, `search-long-term-memory/`, `manage-self-improvement/` | utilities |
 | `templates/contexts.md` | the common document |
 | `templates/{requirements,plan,review,report,conclusion}.md` | per-unit artifacts |
-| `templates/MEMORY.md` | `.as-usual/memory/MEMORY.md` baseline |
+| `templates/MEMORY.md` | `docs/memory/MEMORY.md` baseline |
 
 ---
 
@@ -402,7 +402,7 @@ what they were protecting.
   That belongs in `CLAUDE.md`/`AGENTS.md` and `.agents/skills/**`. A leak makes
   the agent try to "fix AsUsual" inside someone else's project.
 - **Rules are never copied into target projects.** A project contains
-  `.as-usual/<unit>/...` artifacts and `.as-usual/memory/`, nothing else.
+  `.as-usual/<unit>/...` artifacts, plus `docs/memory/` for long-term memory.
 - **One owner per rule.** Referencing is fine; restating is not.
 - **The record layer does not bend to model strength.** It governs permission and
   durable evidence. The judgment layer is where a capable model gets room.

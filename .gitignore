@@ -5,14 +5,12 @@
 *.bak
 
 # Local agent/runtime state
-.as-usual/*
-!.as-usual/memory/
-!.as-usual/memory/**
+# Work-unit records only. Long-term memory lives in docs/memory/ and is tracked.
+.as-usual/
 .codegraph/
 .omo/
 .*powers/
 .claude/settings.local.json
-.as-usual/
 
 # Local-only development workspaces
 /commands/

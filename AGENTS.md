@@ -51,7 +51,7 @@ as-usual/
     ├── finalize/             # memory pass, report.md, seal the record
     ├── git-action/           # the git action the user explicitly chose
     ├── explore-codebase/     # read-only repository discovery
-    ├── search-long-term-memory/  # read-only recall from .as-usual/memory/
+    ├── search-long-term-memory/  # read-only recall from docs/memory/
     └── manage-self-improvement/  # propose and apply memory/skill updates
 ```
 
@@ -107,7 +107,7 @@ two-way link. The script decides which applies, not the agent.
   skills, install, reload — belong in `CLAUDE.md`/`AGENTS.md` and
   `.agents/skills/**`, never in the runtime surface.
 - Do not copy runtime rules into target projects. Target projects contain
-  `.as-usual/<unit>/...` artifacts and `.as-usual/memory/`.
+  `.as-usual/<unit>/...` artifacts, plus `docs/memory/` for long-term memory.
 - Requests that modify this repository are plugin development. Do not force the
   `.as-usual/` workflow onto them unless the user explicitly asks to run plugin
   development itself as an AsUsual work unit.
@@ -221,8 +221,9 @@ least one confirmed entry. Rule 6 only holds indirectly, through `init --unit`.
   omit it when it would be empty.
 - Write user-facing artifact prose in the user's conversation language; keep
   identifiers, commands, and paths canonical.
-- `.as-usual/memory/` is the only commit target under `.as-usual/`; stage it
-  explicitly. `MEMORY.md` has a 3000-character budget.
+- Nothing under `.as-usual/` is committed. Long-term memory lives in
+  `docs/memory/` and is staged explicitly. `MEMORY.md` has a 3000-character
+  budget.
 - Public docs use `https://github.com/HSRyuuu/harness-as-usual.git` and
   `AS_USUAL_REPO`. No private absolute paths.
 - Keep only stable skills in `skills/`. Stage paths explicitly when committing;
@@ -232,7 +233,7 @@ least one confirmed entry. Rule 6 only holds indirectly, through `init --unit`.
 ## ANTI-PATTERNS
 
 - Creating project-global artifacts such as `.as-usual/state.md` or a shared
-  `.as-usual/audit.jsonl` (`.as-usual/memory/` is the one intentional exception).
+  `.as-usual/audit.jsonl`.
 - Reintroducing removed surfaces: `topic.md`, `question-cN.md`, `problem.md`,
   `journal.jsonl`, `code-review-report.md`, `execute/`, `clean-up/`,
   `topic-log.py`, `journal-log.py`, `start-work`, `hand-off`, `find-cause`,
@@ -245,7 +246,7 @@ least one confirmed entry. Rule 6 only holds indirectly, through `init --unit`.
 - Mixing plugin development guidance into the runtime surface.
 - Changing repo-relative install examples into machine-specific paths.
 - Committing `.codegraph/`, `.as-usual/` work folders, or plugin cache output.
-  (`.as-usual/memory/` is allowed.)
+  (Long-term memory is not under `.as-usual/` — it lives in `docs/memory/`.)
 
 ## COMMANDS
 

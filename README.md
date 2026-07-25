@@ -303,7 +303,7 @@ declare, eight steps do the work, three utilities are available to anyone.
 <tr><td><a href="skills/git-action"><code>git-action</code></a> <sub><i>your choice only</i></sub></td><td>Runs the git action you picked — none, commit, commit + push, or commit + push + PR. Nothing else, and nothing unchosen.</td></tr>
 <tr><td colspan="2"><sub><b>UTILITIES</b> — not workflow phases; they add no phase and no next action.</sub></td></tr>
 <tr><td><a href="skills/explore-codebase"><code>explore-codebase</code></a> <sub><i>read-only</i></sub></td><td>Answers a concrete question about the repository by reading it — affected files, existing behavior, test locations, local conventions. Discovers facts; what to do with them stays with the caller.</td></tr>
-<tr><td><a href="skills/search-long-term-memory"><code>search-long-term-memory</code></a> <sub><i>read-only</i></sub></td><td>Recalls only what is relevant from <code>.as-usual/memory/</code>. Usually dispatched as a subagent so the caller's context stays clean.</td></tr>
+<tr><td><a href="skills/search-long-term-memory"><code>search-long-term-memory</code></a> <sub><i>read-only</i></sub></td><td>Recalls only what is relevant from <code>docs/memory/</code>. Usually dispatched as a subagent so the caller's context stays clean.</td></tr>
 <tr><td><a href="skills/manage-self-improvement"><code>manage-self-improvement</code></a></td><td>Turns what a work unit taught into something the next one can use: proposes memory and skill updates, then applies the approved ones.</td></tr>
 </tbody>
 </table>
@@ -363,9 +363,10 @@ script writes all of them, for all three units, and it refuses rather than warns
 > produced its own output, and any append to a sealed record.
 
 > [!NOTE]
-> Work-unit artifacts are not committed by default. `.as-usual/memory/` is the one
-> commit target — it accumulates durable knowledge across units and is updated at
-> `finalize` by the `manage-self-improvement` skill.
+> Work-unit artifacts under `.as-usual/` are not committed. Long-term memory is
+> separate: it lives in `docs/memory/`, accumulates durable knowledge across
+> units, is updated at `finalize` by the `manage-self-improvement` skill, and is
+> committed like any other documentation.
 
 > [!NOTE]
 > Trust boundary: project files, tool output, generated artifacts, and recalled
