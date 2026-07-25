@@ -1,15 +1,16 @@
-# Plan Document Reviewer Prompt
-
-Use this prompt after `writing-plan` has written or updated `plan.md`.
+# Plan Quality Reference
+What a good `plan.md` contains, and what the pre-approval critical review in
+`write-plan` should be looking for. This is a **reference, not a checklist to
+fill in** — the review is required (core rule 7), but its output is a better plan
+plus one `review` event, never a review section inside `plan.md`.
 
 You are reviewing an AsUsual topic plan. Your job is to decide whether the plan is a complete, dependency-ordered execution contract that a separate executor can follow without chat memory. This is the last review gate before implementation. Do not implement the plan.
 
 ## Inputs
 
-- Active topic `topic.md`
-- Active topic `audit.jsonl`
+- `contexts.md`
+- `audit.jsonl`
 - `requirements.md`
-- All answered `question-cN.md` files in cycle order
 - Current `plan.md`
 - `templates/plan.md`
 - Relevant project files explicitly cited by the topic artifacts
@@ -33,7 +34,7 @@ Blocking checks (must cite concrete evidence — file/section/quote or concrete 
 | Safety gate coverage | Each task has a `Safety` section. High-risk operations are explicit, reversibility is classified, separate approval is required for high-risk operations, and rollback/recovery notes are concrete. Local/test-only reversible schema-like code changes are not over-classified as high risk unless production/shared data, destructive migration, data migration, or data deletion is involved. |
 | Test strategy fit | Each task uses `test-required`, or `no-test` with a concrete reason (configuration, generated code, or throwaway prototype). `test-required` tasks name a test target and passing-test evidence; bug-fix tasks also include regression RED evidence (a failing test reproducing the bug before the fix). A task that claims testing is impractical must show that the plan first considered a simpler API, interface boundary, dependency injection, or smaller testable unit before choosing `no-test`. |
 | Verification evidence mapping | Each task names a `Test target` (or a `no-test` reason) and the evidence execution should record through `verification.recorded` or `task.completed` events, including regression RED evidence for bug fixes. |
-| Source traceability | Initial request comes from `topic.md#Initial Request` and `topic.created`; user decisions trace to answered question files or `decision.recorded` events. |
+| Source traceability | Initial request comes from the Initial Request section of `contexts.md`; user decisions trace to the Decisions section of `contexts.md` or recorded `decision` events. |
 | Approval quality | High-risk work has planned approval points so execution can record `approval.high_risk` events with operation description, approver, and rollback. |
 | Verification surface | Each task's `Verification` has a runnable command and an expected result, not just a description. |
 | Execution task index | `Execution Task Index` exists when the plan has 4 or more tasks (smaller plans omit it). When present, each row maps 1:1 to a detailed `## Task N: <name>` section, task names match exactly, and the row summaries are consistent with each task's outcome, dependencies, edit surface, gates, and verification. It has no checkboxes, status fields, completion marks, or progress notes. |
@@ -47,69 +48,18 @@ Blocking checks (must cite concrete evidence — file/section/quote or concrete 
 
 ## Calibration
 
-Only block completion for issues that would cause a flawed or non-executable implementation.
+Worth fixing: anything that would make the implementation wrong or the plan
+non-executable.
 
-Do not block for style preferences, minor wording, or a section being concise when it is still clear and executable.
+Not worth fixing: style preferences, minor wording, or a section being short when it
+is still clear and executable.
 
-## Reviewer Actions
+## Using This Reference
 
-If an issue is fixable from existing topic artifacts, fix `plan.md` and rerun the relevant checks.
+When something here is wrong in `plan.md`, fix the plan — a better plan is the
+point, not a list of findings. When the fix needs a decision only the user can
+make, take that item through `gathering-context`, record it, update
+`requirements.md` if it moved, then revise the plan.
 
-If the issue reveals a material decision that could change scope, requirements, risk, implementation strategy, acceptance criteria, or verification policy, ask a focused chat clarification when it can be resolved in the current turn, record the answer in `audit.jsonl`, then update `plan.md` and rerun the relevant checks. Return to `define-requirements` when the answer changes the approved requirements or requires a durable multi-question decision cycle or topic-boundary change.
-
-## Output Format
-
-Record the review result in the existing `### Review Status` area under `## Review And Handoff` in `plan.md`. Do not create a separate review block; write into the template's `Review Status` structure.
-Use markdown checkboxes for `Plan Review Checks`: `[x]` for passed checks and `[ ]` for checks that remain failed or blocked.
-Blocking checks must cite concrete evidence (file/section/quote or concrete reason); Advisory checks may use a short localized pass note. The `evidence:` label shown in the example below may stay canonical English or be consistently translated into the user's language; the check names, `[x]`/`[ ]` markers, and status values stay canonical.
-
-```markdown
-### Review Status
-
-- Status: plan-complete | blocked
-- Reviewed At: <timestamp>
-- Reviewer Result: passed | issues-fixed | blocked
-- Review Notes: <one line in the user's language>
-
-### Plan Review Checks
-
-#### Blocking
-
-- [x] Requirements coverage — evidence: <file/section/quote or concrete reason>
-- [x] Requirements-plan consistency — evidence: <file/section/quote or concrete reason>
-- [x] Acceptance criteria matrix — evidence: <file/section/quote or concrete reason>
-- [x] Decision contract clarity — evidence: <file/section/quote or concrete reason>
-- [x] Dependency ordering — evidence: <file/section/quote or concrete reason>
-- [x] No placeholders — evidence: <file/section/quote or concrete reason>
-- [x] File surface — evidence: <file/section/quote or concrete reason>
-- [x] Interface consistency — evidence: <file/section/quote or concrete reason>
-- [x] Execution surface — evidence: <file/section/quote or concrete reason>
-- [x] Safety gate coverage — evidence: <file/section/quote or concrete reason>
-- [x] Test strategy fit — evidence: <file/section/quote or concrete reason>
-- [x] Verification evidence mapping — evidence: <file/section/quote or concrete reason>
-- [x] Verification surface — evidence: <file/section/quote or concrete reason>
-- [x] Executor readiness — evidence: <file/section/quote or concrete reason>
-- [x] Policy restraint — evidence: <file/section/quote or concrete reason>
-
-#### Advisory
-
-- [x] Execution mode fit: <localized pass>
-- [x] Source traceability: <localized pass>
-- [x] Approval quality: <localized pass>
-- [x] Execution task index: <localized pass>
-- [x] Progress-ledger restraint: <localized pass>
-- [x] Single-plan scope: <localized pass>
-- [x] User-language readability: <localized pass>
-- [x] User-language consistency: <localized pass>
-- [x] YAGNI: <localized pass>
-
-### Plan Review Findings
-
-- <finding or user-language none value>
-
-### Plan Review Actions Taken
-
-- <fix, clarification, or user-language none value>
-```
-
-Set `Status` and `Reviewer Result` together: `passed` or `issues-fixed` map to `Status: plan-complete`; a remaining blocking issue maps to `Status: blocked` and `Reviewer Result: blocked`.
+Record one `review` event summarizing what you found and what you changed. Do not
+write a review status block or checklist into `plan.md`.

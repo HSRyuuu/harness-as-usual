@@ -1,118 +1,92 @@
 ---
 name: cleanup-code
-description: Use when AsUsual is active and the user approves code cleanup after execution review.
+description: Use when the user explicitly approves code cleanup after execution review. Applies behavior-preserving improvements to the change surface and re-verifies.
 ---
 
 # Cleanup Code
 
-This skill performs optional post-review cleanup for an AsUsual topic. It looks for cleanup opportunities in changed code after correctness review has completed, applies safe simplifications, reruns relevant verification, and records the result.
+Improves the code that was just written without changing what it does: reuse
+what already exists, cut ceremony, avoid waste, sit at the right level of
+abstraction.
 
-Use it only after `review-execution` has recorded execution review and the user explicitly approves code cleanup.
-
-## Responsibility Boundary
-
-| Skill | Responsibility |
-| --- | --- |
-| `review-execution` | Correctness review, code cleanup consent, and routing |
-| `cleanup-code` | Cleanup review across reuse, simplification, efficiency, and abstraction level |
-| `finalize` | Close the topic record and ask which git action to run |
-| `git-action` | Run the selected post-finalize git action |
-
-`cleanup-code` is not a bug-finding gate. If cleanup review discovers a correctness issue, record it as a review finding and route back to `review-execution` or the user's chosen fix path.
+This runs **only on the user's explicit approval**, and only after the
+correctness review. It is not a bug hunt — if it turns up a correctness problem,
+that goes back through `review-execution`.
 
 ## Preconditions
 
-Before code cleanup, confirm:
+- Execution is complete and its verification is recorded.
+- `review-execution` ran, and its Critical and Important findings have
+  dispositions.
+- The user approved cleanup in this turn.
+- The diff or changed files can be inspected.
 
-- The Code Cleanup rules in `core-workflow.md` have been checked.
-- `topic.md`, `audit.jsonl`, `requirements.md`, and `plan.md` have been read from disk.
-- `audit.jsonl` records execution completion and execution review completion.
-- The user explicitly approved code cleanup.
-- A current diff or changed-file list is available, or the limitation is recorded.
+## Reviewing
 
-If approval is missing, return to `review-execution` to ask. Do not run cleanup automatically.
+Four lenses, each with a prompt file in this directory:
 
-## Inputs
-
-Read and use these sources in this order:
-
-1. `topic.md`
-2. `audit.jsonl`
-3. Derived status from `scripts/topic-log.py status --json`, when available
-4. `requirements.md`
-5. `plan.md`
-6. Current diff or changed-file list
-7. Relevant surrounding project files needed to identify existing helpers and patterns
-
-## Workflow
-
-### Step 1: Run Four Cleanup Reviews
-
-When the host supports subagents, run these four review agents in parallel using the prompt files in this skill directory:
-
-| Review | Prompt | Focus |
+| Lens | Prompt | Looks for |
 | --- | --- | --- |
-| Reuse | `reuse-reviewer-prompt.md` | Existing helpers, utilities, shared APIs, and duplicated local logic |
-| Simplification | `simplification-reviewer-prompt.md` | Unnecessary branching, ceremony, indirection, or over-engineering |
-| Efficiency | `efficiency-reviewer-prompt.md` | Wasteful loops, repeated work, avoidable I/O, expensive rendering, or needless allocations |
-| Abstraction | `abstraction-reviewer-prompt.md` | Whether code sits at the right level of abstraction for the surrounding codebase |
+| Reuse | `reuse-reviewer-prompt.md` | existing helpers, shared APIs, logic duplicated locally |
+| Simplification | `simplification-reviewer-prompt.md` | needless branching, ceremony, indirection, over-engineering |
+| Efficiency | `efficiency-reviewer-prompt.md` | wasted loops, repeated work, avoidable I/O, needless allocation |
+| Abstraction | `abstraction-reviewer-prompt.md` | whether the code sits where the surrounding codebase would put it |
 
-Each review writes a file under `clean-up/`: `clean-up/review-result-reuse.md`, `clean-up/review-result-simplification.md`, `clean-up/review-result-efficiency.md`, or `clean-up/review-result-abstraction.md`. Each file must include YAML frontmatter `type`, `verdict`, and `reviewedAt`. The receipt verdict must be one of `passed | findings | blocked` and must match the file frontmatter `verdict`.
+Run them as parallel subagents when the host supports it, otherwise inline. How
+you run them is your call; what matters is that all four lenses get applied.
 
-If subagents are unavailable, run the four reviews sequentially in the current session and record that limitation. The four `clean-up/review-result-<type>.md` files and frontmatter are still required; only subagent receipt responses are omitted.
+**Review only the changed code and the context needed to judge it.** Cleanup that
+wanders into untouched code is scope creep wearing a different hat.
 
-Review only changed code and nearby context needed to judge cleanup. Do not expand into unrelated refactors.
+## Applying
 
-### Step 2: Synthesize Cleanup Plan
-
-Read the four review files and combine reviewer findings into one cleanup set.
-
-Apply only findings that are:
+Apply a finding only when it is:
 
 - behavior-preserving,
-- local to the approved change surface,
-- consistent with `requirements.md` and `plan.md`,
-- lower-risk than leaving the code as-is, and
-- verifiable with existing task verification or a clearly related command.
+- inside the approved change surface,
+- consistent with what the work agreed,
+- lower-risk than leaving the code alone,
+- verifiable with the verification that already exists or something clearly
+  related.
 
-Do not apply speculative rewrites, broad architecture changes, new dependencies, public API changes, schema changes, behavior changes, or cleanup that would require a new product decision.
+Do not apply speculative rewrites, architecture changes, new dependencies, public
+API changes, schema changes, or anything that needs a new product decision. If a
+finding is worth doing but fails these tests, note it as follow-up instead.
 
-### Step 3: Apply Safe Cleanup
+"No safe cleanup found" is a perfectly good outcome. Record it and move on.
 
-Apply accepted cleanup changes directly. Keep edits focused.
+## Re-Verifying
 
-If no safe cleanup exists:
+If any file changed, re-run the verification for the affected work — the commands
+already recorded, or narrower ones that still cover the change.
 
-1. Record `code_cleanup.completed` through `scripts/topic-log.py audit`.
-2. Route to `finalize`.
+```bash
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind verification --verdict PASS \
+  --summary "<command + actual result>" --phase cleanup-code
+```
 
-### Step 4: Re-Verify
+If it cannot be re-run, record `INCONCLUSIVE` with the reason. Behavior-preserving
+is a claim about the code; the re-run is the evidence for it.
 
-If cleanup changes files, rerun relevant verification:
+## Recording
 
-- Prefer the verification commands already recorded for the affected tasks.
-- Rerun narrower commands when they cover the cleanup safely.
-- If verification cannot be rerun, record why and what remains.
+Append the cleanup outcome as a section in `review.md` — the same document the
+execution review used. Do not create separate per-lens files.
 
-Record exact commands and outcomes with `scripts/topic-log.py verification --verdict PASS|FAIL|INCONCLUSIVE`. Completion judgment follows `as-usual-rules/completion-rules.md`: verification evidence by surface and `INCONCLUSIVE` handling.
+```bash
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind review --summary "cleanup: <what changed, or none>" --phase cleanup-code
+```
 
-### Step 5: Record And Route
-
-Record:
-
-- which cleanup reviewers ran,
-- findings accepted and rejected,
-- files changed,
-- verification rerun and outcome,
-- remaining cleanup follow-ups, if any.
-
-Append a `code_cleanup.completed` audit event with phase `cleanup-complete` and next action `finalize`, then invoke `finalize` in the same turn.
+Then route to `finalize`.
 
 ## Anti-Patterns
 
-- Running code cleanup before correctness review.
-- Treating cleanup review as bug review.
-- Applying broad refactors unrelated to the topic.
-- Changing behavior, public API, schema, dependencies, or product decisions as "cleanup".
-- Accepting every reviewer suggestion without checking risk.
-- Skipping re-verification after cleanup changes files.
+- Running without the user's explicit approval.
+- Running before the correctness review.
+- Using cleanup as the bug finder.
+- Refactoring code the work never touched.
+- Changing behavior and calling it cleanup.
+- Claiming behavior is preserved without re-running verification.
+- Creating a separate report file per lens instead of a section in `review.md`.

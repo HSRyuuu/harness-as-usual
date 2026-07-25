@@ -36,7 +36,7 @@ You are reviewing one completed task in a single pass: whether the output satisf
 - The review is read-only except for writing its own review file.
 - Report at most 3 high-confidence blocking (Critical/Important) findings per review pass. If more exist, keep the 3 most severe as blocking and record the rest as Minor in severity order in the review file. Never hide a finding to satisfy this cap; the cap limits what blocks, not what is recorded.
 - Tag each finding with a category: `requirements` (requirements/scope/evidence fit) or `quality` (correctness, safety, conventions, test quality).
-- Write detailed findings to `execute/task-<N>-review.md` with YAML frontmatter: `task`, `verdict: passed | findings | blocked`, and `reviewedAt`. On re-review, update the same file and frontmatter.
+- Write detailed findings to a task section in `review.md` with YAML frontmatter: `task`, `verdict: passed | findings | blocked`, and `reviewedAt`. On re-review, update the same file and frontmatter.
 - Return only the receipt below. Do not paste detailed findings into the response.
 
 ## What This Review Does Not Check
@@ -49,7 +49,7 @@ You are reviewing one completed task in a single pass: whether the output satisf
 
 ```text
 Status: passed | findings | blocked
-Review File: execute/task-<N>-review.md
+Review File: review.md (task section)
 Critical:
 Important:
 Minor:

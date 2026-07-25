@@ -10,7 +10,7 @@ to the current task context. It never writes, and it is not a workflow phase.
 
 ## When to use
 
-- During `define-requirements` question creation and requirements writing, to inject
+- During `gathering-context` and requirements writing, to inject
   usable prior knowledge.
 - Any phase where prior project/user memory would help. Prefer dispatching this as a
   subagent so the controller context stays clean.

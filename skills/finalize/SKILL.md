@@ -1,164 +1,96 @@
 ---
 name: finalize
-description: Use when AsUsual is active and execution review is complete before closing a topic or asking which git action to run.
+description: Use when a work unit is closing. Reviews memory candidates, checks the record can carry a fresh session, writes report.md, seals the record, and asks which git action to run.
 ---
 
 # Finalize
 
-This skill closes the AsUsual topic record after execution and review. It summarizes what happened, records the final topic status, and asks the user which git action to run.
+Closes a work unit: reviews what is worth remembering, checks that the record can
+stand on its own, writes the summary, and seals the record.
 
-Use it only after `using-as-usual` has completed activation and first reads, `executing-plan` has completed, and `review-execution` has recorded its review result plus the code cleanup decision.
+`topic` and `issue` require this. `direct-work` offers it — a direct-work unit
+whose last event is a passing verification is already complete.
 
-## Responsibility Boundary
-
-| Skill | Responsibility |
-| --- | --- |
-| `executing-plan` | Implement the approved plan and record task-level verification |
-| `review-execution` | Review changed code and handle optional code cleanup |
-| `cleanup-code` | Apply approved cleanup and rerun relevant verification |
-| `finalize` | Close the topic record and ask which git action to run |
-| `git-action` | Run the selected post-finalize git action |
-| `manage-self-improvement` | Analyze the topic and, after finalize gathers approval, record memory and create/patch skills |
-
-`finalize` does not implement new work, run code review, run git commands, decide git policy alone, create PRs, release, deploy, or rewrite prior audit history. `finalize` gathers user approval for self-improvement candidates but delegates the actual memory record and skill create/patch to `manage-self-improvement`. The "no new work" rule applies to topic implementation, not to delegated self-improvement meta-artifacts.
+Finalize implements no new work, runs no git commands, and never rewrites past
+events.
 
 ## Preconditions
 
-Before finalizing, confirm:
+- The unit's own outcome exists: execution and verification for `topic` and
+  `direct-work`; `conclusion.md` for `issue` (the record helper refuses to
+  finalize an issue without it).
+- For `topic`, the review's Critical and Important findings have dispositions.
+- Remaining issues and any skipped verification are explicit.
 
-- The Finalize rules in `core-workflow.md` have been checked.
-- `topic.md`, `audit.jsonl`, `requirements.md`, and `plan.md` have been read from disk.
-- Execution completion is recorded.
-- Review result is recorded.
-- Code cleanup was either skipped or completed.
-- Remaining issues and skipped verification are explicit.
+**Cancelled is different.** When the user abandons the work, none of the above
+applies — any unit can close as cancelled from any phase. What is required is the
+user's explicit decision and the reason. Check the working tree for leftover
+changes and ask whether to revert or keep them before closing. Cancelling is not
+a way past a gate: resuming the work later means a new unit or an explicit
+resume, never quiet implementation after the close.
 
-If execution review or code cleanup decision is missing, return to `review-execution`. Do not close the topic optimistically.
+## 1. Memory Pass
 
-Cancelled exception: when the user explicitly abandons the topic, the execution/review preconditions above do not apply, and the topic may be closed from any phase with status `cancelled`. The explicit user cancellation decision and the cancellation reason summary are mandatory. `requirements.md`/`plan.md` are read only if they exist. Cancel is not a gate bypass: continuing the abandoned work happens only through a new topic or an explicit resume of this topic, never by silently implementing after cancel.
+Before sealing, hand to `manage-self-improvement` (prefer a subagent).
 
-## Inputs
+Candidates accumulate as `memory` events throughout the work, so this pass is a
+review, not a hunt. It proposes; the user approves item by item; only then is
+anything written to `.as-usual/memory/`. If nothing survives, record that — "no
+candidates" is a real result.
 
-Read and use these sources in this order:
+Run this for a cancelled close too. An abandoned unit often carries the most
+useful lesson, such as why it was scoped wrong in the first place.
 
-1. `topic.md`
-2. `audit.jsonl`
-3. Derived status from `scripts/topic-log.py status --json`, when available
-4. `requirements.md`
-5. `plan.md`
-6. Current git status and diff summary, when git is available
+## 2. Record Check
 
-## Workflow
+Confirm the record could carry a fresh session that has none of this context:
 
-### Step 0: Self-Improvement Pass
+- what was done,
+- verification: the exact commands and their outcomes, or what was skipped and why,
+- review findings and their dispositions,
+- decisions and constraints that still bind,
+- remaining issues, or explicitly none.
 
-Do not proceed to Step 1 until this pass has a recorded result (applied, skipped with reason, or "no candidates").
-
-Before closing the record, trigger the `manage-self-improvement` skill (prefer a
-subagent; inline fallback):
-
-1. Pass 1 (propose, read-only): it returns proposed memory additions, skill
-   create/patch candidates, and ambiguous items.
-2. Approval: present the proposal item-by-item; ask the user directly about ambiguous
-   items. finalize does not write self-improvement artifacts itself.
-3. Pass 2 (apply): `manage-self-improvement` records approved memory (`record-memory`)
-   and creates/patches skills (`record-skill --state created`), recording deferred
-   candidates as `record-skill --state candidate`.
-
-If nothing survives, record a "no candidates" note. Do not proceed to close without a
-recorded self-improvement result.
-
-Run this pass for `cancelled` closure too — abandoned topics can still yield lessons
-(for example, why the topic was mis-scoped). "No candidates" is an acceptable result.
-
-### Step 1: Final Record Check
-
-Confirm `topic.md` plus `audit.jsonl` can support a fresh-session resume:
-
-- completed work
-- verification performed, with exact commands and outcomes
-- verification skipped and why
-- execution review findings and disposition
-- code cleanup decision and result
-- troubleshooting
-- lessons, when useful
-- remaining issues or `None`
-
-Also confirm these audit records are present when applicable:
-
-- `approval.execution` exists before execution work.
-- `approval.high_risk` exists for each approved high-risk operation.
-- `review.completed` includes mode `independent`, `self`, or `local-prompt`.
-- Host-generated events use host actor values such as `codex` or `claude`, not generic `agent`.
-- User approval and selection helper commands may record `actor` as `user` when the user is the actor for that event.
-- `audit.jsonl` events include monotonic `seq` values.
-
-If these fields are missing, route back to the owning phase or record the missing helper capability. Do not finalize optimistically.
-
-Run the structural validator and treat a failure as a blocker:
+Also confirm the approvals that had to exist do: execution approval before
+execution, a fresh high-risk approval per high-risk operation.
 
 ```bash
-python3 <plugin-root>/scripts/topic-log.py validate --topic-dir <topic-dir>
+python3 <plugin-root>/scripts/as-usual-record.py validate --dir <work-dir>
 ```
 
-If validation fails, route back to the owning phase or report the missing helper capability. Do not finalize while `validate` fails.
+If something is missing, route back to the phase that owns it. Fill gaps from
+recorded artifacts — never invent a verification result.
 
-Fill missing operational details from recorded artifacts. Do not invent verification results.
+## 3. Report And Close
 
-### Step 2: Set Final Topic Status
+Write `report.md` from `templates/report.md` (skip it for a cancelled close). It
+is the readable summary for a person, not a replacement for the record: what was
+built, the decisions that matter, the verification with its actual commands and
+results, the review outcome, and what remains.
 
-Choose one status:
-
-| Status | Use When |
-| --- | --- |
-| `complete` | Execution, verification, review, and code cleanup decision are recorded, with no remaining blocking issues. |
-| `follow-up-needed` | The core topic work is usable, but remaining non-blocking Minor findings, accepted non-blocking risks, or deferred cleanup exist. Critical and Important findings must be fixed and re-reviewed or the topic is `blocked`. |
-| `blocked` | The topic cannot be completed without external input, failed verification, missing dependency, or unresolved Critical/Important review findings. |
-| `cancelled` | The user explicitly chose to abandon the topic. Record the remaining work and the cancellation reason in the summary. Exempt from execution/review preconditions and from `report.md`. |
-
-For `cancelled`, skip the `report.md` creation below, check the working tree for leftover changes from this topic, and if any exist, ask the user whether to revert or keep them before the git action question; record the decision. Then run `finalize-topic --status cancelled --summary "<cancellation reason>"` (the cancellation reason summary is required — `validate` fails without it) and continue at Step 3.
-
-Create or update `report.md` in the topic folder using `templates/report.md`. This is the concise user-facing final report, not a replacement for `audit.jsonl`. Write user-facing prose in the user's current or clearly preferred language, while preserving exact commands, paths, status values, and technical identifiers.
-
-Include:
-
-- topic status, phase, timestamps, and next action
-- implemented changes
-- important decisions and constraints
-- exact verification commands and outcomes
-- execution review result and `code-review-report.md` link or `None`
-- code cleanup decision and result
-- remaining issues or `None`
-- git action decision/request status
-
-Use:
+Then seal:
 
 ```bash
-python3 <plugin-root>/scripts/topic-log.py finalize-topic \
-  --topic-dir <topic-dir> \
-  --status <complete|follow-up-needed|blocked|cancelled> \
-  --summary "<summary>" \
-  --report report.md
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind lifecycle --event finalized \
+  --summary "<outcome in one line>" --phase finalize --next-action none
 ```
 
-This records `topic.finalized`, derives phase `finalized`, derives next action `git-action-decision`, and records the report artifact.
+Use `--event cancelled` with the reason for an abandoned unit.
 
-After `finalize-topic`, confirm `status --json` derives phase `finalized`, then re-run the structural validator so the finalize invariants are checked:
+State the outcome plainly. If the work ended blocked or with issues outstanding,
+say that — a sealed record that overstates what happened is worse than no record.
 
-```bash
-python3 <plugin-root>/scripts/topic-log.py validate --topic-dir <topic-dir>
-```
+After sealing, the record accepts nothing but links. Further work needs a new
+unit.
 
-If validation fails, route back to the owning phase or report the missing helper capability. Do not treat the topic as finalized while `validate` fails.
+## 4. Git Action
 
-### Step 3: Ask Git Action Decision
-
-Ask the user which git action to run. Do not run git commands automatically.
-
-Canonical prompt:
+Ask which git action to run. Never choose for the user, and never run one
+unasked (core rule 4).
 
 ```text
-Topic finalized. Which git action would you like me to run?
+마무리했습니다. git 작업은 어떻게 할까요?
 
 - none
 - commit
@@ -166,24 +98,17 @@ Topic finalized. Which git action would you like me to run?
 - commit + push + PR
 ```
 
-If the user chooses an action in a later turn, invoke `git-action`. Keep commit/push/PR/release/deploy behavior outside this skill.
-
-## State And Audit
-
-Use `scripts/topic-log.py` from the plugin root for every audit update. Prefer `finalize-topic` for topic closure. Do not hand-edit `audit.jsonl`; if the helper cannot express the finalization update, stop and report the missing helper capability.
-
-Append facts to `audit.jsonl`; do not rewrite old events into a summary.
+When they choose, invoke `git-action`. For an `issue`, do not ask this by
+default — confirming a cause and stopping is a normal ending, and there is
+usually nothing to commit.
 
 ## Anti-Patterns
 
-- Finalizing before execution review is recorded (except explicit user cancellation closed as `cancelled`).
-- Treating code cleanup as mandatory.
-- Closing as `cancelled` without an explicit user cancellation decision or without a cancellation reason summary.
-- Silently continuing the abandoned implementation after a `cancelled` closure instead of opening a new topic or explicitly resuming.
-- Marking `complete` while Critical review findings remain unresolved.
-- Asking a broad "what next?" instead of the git action decision.
-- Running git commands, creating a PR, releasing, or deploying from `finalize`.
-- Treating `commit`, `push`, or `PR` as selected before the user chooses an action.
-- Closing the topic without running the self-improvement pass.
-- Writing memory or creating skills directly from `finalize` instead of delegating to `manage-self-improvement`.
-- Reflecting candidates without explicit user approval.
+- Closing before the unit's own outcome exists.
+- Closing as cancelled without the user's explicit decision and a reason.
+- Continuing the abandoned work after a cancelled close.
+- Reporting complete while a Critical finding has no disposition.
+- Inventing verification results to fill the report.
+- Writing memory directly instead of delegating, or reflecting without approval.
+- Running git commands, creating a PR, releasing, or deploying from here.
+- Asking an open "what next?" instead of the four git options.
