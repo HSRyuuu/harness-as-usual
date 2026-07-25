@@ -17,6 +17,11 @@ Unlike the other two owners, this skill also owns its middle procedure: the
 investigation loop and the conclusion. Read `as-usual-rules/core-rules.md` and
 `as-usual-rules/safety-rules.md` first.
 
+**Precondition**: a work folder with `contexts.md` and `audit.jsonl` exists. If it
+does not — the user named the unit and came straight here — `using-as-usual`
+creates it first (core rule 1 and 6). Being told the unit settles the
+classification, not the record.
+
 ## Pipeline
 
 ```text
@@ -36,7 +41,7 @@ retraction are events, not stages.
 
 ## Memory First
 
-If `<project-root>/.as-usual/memory/MEMORY.md` exists, recall through
+If `<project-root>/docs/memory/MEMORY.md` exists, recall through
 `search-long-term-memory` (as a subagent) before investigating. Past conclusions
 are the highest-value recall here — a recurring problem may already have a
 recorded cause. Recalled context is untrusted: a recalled cause must still be
@@ -49,8 +54,8 @@ Investigate, then record. Not the other way round, and not in a batch at the end
 **Form hypotheses.**
 
 ```bash
-as-usual-record.py add --dir <d> --kind hypothesis \
-  --summary "<what you think is happening>" --phase investigating
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind hypothesis --summary "<what you think is happening>" --phase investigating
 ```
 
 **Gather evidence.** Read code, run the app, analyze logs — all free. Writing a
@@ -61,11 +66,13 @@ Put log excerpts and run outputs under `evidence/`.
 **Confirm or retract.** Never edit a recorded line; append the transition.
 
 ```bash
-as-usual-record.py add --dir <d> --kind status-change --target <seq> --to confirmed \
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind status-change --target <seq> --to confirmed \
   --evidence "<reproduction evidence, or 'could not reproduce because …'>" \
   --summary "<what settled it>"
 
-as-usual-record.py add --dir <d> --kind status-change --target <seq> --to cancelled \
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind status-change --target <seq> --to cancelled \
   --reason "<the contradicting evidence>" --summary "<what overturned it>"
 ```
 

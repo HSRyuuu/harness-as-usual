@@ -12,6 +12,11 @@ This skill is a declaration, not a procedure. Each step is owned by its own
 skill; this file says which steps apply, in what order, at what strength, and
 which gates stand between them. Read `as-usual-rules/core-rules.md` first.
 
+**Precondition**: a work folder with `contexts.md` and `audit.jsonl` exists. If it
+does not — the user named the unit and came straight here — `using-as-usual`
+creates it first (core rule 1 and 6). Being told the unit settles the
+classification, not the record.
+
 ## Pipeline
 
 ```text
@@ -59,6 +64,10 @@ python3 <plugin-root>/scripts/as-usual-record.py status --dir <work-dir> --json
   it is. Create a separate `issue` folder beside it and link the two
   (`core-rules.md` §7). Do not park the topic and do not guess the cause in
   `requirements.md`.
+- Gathering reveals the unit itself was wrong: that is the one case for `move`,
+  and only while the folder has produced nothing of its own — the record helper
+  allows it until `requirements.md` exists. Once it does, the rule above applies
+  instead. Let the script decide which; do not pre-judge it.
 
 ## Anti-Patterns
 

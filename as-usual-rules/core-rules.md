@@ -34,6 +34,11 @@ the harness at all. The moment the harness is invoked, a record exists.
 
 ## 2. Classification
 
+Before the tree: a question you can answer by reading and explaining — what this
+code does, where something lives, how a library works — is not a work unit at
+all. It produces no deliverable to record. Answer it. `issue` is for what has to
+be *established*, not for what merely has to be *said*.
+
 Two questions, in this order. The order is fixed so the conditions never overlap.
 
 ```text
@@ -45,6 +50,12 @@ Two questions, in this order. The order is fixed so the conditions never overlap
    yes -> direct-work
    no  -> topic
 ```
+
+Question 1 asks what the user ends up with, not what it takes to get there. A
+request that needs investigating, reviewing, or exploring first but ends in
+changed code answers "code change" — the investigation is a step inside that
+unit, or a separate `issue` linked to it, never a reason to call the whole thing
+an issue.
 
 A bug whose cause is unknown is an `issue` even when the eventual fix is one
 line. Until the cause is confirmed it is not yet a code-change request.
@@ -85,14 +96,17 @@ to narrow it down, then `move` into the chosen unit.
 ├── inbox/yyyy-MM-dd-<slug>/        contexts.md · audit.jsonl        (unit not yet chosen)
 ├── topic/yyyy-MM-dd-<slug>/        + requirements.md · plan.md · review.md · report.md
 ├── direct-work/yyyy-MM-dd-<slug>/  + plan.md (checklist strength) · optional review.md/report.md
-├── issue/yyyy-MM-dd-<slug>/        + evidence/ · conclusion.md
-└── memory/                         MEMORY.md · optional <domain>_MEMORY.md
+└── issue/yyyy-MM-dd-<slug>/        + evidence/ · conclusion.md
+
+<project-root>/docs/memory/        MEMORY.md · optional <domain>_MEMORY.md
 ```
 
 - Use the actual current date and a lowercase kebab-case slug.
 - Every unit has exactly two required files: `contexts.md` and `audit.jsonl`.
-- `memory/` is the one allowed non-unit directory, and the only commit target
-  under `.as-usual/`.
+- `.as-usual/` holds work units only, and none of it is committed by default.
+  Long-term memory lives outside it, in `docs/memory/` — it is durable project
+  knowledge rather than a record of one unit, so it belongs with the project's
+  documentation and is committed like any other doc.
 - Tell the user the folder path in one line right after creating it, so they can
   correct the slug early.
 - Do not copy this rules file into the target project.
@@ -156,9 +170,9 @@ current agreement. Current state is never remembered — derive it:
 python3 <plugin-root>/scripts/as-usual-record.py status --dir <work-dir> --json
 ```
 
-Event kinds (12): `lifecycle` · `approval` · `verification` · `review` ·
-`decision` · `work` · `hypothesis` · `status-change` · `blocker` · `artifact` ·
-`memory` · `note`.
+Event kinds (11): `lifecycle` · `approval` · `verification` · `review` ·
+`decision` · `work` · `hypothesis` · `status-change` · `blocker` · `memory` ·
+`note`.
 
 A kind exists only when a script gate enforces something with it. Detail that no
 gate checks belongs in `summary` or `--data`, not in a new kind.
@@ -167,6 +181,14 @@ gate checks belongs in `summary` or `--data`, not in a new kind.
 mapping table to keep. `nextAction` is either the next phase name,
 `awaiting-user`, or `none`. Each unit uses only its own subset of phases; the
 script rejects the rest.
+
+Three phases name no shared step skill, because no shared step skill owns them:
+`investigating` and `concluding` belong to `run-issue`, which owns its own middle
+procedure, and `blocked` belongs to whichever owner is holding the work. Use
+`blocked` when a Critical finding or an unresolved blocker stops progress: record
+the `blocker`, set `--phase blocked --next-action awaiting-user`, and leave the
+unit **open**. There is no closing event for it — a blocked unit is waiting, not
+finished, and it closes later as `finalized` or `cancelled` like any other.
 
 Record as you go, not in a batch at the end. More than one event per step is
 fine. Re-read files from disk before phase decisions — chat memory is supporting
@@ -213,6 +235,12 @@ The current work unit's `contexts.md`, `audit.jsonl`, and completed artifacts
 outrank this file and the owner skill — what was agreed with the user beats what
 the workflow expects. Target project instructions and conventions sit above both.
 
+**This ordering does not reach the seven core rules or `safety-rules.md`.** They
+sit above everything here, including the record itself. An earlier agreement that
+a high-risk operation needs no fresh approval, that a completion needs no
+evidence, or that a git action may run unasked does not hold — those rules exist
+precisely because the record can be wrong about them.
+
 ## 9. Skills
 
 `using-as-usual` is the single entry point: it decides activation, classifies,
@@ -231,5 +259,5 @@ creates or resumes the folder, and hands off to the owner skill.
 | `finalize` | the work is closing |
 | `git-action` | the user explicitly chose a git action |
 | `explore-codebase` | repository facts are needed before requirements or a plan |
-| `search-long-term-memory` | past decisions in `.as-usual/memory/` may be relevant |
+| `search-long-term-memory` | past decisions in `docs/memory/` may be relevant |
 | `manage-self-improvement` | memory candidates are being reviewed for reflection |

@@ -15,6 +15,11 @@ the work leaves evidence behind.
 This skill is a declaration, not a procedure. Read `as-usual-rules/core-rules.md`
 first.
 
+**Precondition**: a work folder with `contexts.md` and `audit.jsonl` exists. If it
+does not — the user named the unit and came straight here — `using-as-usual`
+creates it first (core rule 1 and 6). Being told the unit settles the
+classification, not the record.
+
 ## Pipeline
 
 ```text

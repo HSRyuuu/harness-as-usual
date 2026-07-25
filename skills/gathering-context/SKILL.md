@@ -22,6 +22,10 @@ The caller provides:
 - the list of items to settle (what the caller cannot proceed without),
 - anything already known, so it is not asked again.
 
+If there is no work folder — no `contexts.md` and `audit.jsonl` to record into —
+this skill has nothing to write to. Route to `using-as-usual`, which decides the
+unit and creates it (core rule 6), and come back.
+
 This skill returns when every item is settled or the user chose to proceed on a
 stated assumption. **Zero questions is a valid outcome** — when nothing on the
 list is actually open, record that and return immediately. Do not manufacture
@@ -77,10 +81,10 @@ approach, the risk, or the verification. Wording and typo fixes are not.
 ## Deciding The Unit
 
 When called from an `inbox` folder, the list to settle is exactly one item:
-**which unit this work is**. Ask only what separates them — is the outcome code
-or an understanding; is the approach already settled or does it need agreeing.
-Once it is clear, record the decision, tell the caller, and let it `move` the
-folder.
+**which unit this work is**. Ask what the two questions in `core-rules.md` §2
+ask, in that order and in those terms — do not paraphrase them into a different
+test here. Once it is clear, record the decision, tell the caller, and let it
+`move` the folder.
 
 ## Stop Conditions
 
