@@ -27,7 +27,7 @@
 <tr>
 <td width="60" align="center">💡</td>
 <td>
-AsUsual is designed for <strong>controlled AI-assisted development</strong> on work that may eventually affect real, always-on production services. It is intentionally <em>not</em> a pure vibe-coding harness — it keeps coding-topic decisions and find-cause investigation evidence in files so the agent never has to guess your existing work style.
+AsUsual is designed for <strong>controlled AI-assisted development</strong> on work that may eventually affect real, always-on production services. It is intentionally <em>not</em> a pure vibe-coding harness — it keeps decisions and evidence in files so the agent never has to guess your existing work style.
 </td>
 </tr>
 </table>
@@ -93,12 +93,12 @@ Prefer to do it by hand? Follow [`docs/INSTALL.md`](docs/INSTALL.md) — remove 
 <tr><th align="left">Guarantee</th><th align="left">What it prevents</th></tr>
 </thead>
 <tbody>
-<tr><td>🛑 <strong>Stop before guessing</strong></td><td>Unclear intent is never silently turned into implementation — broad ambiguity goes through file-backed <code>define-requirements</code> questions.</td></tr>
+<tr><td>🛑 <strong>Stop before guessing</strong></td><td>Unclear intent is never silently turned into implementation — it goes through <code>gathering-context</code>, and every agreed decision is written down.</td></tr>
 <tr><td>📌 <strong>Durable decisions</strong></td><td>User decisions are preserved as topic artifacts on disk, not lost in chat memory.</td></tr>
 <tr><td>🔌 <strong>Impact, surfaced early</strong></td><td>DB / API / external-behavior impact is exposed <em>before</em> code is written.</td></tr>
 <tr><td>🔐 <strong>Explicit approval</strong></td><td>High-risk operations require fresh approval — appearing in an approved plan is not enough.</td></tr>
 <tr><td>🧪 <strong>Evidence over optimism</strong></td><td>Verification evidence is recorded instead of relying on a hopeful "looks done" summary.</td></tr>
-<tr><td>🔍 <strong>Review before finalize</strong></td><td>Actual changes are reviewed against recorded evidence before a topic is closed.</td></tr>
+<tr><td>🔍 <strong>Review the diff, not the summary</strong></td><td>What was actually built is reviewed against what was asked, before the work closes.</td></tr>
 </tbody>
 </table>
 
@@ -108,31 +108,52 @@ Prefer to do it by hand? Follow [`docs/INSTALL.md`](docs/INSTALL.md) — remove 
 
 ## 🔄 How It Works
 
-AsUsual has two parallel runtime work units, both read by the agent on disk and **never copied into target projects**:
-
-- Coding `topic`: [`as-usual-rules/core-workflow.md`](as-usual-rules/core-workflow.md) for requirements → plan → implementation → review → finalize.
-- Find-cause `issue`: [`as-usual-rules/find-cause-workflow.md`](as-usual-rules/find-cause-workflow.md) for evidence-backed root-cause or solution-direction investigation without production-code changes.
+Every request that AsUsual picks up is classified once, at the door, into one of
+three **peer work units**. They are not stages of one pipeline — they are
+different kinds of work, each with its own shape.
 
 <div align="center">
-<sub><code>SessionStart</code> → <code>using-as-usual</code> → <code>start-work</code> → <b>route</b> → <code>review-execution</code> → <code>finalize</code> → <code>git-action</code></sub>
+<sub><code>SessionStart</code> → <code>using-as-usual</code> → <b>classify</b> → <code>run-topic</code> | <code>run-direct-work</code> | <code>run-issue</code></sub>
 </div>
-
-Need to continue a topic or issue from another session? Use <code>/as-usual:hand-off path</code> to rehydrate it and route back to its current owner.
 
 <table>
 <thead>
-<tr><th align="center" width="48">#</th><th align="left" width="190">Stage</th><th align="left">What happens</th></tr>
+<tr><th align="left" width="150">Unit</th><th align="left">The work is</th><th align="left" width="230">Ends with</th></tr>
 </thead>
 <tbody>
-<tr><td align="center">1</td><td><code>define-requirements</code></td><td>Write <code>question-cN.md</code> only when material ambiguity exists; you answer in <code>[Answer]:</code> fields, or in chat — the agent then confirms a question-to-answer mapping table with you before writing the file; the agent synthesizes a single <code>requirements.md</code>.</td></tr>
-<tr><td align="center">2</td><td><code>writing-plan</code></td><td>Produce one <code>plan.md</code> from the approved requirements.</td></tr>
-<tr><td align="center">3</td><td><code>executing-plan</code></td><td>Implement via <code>inline</code>, <code>subagent-driven</code>, or <code>mixed</code> mode; trivial work can use the <code>direct-execute</code> skill, including its recordless direct invocation. The main agent stays the controller for order, evidence, and completion claims.</td></tr>
-<tr><td align="center">4</td><td><code>review-execution</code></td><td>Mandatory review of real changes against the recorded evidence.</td></tr>
-<tr><td align="center">5</td><td><code>cleanup-code</code> &nbsp;<sub><i>optional</i></sub></td><td>User-approved code cleanup after review.</td></tr>
-<tr><td align="center">6</td><td><code>finalize</code></td><td>Close the topic record.</td></tr>
-<tr><td align="center">7</td><td><code>git-action</code> &nbsp;<sub><i>optional</i></sub></td><td>Pick a post-finalize git action — commit, push, PR, release, or deploy.</td></tr>
+<tr><td><code>topic</code></td><td>development that needs the requirements agreed first</td><td>code change + <code>report.md</code></td></tr>
+<tr><td><code>direct-work</code></td><td>development where what to do is already settled</td><td>code change + verification record</td></tr>
+<tr><td><code>issue</code></td><td>confirming a cause or direction <strong>without changing code</strong></td><td><code>conclusion.md</code></td></tr>
 </tbody>
 </table>
+
+The agent classifies and recommends, then shows you all the options — including
+**"just do it"**, which uses no harness and records nothing. You pick; it does not
+argue. Ask to resume anything and `using-as-usual` finds it, whether this session
+started it or another one did.
+
+The runtime rules live in [`as-usual-rules/core-rules.md`](as-usual-rules/core-rules.md)
+and are read from disk by the agent — **never copied into your project**.
+
+<table>
+<thead>
+<tr><th align="center" width="48">#</th><th align="left" width="200">Stage</th><th align="left">What happens</th></tr>
+</thead>
+<tbody>
+<tr><td align="center">1</td><td><code>gathering-context</code></td><td>The agent interviews you — recommending an answer with every question, batching independent facts, asking judgment calls one at a time. Answers are written down for you, never typed into a form. Zero questions is a normal outcome when nothing is open.</td></tr>
+<tr><td align="center">2</td><td><code>write-requirements</code> &nbsp;<sub><i>topic only</i></sub></td><td>The agreed context becomes one <code>requirements.md</code> — outcomes, not tasks.</td></tr>
+<tr><td align="center">3</td><td><code>write-plan</code></td><td>One <code>plan.md</code> (a checklist for <code>direct-work</code>), then <strong>critically reviewed and fixed before you are asked to approve it</strong>.</td></tr>
+<tr><td align="center">4</td><td><code>execute-plan</code></td><td>The plan is executed and each task's verification evidence recorded. Delegation and test strategy are the agent's call; the evidence is not optional.</td></tr>
+<tr><td align="center">5</td><td><code>review-execution</code></td><td>The real diff is reviewed — not the summary of it. Findings land in <code>review.md</code> and reach a disposition before the work closes.</td></tr>
+<tr><td align="center">6</td><td><code>cleanup-code</code> &nbsp;<sub><i>optional</i></sub></td><td>Approved, behavior-preserving cleanup, re-verified.</td></tr>
+<tr><td align="center">7</td><td><code>finalize</code></td><td>Memory pass, <code>report.md</code>, and the record is sealed.</td></tr>
+<tr><td align="center">8</td><td><code>git-action</code> &nbsp;<sub><i>on request</i></sub></td><td>Only the git action you explicitly chose — never one you did not.</td></tr>
+</tbody>
+</table>
+
+An `issue` runs a different middle: an investigation loop of hypotheses,
+evidence, and confirmations that can be retracted when later evidence contradicts
+them — ending in a `conclusion.md` that cites what established each claim.
 
 <sub>For the full architecture, stages, and prompt/template path map, see <a href="docs/ARCHITECTURE-WORKFLOW.md"><code>docs/ARCHITECTURE-WORKFLOW.md</code></a>.</sub>
 
@@ -140,43 +161,61 @@ Need to continue a topic or issue from another session? Use <code>/as-usual:hand
 
 ## 📂 Work-Unit Artifacts
 
-AsUsual uses three branches inside `.as-usual/`: `topic/` for coding work, `issue/` for find-cause investigations, and `memory/` for curated cross-topic durable knowledge.
+Each unit gets its own branch inside `.as-usual/`. Two files are common to all
+three; the rest depends on the unit.
 
 ```text
 .as-usual/
+├── inbox/                        # unit not chosen yet — moved out once it is
+│   └── yyyy-MM-dd-<slug>/
+│       ├── contexts.md
+│       └── audit.jsonl
 ├── topic/
-│   └── yyyy-MM-dd-<topic>/
-│       ├── topic.md              # agent-first, low-churn resume document
-│       ├── audit.jsonl           # canonical append-only event log
-│       ├── question-c1.md        # define-requirements clarification cycle
-│       ├── question-c2.md
-│       ├── requirements.md       # single synthesized requirements doc
-│       ├── plan.md               # single execution contract
-│       ├── execute/
-│       │   └── task-<N>-review.md
-│       ├── clean-up/
-│       │   └── review-result-<type>.md
-│       ├── code-review-report.md
+│   └── yyyy-MM-dd-<slug>/
+│       ├── contexts.md           # every agreed decision, whenever it was made
+│       ├── audit.jsonl           # append-only evidence trail
+│       ├── requirements.md
+│       ├── plan.md
+│       ├── review.md
 │       └── report.md
+├── direct-work/
+│   └── yyyy-MM-dd-<slug>/
+│       ├── contexts.md
+│       ├── audit.jsonl
+│       └── plan.md               # checklist strength
 ├── issue/
 │   └── yyyy-MM-dd-<slug>/
-│       ├── problem.md             # living investigation snapshot
-│       ├── journal.jsonl          # append-only reasoning and lifecycle log
-│       ├── evidence/              # optional captured evidence
-│       └── conclusion.md          # confirmed result and provenance
+│       ├── contexts.md           # also the living investigation snapshot
+│       ├── audit.jsonl
+│       ├── evidence/
+│       └── conclusion.md
 └── memory/
-    ├── MEMORY.md                 # curated cross-topic knowledge; 3000-char budget
+    ├── MEMORY.md                 # curated cross-unit knowledge; 3000-char budget
     └── *_MEMORY.md               # optional domain-specific memory files
 ```
 
 > [!NOTE]
-> `topic.md` is a low-churn resume document — not a task list. Current phase and next action are **derived** with `scripts/topic-log.py status --json`, not maintained by hand.
+> `contexts.md` has three bands: a near-fixed header, a **freely updated** decision
+> section — when a later decision reverses an earlier one, the earlier entry is
+> edited so it always reads as the current agreement — and an **append-only** Q&A
+> log. Nothing is lost by editing: `audit.jsonl` keeps the history.
 
 > [!NOTE]
-> `topic/` artifacts are not committed by default. `.as-usual/memory/` is a commit target — it accumulates durable knowledge across topics and is updated at `finalize` by the `manage-self-improvement` skill.
+> Current phase and next action are **derived** with
+> `scripts/as-usual-record.py status --json`, never maintained by hand. That script
+> is the only writer of `audit.jsonl`, and it refuses rather than warns — no verdict
+> on a verification, no execution approval without a plan review, no move once the
+> unit has produced its own output.
 
 > [!NOTE]
-> `issue/` artifacts are also not committed by default. A concluded issue can link a separate coding topic through `scripts/journal-log.py link-follow-up`.
+> Work-unit artifacts are not committed by default. `.as-usual/memory/` is a commit
+> target — it accumulates durable knowledge across units and is updated at `finalize`
+> by the `manage-self-improvement` skill.
+
+> [!NOTE]
+> A concluded `issue` does not become the follow-up implementation — it links to a
+> new `topic` or `direct-work` unit through `scripts/as-usual-record.py link`, in
+> both directions.
 
 <br>
 

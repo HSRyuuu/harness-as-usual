@@ -1,7 +1,7 @@
 {
   "name": "as-usual",
   "version": "0.1.2",
-  "description": "An agent harness that helps coding agents follow a team's usual workflow through topic-level questions, requirements, plans, and state.",
+  "description": "An agent harness that routes each request into one of three recorded work units — topic, direct-work, or issue — and keeps the decisions, plan, and verification evidence in files so a later session can resume from disk.",
   "author": {
     "name": "Happy Hsryu"
   },
@@ -13,14 +13,15 @@
     "workflow",
     "requirements",
     "plan",
+    "audit-trail",
     "hooks"
   ],
   "skills": "./skills/",
   "hooks": "./hooks/hooks-codex.json",
   "interface": {
     "displayName": "AsUsual",
-    "shortDescription": "Follow the team's usual workflow through a core workflow plus topic-level questions, requirements, plans, and state.",
-    "longDescription": "AsUsual adds a session-start hook and workspace templates so requests detected as AsUsual work move through a topic-level question cycle, written requirements, implementation plan, and state record before execution.",
+    "shortDescription": "Route work into one of three recorded units — topic, direct-work, or issue — and keep the evidence in files.",
+    "longDescription": "AsUsual adds a session-start hook and artifact templates. Work that the harness picks up is classified once into a topic (requirements agreed first), direct-work (already settled, still recorded), or issue (confirm a cause or direction without changing code). Each unit keeps contexts.md and an append-only audit.jsonl, so decisions, approvals, and verification evidence survive the session.",
     "developerName": "Happy Hsryu",
     "category": "Developer Tools",
     "capabilities": [
@@ -30,7 +31,7 @@
     ],
     "defaultPrompt": [
       "Initialize AsUsual in this workspace.",
-      "Use AsUsual to clarify this request and write the requirements and plan."
+      "Use AsUsual for this — classify it and start the work unit."
     ],
     "brandColor": "#2563EB",
     "screenshots": []
