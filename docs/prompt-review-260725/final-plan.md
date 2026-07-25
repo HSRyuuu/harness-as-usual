@@ -134,7 +134,31 @@ append-only sealing, and the move restriction." 규칙 6은 `init --unit` 필수
 `cancelled` 정상. hook smoke·manifest·사어휘 검사 전부 통과.
 총 16개 파일, +269/−28줄.
 
-## Phase 2 — 메타 주석 전면 제거 (N1) + core-rules 묶음
+## Phase 2 — 메타 주석 전면 제거 (N1) + core-rules 묶음 ✅ 완료
+
+인벤토리 8건 전부 처리, 재량 선언 grep 히트 0. core-rules 묶음(F1-1·F1-2·F1-3)
+동시 처리. 10개 파일 +78/−50줄.
+
+의도한 오탐 `plan-quality-reference.md:4`("not a checklist **to fill in**")는
+검사에 예외로 명문화하고 유지했다 — 산출물 제약이지 재량 부여가 아니다.
+
+`verify-runtime-surface`에 §5 검사를 추가하고 `.claude/skills/` 미러 동기화 완료
+(`sync-maintainer-skills.py --apply`).
+
+**부수 처리:** Phase 1이 만든 `docs/ARCHITECTURE-WORKFLOW.md`의 낡음 2곳 —
+거부 목록에 신규 게이트 2건 누락, disposition 문장이 Critical의 사용자 수용을
+여전히 허용 — 을 함께 고쳤다.
+
+**검증:** 재량 선언 0건 · pytest 59 passed · hook smoke · manifest · 미러 일치.
+
+**미해결 (기존 상태, 이번 작업 무관):** `verify-runtime-surface` §4(사설 경로)가
+`docs/superpowers/plans/**` 아카이브 계획 문서에서 실패한다. `main`에도 동일하게
+존재하므로 별도 판단이 필요하다 — 아카이브를 검사 대상에서 제외하거나 경로를
+치환.
+
+---
+
+### (원 계획) Phase 2 상세
 
 같은 파일들을 만지므로 한 묶음.
 
