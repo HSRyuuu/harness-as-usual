@@ -134,7 +134,9 @@ The script refuses rather than warns. Each message names the rule:
 | `verification requires --verdict` | record `INCONCLUSIVE` if evidence is unobtainable |
 | `confirming requires --evidence` | attach reproduction evidence, or an explicit "could not reproduce because …" |
 | `the plan must be critically reviewed before execution approval` | run the review, record it, then approve |
+| `cannot finalize without a recorded verification` | record the verification (`INCONCLUSIVE` when evidence is unobtainable), or close with `--event cancelled` |
 | `issue cannot be finalized without conclusion.md` | write the conclusion, or close with `--event cancelled` |
+| `issue cannot be finalized without a confirmed entry` | confirm what the conclusion rests on, or close with `--event cancelled` |
 | `record is finalized … only lifecycle link entries may be appended` | the work is closed; start a new unit |
 | `cannot move … it already produced …` | create a new folder for the other unit and `link` |
 | `phase X is not used by unit Y` | use a phase from that unit's pipeline |

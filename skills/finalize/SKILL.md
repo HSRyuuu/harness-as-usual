@@ -16,9 +16,9 @@ events.
 
 ## Preconditions
 
-- The unit's own outcome exists: execution and verification for `topic` and
-  `direct-work`; `conclusion.md` for `issue` (the record helper refuses to
-  finalize an issue without it).
+- The unit's own outcome exists: execution and a recorded verification for
+  `topic` and `direct-work`; `conclusion.md` plus something confirmed for
+  `issue`. The record helper refuses to finalize without these.
 - For `topic`, the review's Critical and Important findings have dispositions.
 - Remaining issues and any skipped verification are explicit.
 

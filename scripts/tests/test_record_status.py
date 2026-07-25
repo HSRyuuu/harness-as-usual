@@ -129,6 +129,17 @@ def test_state_reflects_closure(make_unit, run):
         "--dir",
         str(work_dir),
         "--kind",
+        "verification",
+        "--summary",
+        "pytest -q: 12 passed",
+        "--verdict",
+        "PASS",
+    )
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
         "lifecycle",
         "--summary",
         "closed",
@@ -170,6 +181,17 @@ def test_validate_catches_hand_edited_duplicate_seq(make_unit):
 
 def test_validate_catches_an_append_after_closure(make_unit, run):
     work_dir = make_unit("topic")
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "pytest -q: 12 passed",
+        "--verdict",
+        "PASS",
+    )
     run(
         "add",
         "--dir",

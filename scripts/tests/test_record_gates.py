@@ -287,9 +287,46 @@ def test_issue_cannot_finalize_without_a_conclusion(make_unit, run):
     )
 
 
-def test_issue_finalizes_once_the_conclusion_exists(make_unit, run):
+def test_issue_cannot_finalize_without_a_confirmed_entry(make_unit, run):
     work_dir = make_unit("issue")
     (work_dir / "conclusion.md").write_text("# Conclusion\n", encoding="utf-8")
+    run("add", "--dir", str(work_dir), "--kind", "hypothesis", "--summary", "cache staleness")
+
+    assert (
+        run(
+            "add",
+            "--dir",
+            str(work_dir),
+            "--kind",
+            "lifecycle",
+            "--summary",
+            "done",
+            "--event",
+            "finalized",
+        )
+        == 2
+    )
+
+
+def test_issue_finalizes_once_the_conclusion_rests_on_a_confirmed_entry(make_unit, run):
+    work_dir = make_unit("issue")
+    (work_dir / "conclusion.md").write_text("# Conclusion\n", encoding="utf-8")
+    run("add", "--dir", str(work_dir), "--kind", "hypothesis", "--summary", "cache staleness")
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "status-change",
+        "--summary",
+        "confirmed",
+        "--target",
+        "2",
+        "--to",
+        "confirmed",
+        "--evidence",
+        "reproduced with a cold cache",
+    )
 
     assert (
         run(
@@ -325,8 +362,99 @@ def test_issue_may_be_cancelled_without_a_conclusion(make_unit, run):
     )
 
 
+def _record_verification(work_dir, run, verdict="PASS"):
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "pytest -q: 12 passed",
+        "--verdict",
+        verdict,
+    )
+
+
+def test_topic_cannot_finalize_without_a_verification(make_unit, run):
+    work_dir = make_unit("topic")
+    assert (
+        run(
+            "add",
+            "--dir",
+            str(work_dir),
+            "--kind",
+            "lifecycle",
+            "--summary",
+            "closed",
+            "--event",
+            "finalized",
+        )
+        == 2
+    )
+
+
+def test_direct_work_cannot_finalize_without_a_verification(make_unit, run):
+    work_dir = make_unit("direct-work")
+    assert (
+        run(
+            "add",
+            "--dir",
+            str(work_dir),
+            "--kind",
+            "lifecycle",
+            "--summary",
+            "closed",
+            "--event",
+            "finalized",
+        )
+        == 2
+    )
+
+
+def test_inconclusive_verification_still_allows_finalize(make_unit, run):
+    """The gate refuses an unverified claim, not an honestly unverifiable one."""
+    work_dir = make_unit("direct-work")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+
+    assert (
+        run(
+            "add",
+            "--dir",
+            str(work_dir),
+            "--kind",
+            "lifecycle",
+            "--summary",
+            "closed",
+            "--event",
+            "finalized",
+        )
+        == 0
+    )
+
+
+def test_unverified_topic_may_still_be_cancelled(make_unit, run):
+    work_dir = make_unit("topic")
+    assert (
+        run(
+            "add",
+            "--dir",
+            str(work_dir),
+            "--kind",
+            "lifecycle",
+            "--summary",
+            "user dropped it",
+            "--event",
+            "cancelled",
+        )
+        == 0
+    )
+
+
 def test_topic_finalize_needs_no_conclusion_file(make_unit, run):
     work_dir = make_unit("topic")
+    _record_verification(work_dir, run)
+
     assert (
         run(
             "add",

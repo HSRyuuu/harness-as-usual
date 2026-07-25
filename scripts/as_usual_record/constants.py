@@ -112,6 +112,10 @@ APPROVAL_ACTIONS = {"high-risk", "execution", "git-action"}
 # Units whose execution approval must be preceded by a plan review (core rule 7).
 PLAN_REVIEW_UNITS = {"topic", "direct-work"}
 
+# Units that produce a code change, so finalizing one is a completion claim and
+# needs recorded verification behind it (core rule 3).
+VERIFICATION_UNITS = {"topic", "direct-work"}
+
 # status-change may only target an entry that carries reasoning.
 REASONING_KINDS = {"decision", "hypothesis", "review", "work", "note"}
 

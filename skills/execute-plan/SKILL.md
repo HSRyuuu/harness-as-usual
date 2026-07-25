@@ -54,7 +54,9 @@ as-usual-record.py add --dir <d> --kind approval --action high-risk \
 
 **Delegation is your call.** When you hand a task to a subagent, the message must
 be self-contained — the child cannot see this conversation. Give it TASK,
-DELIVERABLE, SCOPE, VERIFY. `implementer-prompt.md` and `task-reviewer-prompt.md`
+DELIVERABLE, SCOPE, VERIFY, and SAFETY: which high-risk operations the task
+involves and whether each is already approved, since the child cannot read
+`safety-rules.md`. `implementer-prompt.md` and `task-reviewer-prompt.md`
 in this directory are available when you want them; neither is required.
 
 A subagent's `DONE` is a claim. Check it against the diff and the evidence before

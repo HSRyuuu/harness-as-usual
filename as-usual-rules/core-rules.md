@@ -66,6 +66,11 @@ your recommendation with its reason:
 4. just do it  — no harness. No folder, no record.
 ```
 
+Option 4 is not always on the menu. Withhold it when the work is built around a
+high-risk operation (`safety-rules.md`), and when the request falls inside the
+scope of a work folder that is still open — changing files that an open record
+makes claims about desyncs that record from the tree. Route those back instead.
+
 If the user picks something other than your recommendation, follow it without
 arguing. Present once; do not re-pitch. If the user names a unit up front, or
 invokes an owner skill directly, skip the question entirely.
@@ -141,8 +146,8 @@ Everything else in AsUsual is your judgment. These seven are not.
    fix what you find** (`topic` and `direct-work`). Record it as a `review`
    entry; the script refuses the execution approval without one.
 
-The script enforces 3, 6, and 7 mechanically, plus the record's append-only
-sealing and the move restriction. The rest you enforce.
+The script enforces 3 and 7 mechanically, plus the closed vocabulary, the
+record's append-only sealing, and the move restriction. The rest you enforce.
 
 ### What is deliberately left to you
 

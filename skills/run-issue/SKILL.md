@@ -98,8 +98,9 @@ turn:
 2. If reproduction code exists, ask the user: delete it, or keep it as a
    regression-test seed for the follow-up work.
 3. Hand to `finalize`, which reviews memory candidates and closes the record.
-   The helper refuses to finalize an issue with no `conclusion.md` — write it
-   first. Use `--event cancelled` when the user abandons the investigation.
+   The helper refuses to finalize an issue with no `conclusion.md`, and refuses
+   one whose record holds nothing confirmed — a conclusion needs something it
+   rests on. Use `--event cancelled` when the user abandons the investigation.
 4. Offer the follow-up. If the user wants the fix implemented, create a new
    `topic` or `direct-work` folder and link both directions (`core-rules.md` §7).
    Several follow-ups each get their own folder and link.

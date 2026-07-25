@@ -117,6 +117,17 @@ def test_closed_record_cannot_move(make_unit, run):
         "--dir",
         str(work_dir),
         "--kind",
+        "verification",
+        "--summary",
+        "pytest -q: 12 passed",
+        "--verdict",
+        "PASS",
+    )
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
         "lifecycle",
         "--summary",
         "closed",

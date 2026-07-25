@@ -123,6 +123,17 @@ def test_record_is_sealed_after_finalize(make_unit, run):
         "--dir",
         str(work_dir),
         "--kind",
+        "verification",
+        "--summary",
+        "pytest -q: 12 passed",
+        "--verdict",
+        "PASS",
+    )
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
         "lifecycle",
         "--summary",
         "done",
@@ -150,11 +161,30 @@ def test_link_is_still_allowed_after_closure(make_unit, run, events, as_usual):
         "--dir",
         str(issue_dir),
         "--kind",
-        "lifecycle",
+        "status-change",
         "--summary",
-        "concluded",
-        "--event",
-        "finalized",
+        "confirmed the retry loop",
+        "--target",
+        "2",
+        "--to",
+        "confirmed",
+        "--evidence",
+        "reproduced with the retry disabled",
+    )
+    # Asserted: without a real closure the link below would prove nothing.
+    assert (
+        run(
+            "add",
+            "--dir",
+            str(issue_dir),
+            "--kind",
+            "lifecycle",
+            "--summary",
+            "concluded",
+            "--event",
+            "finalized",
+        )
+        == 0
     )
 
     follow_up = as_usual / "topic" / "2026-07-25-fix-retry"

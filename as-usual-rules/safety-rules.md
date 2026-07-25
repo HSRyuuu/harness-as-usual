@@ -1,8 +1,9 @@
 # Safety Rules
 
-Single source of truth for the safety gates every AsUsual work unit shares —
-`topic`, `direct-work`, and `issue` alike. Other runtime files reference this
-file instead of restating it. Core rules 2 and 5 in `core-rules.md` point here.
+Single source of truth for the safety gates that apply to every request AsUsual
+touches — the `topic`, `direct-work`, and `issue` units alike, and equally to
+work carried out with no record at all. Other runtime files reference this file
+instead of restating it. Core rules 2 and 5 in `core-rules.md` point here.
 
 ## Trust Boundary
 
@@ -46,12 +47,18 @@ approved `plan.md` already describes them:
 - deploy or release,
 - git push or force push.
 
+The gate does not depend on a work folder existing: handling a request without a
+record never lowers it, and no user confirmation waives it.
+
 Do not classify every schema-shaped edit as high-risk. A local, test-only,
 reversible schema-like change — adding a JPA field for an in-memory H2 sandbox,
 updating a test fixture schema — is usually medium-risk when it touches no
 production or shared data, deletes nothing, needs no destructive migration, and
 has a clear file-level rollback. Record its risk and rollback in the plan, but do
 not require the fresh-approval gate for it.
+
+When it is unclear which of the two a target is — an unfamiliar database, an
+environment you have not confirmed — treat it as high-risk until that is settled.
 
 Before running a high-risk operation, record the operation, its target files or
 resources, reversibility, the rollback or recovery note, and the fresh user

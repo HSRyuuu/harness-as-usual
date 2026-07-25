@@ -24,6 +24,7 @@ from .constants import (
     UNIT_PHASES,
     UNITS,
     VERDICTS,
+    VERIFICATION_UNITS,
     JsonObject,
 )
 from .paths import RecordError
@@ -117,7 +118,7 @@ def check_kind_payload(
             raise RecordError("lifecycle requires an event name")
         validate_enum("lifecycle event", str(event), LIFECYCLE_EVENTS)
         if event == "finalized":
-            _check_finalize(work_dir, unit)
+            _check_finalize(events, work_dir, unit)
 
 
 def _check_status_change(events: list[JsonObject], data: JsonObject) -> None:
@@ -158,11 +159,32 @@ def _check_approval(events: list[JsonObject], unit: str, data: JsonObject) -> No
             )
 
 
-def _check_finalize(work_dir: Path, unit: str) -> None:
-    if unit == "issue" and not (work_dir / "conclusion.md").exists():
+def _check_finalize(events: list[JsonObject], work_dir: Path, unit: str) -> None:
+    if unit in VERIFICATION_UNITS and not any(
+        entry.get("kind") == "verification" for entry in events
+    ):
+        raise RecordError(
+            "cannot finalize without a recorded verification: a completion claim needs "
+            "evidence that matches the surface. record --kind verification with a verdict, "
+            "using INCONCLUSIVE when the evidence could not be obtained, or close with the "
+            "cancelled event"
+        )
+    if unit != "issue":
+        return
+    if not (work_dir / "conclusion.md").exists():
         raise RecordError(
             f"issue cannot be finalized without conclusion.md in {work_dir}. "
             "write the conclusion before recording closure, or close with the cancelled event"
+        )
+    if not any(
+        entry.get("kind") == "status-change" and entry.get("data", {}).get("to") == "confirmed"
+        for entry in events
+    ):
+        raise RecordError(
+            "issue cannot be finalized without a confirmed entry: a conclusion needs something "
+            "it rests on. confirm the hypothesis or direction with --kind status-change "
+            "--to confirmed --evidence, using an explicit 'could not reproduce because ...' as "
+            "the evidence when that is the finding, or close with the cancelled event"
         )
 
 
