@@ -52,7 +52,7 @@ rg -n 'AGENTS\.md|dev-as-usual|plugin development|AsUsual plugin itself|the AsUs
 ```
 
 A runtime skill naming `AGENTS.md` or telling the agent about plugin manifests is
-a leak. Move it to `.agents/skills/dev-as-usual`.
+a leak. Move it to a maintainer surface — `CLAUDE.md`/`AGENTS.md` or `.agents/skills/`.
 
 ## 3. Maintainer skills stay out of the public plugin
 

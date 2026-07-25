@@ -11,9 +11,9 @@ Run the AsUsual release loop in one order: verify, commit, bump the plugin
 version, push `main`, then update the GitHub-installed plugin on this machine.
 
 This is plugin development and release administration, not an AsUsual runtime
-skill. Do not start a `.as-usual/topic/` workflow for it, and do not move this
-skill into the public `skills/` tree. See `dev-as-usual` for the
-development-vs-runtime boundary.
+skill. Do not start an AsUsual work unit for it, and do not move this skill into
+the public `skills/` tree. `CLAUDE.md` RUNTIME CONTRACT BOUNDARY owns the
+development-vs-runtime distinction.
 
 Distribution model (`docs/CLAUDE-PLUGIN-SETTING.md`, `docs/CODEX-PLUGIN-SETTING.md`):
 machines install via `/plugin marketplace add HSRyuuu/harness-as-usual` and
@@ -36,8 +36,8 @@ such as "commit", "push", or "reload".
 Before acting, read and follow:
 
 - `CLAUDE.md` / `AGENTS.md` CONVENTIONS for commit discipline: stage paths
-  explicitly (never `git add .`), never commit `.as-usual/topic/`,
-  `.as-usual/issue/`, `.codegraph/`, or installed-plugin cache output
+  explicitly (never `git add .`), never commit `.as-usual/` work folders,
+  `.codegraph/`, or installed-plugin cache output
   (`.as-usual/memory/` is the one commit-target exception, not relevant here).
   Use the repository's existing Conventional Commits style (`feat:`, `fix:`,
   `docs:`, `refactor:`, `test:`, `chore:`).
@@ -91,14 +91,15 @@ Run the pre-publish verification gate before committing. Stop on any failure.
   ```bash
   CLAUDE_PLUGIN_ROOT="$PWD" bash hooks/run-hook.cmd session-start \
     | jq '{event: .hookSpecificOutput.hookEventName,
-           hasUsingSkill: (.hookSpecificOutput.additionalContext | contains("using-as-usual")),
-           hasFindCause: (.hookSpecificOutput.additionalContext | contains("find-cause"))}'
+           oneEntryPoint: (.hookSpecificOutput.additionalContext | contains("using-as-usual")),
+           isOneSentence: (.hookSpecificOutput.additionalContext | split(". ") | length <= 2),
+           noRulePath: (.hookSpecificOutput.additionalContext | contains("as-usual-rules/") | not)}'
   ```
 
-- Run the script test suites:
+- Run the record-helper test suite:
 
   ```bash
-  python3 -m unittest scripts.tests.test_journal_log scripts.tests.test_topic_log_verdict
+  python3 -m pytest scripts/tests/ -q
   ```
 
 - Guard public surface: no private absolute paths in public install docs,
