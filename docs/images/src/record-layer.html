@@ -67,10 +67,10 @@
     <section class="box">
       <div class="h"><div class="t">The work folder</div><div class="s"><code>.as-usual/&lt;unit&gt;/yyyy-MM-dd-&lt;slug&gt;/</code></div></div>
       <div class="b">
-        <div class="n2" style="margin-bottom:10px"><b>contexts.md</b> — one document holding every decision agreed with you. Three bands, three rules:</div>
+        <div class="n2" style="margin-bottom:10px"><b>contexts.md</b> — one document holding every decision agreed with you. Frontmatter (<code>unit</code>, <code>slug</code>, <code>created</code>, written by the helper), then three bands, three rules:</div>
         <div class="band b-fixed">
           <div class="bt">Top · near-fixed</div>
-          <div class="bd">the initial request verbatim, the chosen unit, the in/out boundary, links</div>
+          <div class="bd">the initial request verbatim, the in/out boundary, links to other units</div>
         </div>
         <div class="band b-live">
           <div class="bt">Middle · updated freely</div>
@@ -102,10 +102,11 @@
     <div class="rh"><div class="t">What it refuses</div><div class="s">guaranteed by the script, not by agent goodwill</div></div>
     <div class="rb">
       <div class="it">A <b>verification</b> with no verdict — and an unverifiable result is <code>INCONCLUSIVE</code>, never <code>PASS</code></div>
-      <div class="it"><b>Finalizing</b> a <code>topic</code>/<code>direct-work</code> that has no verification on the record</div>
-      <div class="it"><b>Execution approval</b> for a <code>topic</code> or <code>direct-work</code> with no recorded plan review</div>
+      <div class="it"><b>Finalizing</b> a <code>topic</code>/<code>direct-work</code> with no verification on the record — and when the newest verdict is not <code>PASS</code>, only with an explicit reason kept on the closing event</div>
+      <div class="it"><b>Execution approval</b> for a <code>topic</code> or <code>direct-work</code> with no plan review newer than the previous approval</div>
       <div class="it"><b>Finalizing</b> an <code>issue</code> with no <code>conclusion.md</code>, or nothing confirmed</div>
       <div class="it"><b>Confirming</b> a hypothesis with no evidence, or cancelling one with no reason</div>
+      <div class="it"><b>Initializing</b> over a folder that already holds a record — re-init would reset sealing and the move restriction together</div>
       <div class="it"><b>Moving</b> a folder that already produced its own output</div>
       <div class="it">Any <b>append to a sealed record</b> — a closed unit accepts only a link to another unit</div>
       <div class="it">Anything <b>outside the closed vocabulary</b></div>
@@ -118,12 +119,12 @@
       <code>status --dir &lt;work-dir&gt; --json</code> returns the current phase and next action. Disk is re-read before phase decisions.
     </div>
     <div class="d">
-      <b>Artifacts are not committed by default</b>
-      <code>.as-usual/memory/</code> is the one commit target — durable knowledge across units, updated at <code>finalize</code>.
+      <b>Work folders are not committed</b>
+      Nothing under <code>.as-usual/</code> is. Long-term memory lives outside it, in <code>docs/memory/</code> — durable knowledge across units, updated at <code>finalize</code> and committed like any other doc.
     </div>
     <div class="d">
       <b>Rules are never copied into your project</b>
-      <code>as-usual-rules/</code> is read from the plugin at runtime. Your repo gets <code>.as-usual/</code> artifacts and nothing else.
+      <code>as-usual-rules/</code> is read from the plugin at runtime. Your repo gets <code>.as-usual/</code> work folders and <code>docs/memory/</code>, nothing else.
     </div>
   </div>
 

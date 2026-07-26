@@ -357,10 +357,12 @@ script writes all of them, for all three units, and it refuses rather than warns
 > Current phase and next action are **derived** with
 > `scripts/as-usual-record.py status --json`, never maintained by hand. That script
 > is the only writer of `audit.jsonl`, and it refuses: a verification with no
-> verdict, an execution approval with no recorded plan review, a confirmation with
-> no evidence, a `topic`/`direct-work` finalize with no verification, an `issue`
-> finalize with no `conclusion.md` or nothing confirmed, a `move` once the unit has
-> produced its own output, and any append to a sealed record.
+> verdict, an execution approval with no plan review newer than the previous
+> approval, a confirmation with no evidence, a `topic`/`direct-work` finalize with
+> no verification at all, that same finalize when the newest verdict is not `PASS`
+> and no explicit reason is given, an `issue` finalize with no `conclusion.md` or
+> nothing confirmed, an `init` over a folder that already holds a record, a `move`
+> once the unit has produced its own output, and any append to a sealed record.
 
 > [!NOTE]
 > Work-unit artifacts under `.as-usual/` are not committed. Long-term memory is

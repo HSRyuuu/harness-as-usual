@@ -46,16 +46,28 @@ next-action value named in rules, skills, or templates must exist there — and 
 unit's phase subset in `UNIT_PHASES` must match what its owner skill's matrix
 claims. A skill that documents a phase the script would reject is a defect.
 
+Two vocabularies, not one: `KINDS`/`LIFECYCLE_EVENTS` are what `add` may write,
+and `AUDITABLE_*` add the retired values that `validate` still accepts. Runtime
+surfaces describe the writable set — a retired value offered as a live choice is
+a defect, but finding one in an existing record is not.
+
 ### 2. Gates match `gates.py`
 
 Every gate the docs describe as enforced must actually be enforced, and every
 refusal the script can produce should be documented where an agent would hit it.
-Current set: closed vocabulary and per-unit phase subsets, verdict required on
-verification, evidence required on confirm, reason required on cancel, review
-required before execution approval, a recorded verification required to finalize
-a `topic` or `direct-work`, `conclusion.md` plus at least one confirmed entry
-required to finalize an `issue`, sealed records reject non-link appends, blocked
-files reject `move`.
+Current set:
+
+- the closed vocabulary and the per-unit phase subsets
+- `--verdict` required on verification, `--evidence` on confirm, `--reason` on cancel
+- a plan review before execution approval, **newer than the previous execution
+  approval** — one review does not license every later approval
+- a recorded verification to finalize a `topic`/`direct-work`, **whose newest
+  verdict is `PASS`** — any other verdict needs an explicit `--reason`, while a
+  missing verification is refused outright and no reason overrides that
+- `conclusion.md` plus at least one confirmed entry to finalize an `issue`
+- sealed records reject non-link appends
+- blocked files reject `move`, and `init` refuses a folder that already holds a
+  record artifact
 
 A rule described as enforced but not implemented is worse than one described as
 discretionary — it teaches the agent to rely on something that will not stop it.

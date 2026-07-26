@@ -179,9 +179,13 @@ and the `question-cN.md` cycle (middle and bottom).
  "phase":"write-plan","data":{"findings":"2"}}
 ```
 
-Twelve event kinds: `lifecycle` · `approval` · `verification` · `review` ·
-`decision` · `work` · `hypothesis` · `status-change` · `blocker` · `artifact` ·
-`memory` · `note`.
+Eleven event kinds: `lifecycle` · `approval` · `verification` · `review` ·
+`decision` · `work` · `hypothesis` · `status-change` · `blocker` · `memory` ·
+`note`.
+
+Shrinking the vocabulary does not reach backwards. A removed value becomes
+retired vocabulary, which `validate` still accepts and `add` refuses, so an entry
+written while it was legal keeps auditing clean.
 
 The extension rule is strict: **a kind exists only when a script gate uses it.**
 Detail no gate checks belongs in `summary` or `--data`. Without that rule the
@@ -354,7 +358,7 @@ Script refusals, each naming the rule it enforces:
 ```text
 verification requires --verdict
 confirming requires --evidence
-the plan must be critically reviewed before execution approval
+the plan must be critically reviewed … the last one was approved at seq N
 cannot finalize without a recorded verification
 cannot finalize on a FAIL verification (seq N): the newest verdict is not PASS
 issue cannot be finalized without conclusion.md
