@@ -25,6 +25,11 @@ MOVE_TARGETS = {"topic", "direct-work", "issue"}
 # never affect the decision.
 MOVE_BLOCKING_FILES = ("requirements.md", "plan.md", "conclusion.md")
 
+# Files whose presence means the folder is already a work record, so `init` must
+# not run over it. Sealing and the move restriction are both derived from the
+# record; re-initializing would reset them without leaving a trace.
+INIT_BLOCKING_FILES = (CONTEXTS_FILE, AUDIT_FILE) + MOVE_BLOCKING_FILES
+
 KINDS = {
     "lifecycle",
     "approval",
@@ -48,6 +53,29 @@ LIFECYCLE_EVENTS = {
 }
 
 CLOSING_LIFECYCLE_EVENTS = {"finalized", "cancelled"}
+
+# Values that were part of the vocabulary and no longer are. `validate` accepts
+# them so a record written while they were legal keeps auditing clean; `add`
+# does not, so nothing new can be written with them. The record is append-only —
+# shrinking the vocabulary must not reach backwards and invalidate history.
+#
+# Add a value here only when a real record used it, with the reason inline.
+# Without that discipline this list becomes a place to park removals.
+RETIRED_KINDS = {
+    # Replaced by `work`. Used by topic/2026-07-26-record-gate-hardening.
+    "artifact",
+}
+
+RETIRED_LIFECYCLE_EVENTS = {
+    # Phase moves are carried by the `phase` field, so the event was redundant.
+    # Used by topic/2026-07-26-record-gate-hardening.
+    "phase-entered",
+}
+
+# What an audit of an existing record may contain, as opposed to what `add` may
+# write. The two differ by exactly the retired values.
+AUDITABLE_KINDS = KINDS | RETIRED_KINDS
+AUDITABLE_LIFECYCLE_EVENTS = LIFECYCLE_EVENTS | RETIRED_LIFECYCLE_EVENTS
 
 # phase == the name of the skill that currently owns the work.
 PHASES = {

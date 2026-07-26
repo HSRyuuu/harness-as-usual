@@ -54,6 +54,28 @@ def as_usual_root(work_dir: Path) -> Path:
     return parent
 
 
+def record_path(work_dir: Path, target: Path) -> str:
+    """Render `target` the way it should be stored in the record.
+
+    Paths inside the same project are stored relative to the project root, so a
+    record survives the repository moving or being cloned somewhere else. A
+    target outside it keeps its absolute form — relativizing that only produces
+    `../..` noise.
+
+    Pure path arithmetic: the target need not exist. `move` records the path it
+    just moved away from.
+    """
+    as_usual = as_usual_root(work_dir)
+    if as_usual.name != ".as-usual":
+        # Non-standard layout: `as_usual_root` fell back to the parent, so its
+        # own parent is not a project root and relativizing would be a guess.
+        return str(target)
+    try:
+        return str(target.relative_to(as_usual.parent))
+    except ValueError:
+        return str(target)
+
+
 @contextmanager
 def work_lock(work_dir: Path):
     digest = hashlib.sha256(str(work_dir).encode("utf-8")).hexdigest()

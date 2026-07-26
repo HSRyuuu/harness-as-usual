@@ -1,12 +1,10 @@
+---
+unit: <topic | direct-work | issue>
+slug: <yyyy-MM-dd-slug>
+created: <yyyy-MM-dd>
+---
+
 # Report
-
-<!--
-The readable summary for a person, written at finalize. Not a replacement for
-audit.jsonl — it is the part someone would actually read six months from now.
-
-Never invent a verification result to fill a gap. If something was not verified,
-say so and why.
--->
 
 ## Summary
 
@@ -30,8 +28,10 @@ inconclusive: what it was and why.)
 
 ## Review
 
-(The review outcome and how Critical and Important findings were dispositioned.
-Link `review.md` when it exists.)
+(Link `review.md` and state the outcome in a line — verdict and how many findings
+of each severity remain. Do not restate the findings or their dispositions; that
+document already holds them. When there is no `review.md`, say what was reviewed
+and what came of it, in a line.)
 
 ## Remaining Issues
 

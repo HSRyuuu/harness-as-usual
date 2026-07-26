@@ -29,7 +29,9 @@ with just that item. Its answer lands in the `contexts.md` Q&A band, and a
 Follow `templates/requirements.md` — it carries the sections, their order, and
 what each one holds. Add a section when the work genuinely needs one, and leave
 out any that would be empty; padding with headings to look thorough is worse
-than a short document.
+than a short document. Replace the template's frontmatter placeholders with the
+real `unit`, `slug`, and `created` (`core-rules.md` §3) — an unfilled `<…>` left
+in the document is the scaffolding this format exists to keep out.
 
 Write for the user's review. State requirements as outcomes, not as tasks. If a
 requirement cannot be checked, it is not a requirement yet.

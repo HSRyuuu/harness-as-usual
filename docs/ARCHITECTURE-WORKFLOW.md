@@ -151,13 +151,17 @@ cannot choose, an `inbox` folder is created and `gathering-context` narrows it.
 
 ### `contexts.md` — the one document every unit keeps
 
-Three bands with different mutability rules:
+Frontmatter (`unit`, `slug`, `created`, written by the record helper), then three
+bands with different mutability rules:
 
 | Band | Content | Rule |
 | --- | --- | --- |
-| Top | initial request verbatim, chosen unit, boundary, artifact links, links to other units | near-fixed |
+| Top | initial request verbatim, boundary, links to other units | near-fixed |
 | Middle | decisions agreed with the user; for an issue, also current understanding, background knowledge, active hypotheses | **update freely** |
 | Bottom | Q&A raised after the gathering stage | **append-only** |
+
+There is no artifact-list section: `status --json` derives `artifacts` from disk,
+so a hand-maintained copy would only be a second answer that can go stale.
 
 The middle band is live. When a later decision reverses an earlier one, the
 earlier entry is **edited** so the section always reads as the current agreement —
@@ -352,9 +356,11 @@ verification requires --verdict
 confirming requires --evidence
 the plan must be critically reviewed before execution approval
 cannot finalize without a recorded verification
+cannot finalize on a FAIL verification (seq N): the newest verdict is not PASS
 issue cannot be finalized without conclusion.md
 issue cannot be finalized without a confirmed entry
 record is finalized … only lifecycle link entries may be appended
+cannot init … it already holds contexts.md, audit.jsonl
 cannot move … it already produced requirements.md
 phase X is not used by unit Y
 ```

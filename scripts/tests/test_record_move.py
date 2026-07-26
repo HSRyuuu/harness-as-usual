@@ -21,8 +21,8 @@ def test_inbox_moves_into_a_unit(make_unit, run, as_usual, events):
     last = events(moved)[-1]
     assert last["kind"] == "lifecycle"
     assert last["data"]["event"] == "unit-selected"
-    assert last["data"]["from"] == str(work_dir)
-    assert last["data"]["to"] == str(moved)
+    assert last["data"]["from"] == ".as-usual/inbox/2026-07-25-unclear"
+    assert last["data"]["to"] == ".as-usual/topic/2026-07-25-unclear"
     assert last["unit"] == "topic"
 
 
@@ -33,15 +33,54 @@ def test_move_can_rename_the_slug(make_unit, run, as_usual):
     assert (as_usual / "issue" / "2026-07-25-crash").exists()
 
 
-def test_move_updates_the_unit_line_in_contexts(make_unit, run, as_usual):
+def test_move_updates_the_frontmatter_in_contexts(make_unit, run, as_usual):
     work_dir = make_unit("inbox", slug="2026-07-25-unclear")
     run("move", "--dir", str(work_dir), "--to", "direct-work")
 
-    body = (as_usual / "direct-work" / "2026-07-25-unclear" / "contexts.md").read_text(
+    front = _frontmatter(as_usual / "direct-work" / "2026-07-25-unclear" / "contexts.md")
+    assert front["unit"] == "direct-work"
+    assert front["slug"] == "2026-07-25-unclear"
+
+
+def test_move_with_a_new_slug_updates_both_fields(make_unit, run, as_usual):
+    """`--slug` renames the folder, so the document's own slug has to follow."""
+    work_dir = make_unit("inbox", slug="2026-07-25-unclear")
+    run("move", "--dir", str(work_dir), "--to", "issue", "--slug", "2026-07-25-crash")
+
+    front = _frontmatter(as_usual / "issue" / "2026-07-25-crash" / "contexts.md")
+    assert front["unit"] == "issue"
+    assert front["slug"] == "2026-07-25-crash"
+
+
+def test_move_updates_a_pre_frontmatter_contexts_document(make_unit, run, as_usual):
+    """0.2.x shipped the `## Work Unit` form; those folders still exist elsewhere.
+
+    Without the fallback, `move` would silently leave the document claiming a
+    unit the record no longer agrees with.
+    """
+    work_dir = make_unit("inbox", slug="2026-07-25-unclear")
+    (work_dir / "contexts.md").write_text(
+        "# Context\n\n## Work Unit\n\ninbox\n\n## Decisions\n",
+        encoding="utf-8",
+    )
+
+    assert run("move", "--dir", str(work_dir), "--to", "topic") == 0
+
+    body = (as_usual / "topic" / "2026-07-25-unclear" / "contexts.md").read_text(
         encoding="utf-8"
     )
-    unit_section = body.split("## Work Unit", 1)[1]
-    assert "direct-work" in unit_section.split("##", 1)[0]
+    assert body.split("## Work Unit", 1)[1].split("##", 1)[0].strip() == "topic"
+
+
+def _frontmatter(path) -> dict[str, str]:
+    body = path.read_text(encoding="utf-8")
+    assert body.startswith("---\n"), body[:40]
+    block = body.split("---\n", 2)[1]
+    return dict(
+        (key.strip(), value.strip())
+        for key, _, value in (line.partition(":") for line in block.splitlines())
+        if key.strip()
+    )
 
 
 def test_subsequent_events_carry_the_new_unit(make_unit, run, as_usual, events):

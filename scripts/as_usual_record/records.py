@@ -90,6 +90,18 @@ def find_entry(events: list[JsonObject], seq: int) -> JsonObject:
     raise RecordError(f"invalid target: seq {seq} not found")
 
 
+def latest_of_kind(events: list[JsonObject], kind: str) -> JsonObject | None:
+    """Return the newest event of `kind`, or None when there is none.
+
+    Both the finalize gate and the derived status need "the verification that
+    counts". Two answers to that question is one more than the record can have.
+    """
+    for entry in reversed(events):
+        if entry.get("kind") == kind:
+            return entry
+    return None
+
+
 def current_unit(events: list[JsonObject]) -> str:
     """Return the unit the folder currently belongs to, from the newest event."""
     for entry in reversed(events):

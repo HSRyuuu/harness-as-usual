@@ -1,11 +1,10 @@
+---
+unit: <topic | direct-work | issue>
+slug: <yyyy-MM-dd-slug>
+created: <yyyy-MM-dd>
+---
+
 # Review
-
-<!--
-One review document per work unit. Later passes — task reviews, cleanup — append
-their own section here rather than creating new files.
-
-Findings only. A clean review needs no file at all; record it as an event instead.
--->
 
 ## Execution Review
 
@@ -37,8 +36,6 @@ as they are handled, not at the end.)
 ---
 
 ## Cleanup
-
-<!-- Added by cleanup-code when it runs. Omit the section entirely otherwise. -->
 
 **Mode** — independent (four lenses as separate subagents) | inline.
 

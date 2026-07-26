@@ -5,6 +5,8 @@ Each test here pins a rule the harness guarantees rather than documents.
 
 from __future__ import annotations
 
+import json
+
 
 def test_verification_without_verdict_is_refused(make_unit, run):
     work_dir = make_unit("topic")
@@ -215,6 +217,85 @@ def test_execution_approval_passes_after_a_review(make_unit, run):
     )
 
 
+def _review(work_dir, run, summary="1 finding, fixed") -> int:
+    return run("add", "--dir", str(work_dir), "--kind", "review", "--summary", summary)
+
+
+def _approve(work_dir, run, action="execution") -> int:
+    return run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "approval",
+        "--summary",
+        "user said go",
+        "--action",
+        action,
+    )
+
+
+def test_reapproval_is_refused_without_a_newer_review(make_unit, run):
+    """A review spent on the first approval cannot pay for the second.
+
+    The script cannot tell whether the plan changed, so it asks for the cheap
+    thing — look at the plan again — rather than guessing.
+    """
+    work_dir = make_unit("topic")
+    _review(work_dir, run)
+    assert _approve(work_dir, run) == 0
+
+    assert _approve(work_dir, run) == 2
+
+
+def test_reapproval_refusal_names_the_approval_it_is_measured_against(make_unit, run, capsys):
+    """Pointing at the seq is the message's job.
+
+    A user whose record already holds a review reads "no review" as wrong unless
+    the refusal says which approval reset the requirement.
+    """
+    work_dir = make_unit("topic")
+    _review(work_dir, run)
+    _approve(work_dir, run)
+    approval_seq = 3
+    capsys.readouterr()
+
+    _approve(work_dir, run)
+
+    assert f"seq {approval_seq}" in capsys.readouterr().err
+
+
+def test_reapproval_survives_a_hand_edited_approval_seq(make_unit, run):
+    """A corrupted seq is a refusal, not a TypeError."""
+    work_dir = make_unit("topic")
+    _review(work_dir, run)
+    _approve(work_dir, run)
+
+    path = work_dir / "audit.jsonl"
+    lines = path.read_text(encoding="utf-8").splitlines()
+    broken = json.loads(lines[-1])
+    broken["seq"] = "three"
+    lines[-1] = json.dumps(broken)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    assert _approve(work_dir, run) == 2
+
+
+def test_reapproval_passes_with_a_review_after_the_last_approval(make_unit, run):
+    work_dir = make_unit("topic")
+    _review(work_dir, run)
+    _approve(work_dir, run)
+
+    _review(work_dir, run, summary="re-checked after the plan changed")
+    assert _approve(work_dir, run) == 0
+
+
+def test_high_risk_approval_is_not_gated_on_a_review(make_unit, run):
+    work_dir = make_unit("topic")
+
+    assert _approve(work_dir, run, action="high-risk") == 0
+
+
 def test_direct_work_also_needs_the_plan_review(make_unit, run):
     work_dir = make_unit("direct-work")
     assert (
@@ -412,25 +493,75 @@ def test_direct_work_cannot_finalize_without_a_verification(make_unit, run):
     )
 
 
-def test_inconclusive_verification_still_allows_finalize(make_unit, run):
-    """The gate refuses an unverified claim, not an honestly unverifiable one."""
+def _finalize(work_dir, run, *reason: str) -> int:
+    return run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "lifecycle",
+        "--summary",
+        "closed",
+        "--event",
+        "finalized",
+        *reason,
+    )
+
+
+def test_inconclusive_verification_finalizes_only_with_a_reason(make_unit, run):
+    """An honestly unverifiable result may still close — but it has to say why.
+
+    The earlier contract let INCONCLUSIVE through silently. Closing is still
+    reachable; what changed is that the record now carries the judgment instead
+    of leaving a reader to infer it from a verdict nobody acted on.
+    """
     work_dir = make_unit("direct-work")
     _record_verification(work_dir, run, verdict="INCONCLUSIVE")
 
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "lifecycle",
-            "--summary",
-            "closed",
-            "--event",
-            "finalized",
-        )
-        == 0
-    )
+    assert _finalize(work_dir, run) == 2
+    assert _finalize(work_dir, run, "--reason", "no UI available to screenshot") == 0
+
+
+def test_finalize_is_refused_on_a_failing_verdict(make_unit, run):
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="FAIL")
+
+    assert _finalize(work_dir, run) == 2
+
+
+def test_finalize_on_a_failing_verdict_passes_with_a_reason(make_unit, run, events):
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="FAIL")
+
+    assert _finalize(work_dir, run, "--reason", "shipping the partial fix on purpose") == 0
+    assert events(work_dir)[-1]["data"]["reason"] == "shipping the partial fix on purpose"
+
+
+def test_finalize_reads_the_latest_verdict_not_the_first(make_unit, run):
+    """A later failure is not cancelled out by an earlier pass."""
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="PASS")
+    _record_verification(work_dir, run, verdict="FAIL")
+
+    assert _finalize(work_dir, run) == 2
+
+
+def test_finalize_without_any_verification_ignores_reason(make_unit, run):
+    """No evidence and bad evidence are different failures.
+
+    `--reason` accepts a verdict the user has seen. It must not stand in for a
+    verification that was never run.
+    """
+    work_dir = make_unit("topic")
+
+    assert _finalize(work_dir, run, "--reason", "trust me") == 2
+
+
+def test_finalize_still_passes_on_a_passing_verdict(make_unit, run):
+    work_dir = make_unit("direct-work")
+    _record_verification(work_dir, run, verdict="PASS")
+
+    assert _finalize(work_dir, run) == 0
 
 
 def test_unverified_topic_may_still_be_cancelled(make_unit, run):

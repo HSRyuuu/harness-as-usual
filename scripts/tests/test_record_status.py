@@ -4,6 +4,14 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
+from as_usual_record.constants import (
+    KINDS,
+    LIFECYCLE_EVENTS,
+    RETIRED_KINDS,
+    RETIRED_LIFECYCLE_EVENTS,
+)
 from as_usual_record.status import derive_status
 from as_usual_record.validation import validate_record
 
@@ -273,3 +281,118 @@ def test_validate_catches_a_phase_outside_the_unit(make_unit):
 
     problems = validate_record(work_dir)
     assert any("not used by unit" in problem for problem in problems)
+
+
+def _append(work_dir, entry: dict) -> None:
+    """Write an event straight to the record, the way a stale tool would."""
+    with (work_dir / "audit.jsonl").open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(entry) + "\n")
+
+
+def test_validate_accepts_a_retired_kind(make_unit):
+    """A value that was legal when it was written stays readable after removal.
+
+    `validate` audits for hand-editing, not for vocabulary drift over time.
+    """
+    work_dir = make_unit("topic")
+    _append(
+        work_dir,
+        {
+            "seq": 2,
+            "ts": "2026-07-25T00:00:00+09:00",
+            "actor": "claude",
+            "unit": "topic",
+            "kind": "artifact",
+            "status": "success",
+            "summary": "requirements.md written",
+        },
+    )
+
+    assert validate_record(work_dir) == []
+
+
+def test_validate_accepts_a_retired_lifecycle_event(make_unit):
+    work_dir = make_unit("topic")
+    _append(
+        work_dir,
+        {
+            "seq": 2,
+            "ts": "2026-07-25T00:00:00+09:00",
+            "actor": "claude",
+            "unit": "topic",
+            "kind": "lifecycle",
+            "status": "success",
+            "summary": "entered write-plan",
+            "data": {"event": "phase-entered"},
+        },
+    )
+
+    assert validate_record(work_dir) == []
+
+
+def _write_contexts(work_dir, body: str) -> None:
+    (work_dir / "contexts.md").write_text(body, encoding="utf-8")
+
+
+def test_validate_catches_a_unit_mismatch_in_the_legacy_section(make_unit):
+    """The pre-frontmatter form still has to be cross-checked.
+
+    Work folders created before the frontmatter format are still resumed, so
+    this path is live rather than historical.
+    """
+    work_dir = make_unit("topic")
+    _write_contexts(work_dir, "# Context\n\n## Work Unit\n\nissue\n")
+
+    problems = validate_record(work_dir)
+    assert any("issue" in problem and "topic" in problem for problem in problems)
+
+
+def test_validate_reads_the_unit_from_frontmatter(make_unit):
+    """Frontmatter wins over a leftover section — the priority is the point."""
+    work_dir = make_unit("topic")
+    _write_contexts(
+        work_dir,
+        "---\nunit: issue\nslug: 2026-07-25-sample\n---\n\n# Context\n\n"
+        "## Work Unit\n\ntopic\n",
+    )
+
+    problems = validate_record(work_dir)
+    assert any("issue" in problem for problem in problems)
+
+
+def test_validate_passes_when_the_declared_unit_agrees(make_unit):
+    work_dir = make_unit("issue")
+    _write_contexts(work_dir, "---\nunit: issue\nslug: 2026-07-25-sample\n---\n\n# Context\n")
+
+    assert validate_record(work_dir) == []
+
+
+def test_validate_catches_a_missing_unit_declaration(make_unit):
+    """Deleting the declaration must not be a way around the cross-check."""
+    work_dir = make_unit("topic")
+    _write_contexts(work_dir, "# Context\n\nno declaration anywhere\n")
+
+    problems = validate_record(work_dir)
+    assert any("declare" in problem for problem in problems)
+
+
+def test_validate_refuses_a_missing_contexts_file(make_unit, run):
+    """Already enforced by `require_existing_dir`; pinned here so it stays that way."""
+    work_dir = make_unit("topic")
+    (work_dir / "contexts.md").unlink()
+
+    assert run("validate", "--dir", str(work_dir)) == 2
+
+
+def test_retired_vocabulary_is_disjoint_from_current():
+    """A value cannot be both current and retired — the distinction is the point."""
+    assert KINDS & RETIRED_KINDS == set()
+    assert LIFECYCLE_EVENTS & RETIRED_LIFECYCLE_EVENTS == set()
+
+
+def test_add_refuses_a_retired_kind(make_unit, run):
+    """Retiring a value keeps the past readable; it must not keep the future open."""
+    work_dir = make_unit("topic")
+
+    with pytest.raises(SystemExit):
+        run("add", "--dir", str(work_dir), "--kind", "artifact", "--summary", "nope")

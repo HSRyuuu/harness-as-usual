@@ -55,7 +55,10 @@ def build_parser() -> argparse.ArgumentParser:
     add.add_argument("--target", type=int, help="status-change target seq")
     add.add_argument("--to", choices=sorted(STATUS_CHANGE_STATES), help="status-change new state")
     add.add_argument("--evidence", help="evidence for a confirmed status-change")
-    add.add_argument("--reason", help="reason for a cancelled status-change")
+    add.add_argument(
+        "--reason",
+        help="reason for a cancelled status-change, or for finalizing on a non-PASS verdict",
+    )
     add.add_argument("--resolves", type=int, help="seq of the blocker this entry resolves")
     add.add_argument("--data", action="append", metavar="KEY=VALUE")
     add.set_defaults(func=cmd_add)

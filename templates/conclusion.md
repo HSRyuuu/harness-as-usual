@@ -1,11 +1,10 @@
+---
+unit: <topic | direct-work | issue>
+slug: <yyyy-MM-dd-slug>
+created: <yyyy-MM-dd>
+---
+
 # Conclusion
-
-<!--
-Written when a hypothesis or direction is confirmed with evidence. Cite the
-record's seq numbers so every claim can be traced back to what established it.
-
-The record helper refuses to finalize an issue without this file.
--->
 
 ## Confirmed Cause / Direction
 
@@ -26,8 +25,3 @@ confirmed and later overturned, say so and cite both.)
 
 (How the follow-up work should prove the fix worked. This is what a regression
 test would need to catch.)
-
-## Follow-Up
-
-(The linked follow-up work unit path, or `none`. Confirming the cause and
-stopping here is a normal ending.)

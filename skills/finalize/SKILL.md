@@ -63,12 +63,16 @@ recorded artifacts — never invent a verification result.
 
 ## 3. Report And Close
 
-Write `report.md` from `templates/report.md`, unless the folder already holds the
+Write `report.md` from `templates/report.md`, with the frontmatter placeholders
+replaced by real values (`core-rules.md` §3), unless the folder already holds the
 unit's own closing document — a `conclusion.md` is that document, and a second
 summary beside it only splits the story. Skip it for a cancelled close too. It
 is the readable summary for a person, not a replacement for the record: what was
 built, the decisions that matter, the verification with its actual commands and
 results, the review outcome, and what remains.
+
+Where `review.md` exists, the report links it and states the outcome in a line.
+Restating its findings creates a second copy that drifts from the first.
 
 Then seal:
 

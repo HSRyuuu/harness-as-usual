@@ -1,19 +1,8 @@
-<!--
-AsUsual long-term memory. Project-scoped, curated, size-bounded.
-RULES:
-- budget: 3000 characters total for this file.
-- NOT append-only. On every update, prefer simplify / consolidate / dedup.
-- Store form == inject form: compact, durable, reusable knowledge only.
-- Do NOT store: one-off logs, dated incidents, conversation history, unverified guesses.
-- When this file would exceed budget even after consolidation, split a dominant
-  domain into <domain>_MEMORY.md and add an index line under "Domain Memory Index".
--->
-
 # Project Memory
 
 ## User Preferences
 
-<!-- durable user preferences (style, review format, communication) -->
+_None yet._
 
 ## Project Knowledge
 
@@ -30,7 +19,11 @@ RULES:
 - **호스트 설정값은 추측 대신 확인한다.** 훅 matcher처럼 호스트가 정의하는 어휘는
   `claude-code-guide`로 공식 문서를 확인하면 즉시 판정된다. "비대칭에 근거를 단다"가
   아니라 "실제 결함이었다"로 결론이 뒤집힐 수 있다.
+- **봉인된 레코드는 사후에 고치지 않는다.** finalized·cancelled 유닛의 산출물 문서는
+  그때 합의된 것의 증거다. 나중에 다듬으면 레코드 전체의 신뢰도가 내려간다. 형제
+  유닛에 손대는 계획은 실행 직전 `status`로 재확인한다 — 계획 시점의 open이 실행
+  시점에도 open이라는 보장이 없다.
 
 ## Domain Memory Index
 
-<!-- one line per split file, e.g.: BACKEND_MEMORY.md — backend review criteria -->
+_No split files yet._

@@ -28,12 +28,23 @@ as-usual-record.py init \
   --actor claude|codex
 ```
 
-Use `--unit inbox` only when the user could not choose a unit yet. Refuses if a
-record already exists.
+Use `--unit inbox` only when the user could not choose a unit yet.
+
+Refuses if the folder already holds `contexts.md`, `audit.jsonl`,
+`requirements.md`, `plan.md`, or `conclusion.md` — sealing and the move
+restriction are both derived from the record, so re-initializing over one would
+reset both. Use a different slug for new work, `move` to relabel the folder, or
+delete it if it was created by mistake.
 
 ## add
 
 Appends one event. The unit is taken from the record, so it is never passed again.
+
+`--summary` is a one-line index entry, not the reasoning. Someone scanning the
+record should be able to tell what happened and find the detail elsewhere —
+grounds and consequences go in `--data` or in the artifact the event is about,
+usually `contexts.md`. Nothing enforces this; a summary that has grown into a
+paragraph is a copy of the artifact that will drift from it.
 
 ```bash
 as-usual-record.py add --dir <work-dir> --kind <kind> --summary "<one line>" \
@@ -46,7 +57,7 @@ Kind-specific flags:
 
 | Kind | Required | Flags |
 | --- | --- | --- |
-| `lifecycle` | `--event` | `created` · `unit-selected` · `finalized` · `cancelled` · `linked` |
+| `lifecycle` | `--event` | `created` · `unit-selected` · `finalized` · `cancelled` · `linked`. `--event finalized` also takes `--reason` when the newest verdict is not `PASS` |
 | `verification` | `--verdict` | `PASS` · `FAIL` · `INCONCLUSIVE` |
 | `approval` | `--action` | `high-risk` · `execution` · `git-action` |
 | `status-change` | `--target <seq>`, `--to` | `--to confirmed` needs `--evidence`; `--to cancelled` needs `--reason` |
@@ -106,6 +117,11 @@ as-usual-record.py link --dir <work-dir> --to-dir <other-work-dir> [--summary "<
 Allowed even after a record is closed — a concluded issue must be able to point
 at the follow-up it spawned. Also add the path to both `contexts.md` top bands.
 
+Paths are recorded relative to the project root (`.as-usual/topic/…`) so the
+record survives the repository moving or being cloned elsewhere. A target
+outside the project keeps its absolute path, since relativizing it would only
+produce `../..` noise. `move` records its old and new paths the same way.
+
 ## status
 
 Derives current state. This is the resume entry point, not a file scan.
@@ -121,8 +137,14 @@ artifacts present, and whether `move` is still allowed.
 ## validate
 
 Structural audit of an existing record: duplicate or non-increasing seqs,
-vocabulary violations, missing payloads, appends after closure. Use it when a
+vocabulary violations, missing payloads, appends after closure, and a
+`contexts.md` whose declared unit disagrees with the record. Use it when a
 record looks hand-edited or a concurrent write is suspected.
+
+Retired vocabulary is accepted here and refused by `add`: a value that was legal
+when it was written keeps auditing clean, while nothing new can be written with
+it. The record is append-only, so shrinking the vocabulary must not reach
+backwards.
 
 ```bash
 as-usual-record.py validate --dir <work-dir>
@@ -136,8 +158,10 @@ The script refuses rather than warns. Each message names the rule:
 | --- | --- |
 | `verification requires --verdict` | record `INCONCLUSIVE` if evidence is unobtainable |
 | `confirming requires --evidence` | attach reproduction evidence, or an explicit "could not reproduce because …" |
-| `the plan must be critically reviewed before execution approval` | run the review, record it, then approve |
+| `the plan must be critically reviewed before execution approval` | run the review, record it, then approve. On a second approval the review must be newer than the previous one |
 | `cannot finalize without a recorded verification` | record the verification (`INCONCLUSIVE` when evidence is unobtainable), or close with `--event cancelled` |
+| `cannot finalize on a FAIL/INCONCLUSIVE verification` | re-verify and record the passing run, accept it with `--reason "<why>"`, or close with `--event cancelled` |
+| `cannot init … it already holds …` | use a different slug, `move` to relabel the folder, or delete it if it was a mistake |
 | `issue cannot be finalized without conclusion.md` | write the conclusion, or close with `--event cancelled` |
 | `issue cannot be finalized without a confirmed entry` | confirm what the conclusion rests on, or close with `--event cancelled` |
 | `record is finalized … only lifecycle link entries may be appended` | the work is closed; start a new unit |

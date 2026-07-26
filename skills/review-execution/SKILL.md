@@ -45,7 +45,8 @@ findings over speculative noise, and cite file and line.
 
 ## Recording
 
-Write findings to `review.md` in the work folder, following `templates/review.md`.
+Write findings to `review.md` in the work folder, following `templates/review.md`,
+with the frontmatter placeholders replaced by real values (`core-rules.md` §3).
 One document per work unit: later task reviews and cleanup reviews append their
 own sections to it rather than creating new files.
 

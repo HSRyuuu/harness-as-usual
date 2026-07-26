@@ -1,14 +1,10 @@
+---
+unit: <topic | direct-work | issue>
+slug: <yyyy-MM-dd-slug>
+created: <yyyy-MM-dd>
+---
+
 # Plan
-
-<!--
-Strength depends on the caller:
-  topic       — all five sections.
-  direct-work — Tasks and Verification Strategy alone are a complete plan.
-                Do not inflate a checklist into a document.
-
-This is a contract, not a ledger. Task progress belongs in audit.jsonl.
-Do not add a review status block — the pre-approval review is recorded as an event.
--->
 
 ## Goal & Constraints
 

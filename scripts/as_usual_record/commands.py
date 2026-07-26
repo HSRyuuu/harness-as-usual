@@ -10,11 +10,12 @@ from pathlib import Path
 from .constants import (
     AUDIT_FILE,
     CONTEXTS_FILE,
+    INIT_BLOCKING_FILES,
     MOVE_TARGETS,
     SCHEMA_VERSION,
     JsonObject,
 )
-from .contexts import render_contexts, update_unit_line
+from .contexts import render_contexts, update_frontmatter
 from .gates import (
     check_kind_payload,
     check_move_allowed,
@@ -26,6 +27,7 @@ from .paths import (
     as_usual_root,
     audit_path,
     contexts_path,
+    record_path,
     require_existing_dir,
     resolve_dir,
 )
@@ -57,8 +59,14 @@ def _collect_data(args: argparse.Namespace) -> JsonObject:
 
 def cmd_init(args: argparse.Namespace) -> int:
     work_dir = resolve_dir(args.dir)
-    if audit_path(work_dir).exists():
-        raise RecordError(f"record already exists: {audit_path(work_dir)}")
+    present = [name for name in INIT_BLOCKING_FILES if (work_dir / name).exists()]
+    if present:
+        raise RecordError(
+            f"cannot init {work_dir}: it already holds {', '.join(present)}. "
+            "this folder is already a work record — re-initializing would reset its "
+            "sealing and move restriction. use a different slug for new work, `move` "
+            "to relabel this one, or delete the folder if it was created by mistake"
+        )
 
     validate_vocabulary(
         unit=args.unit,
@@ -88,11 +96,18 @@ def cmd_init(args: argparse.Namespace) -> int:
     )
     append_entry(work_dir, entry)
 
-    if not contexts_path(work_dir).exists():
-        contexts_path(work_dir).write_text(
-            render_contexts(initial_request=args.request, unit=args.unit),
-            encoding="utf-8",
-        )
+    # Unconditional: the guard above refused any folder that already had one.
+    contexts_path(work_dir).write_text(
+        render_contexts(
+            initial_request=args.request,
+            unit=args.unit,
+            slug=work_dir.name,
+            # From the event just appended, so the document and the record
+            # cannot disagree about the day across a midnight boundary.
+            created=entry["ts"][:10],
+        ),
+        encoding="utf-8",
+    )
 
     print(f"initialized {args.unit} at {work_dir}")
     print(f"  {CONTEXTS_FILE}")
@@ -161,9 +176,9 @@ def cmd_move(args: argparse.Namespace) -> int:
         next_action="",
     )
 
-    source = str(work_dir)
+    source = work_dir
     target_dir.parent.mkdir(parents=True, exist_ok=True)
-    shutil.move(source, str(target_dir))
+    shutil.move(str(source), str(target_dir))
 
     entry = build_entry(
         read_events(target_dir),
@@ -171,10 +186,14 @@ def cmd_move(args: argparse.Namespace) -> int:
         kind="lifecycle",
         actor=args.actor,
         summary=f"unit selected: {unit} -> {args.to}",
-        data={"event": "unit-selected", "from": source, "to": str(target_dir)},
+        data={
+            "event": "unit-selected",
+            "from": record_path(target_dir, source),
+            "to": record_path(target_dir, target_dir),
+        },
     )
     append_entry(target_dir, entry)
-    update_unit_line(target_dir, args.to)
+    update_frontmatter(target_dir, unit=args.to, slug=target_dir.name)
 
     print(f"moved to {target_dir}")
     return 0
@@ -188,13 +207,14 @@ def cmd_link(args: argparse.Namespace) -> int:
 
     for source, target in ((work_dir, other_dir), (other_dir, work_dir)):
         events = read_events(source)
+        stored = record_path(source, target)
         entry = build_entry(
             events,
             unit=current_unit(events),
             kind="lifecycle",
             actor=args.actor,
-            summary=args.summary or f"linked to {target}",
-            data={"event": "linked", "to": str(target)},
+            summary=args.summary or f"linked to {stored}",
+            data={"event": "linked", "to": stored},
         )
         append_entry(source, entry)
 

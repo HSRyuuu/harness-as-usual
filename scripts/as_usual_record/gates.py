@@ -28,7 +28,7 @@ from .constants import (
     JsonObject,
 )
 from .paths import RecordError
-from .records import find_entry
+from .records import find_entry, latest_of_kind
 
 
 def validate_enum(name: str, value: str, allowed: set[str]) -> None:
@@ -118,7 +118,7 @@ def check_kind_payload(
             raise RecordError("lifecycle requires an event name")
         validate_enum("lifecycle event", str(event), LIFECYCLE_EVENTS)
         if event == "finalized":
-            _check_finalize(events, work_dir, unit)
+            _check_finalize(events, work_dir, unit, data)
 
 
 def _check_status_change(events: list[JsonObject], data: JsonObject) -> None:
@@ -152,23 +152,64 @@ def _check_approval(events: list[JsonObject], unit: str, data: JsonObject) -> No
     validate_enum("approval action", str(action), APPROVAL_ACTIONS)
 
     if action == "execution" and unit in PLAN_REVIEW_UNITS:
-        if not any(entry.get("kind") == "review" for entry in events):
+        # The review has to be newer than the approval it is meant to support.
+        # A first approval has nothing before it, so any review satisfies it —
+        # `since` stays 0 and every real seq clears it.
+        previous = latest_of_kind(
+            [entry for entry in events if entry.get("data", {}).get("action") == "execution"],
+            "approval",
+        )
+        # A damaged record must not relax the gate. Refusing here is louder than
+        # silently treating the approval as if it had never happened.
+        if previous is not None and _seq(previous) == 0:
+            raise RecordError(
+                f"the previous execution approval has an unusable seq "
+                f"({previous.get('seq')!r}); the record looks hand-edited. run validate "
+                "and repair it before approving again"
+            )
+        since = _seq(previous) if previous else 0
+        if not any(
+            entry.get("kind") == "review" and _seq(entry) > since for entry in events
+        ):
             raise RecordError(
                 "core rule: the plan must be critically reviewed before execution approval. "
-                "record a review entry (findings + what was improved) first"
+                + (
+                    f"the last one was approved at seq {since}; review the plan again and "
+                    "record what changed before approving it a second time"
+                    if since
+                    else "record a review entry (findings + what was improved) first"
+                )
             )
 
 
-def _check_finalize(events: list[JsonObject], work_dir: Path, unit: str) -> None:
-    if unit in VERIFICATION_UNITS and not any(
-        entry.get("kind") == "verification" for entry in events
-    ):
-        raise RecordError(
-            "cannot finalize without a recorded verification: a completion claim needs "
-            "evidence that matches the surface. record --kind verification with a verdict, "
-            "using INCONCLUSIVE when the evidence could not be obtained, or close with the "
-            "cancelled event"
-        )
+def _seq(entry: JsonObject) -> int:
+    seq = entry.get("seq")
+    return seq if isinstance(seq, int) and not isinstance(seq, bool) else 0
+
+
+def _check_finalize(
+    events: list[JsonObject], work_dir: Path, unit: str, data: JsonObject
+) -> None:
+    if unit in VERIFICATION_UNITS:
+        latest = latest_of_kind(events, "verification")
+        # Two distinct failures, deliberately not merged: no evidence at all is
+        # not something the user can accept with a reason, because there is no
+        # result for them to have seen.
+        if latest is None:
+            raise RecordError(
+                "cannot finalize without a recorded verification: a completion claim needs "
+                "evidence that matches the surface. record --kind verification with a verdict, "
+                "using INCONCLUSIVE when the evidence could not be obtained, or close with the "
+                "cancelled event"
+            )
+        verdict = latest.get("data", {}).get("verdict")
+        if verdict != "PASS" and not data.get("reason"):
+            raise RecordError(
+                f"cannot finalize on a {verdict} verification (seq {latest.get('seq')}): "
+                "the newest verdict is not PASS. re-verify and record the passing run, "
+                "accept it explicitly with --reason \"<why this is being closed anyway>\", "
+                "or close with the cancelled event"
+            )
     if unit != "issue":
         return
     if not (work_dir / "conclusion.md").exists():

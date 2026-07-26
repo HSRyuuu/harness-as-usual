@@ -8,6 +8,16 @@ criteria, generalized lessons reusable next session.
 Do NOT store: one-off topic logs, dated incidents, conversation history, one-time fixes,
 unverified guesses, long procedures (those become skills).
 
+Store form equals inject form: what is written here is what a later session reads
+verbatim, so write it compact enough to be worth injecting.
+
+`MEMORY.md` has three sections. `## User Preferences` holds durable facts about the
+user — style, review format, how they want to be communicated with. `## Project
+Knowledge` holds the stack, conventions, recurring judgment criteria, and lessons
+generalized past the work that produced them. `## Domain Memory Index` holds one line
+per split file. A section with nothing in it says so in a line rather than being
+removed.
+
 ## Two write moments
 
 - Immediate capture: during requirements/plan/execute, when the user states an explicit

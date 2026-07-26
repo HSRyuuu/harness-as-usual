@@ -100,8 +100,9 @@ evidence and ask for their judgment — one question at a time, through
 When a hypothesis or direction is confirmed with evidence, continue in the same
 turn:
 
-1. Write `conclusion.md` from `templates/conclusion.md`, citing the seq numbers
-   that back each claim. Self-review it.
+1. Write `conclusion.md` from `templates/conclusion.md`, with the frontmatter
+   placeholders replaced by real values, citing `#<seq>` for what backs each
+   claim (`core-rules.md` §3). Self-review it.
 2. If reproduction code exists, ask the user: delete it, or keep it as a
    regression-test seed for the follow-up work.
 3. Hand to `finalize`, which reviews memory candidates and closes the record.

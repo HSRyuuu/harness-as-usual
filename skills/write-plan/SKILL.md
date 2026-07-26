@@ -14,16 +14,10 @@ core rule 7.
 
 ## Strength
 
-Both `topic` and `direct-work` use this skill. The caller sets the strength; the
-procedure is the same.
-
-| Caller | Plan is |
-| --- | --- |
-| `run-topic` | a full `plan.md` — approach, task breakdown, verification strategy, acceptance coverage |
-| `run-direct-work` | a checklist — the steps and how each will be verified. Two sections is a complete plan here |
-
-Do not write a topic-weight document for direct-work. Do not write a checklist
-for a topic.
+Both `topic` and `direct-work` use this skill and the procedure is the same. The
+caller sets the strength, and its own matrix row states it — read that row rather
+than inferring the weight from the request. Writing a topic-weight document for a
+`direct-work` checklist, or a checklist for a topic, means the row was not read.
 
 ## Inputs
 
@@ -38,8 +32,10 @@ If something is open that the plan cannot be written without, call
 
 ## Writing
 
-Follow `templates/plan.md` — it carries the sections and what each one holds,
-including which of them a `direct-work` checklist can leave out.
+Follow `templates/plan.md` — it carries the sections and what each one holds.
+The calling unit's matrix says how much of it to write; a `direct-work`
+checklist leaves out what it does not need. Replace the frontmatter placeholders
+with the real `unit`, `slug`, and `created` (`core-rules.md` §3).
 
 Per task, **verification must be runnable** — a command with an expected result,
 not "confirm it works". For a behavior change, the verification has to exercise

@@ -122,7 +122,10 @@ judgment layer — verify it did not loosen these.
 ### 10. Language and artifact conventions hold
 
 User-facing prose follows the user's language; identifiers, commands, and paths
-stay canonical. Structural headings keep their order and count.
+stay canonical. Structural headings stay canonical English and keep their order;
+a section that would be empty is omitted and anything extra goes last. Every
+artifact opens with `unit`/`slug`/`created` frontmatter filled with real values —
+an unreplaced `<…>` placeholder in a work folder is a defect.
 
 ## Report
 

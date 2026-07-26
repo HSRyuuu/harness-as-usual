@@ -1,10 +1,10 @@
-# Requirements
+---
+unit: <topic | direct-work | issue>
+slug: <yyyy-MM-dd-slug>
+created: <yyyy-MM-dd>
+---
 
-<!--
-Six sections is the floor, not the ceiling. Add one when the work genuinely needs
-it; leave one out when it would be empty. Do not add a review status block.
-Source of truth is contexts.md, not chat memory.
--->
+# Requirements
 
 ## Goal
 

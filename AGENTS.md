@@ -151,8 +151,13 @@ Everything else is the agent's judgment. These are not.
 Rules 3 and 7, plus the closed vocabulary, record sealing, and the move
 restriction, are enforced by `scripts/as-usual-record.py`, which refuses rather
 than warns. Rule 3 in two places: a `topic` or `direct-work` cannot finalize
-without a recorded verification, and an `issue` needs `conclusion.md` plus at
-least one confirmed entry. Rule 6 only holds indirectly, through `init --unit`.
+without a verification whose newest verdict is `PASS` — anything else needs an
+explicit `--reason` on the closing event — and an `issue` needs `conclusion.md`
+plus at least one confirmed entry. Rule 7 is checked against the previous
+approval, so a second execution approval needs a review newer than the first.
+Sealing and the move restriction hold at the entrance too: `init` refuses a
+folder that already holds a record. Rule 6 still holds only indirectly, through
+`init --unit`.
 
 ## WHERE TO LOOK
 

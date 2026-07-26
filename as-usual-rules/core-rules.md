@@ -114,24 +114,58 @@ to narrow it down, then `move` into the chosen unit.
 ### `contexts.md`
 
 One document holds every decision agreed with the user, whenever it was made.
-Three bands, three different rules:
+The file opens with frontmatter — `unit`, `slug`, `created` — written by the
+record helper, then three bands with three different rules:
 
 | Band | Content | Mutability |
 | --- | --- | --- |
-| Top | initial request verbatim, chosen unit, boundary (in/out), artifact links, links to other units | near-fixed |
+| Top | initial request verbatim, boundary (in/out), links to other units | near-fixed |
 | Middle | decisions agreed with the user; for an issue also the current understanding, background knowledge, and active hypotheses | **update freely** — when a later decision reverses an earlier one, edit the earlier entry so the section always reads as the current agreement |
 | Bottom | Q&A raised after the gathering stage | **append-only** |
 
 History is not lost by editing the middle band: `audit.jsonl` is append-only and
 keeps it.
 
+Near-fixed means existing entries are not rewritten, not that the band cannot
+grow. Links accumulate as the work spawns follow-ups: one entry is a path and
+why, in a line or two. A correction to an earlier premise is a decision — it
+belongs in the middle band, not appended to the link that it revises.
+
+There is no artifact-list section. `status --json` derives `artifacts` from what
+is actually on disk, so a hand-written copy only supplies a second answer that
+can be wrong.
+
+A Q&A entry is a dated heading naming the topic, then the question and the
+answer:
+
+```markdown
+### 2026-07-26 — where the gate description lives
+
+**Q:** ...
+
+**A:** ...
+```
+
+The heading labels the entry; it does not restate the question. While no
+question has been raised the band says so in one line and carries no skeleton.
+
 ### Writing artifacts
 
 - Write user-facing prose in the user's current conversation language. If the
   user starts in a non-English language, keep using it until they ask otherwise.
 - Never translate code identifiers, commands, paths, API names, or quoted source.
-- Structural headings may stay canonical English or be translated consistently,
-  but their order and count are fixed.
+- Structural headings stay canonical English. The prose under them follows the
+  conversation language; the headings do not, so one file never mixes both.
+- Section order is fixed. Omit a section that would be empty rather than filling
+  it with a placeholder, and put anything the template does not cover after the
+  last template section.
+- Every artifact except `contexts.md` opens with the same three frontmatter
+  fields, filled with real values: `unit` from the record, `slug` from the folder
+  name, `created` as the day that document was written. `contexts.md` is the
+  exception only in who writes them — the helper does, and its `created` is the
+  day the unit was created, not the day the file was last touched.
+- Cite a record entry as `#<seq>` — `#12`, or `#4–#6` for a range. A date cannot
+  be traced back to `audit.jsonl`.
 - When asking for approval or a material decision, cover the requested action,
   its reason, scope/files, risk, rollback, and the exact choice needed. Omit
   only what truly does not apply.
@@ -173,6 +207,10 @@ python3 <plugin-root>/scripts/as-usual-record.py status --dir <work-dir> --json
 Event kinds (11): `lifecycle` · `approval` · `verification` · `review` ·
 `decision` · `work` · `hypothesis` · `status-change` · `blocker` · `memory` ·
 `note`.
+
+Removing a value does not reach backwards. It becomes retired vocabulary, which
+`validate` still accepts and `add` refuses — the record is append-only, so an
+entry written while a value was legal stays valid after it is dropped.
 
 A kind exists only when a script gate enforces something with it. Detail that no
 gate checks belongs in `summary` or `--data`, not in a new kind.
@@ -234,6 +272,12 @@ investigation spawns several follow-ups, each gets its own folder and link.
 The current work unit's `contexts.md`, `audit.jsonl`, and completed artifacts
 outrank this file and the owner skill — what was agreed with the user beats what
 the workflow expects. Target project instructions and conventions sit above both.
+
+Within the record, the later artifact wins. `contexts.md`'s boundary is the
+boundary as understood when the unit was created; once `requirements.md` states
+the scope, that is the scope. The same holds for a plan over a requirement it
+refines. Do not resolve the two by editing the earlier one to match — the middle
+band is for reversed decisions, not for keeping a top-band summary in sync.
 
 **This ordering does not reach the seven core rules or `safety-rules.md`.** They
 sit above everything here, including the record itself. An earlier agreement that

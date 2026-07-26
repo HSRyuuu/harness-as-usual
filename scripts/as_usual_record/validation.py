@@ -11,9 +11,9 @@ from pathlib import Path
 from .constants import (
     ACTORS,
     APPROVAL_ACTIONS,
+    AUDITABLE_KINDS,
+    AUDITABLE_LIFECYCLE_EVENTS,
     CLOSING_LIFECYCLE_EVENTS,
-    KINDS,
-    LIFECYCLE_EVENTS,
     NEXT_ACTION_SPECIALS,
     PHASES,
     STATUS_CHANGE_STATES,
@@ -23,8 +23,9 @@ from .constants import (
     VERDICTS,
     JsonObject,
 )
-from .paths import audit_path
-from .records import read_events
+from .contexts import read_declared_unit
+from .paths import RecordError, audit_path, contexts_path
+from .records import current_unit, read_events
 
 
 REQUIRED_FIELDS = ("seq", "ts", "actor", "unit", "kind", "status", "summary")
@@ -71,7 +72,36 @@ def validate_record(work_dir: Path) -> list[str]:
             if closed_at is None and isinstance(seq, int):
                 closed_at = seq
 
+    problems.extend(_check_declared_unit(work_dir, events))
     return problems
+
+
+def _check_declared_unit(work_dir: Path, events: list[JsonObject]) -> list[str]:
+    """`contexts.md` and the record must name the same unit.
+
+    The append gates cannot catch this: the two files are written by different
+    paths, and a folder re-created around a surviving `contexts.md` ends up with
+    a document claiming one unit and a record claiming another.
+    """
+    try:
+        recorded = current_unit(events)
+    except RecordError:
+        # Missing `unit` fields are already reported per entry above.
+        return []
+
+    where = contexts_path(work_dir)
+    declared = read_declared_unit(work_dir)
+    if declared is None:
+        return [
+            f"{where}: does not declare a unit. add `unit: {recorded}` to the frontmatter"
+        ]
+    if declared != recorded:
+        return [
+            f"{where}: declares unit {declared}, but the record says {recorded}. "
+            "one of the two was edited by hand — correct the document, or `move` the "
+            "folder so both agree"
+        ]
+    return []
 
 
 def _event(entry: JsonObject) -> str | None:
@@ -87,7 +117,7 @@ def _check_vocabulary(entry: JsonObject, where: str) -> list[str]:
     unit = entry.get("unit")
     checks = (
         ("unit", unit, UNITS),
-        ("kind", entry.get("kind"), KINDS),
+        ("kind", entry.get("kind"), AUDITABLE_KINDS),
         ("actor", entry.get("actor"), ACTORS),
         ("status", entry.get("status"), STATUSES),
     )
@@ -122,7 +152,7 @@ def _check_payload(entry: JsonObject, where: str) -> list[str]:
             problems.append(f"{where}: verification requires a valid verdict")
     elif kind == "lifecycle":
         event = data.get("event")
-        if event not in LIFECYCLE_EVENTS:
+        if event not in AUDITABLE_LIFECYCLE_EVENTS:
             problems.append(f"{where}: invalid lifecycle event {event}")
     elif kind == "approval":
         if data.get("action") not in APPROVAL_ACTIONS:

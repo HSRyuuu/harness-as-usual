@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .constants import CLOSING_LIFECYCLE_EVENTS, MOVE_BLOCKING_FILES, JsonObject
-from .records import current_unit, read_events
+from .records import current_unit, latest_of_kind, read_events
 
 
 TRACKED_ARTIFACTS = MOVE_BLOCKING_FILES + ("contexts.md", "review.md", "report.md")
@@ -100,10 +100,7 @@ def _approvals(events: list[JsonObject]) -> list[JsonObject]:
 
 
 def _verification(events: list[JsonObject]) -> JsonObject | None:
-    latest = None
-    for entry in events:
-        if entry.get("kind") == "verification":
-            latest = entry
+    latest = latest_of_kind(events, "verification")
     if latest is None:
         return None
     return {
