@@ -135,11 +135,21 @@ There is no artifact-list section. `status --json` derives `artifacts` from what
 is actually on disk, so a hand-written copy only supplies a second answer that
 can be wrong.
 
-A Q&A entry is a dated heading naming the topic, then the question and the
-answer:
+Every timestamped entry in the Decisions and Q&A Log bands uses one heading
+shape — what the entry is about first, when it was written last:
 
 ```markdown
-### 2026-07-26 — where the gate description lives
+### {what the entry is about} - {yyyy-MM-dd HH:mm:ss}
+```
+
+A unit usually runs inside a day or two, so a date-led heading makes every entry
+look alike; the seconds are what order them. Take the value from the clock
+(`date +'%Y-%m-%d %H:%M:%S'`), never from an estimate.
+
+A Q&A entry adds the question and the answer under that heading:
+
+```markdown
+### where the gate description lives - 2026-07-26 14:32:10
 
 **Q:** ...
 
