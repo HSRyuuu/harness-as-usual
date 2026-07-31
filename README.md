@@ -179,6 +179,12 @@ nothing. It recommends with a reason; you pick; it does not re-pitch.
 The runtime rules live in [`as-usual-rules/core-rules.md`](as-usual-rules/core-rules.md)
 and are read from the plugin at runtime — **never copied into your project**.
 
+**Auto mode.** Add `mode: auto` to a work folder's `contexts.md` frontmatter and the
+agent answers the stop points itself — scope, requirements, execution approval, review,
+finalize — recording each judgment as its own rather than yours. Two things stay yours:
+high-risk operations still need your fresh approval, and no git action is ever chosen
+for you. See [`as-usual-rules/auto-mode-rules.md`](as-usual-rules/auto-mode-rules.md).
+
 <br>
 
 ## 🔀 The Three Work Units

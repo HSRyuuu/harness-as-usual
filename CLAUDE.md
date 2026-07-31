@@ -32,7 +32,7 @@ as-usual/
 ├── .agents/plugins/      # Codex marketplace manifest
 ├── .agents/skills/       # maintainer-only project-local skills
 ├── .claude/skills/       # mirror of .agents/skills for Claude Code
-├── as-usual-rules/       # runtime rules; core-rules.md is canonical
+├── as-usual-rules/       # runtime rules; core-rules.md is canonical, auto-mode-rules.md is opt-in
 ├── docs/                 # clone, install, and development guides
 ├── hooks/                # SessionStart hook config and shared runner
 ├── scripts/              # as-usual-record.py + as_usual_record/ package
@@ -165,6 +165,7 @@ folder that already holds a record. Rule 6 still holds only indirectly, through
 | --- | --- | --- |
 | Runtime rules | `as-usual-rules/core-rules.md` | units, classification, seven core rules, record layer, completion, transitions |
 | Safety gates | `as-usual-rules/safety-rules.md` | trust boundary, high-risk gate, issue read-only default |
+| Auto mode | `as-usual-rules/auto-mode-rules.md` | the `mode: auto` flag, the halt line, record honesty, retry limit |
 | Record commands | `as-usual-rules/record-commands.md` | `as-usual-record.py` reference |
 | Record helper | `scripts/as-usual-record.py`, `scripts/as_usual_record/` | init/add/move/link/status/validate; vocabularies in `constants.py`, gates in `gates.py` |
 | Entry skill | `skills/using-as-usual/SKILL.md` | activation, classification, folder creation, resume |
@@ -189,6 +190,7 @@ folder that already holds a record. Rule 6 still holds only indirectly, through
 | --- | --- | --- | --- |
 | Core rules | Markdown prompt | `as-usual-rules/core-rules.md` | the runtime contract all three units share |
 | Safety rules | Markdown prompt | `as-usual-rules/safety-rules.md` | trust boundary and high-risk gate |
+| Auto mode rules | Markdown prompt | `as-usual-rules/auto-mode-rules.md` | what `mode: auto` automates, and the two things it never does |
 | Record commands | Markdown | `as-usual-rules/record-commands.md` | CLI reference |
 | Record helper | Python | `scripts/as-usual-record.py`, `scripts/as_usual_record/{constants,records,gates,contexts,status,validation,commands,cli,paths}.py` | append-only record over `as-usual.record.v1`; enforces the script-side gates |
 | Tests | Python | `scripts/tests/test_record_{core,gates,move,status}.py` | covers append, gates, move, and derived status |
@@ -204,9 +206,9 @@ folder that already holds a record. Rule 6 still holds only indirectly, through
 
 ## CONVENTIONS
 
-- The runtime contract lives in exactly three files: `core-rules.md`,
-  `safety-rules.md`, `record-commands.md`. A rule has one owner; other files may
-  reference it but must not restate its conditions.
+- The runtime contract lives in exactly four files: `core-rules.md`,
+  `safety-rules.md`, `auto-mode-rules.md`, `record-commands.md`. A rule has one
+  owner; other files may reference it but must not restate its conditions.
 - Canonical paths are `.as-usual/<unit>/yyyy-MM-dd-<slug>/` where `<unit>` is
   `inbox`, `topic`, `direct-work`, or `issue`.
 - Every unit keeps `contexts.md` and `audit.jsonl`. `contexts.md` has three

@@ -87,4 +87,6 @@ When tradeoffs are unclear, AsUsual should prefer:
 - concrete verification evidence over "looks done",
 - user approval over inferred consent for risky operations.
 
-This identity should guide changes to `as-usual-rules/core-rules.md`, `as-usual-rules/safety-rules.md`, public runtime skills, templates, hook output, documentation, and maintainer-only development skills.
+Auto mode (`as-usual-rules/auto-mode-rules.md`) is opt-in and does not soften the last line. It lets the agent answer the pipeline's stop points on the user's behalf, but it never approves a high-risk operation and never selects a git action — those remain the user's, which is why an automated run can be trusted at all.
+
+This identity should guide changes to `as-usual-rules/core-rules.md`, `as-usual-rules/safety-rules.md`, `as-usual-rules/auto-mode-rules.md`, public runtime skills, templates, hook output, documentation, and maintainer-only development skills.
