@@ -52,7 +52,7 @@ fill a form.
   Looking things up settles *facts*. It never settles *ownership*. These stay the
   user's no matter what the code says:
   - **what is in and out of scope** — which files, directories, and surfaces this
-    unit covers, and what is deliberately left out;
+    unit covers, and what stays outside it;
   - **how far "done" reaches** — what gets verified, and what is left to a later
     unit;
   - **anything whose cost lands outside this repository** — a deploy step, a
@@ -66,9 +66,9 @@ fill a form.
   instead of asking. Writing an unasked scope decision into "Constraints &
   Assumptions" and moving on is the specific failure this rule exists to stop:
   the user never saw the choice, and the record reads as though they agreed to it.
-- **Report what you decided under delegation.** When the user hands you a
-  judgment — "you decide", "use your judgment" — the decision is yours but the
-  report is not optional. Say in chat what you chose, what you excluded, and why.
+- **Report what you decided under delegation.** When the user hands a judgment
+  over instead of answering it — "you decide", "whichever you think" — making the
+  decision is only half of it. Say in chat what you chose, what you excluded, and why.
   A decision the user can only discover by reading `contexts.md` later was not
   delegated to you; it was hidden from them.
 - **Batch independent facts** when the answers do not depend on each other.
