@@ -11,6 +11,7 @@
 .omo/
 .*powers/
 .claude/settings.local.json
+.omc/
 
 # Local-only development workspaces
 /commands/
