@@ -33,7 +33,10 @@ policy.
 
 Then anything relied on but never confirmed by the user, each with its source and
 what breaks if it is wrong. An assumption buried inside a requirement is an
-assumption nobody will notice.)
+assumption nobody will notice.
+
+A scope decision the user was never asked about is not an assumption. It does not
+belong here — go ask it.)
 
 ## Risks
 

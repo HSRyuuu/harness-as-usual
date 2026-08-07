@@ -31,6 +31,9 @@ stated assumption. **Zero questions is a valid outcome** — when nothing on the
 list is actually open, record that and return immediately. Do not manufacture
 questions to justify the step.
 
+That licenses a short interview, never a silent one. An item the user owns is
+open until they answer it, however obvious their answer seems.
+
 ## How To Ask
 
 Interview in grilling style. The point is to reach a shared understanding, not to
@@ -45,6 +48,29 @@ fill a form.
   recording your own recommendation as their decision.
 - **Never ask what the codebase, logs, or git history can answer.** Look it up.
   Use `explore-codebase` when the surface is unfamiliar.
+- **Always ask what is the user's to decide, however clear the evidence looks.**
+  Looking things up settles *facts*. It never settles *ownership*. These stay the
+  user's no matter what the code says:
+  - **what is in and out of scope** — which files, directories, and surfaces this
+    unit covers, and what is deliberately left out;
+  - **how far "done" reaches** — what gets verified, and what is left to a later
+    unit;
+  - **anything whose cost lands outside this repository** — a deploy step, a
+    manual operation, another team's work.
+
+  Evidence shapes your *recommendation* on these. It never replaces the answer.
+  "The reason was clear in the code" is a reason to recommend confidently, not a
+  reason to skip the question.
+- **An assumption is not a substitute for a question.** Proceeding on a stated
+  assumption is what happens *after* asking and failing to converge — never
+  instead of asking. Writing an unasked scope decision into "Constraints &
+  Assumptions" and moving on is the specific failure this rule exists to stop:
+  the user never saw the choice, and the record reads as though they agreed to it.
+- **Report what you decided under delegation.** When the user hands you a
+  judgment — "you decide", "use your judgment" — the decision is yours but the
+  report is not optional. Say in chat what you chose, what you excluded, and why.
+  A decision the user can only discover by reading `contexts.md` later was not
+  delegated to you; it was hidden from them.
 - **Batch independent facts** when the answers do not depend on each other.
 - **Ask judgment calls one at a time.** When the user must weigh evidence or
   trade-offs, a batch makes them answer blind. Ask, wait, then use the answer to
@@ -93,6 +119,9 @@ proceed.
 
 ## Anti-Patterns
 
+- Deciding scope alone because the evidence looked clear.
+- Recording an unasked decision as an assumption, a constraint, or a risk.
+- Exercising a delegated judgment without telling the user what it excluded.
 - Branching on the calling unit (`if topic … if issue …`).
 - Appending a reversed decision below the old one instead of editing it.
 - Editing the append-only Q&A band.
