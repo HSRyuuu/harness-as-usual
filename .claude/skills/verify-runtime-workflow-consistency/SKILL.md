@@ -27,7 +27,6 @@ that uses current vocabulary is exactly what this exists to catch.
 | --- | --- |
 | `as-usual-rules/core-rules.md` | unit definitions, classification, the seven core rules, record layer, completion, transitions |
 | `as-usual-rules/safety-rules.md` | trust boundary, high-risk gate, issue read-only default |
-| `as-usual-rules/auto-mode-rules.md` | the `mode: auto` flag, the halt line, and how automated judgments are recorded |
 | `as-usual-rules/record-commands.md` | `as-usual-record.py` command reference |
 | `hooks/session-start` | one-sentence entry announcement |
 | `skills/using-as-usual/SKILL.md` | activation, classification, folder creation, resume, hand-off |
@@ -120,13 +119,6 @@ question-file cycle.
 `using-as-usual` may name the old artifacts in exactly one place: detecting a
 pre-v2 folder to refuse resuming it.
 
-The removed *execution-mode selection* was a numbered choice at plan approval
-between running the work through subagents or inline. The `mode: auto` flag in
-`auto-mode-rules.md` is a different concept — it decides **who answers** at each
-stop point, not how the work is dispatched — so finding it is not a regression
-here. What would be one: any surface offering the subagent-versus-inline choice
-again.
-
 ### 8. Records and transitions are described identically everywhere
 
 The `move`-versus-new-folder rule, the blocked-file list, and the "if a linked
@@ -145,8 +137,7 @@ User-facing prose follows the user's language; identifiers, commands, and paths
 stay canonical. Structural headings stay canonical English and keep their order;
 a section that would be empty is omitted and anything extra goes last. Every
 artifact opens with `unit`/`slug`/`created` frontmatter filled with real values —
-an unreplaced `<…>` placeholder in a work folder is a defect. `contexts.md` may
-carry one additional field, `mode: auto`; any other extra key is a defect.
+an unreplaced `<…>` placeholder in a work folder is a defect.
 
 ## Report
 

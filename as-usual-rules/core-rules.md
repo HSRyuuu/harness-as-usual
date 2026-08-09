@@ -11,7 +11,6 @@ This file owns what every work unit shares: the unit definitions, the
 classification, the seven core rules, the record layer, and unit transitions.
 Each unit's pipeline is owned by its own skill — `run-topic`,
 `run-direct-work`, `run-issue`. Safety gates are owned by `safety-rules.md`.
-Auto mode is owned by `auto-mode-rules.md`.
 Command syntax is owned by `record-commands.md`.
 </Role>
 
@@ -123,10 +122,6 @@ record helper, then three bands with three different rules:
 | Top | initial request verbatim, boundary (in/out), links to other units | near-fixed |
 | Middle | decisions agreed with the user; for an issue also the current understanding, background knowledge, and active hypotheses | **update freely** — when a later decision reverses an earlier one, edit the earlier entry so the section always reads as the current agreement |
 | Bottom | Q&A raised after the gathering stage | **append-only** |
-
-An optional fourth frontmatter field, `mode: auto`, is written on the user's
-instruction and puts the unit in auto mode — `auto-mode-rules.md` owns what that
-changes.
 
 History is not lost by editing the middle band: `audit.jsonl` is append-only and
 keeps it.
