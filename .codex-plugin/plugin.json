@@ -1,6 +1,6 @@
 {
   "name": "as-usual",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "An agent harness that routes each request into one of three recorded work units — topic, direct-work, or issue — and keeps the decisions, plan, and verification evidence in files so a later session can resume from disk.",
   "author": {
     "name": "Happy Hsryu"
