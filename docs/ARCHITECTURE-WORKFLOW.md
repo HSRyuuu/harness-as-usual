@@ -143,8 +143,8 @@ cannot choose, an `inbox` folder is created and `gathering-context` narrows it.
 ```text
 <project-root>/.as-usual/
 ├── inbox/yyyy-MM-dd-<slug>/        contexts.md · audit.jsonl
-├── topic/yyyy-MM-dd-<slug>/        + requirements.md · plan.md · review.md · report.md
-├── direct-work/yyyy-MM-dd-<slug>/  + plan.md (checklist) · optional review.md/report.md
+├── topic/yyyy-MM-dd-<slug>/        + requirements.md · plan.md · verification.md · review.md · report.md
+├── direct-work/yyyy-MM-dd-<slug>/  + plan.md (checklist) · optional verification.md/review.md/report.md
 ├── issue/yyyy-MM-dd-<slug>/        + evidence/ · conclusion.md
 └── memory/                         MEMORY.md · optional <domain>_MEMORY.md
 ```
@@ -360,7 +360,8 @@ verification requires --verdict
 confirming requires --evidence
 the plan must be critically reviewed … the last one was approved at seq N
 cannot finalize without a recorded verification
-cannot finalize on a FAIL verification (seq N): the newest verdict is not PASS
+cannot finalize with unresolved verifications (seq N INCONCLUSIVE)
+invalid --resolves target: seq N is PASS, so there is nothing to resolve
 issue cannot be finalized without conclusion.md
 issue cannot be finalized without a confirmed entry
 record is finalized … only lifecycle link entries may be appended

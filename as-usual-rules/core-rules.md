@@ -94,8 +94,8 @@ to narrow it down, then `move` into the chosen unit.
 ```text
 <project-root>/.as-usual/
 ├── inbox/yyyy-MM-dd-<slug>/        contexts.md · audit.jsonl        (unit not yet chosen)
-├── topic/yyyy-MM-dd-<slug>/        + requirements.md · plan.md · review.md · report.md
-├── direct-work/yyyy-MM-dd-<slug>/  + plan.md (checklist strength) · optional review.md/report.md
+├── topic/yyyy-MM-dd-<slug>/        + requirements.md · plan.md · verification.md · review.md · report.md
+├── direct-work/yyyy-MM-dd-<slug>/  + plan.md (checklist strength) · optional verification.md/review.md/report.md
 └── issue/yyyy-MM-dd-<slug>/        + evidence/ · conclusion.md
 
 <project-root>/docs/memory/        MEMORY.md · optional <domain>_MEMORY.md
@@ -176,6 +176,9 @@ question has been raised the band says so in one line and carries no skeleton.
   day the unit was created, not the day the file was last touched.
 - Cite a record entry as `#<seq>` — `#12`, or `#4–#6` for a range. A date cannot
   be traced back to `audit.jsonl`.
+- `verification.md` is the one artifact that keeps being updated after the record
+  is sealed, and those updates go in its own band, marked as outside the record.
+  Every other artifact is final once the unit closes.
 - When asking for approval or a material decision, cover the requested action,
   its reason, scope/files, risk, rollback, and the exact choice needed. Omit
   only what truly does not apply.
@@ -253,6 +256,17 @@ context only.
 - `INCONCLUSIVE` is a gate failure, not a soft pass. A subagent timeout, an
   unverifiable result, or an ambiguous one is `INCONCLUSIVE`, and the work
   cannot be recorded complete until re-verification passes or the user decides.
+- **An `INCONCLUSIVE` or `FAIL` stays open until a later `verification` names its
+  seq with `--resolves`.** A passing run on some other surface does not close it —
+  it answers a different question. Finalizing with any of them still open needs an
+  explicit `--reason`, and the script refuses without one. Verdicts are only
+  `PASS`, `FAIL`, and `INCONCLUSIVE`; a softer word for a gap is the substitution
+  this rule exists to stop.
+- Evidence lives in `verification.md`: the event's `summary` indexes it, the
+  document carries the environment, the commands, the per-criterion results, and
+  the gaps. A `topic` keeps one; a `direct-work` keeps one when the evidence needs
+  more than the record's summaries. `report.md` states the verification outcome as
+  of the close; `verification.md` owns it, and keeps being updated afterwards.
 - A subagent's `DONE` is a claim, not a fact. Check it against files, diffs, and
   evidence before recording anything.
 - Do not say the work is complete until the record holds what was done, the

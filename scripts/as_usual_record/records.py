@@ -12,7 +12,7 @@ import datetime as _dt
 import json
 from pathlib import Path
 
-from .constants import JsonObject
+from .constants import OPEN_VERDICTS, JsonObject
 from .paths import RecordError, audit_path
 
 
@@ -100,6 +100,30 @@ def latest_of_kind(events: list[JsonObject], kind: str) -> JsonObject | None:
         if entry.get("kind") == kind:
             return entry
     return None
+
+
+def open_verifications(events: list[JsonObject]) -> list[JsonObject]:
+    """Verifications that failed and were never verified again.
+
+    A completion claim rests on every criterion, not on whichever run happened
+    to be last. An INCONCLUSIVE or FAIL stays open until a later verification
+    names its seq with --resolves, so a passing run on a different surface can
+    no longer bury it.
+    """
+    resolved: set[int] = set()
+    for entry in events:
+        if entry.get("kind") != "verification":
+            continue
+        target = entry.get("data", {}).get("resolves")
+        if isinstance(target, int) and not isinstance(target, bool):
+            resolved.add(target)
+    return [
+        entry
+        for entry in events
+        if entry.get("kind") == "verification"
+        and entry.get("data", {}).get("verdict") in OPEN_VERDICTS
+        and entry.get("seq") not in resolved
+    ]
 
 
 def current_unit(events: list[JsonObject]) -> str:

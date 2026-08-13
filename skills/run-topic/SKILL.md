@@ -29,7 +29,7 @@ gathering-context → write-requirements → write-plan → execute-plan
 | `gathering-context` | `gathering-context` | required | settle scope, constraints, and acceptance before writing anything |
 | `write-requirements` | `write-requirements` | required | full `requirements.md` |
 | `write-plan` | `write-plan` | required | full `plan.md`, ending in the pre-approval critical review |
-| `execute-plan` | `execute-plan` | required | — |
+| `execute-plan` | `execute-plan` | required | evidence accumulates in `verification.md` |
 | `review-execution` | `review-execution` | proposed by default | offer it; the user decides |
 | `cleanup-code` | `cleanup-code` | optional | only on explicit approval |
 | `finalize` | `finalize` | required | `report.md` + closure |

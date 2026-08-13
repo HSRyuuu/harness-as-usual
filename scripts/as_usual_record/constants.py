@@ -132,6 +132,9 @@ NEXT_ACTION_SPECIALS = {"awaiting-user", "none"}
 STATUSES = {"success", "warning", "error"}
 ACTORS = {"claude", "codex", "user", "system"}
 VERDICTS = {"PASS", "FAIL", "INCONCLUSIVE"}
+# Verdicts that leave a gap on the record: they stay open until a later
+# verification re-verifies them by seq (core-rules.md §6).
+OPEN_VERDICTS = {"FAIL", "INCONCLUSIVE"}
 STATUS_CHANGE_STATES = {"confirmed", "cancelled"}
 APPROVAL_ACTIONS = {"high-risk", "execution", "git-action"}
 

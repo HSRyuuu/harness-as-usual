@@ -16,6 +16,7 @@ from .constants import (
     LIFECYCLE_EVENTS,
     MOVE_BLOCKING_FILES,
     NEXT_ACTION_SPECIALS,
+    OPEN_VERDICTS,
     PHASES,
     PLAN_REVIEW_UNITS,
     REASONING_KINDS,
@@ -28,7 +29,7 @@ from .constants import (
     JsonObject,
 )
 from .paths import RecordError
-from .records import find_entry, latest_of_kind
+from .records import find_entry, latest_of_kind, open_verifications
 
 
 def validate_enum(name: str, value: str, allowed: set[str]) -> None:
@@ -105,6 +106,7 @@ def check_kind_payload(
                 "an unverifiable result is INCONCLUSIVE, never PASS"
             )
         validate_enum("verdict", str(verdict), VERDICTS)
+        _check_verification_resolves(events, data)
 
     elif kind == "status-change":
         _check_status_change(events, data)
@@ -119,6 +121,31 @@ def check_kind_payload(
         validate_enum("lifecycle event", str(event), LIFECYCLE_EVENTS)
         if event == "finalized":
             _check_finalize(events, work_dir, unit, data)
+
+
+def _check_verification_resolves(events: list[JsonObject], data: JsonObject) -> None:
+    """--resolves may only close an earlier verification that actually failed.
+
+    Pointing it anywhere else would let the finalize gate be cleared by a
+    reference that closes nothing.
+    """
+    target = data.get("resolves")
+    if target is None:
+        return
+    if not isinstance(target, int) or isinstance(target, bool):
+        raise RecordError("--resolves takes the seq of the verification it closes")
+    entry = find_entry(events, target)
+    if entry.get("kind") != "verification":
+        raise RecordError(
+            f"invalid --resolves target: seq {target} is kind {entry.get('kind')}, "
+            "not a verification"
+        )
+    verdict = entry.get("data", {}).get("verdict")
+    if verdict not in OPEN_VERDICTS:
+        raise RecordError(
+            f"invalid --resolves target: seq {target} is {verdict}, so there is "
+            "nothing to resolve"
+        )
 
 
 def _check_status_change(events: list[JsonObject], data: JsonObject) -> None:
@@ -202,13 +229,20 @@ def _check_finalize(
                 "using INCONCLUSIVE when the evidence could not be obtained, or close with the "
                 "cancelled event"
             )
-        verdict = latest.get("data", {}).get("verdict")
-        if verdict != "PASS" and not data.get("reason"):
+        # Not "is the newest verdict PASS" — a later pass on another surface used
+        # to bury an earlier gap and close the unit clean. Every failed run stays
+        # open until something re-verifies it by seq.
+        unresolved = open_verifications(events)
+        if unresolved and not data.get("reason"):
+            listed = ", ".join(
+                f"seq {entry.get('seq')} {entry.get('data', {}).get('verdict')}"
+                for entry in unresolved
+            )
             raise RecordError(
-                f"cannot finalize on a {verdict} verification (seq {latest.get('seq')}): "
-                "the newest verdict is not PASS. re-verify and record the passing run, "
-                "accept it explicitly with --reason \"<why this is being closed anyway>\", "
-                "or close with the cancelled event"
+                f"cannot finalize with unresolved verifications ({listed}): re-verify and "
+                "record the passing run with --resolves <seq>, accept them explicitly with "
+                '--reason "<why this is being closed anyway>", or close with the cancelled '
+                "event"
             )
     if unit != "issue":
         return

@@ -23,8 +23,12 @@ that stopped mattering once the work was done.)
 
 ## Verification
 
-(The exact commands run and their actual results. For anything skipped or
-inconclusive: what it was and why.)
+(Link `verification.md` and state the outcome in a line — the verdict and how many
+criteria came out each way, as of this close. Do not restate the commands, the
+evidence, or the individual criteria; that document already holds them, and it
+goes on being updated after this report is frozen. When there is no
+`verification.md`, put the commands and their actual results here, and say what
+was skipped or inconclusive and why.)
 
 ## Review
 

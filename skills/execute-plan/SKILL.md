@@ -42,9 +42,23 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --summary "<command + actual result>" --phase execute-plan
 ```
 
+The evidence itself goes in `verification.md`, whose shape `templates/verification.md`
+carries — enough that someone else could re-run what you ran and reach the same
+verdict. The event's `--summary` stays a one-line index pointing into it: a summary
+that has grown into a paragraph is a copy of the document that will drift from it.
+
 If the surface cannot produce evidence, the verdict is `INCONCLUSIVE`, not
 `PASS`, and the task is not done. Do not move to the next task on top of an
-unverified one.
+unverified one. When a later run does close an earlier gap, name it:
+
+```bash
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind verification --verdict PASS --resolves <seq of the earlier gap> \
+  --summary "<command + actual result>" --phase execute-plan
+```
+
+Without `--resolves`, the gap stays open and `finalize` will refuse
+(`core-rules.md` §6).
 
 **High-risk operations** need fresh approval immediately before they run, even
 though the plan describes them (`safety-rules.md`):

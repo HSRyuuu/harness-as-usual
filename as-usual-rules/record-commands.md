@@ -57,8 +57,8 @@ Kind-specific flags:
 
 | Kind | Required | Flags |
 | --- | --- | --- |
-| `lifecycle` | `--event` | `created` · `unit-selected` · `finalized` · `cancelled` · `linked`. `--event finalized` also takes `--reason` when the newest verdict is not `PASS` |
-| `verification` | `--verdict` | `PASS` · `FAIL` · `INCONCLUSIVE` |
+| `lifecycle` | `--event` | `created` · `unit-selected` · `finalized` · `cancelled` · `linked`. `--event finalized` also takes `--reason` when a verification is still open (`core-rules.md` §6) |
+| `verification` | `--verdict` | `PASS` · `FAIL` · `INCONCLUSIVE`. `--resolves <seq>` marks an earlier `INCONCLUSIVE` or `FAIL` verification re-verified |
 | `approval` | `--action` | `high-risk` · `execution` · `git-action` |
 | `status-change` | `--target <seq>`, `--to` | `--to confirmed` needs `--evidence`; `--to cancelled` needs `--reason` |
 | `blocker` | — | `--resolves <seq>` marks an earlier blocker resolved |
@@ -160,7 +160,8 @@ The script refuses rather than warns. Each message names the rule:
 | `confirming requires --evidence` | attach reproduction evidence, or an explicit "could not reproduce because …" |
 | `the plan must be critically reviewed before execution approval` | run the review, record it, then approve. On a second approval the review must be newer than the previous one |
 | `cannot finalize without a recorded verification` | record the verification (`INCONCLUSIVE` when evidence is unobtainable), or close with `--event cancelled` |
-| `cannot finalize on a FAIL/INCONCLUSIVE verification` | re-verify and record the passing run, accept it with `--reason "<why>"`, or close with `--event cancelled` |
+| `cannot finalize with unresolved verifications (seq …)` | re-verify and record the passing run with `--resolves <seq>`, accept them with `--reason "<why>"`, or close with `--event cancelled` |
+| `invalid --resolves target` | point it at an earlier `verification` whose verdict was `INCONCLUSIVE` or `FAIL` |
 | `cannot init … it already holds …` | use a different slug, `move` to relabel the folder, or delete it if it was a mistake |
 | `issue cannot be finalized without conclusion.md` | write the conclusion, or close with `--event cancelled` |
 | `issue cannot be finalized without a confirmed entry` | confirm what the conclusion rests on, or close with `--event cancelled` |

@@ -68,8 +68,8 @@ Three work units, peers rather than branches of one pipeline:
 ```text
 <project-root>/.as-usual/
 ├── inbox/yyyy-MM-dd-<slug>/        contexts.md · audit.jsonl      (unit not yet chosen)
-├── topic/yyyy-MM-dd-<slug>/        + requirements.md · plan.md · review.md · report.md
-├── direct-work/yyyy-MM-dd-<slug>/  + plan.md (checklist) · optional review.md/report.md
+├── topic/yyyy-MM-dd-<slug>/        + requirements.md · plan.md · verification.md · review.md · report.md
+├── direct-work/yyyy-MM-dd-<slug>/  + plan.md (checklist) · optional verification.md/review.md/report.md
 ├── issue/yyyy-MM-dd-<slug>/        + evidence/ · conclusion.md
 └── memory/                         MEMORY.md · optional <domain>_MEMORY.md
 ```
@@ -150,10 +150,12 @@ Everything else is the agent's judgment. These are not.
 
 Rules 3 and 7, plus the closed vocabulary, record sealing, and the move
 restriction, are enforced by `scripts/as-usual-record.py`, which refuses rather
-than warns. Rule 3 in two places: a `topic` or `direct-work` cannot finalize
-without a verification whose newest verdict is `PASS` — anything else needs an
-explicit `--reason` on the closing event — and an `issue` needs `conclusion.md`
-plus at least one confirmed entry. Rule 7 is checked against the previous
+than warns. Rule 3 in two places: a `topic` or `direct-work` cannot finalize while
+any recorded verification is still open — an `INCONCLUSIVE` or `FAIL` stays open
+until a later verification names its seq with `--resolves`, so a pass on another
+surface no longer buries an earlier gap, and closing with one open needs an
+explicit `--reason` — and an `issue` needs `conclusion.md` plus at least one
+confirmed entry. Rule 7 is checked against the previous
 approval, so a second execution approval needs a review newer than the first.
 Sealing and the move restriction hold at the entrance too: `init` refuses a
 folder that already holds a record. Rule 6 still holds only indirectly, through
@@ -198,7 +200,7 @@ folder that already holds a record. Rule 6 still holds only indirectly, through
 | Gathering | Skill | `skills/gathering-context/SKILL.md` | grill-me interview engine, unit-agnostic |
 | Step skills | Skill | `skills/{write-requirements,write-plan,execute-plan,review-execution,cleanup-code,finalize,git-action}` | shared pipeline steps |
 | Utilities | Skill | `skills/{explore-codebase,search-long-term-memory,manage-self-improvement}` | read-only discovery, recall, self-improvement |
-| Templates | Markdown | `templates/{contexts,requirements,plan,review,report,conclusion,MEMORY}.md` | artifact baselines |
+| Templates | Markdown | `templates/{contexts,requirements,plan,verification,review,report,conclusion,MEMORY}.md` | artifact baselines |
 | Maintainer skills | Project-local Skill | `.agents/skills/**` + `.claude/skills/**` mirror | verification, registry, toggle, release |
 | Manifests | JSON | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | plugin and marketplace metadata |
 

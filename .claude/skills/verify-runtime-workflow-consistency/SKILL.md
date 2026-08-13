@@ -61,9 +61,13 @@ Current set:
 - `--verdict` required on verification, `--evidence` on confirm, `--reason` on cancel
 - a plan review before execution approval, **newer than the previous execution
   approval** — one review does not license every later approval
-- a recorded verification to finalize a `topic`/`direct-work`, **whose newest
-  verdict is `PASS`** — any other verdict needs an explicit `--reason`, while a
-  missing verification is refused outright and no reason overrides that
+- a recorded verification to finalize a `topic`/`direct-work`, **with no open
+  verification left** — an `INCONCLUSIVE` or `FAIL` stays open until a later
+  verification names its seq with `--resolves`, and closing with one open needs an
+  explicit `--reason`, while a missing verification is refused outright and no
+  reason overrides that
+- `--resolves` on a verification points at an earlier verification that actually
+  failed; anything else is refused
 - `conclusion.md` plus at least one confirmed entry to finalize an `issue`
 - sealed records reject non-link appends
 - blocked files reject `move`, and `init` refuses a folder that already holds a
@@ -106,6 +110,26 @@ refactored away; it regresses easily.
 Section lists in `templates/**` match what the writing skill describes. No
 template carries a review status block, an execution mode field, or a `[Answer]:`
 marker — those were removed with the gates that required them.
+
+### 6a. Verification has one owner and one vocabulary
+
+`verification.md` is the evidence document for `topic` and `direct-work`. Check
+that one story is told everywhere:
+
+- The condition that keeps an `INCONCLUSIVE` or `FAIL` open, and what `--resolves`
+  does about it, is **defined** only in `core-rules.md` §6. `record-commands.md`,
+  the skills, and `templates/**` may reference it but must not restate the
+  condition. Two definitions is the failure to look for.
+- Refusal messages quoted in `record-commands.md` match what the script actually
+  prints. Run the command and compare the string, rather than trusting the table.
+- `templates/report.md` §Verification links `verification.md` and states the
+  outcome; it does not carry a per-criterion table. Its wording parallels
+  §Review, which solved the same problem earlier.
+- Verdicts are only `PASS`, `FAIL`, `INCONCLUSIVE`. No template or skill offers a
+  softer word for a gap, and none carries an emoji verdict column.
+- `verification.md` is the only artifact described as updatable after sealing, and
+  that band is marked as outside the record. The script's sealing behaviour is
+  unchanged: `check_not_closed` still admits only `lifecycle:linked`.
 
 ### 7. Deleted concepts have not returned
 

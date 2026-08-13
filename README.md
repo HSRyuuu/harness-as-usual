@@ -203,7 +203,7 @@ gathering-context → write-requirements → write-plan(+critical review) → ex
 | --- | --- |
 | **Required** | `gathering-context` · `write-requirements` · `write-plan` · `execute-plan` · `finalize` |
 | **Offered** | `review-execution` (proposed by default) · `cleanup-code` · `git-action` |
-| **Artifacts** | `contexts.md` · `audit.jsonl` · `requirements.md` · `plan.md` · `review.md` · `report.md` |
+| **Artifacts** | `contexts.md` · `audit.jsonl` · `requirements.md` · `plan.md` · `verification.md` · `review.md` · `report.md` |
 | **Ends with** | a code change and a sealed record |
 
 If the cause of something turns out to be unknown mid-topic, the topic stays where
@@ -359,7 +359,8 @@ script writes all of them, for all three units, and it refuses rather than warns
 > is the only writer of `audit.jsonl`, and it refuses: a verification with no
 > verdict, an execution approval with no plan review newer than the previous
 > approval, a confirmation with no evidence, a `topic`/`direct-work` finalize with
-> no verification at all, that same finalize when the newest verdict is not `PASS`
+> no verification at all, that same finalize while an `INCONCLUSIVE` or `FAIL`
+> verification is still open — until a later one names its seq with `--resolves` —
 > and no explicit reason is given, an `issue` finalize with no `conclusion.md` or
 > nothing confirmed, an `init` over a folder that already holds a record, a `move`
 > once the unit has produced its own output, and any append to a sealed record.

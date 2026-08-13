@@ -537,13 +537,137 @@ def test_finalize_on_a_failing_verdict_passes_with_a_reason(make_unit, run, even
     assert events(work_dir)[-1]["data"]["reason"] == "shipping the partial fix on purpose"
 
 
-def test_finalize_reads_the_latest_verdict_not_the_first(make_unit, run):
-    """A later failure is not cancelled out by an earlier pass."""
+def test_an_unresolved_failure_is_not_cancelled_out_by_an_earlier_pass(make_unit, run):
     work_dir = make_unit("topic")
     _record_verification(work_dir, run, verdict="PASS")
     _record_verification(work_dir, run, verdict="FAIL")
 
     assert _finalize(work_dir, run) == 2
+
+
+def test_an_earlier_gap_is_not_buried_by_a_later_pass(make_unit, run, events):
+    """The hole this rule closes: a unit finalizing clean on unverified criteria.
+
+    Two real units did exactly this — an INCONCLUSIVE on one acceptance
+    criterion, then passing runs on other surfaces, and the close went through
+    with nothing recorded about the gap.
+    """
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+    _record_verification(work_dir, run, verdict="PASS")
+
+    assert _finalize(work_dir, run) == 2
+
+
+def test_a_later_pass_resolves_the_gap_when_it_names_the_seq(make_unit, run, events):
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+    gap = events(work_dir)[-1]["seq"]
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "re-ran with the data in place",
+        "--verdict",
+        "PASS",
+        "--resolves",
+        str(gap),
+    )
+
+    assert _finalize(work_dir, run) == 0
+
+
+def test_unresolved_verifications_finalize_with_a_reason(make_unit, run):
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+    _record_verification(work_dir, run, verdict="PASS")
+
+    assert _finalize(work_dir, run, "--reason", "test data never arrived") == 0
+
+
+def test_the_refusal_names_every_unresolved_seq(make_unit, run, capsys):
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+    _record_verification(work_dir, run, verdict="FAIL")
+
+    assert _finalize(work_dir, run) == 2
+    message = capsys.readouterr().err
+    assert "seq 2 INCONCLUSIVE" in message
+    assert "seq 3 FAIL" in message
+
+
+def test_a_resolving_verification_that_itself_failed_stays_open(make_unit, run, events):
+    """Resolving one gap by opening another does not clear the gate."""
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+    gap = events(work_dir)[-1]["seq"]
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "re-ran, still cannot tell",
+        "--verdict",
+        "INCONCLUSIVE",
+        "--resolves",
+        str(gap),
+    )
+
+    assert _finalize(work_dir, run) == 2
+
+
+def _resolving_verification(work_dir, run, target: int, verdict: str = "PASS") -> int:
+    return run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "re-run",
+        "--verdict",
+        verdict,
+        "--resolves",
+        str(target),
+    )
+
+
+def test_resolves_refuses_a_seq_that_does_not_exist(make_unit, run):
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+
+    assert _resolving_verification(work_dir, run, 99) == 2
+
+
+def test_resolves_refuses_a_non_verification_target(make_unit, run, events):
+    work_dir = make_unit("topic")
+    run("add", "--dir", str(work_dir), "--kind", "note", "--summary", "just a note")
+    note = events(work_dir)[-1]["seq"]
+
+    assert _resolving_verification(work_dir, run, note) == 2
+
+
+def test_resolves_refuses_a_passing_target(make_unit, run, events):
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="PASS")
+    passing = events(work_dir)[-1]["seq"]
+
+    assert _resolving_verification(work_dir, run, passing) == 2
+
+
+def test_resolves_refuses_its_own_or_a_later_seq(make_unit, run, events):
+    """The entry being added is not in the record yet, so forward seqs cannot resolve."""
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+    own = events(work_dir)[-1]["seq"] + 1
+
+    assert _resolving_verification(work_dir, run, own) == 2
+    assert _resolving_verification(work_dir, run, own + 5) == 2
 
 
 def test_finalize_without_any_verification_ignores_reason(make_unit, run):

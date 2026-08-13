@@ -34,9 +34,13 @@ resume, never quiet implementation after the close.
 Before sealing, hand to `manage-self-improvement` (prefer a subagent).
 
 Candidates accumulate as `memory` events throughout the work, so this pass is a
-review, not a hunt. It proposes; the user approves item by item; only then is
-anything written to `docs/memory/`. If nothing survives, record that — "no
-candidates" is a real result.
+review, not a hunt. `verification.md`'s Pitfalls section is the other place they
+collect — what cost time or would mislead the next person is usually the most
+reusable thing the unit produced.
+
+The pass proposes; the user approves item by item; only then is anything written
+to `docs/memory/`. If nothing survives, record that — "no candidates" is a real
+result.
 
 Run this for a cancelled close too. An abandoned unit often carries the most
 useful lesson, such as why it was scoped wrong in the first place.
@@ -46,7 +50,10 @@ useful lesson, such as why it was scoped wrong in the first place.
 Confirm the record could carry a fresh session that has none of this context:
 
 - what was done,
-- verification: the exact commands and their outcomes, or what was skipped and why,
+- verification: `verification.md` where the unit keeps one, otherwise the exact
+  commands and their outcomes, or what was skipped and why. Any `INCONCLUSIVE` or
+  `FAIL` still open has to be re-verified with `--resolves` or accepted with a
+  `--reason` on the close — the helper refuses otherwise (`core-rules.md` §6),
 - review findings and their dispositions,
 - decisions and constraints that still bind,
 - remaining issues, or explicitly none.
@@ -68,11 +75,13 @@ replaced by real values (`core-rules.md` §3), unless the folder already holds t
 unit's own closing document — a `conclusion.md` is that document, and a second
 summary beside it only splits the story. Skip it for a cancelled close too. It
 is the readable summary for a person, not a replacement for the record: what was
-built, the decisions that matter, the verification with its actual commands and
-results, the review outcome, and what remains.
+built, the decisions that matter, the verification outcome, the review outcome,
+and what remains.
 
-Where `review.md` exists, the report links it and states the outcome in a line.
-Restating its findings creates a second copy that drifts from the first.
+Where `review.md` or `verification.md` exists, the report links it and states the
+outcome in a line. Restating its findings or its per-criterion results creates a
+second copy that drifts from the first — and `verification.md` is written to keep
+changing after this report is frozen, so the copy would be the stale one.
 
 Then seal:
 

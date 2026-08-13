@@ -65,7 +65,12 @@ def test_status_tracks_the_latest_verification(make_unit, run):
         "PASS",
     )
 
-    assert derive_status(work_dir)["verification"]["verdict"] == "PASS"
+    status = derive_status(work_dir)
+    assert status["verification"]["verdict"] == "PASS"
+    # The latest verdict and the open gaps answer different questions: the pass is
+    # real, and the earlier INCONCLUSIVE it did not re-verify is still outstanding.
+    assert [entry["seq"] for entry in status["openVerifications"]] == [2]
+    assert status["openVerifications"][0]["verdict"] == "INCONCLUSIVE"
 
 
 def test_open_blockers_are_listed_until_resolved(make_unit, run):

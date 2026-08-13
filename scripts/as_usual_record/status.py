@@ -9,10 +9,15 @@ from __future__ import annotations
 from pathlib import Path
 
 from .constants import CLOSING_LIFECYCLE_EVENTS, MOVE_BLOCKING_FILES, JsonObject
-from .records import current_unit, latest_of_kind, read_events
+from .records import current_unit, latest_of_kind, open_verifications, read_events
 
 
-TRACKED_ARTIFACTS = MOVE_BLOCKING_FILES + ("contexts.md", "review.md", "report.md")
+TRACKED_ARTIFACTS = MOVE_BLOCKING_FILES + (
+    "contexts.md",
+    "verification.md",
+    "review.md",
+    "report.md",
+)
 
 
 def derive_status(work_dir: Path) -> JsonObject:
@@ -34,6 +39,7 @@ def derive_status(work_dir: Path) -> JsonObject:
         "blockers": _open_blockers(events),
         "approvals": _approvals(events),
         "verification": _verification(events),
+        "openVerifications": _open_verifications(events),
         "confirmed": _status_changes(events, "confirmed"),
         "cancelled": _status_changes(events, "cancelled"),
         "links": _links(events),
@@ -108,6 +114,18 @@ def _verification(events: list[JsonObject]) -> JsonObject | None:
         "verdict": latest.get("data", {}).get("verdict"),
         "summary": latest.get("summary"),
     }
+
+
+def _open_verifications(events: list[JsonObject]) -> list[JsonObject]:
+    """Built here rather than through _summarize, which lastEvent and blockers share."""
+    return [
+        {
+            "seq": entry.get("seq"),
+            "verdict": entry.get("data", {}).get("verdict"),
+            "summary": entry.get("summary"),
+        }
+        for entry in open_verifications(events)
+    ]
 
 
 def _status_changes(events: list[JsonObject], state: str) -> list[int]:

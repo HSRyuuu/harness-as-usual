@@ -31,7 +31,7 @@ gathering-context → write-plan → execute-plan → review-execution? → clea
 | --- | --- | --- | --- |
 | `gathering-context` | `gathering-context` | required | **zero questions is normal** — if nothing is open, record that and move on |
 | `write-plan` | `write-plan` | required | checklist strength: steps + verification method, not a full plan document |
-| `execute-plan` | `execute-plan` | required | — |
+| `execute-plan` | `execute-plan` | required | `verification.md` when the evidence needs more than the record's summaries; the events alone are enough for a small change |
 | `review-execution` | `review-execution` | optional | offer when the change is broad or touched something delicate |
 | `cleanup-code` | `cleanup-code` | optional | only on explicit approval |
 | `finalize` | `finalize` | optional | offer at the end; the record is complete without it |
