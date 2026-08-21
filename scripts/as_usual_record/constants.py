@@ -40,7 +40,6 @@ KINDS = {
     "hypothesis",
     "status-change",
     "blocker",
-    "memory",
     "note",
 }
 
@@ -64,6 +63,8 @@ CLOSING_LIFECYCLE_EVENTS = {"finalized", "cancelled"}
 RETIRED_KINDS = {
     # Replaced by `work`. Used by topic/2026-07-26-record-gate-hardening.
     "artifact",
+    # Long-term project memory was removed; released records may still contain it.
+    "memory",
 }
 
 RETIRED_LIFECYCLE_EVENTS = {

@@ -37,8 +37,7 @@ Before acting, read and follow:
 
 - `CLAUDE.md` / `AGENTS.md` CONVENTIONS for commit discipline: stage paths
   explicitly (never `git add .`), never commit `.as-usual/` work folders,
-  `.codegraph/`, or installed-plugin cache output
-  (long-term memory lives in `docs/memory/`, outside `.as-usual/`).
+  `.codegraph/`, or installed-plugin cache output.
   Use the repository's existing Conventional Commits style (`feat:`, `fix:`,
   `docs:`, `refactor:`, `test:`, `chore:`).
 - `verify-implementation` for the pre-publish verification gate (it runs the

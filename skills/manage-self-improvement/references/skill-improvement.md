@@ -9,9 +9,8 @@ A reusable, non-trivial procedure is a skill candidate if 3+ hold:
 4. failure path differs from success path
 5. has a verification method
 
-## memory vs skill
-
-Short facts / judgment criteria → memory. Multi-step reusable procedures → skill.
+Short facts, judgment criteria, preferences, and one-off lessons remain in the
+work unit's artifacts. They are not skill candidates.
 
 ## Overlap analysis (Pass 1)
 
@@ -24,9 +23,8 @@ Compare each candidate to existing registered skills:
 ## Direct creation (Pass 2, after approval)
 
 This skill creates/patches the skill file directly. Follow writing-skills conventions
-(name, trigger-rich description, procedure, verification). Record it with
-`add --kind memory`, saying whether the skill was created or left as a
-user-deferred candidate.
+(name, trigger-rich description, procedure, verification). When an open work
+unit exists, record the approved change with `add --kind work --phase finalize`.
 
 ## Destination (project-local)
 
@@ -40,10 +38,10 @@ Detect: `<PROJECT_ROOT>/.agents/skills/` and `<PROJECT_ROOT>/.claude/skills/`.
 `/skill-creator` (Claude) / `$skill-creator` (Codex) are optional helpers the user may
 use; direct creation is the default. Not enforced routing.
 
-## skill.candidate brief fields
+## Candidate brief fields
 
 `summary`, `rationale` (which of 3-of-5), `kind` (new|patch), `patchTarget`,
 `brief` (trigger / steps / verification), `dest`.
 
-When recording the candidate, carry the outline in the entry's `--summary` or
-`--data`. Do not invent a separate event kind for it.
+Carry the outline in the proposal. Record only an approved change, not a rejected
+or deferred candidate, and do not invent a separate event kind for it.

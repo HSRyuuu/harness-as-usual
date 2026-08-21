@@ -51,8 +51,8 @@ CLAUDE_PLUGIN_ROOT="$PWD" bash hooks/run-hook.cmd session-start | jq '{
 
 Expected: `SessionStart`, and `true` for every other field.
 
-The hook announces capability and one entry point. It must never inject rules,
-candidate work folders, or memory content — the entry skill reads those from disk.
+The hook announces capability and one entry point. It must never inject rules or
+candidate work folders — the entry skill reads those from disk.
 
 ## 3. Record helper
 
@@ -93,11 +93,11 @@ ls skills/
 git ls-tree -r --name-only HEAD | rg '^(commands/|skills/as-usual-(interview|execute|test)/)'
 ```
 
-Expected: no output from every `rg`. `ls skills/` shows exactly the fifteen:
+Expected: no output from every `rg`. `ls skills/` shows exactly the fourteen:
 `using-as-usual`, `run-topic`, `run-direct-work`, `run-issue`,
 `gathering-context`, `write-requirements`, `write-plan`, `execute-plan`,
 `review-execution`, `cleanup-code`, `finalize`, `git-action`,
-`explore-codebase`, `search-long-term-memory`, `manage-self-improvement`.
+`explore-codebase`, `manage-self-improvement`.
 
 `skills/using-as-usual/SKILL.md` is the one allowed hit for the old artifact
 names — it detects pre-v2 folders in order to refuse resuming them. Check the

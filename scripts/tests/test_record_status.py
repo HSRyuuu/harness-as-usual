@@ -294,7 +294,8 @@ def _append(work_dir, entry: dict) -> None:
         handle.write(json.dumps(entry) + "\n")
 
 
-def test_validate_accepts_a_retired_kind(make_unit):
+@pytest.mark.parametrize("kind", ["artifact", "memory"])
+def test_validate_accepts_a_retired_kind(make_unit, kind):
     """A value that was legal when it was written stays readable after removal.
 
     `validate` audits for hand-editing, not for vocabulary drift over time.
@@ -307,7 +308,7 @@ def test_validate_accepts_a_retired_kind(make_unit):
             "ts": "2026-07-25T00:00:00+09:00",
             "actor": "claude",
             "unit": "topic",
-            "kind": "artifact",
+            "kind": kind,
             "status": "success",
             "summary": "requirements.md written",
         },
@@ -395,9 +396,10 @@ def test_retired_vocabulary_is_disjoint_from_current():
     assert LIFECYCLE_EVENTS & RETIRED_LIFECYCLE_EVENTS == set()
 
 
-def test_add_refuses_a_retired_kind(make_unit, run):
+@pytest.mark.parametrize("kind", ["artifact", "memory"])
+def test_add_refuses_a_retired_kind(make_unit, run, kind):
     """Retiring a value keeps the past readable; it must not keep the future open."""
     work_dir = make_unit("topic")
 
     with pytest.raises(SystemExit):
-        run("add", "--dir", str(work_dir), "--kind", "artifact", "--summary", "nope")
+        run("add", "--dir", str(work_dir), "--kind", kind, "--summary", "nope")

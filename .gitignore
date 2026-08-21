@@ -5,7 +5,7 @@
 *.bak
 
 # Local agent/runtime state
-# Work-unit records only. Long-term memory lives in docs/memory/ and is tracked.
+# Work-unit records stay local.
 .as-usual/
 .codegraph/
 .omo/

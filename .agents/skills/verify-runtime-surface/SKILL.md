@@ -24,7 +24,7 @@ prompts make the agent try to "fix AsUsual" inside someone else's project.
 
 ## Runtime-Facing Surfaces
 
-`hooks/session-start` · `as-usual-rules/**` · `skills/**` (all fifteen, plus their
+`hooks/session-start` · `as-usual-rules/**` · `skills/**` (all fourteen, plus their
 prompt and reference files) · `templates/**` · `scripts/**`
 
 Maintainer-only surfaces, which may contain this guidance freely:

@@ -1,12 +1,12 @@
 ---
 name: finalize
-description: Use when a work unit is closing. Reviews memory candidates, checks the record can carry a fresh session, writes report.md, seals the record, and asks which git action to run.
+description: Use when a work unit is closing. Checks the record can carry a fresh session, optionally proposes a reusable project-local skill improvement, writes report.md, seals the record, and asks which git action to run.
 ---
 
 # Finalize
 
-Closes a work unit: reviews what is worth remembering, checks that the record can
-stand on its own, writes the summary, and seals the record.
+Closes a work unit: checks that the record can stand on its own, writes the
+summary, and seals the record.
 
 `topic` and `issue` require this. `direct-work` offers it — a direct-work unit
 whose last event is a passing verification is already complete.
@@ -29,21 +29,21 @@ changes and ask whether to revert or keep them before closing. Cancelling is not
 a way past a gate: resuming the work later means a new unit or an explicit
 resume, never quiet implementation after the close.
 
-## 1. Memory Pass
+## 1. Optional Skill-Improvement Pass
 
-Before sealing, hand to `manage-self-improvement` (prefer a subagent).
+When the work exposed a reusable, non-trivial procedure that could improve a
+project-local skill, hand it to `manage-self-improvement` before sealing (prefer
+a subagent).
 
-Candidates accumulate as `memory` events throughout the work, so this pass is a
-review, not a hunt. `verification.md`'s Pitfalls section is the other place they
-collect — what cost time or would mislead the next person is usually the most
-reusable thing the unit produced.
+Facts, decisions, preferences, and one-off lessons remain in this work unit's
+artifacts. A candidate belongs here only when it is a repeatable procedure
+suitable for a project-local skill.
 
-The pass proposes; the user approves item by item; only then is anything written
-to `docs/memory/`. If nothing survives, record that — "no candidates" is a real
-result.
+The pass proposes; the user approves item by item; only then is a skill created
+or patched. Skip the pass when there is no credible skill candidate.
 
-Run this for a cancelled close too. An abandoned unit often carries the most
-useful lesson, such as why it was scoped wrong in the first place.
+A cancelled unit may still yield a reusable procedure, but cancellation alone
+does not require this pass.
 
 ## 2. Record Check
 
@@ -122,5 +122,6 @@ usually nothing to commit.
 - Closing as cancelled without the user's explicit decision and a reason.
 - Continuing the abandoned work after a cancelled close.
 - Inventing verification results to fill the report.
-- Writing memory directly instead of delegating, or reflecting without approval.
+- Moving facts or one-off lessons out of the work unit during close-out.
+- Applying a project-local skill change without approval.
 - Running git commands, creating a PR, releasing, or deploying from here.

@@ -25,9 +25,8 @@ to know where the boundary was.)
 
 (What cost time here, or would mislead the next person, numbered. A missing
 required header, a profile that changes which row is read, a field that differs
-per request, a cache that has to be cleared first. This is where the unit's
-lessons come from — `finalize` reads it for memory candidates — so write the trap
-and its cause, not just the symptom.)
+per request, a cache that has to be cleared first. Write the trap and its cause,
+not just the symptom, so this unit's verification remains reproducible.)
 
 ### Commands
 

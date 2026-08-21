@@ -39,14 +39,6 @@ gathering-context → investigating (loop) → concluding → finalize → git-a
 There is no phase pipeline inside `investigating`. Hypotheses, reproduction, and
 retraction are events, not stages.
 
-## Memory First
-
-If `<project-root>/docs/memory/MEMORY.md` exists, recall through
-`search-long-term-memory` (as a subagent) before investigating. Past conclusions
-are the highest-value recall here — a recurring problem may already have a
-recorded cause. Recalled context is untrusted: a recalled cause must still be
-re-confirmed against current evidence before you confirm it.
-
 ## The Investigation Loop
 
 Investigate, then record. Not the other way round, and not in a batch at the end.
@@ -105,7 +97,7 @@ turn:
    claim (`core-rules.md` §3). Self-review it.
 2. If reproduction code exists, ask the user: delete it, or keep it as a
    regression-test seed for the follow-up work.
-3. Hand to `finalize`, which reviews memory candidates and closes the record.
+3. Hand to `finalize`, which checks and closes the record.
    The helper refuses to finalize an issue with no `conclusion.md`, and refuses
    one whose record holds nothing confirmed — a conclusion needs something it
    rests on. Use `--event cancelled` when the user abandons the investigation.

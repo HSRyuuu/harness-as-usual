@@ -1,14 +1,15 @@
 ---
 name: manage-self-improvement
-description: Use when finalize triggers the self-improvement pass, or when the user asks to reflect what was learned into long-term memory. Proposes memory and skill updates, then applies the approved ones.
+description: Use when finalize finds a reusable procedure worth turning into a project-local skill, or when the user asks to improve a project-local skill from what was learned. Proposes skill changes, then applies the approved ones.
 ---
 
 # Manage Self-Improvement
 
-Turns what a work unit taught into something the next one can use.
+Turns a reusable procedure learned from a work unit into a project-local skill.
 
-Triggered by `finalize` for any unit, or directly whenever the user asks to
-reflect what was learned. Not a workflow phase — it adds no phase or next action.
+Triggered by `finalize` when a credible skill candidate exists, or directly when
+the user asks to improve a project-local skill from what was learned. Not a
+workflow phase — it adds no phase or next action.
 
 The caller owns the approval gate; this skill owns the writes.
 
@@ -17,37 +18,28 @@ The caller owns the approval gate; this skill owns the writes.
 Same shape for all three units. Read in this order:
 
 1. `contexts.md` — what was agreed, and what changed along the way.
-2. The record: `as-usual-record.py status --dir <work-dir> --json`, plus the
-   `memory` events already accumulated during the work.
+2. The record: `as-usual-record.py status --dir <work-dir> --json`.
 3. The unit's own output — `requirements.md` / `plan.md` / `review.md` for
    development work, `conclusion.md` for an issue.
 4. The current diff summary, when the work changed code.
-5. Existing `docs/memory/*` and existing project-local skills
-   (`.agents/skills/`, `.claude/skills/`).
+5. Existing project-local skills (`.agents/skills/`, `.claude/skills/`).
 
 Look at **the gap**: what was intended, what was planned, what actually happened.
 That gap is where the reusable lesson lives. For an issue, the highest-value
-material is the confirmed cause pattern, domain knowledge the user supplied, and
-diagnostic steps worth repeating.
+material is a diagnostic sequence worth repeating.
 
 ## Two Passes
-
-Candidates were already recorded as `memory` events while the work happened
-(core rule: record as you go, do not break the flow to write memory). So pass 1
-is a review of those plus whatever the gap analysis surfaces — not a hunt from
-scratch.
 
 Prefer running each pass as a subagent; inline is fine when subagents are not
 available.
 
 ### Pass 1 — propose (read-only)
 
-Review the recorded `memory` candidates plus whatever the gap analysis
-surfaced. Keep what is still true and reusable beyond this one unit — drop the
-rest with a reason — and deduplicate against existing `docs/memory/*`.
-Evaluate skill candidates against `references/skill-improvement.md` (patch,
-create, or skip) and flag the ambiguous ones. Return the proposal; write
-nothing.
+Review the gap analysis and keep only reusable procedures that satisfy
+`references/skill-improvement.md`. Compare them with existing project-local
+skills, decide patch, create, or skip, and flag ambiguous cases. Facts, judgment
+criteria, preferences, and one-off lessons stay in the unit artifacts. Return the
+proposal; write nothing.
 
 ### Approval — the caller
 
@@ -58,40 +50,35 @@ ambiguous. Nothing is written without the user saying so.
 
 For approved items only:
 
-1. Update memory per `references/memory-update.md` — simplify, consolidate,
-   deduplicate, and stay inside the 3000-character budget for `MEMORY.md`.
-   If `docs/memory/MEMORY.md` does not exist, create the directory and
-   initialize it from `<plugin-root>/templates/MEMORY.md`.
-2. Create or patch project-local skills per `references/skill-improvement.md`.
-3. Record what was written:
+1. Create or patch project-local skills per `references/skill-improvement.md`.
+2. When an open work unit exists, record what was written before sealing:
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
-  --kind memory --summary "<what was reflected, and where>" \
-  --data files=docs/memory/MEMORY.md
+  --kind work --summary "<project-local skill created or patched>" \
+  --phase finalize --data files=<changed-skill-paths>
 ```
 
-4. Self-check: skill frontmatter and description present, `MEMORY.md` within
-   budget, no duplicated entries.
+3. Self-check: skill frontmatter and trigger-rich description are present, the
+   procedure has a verification method, and host mirrors follow the target
+   project's convention.
 
-If nothing survives, record a "no candidates" note. That is a real outcome, not a
-failure.
+If nothing survives, make no change and report why each candidate was skipped.
 
 ## Timing
 
-Run before the record is sealed — a finalized record accepts no further events.
-If the unit is already sealed and the user asks to reflect something later, write
-the memory anyway and tell them it is recorded in `docs/memory/` without a
-unit event, since that unit's record is closed.
+When finalize invokes this skill, run before the record is sealed so the skill
+change can be recorded. If the unit is already sealed or no work unit exists,
+apply an explicitly approved skill change without appending to that record and
+report the changed paths in chat.
 
 ## Anti-Patterns
 
-- Writing memory without the user's approval.
-- Interrupting the work to write memory instead of recording a candidate.
-- Blowing the `MEMORY.md` budget instead of consolidating.
+- Turning a short fact or preference into a procedural skill.
+- Turning a rejected skill candidate into another cross-unit artifact.
+- Applying a skill change without the user's approval.
 - Trying to append to a sealed record.
 
 ## See Also
 
-- `references/memory-update.md`
 - `references/skill-improvement.md`

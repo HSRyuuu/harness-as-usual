@@ -48,9 +48,8 @@ style and language.
 If the tree holds unrelated changes, ask before staging them. Never
 `git add .` — stage paths explicitly, always.
 
-**`.as-usual/` handling**: `memory/` is a commit target — stage it explicitly when
-it changed. Work-unit folders (`topic/`, `direct-work/`, `issue/`, `inbox/`) stay
-out unless the project says otherwise or the user asks.
+**`.as-usual/` handling**: work-unit folders (`topic/`, `direct-work/`, `issue/`,
+`inbox/`) stay out unless the project says otherwise or the user asks.
 
 ## Commits
 

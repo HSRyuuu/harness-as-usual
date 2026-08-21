@@ -85,7 +85,7 @@ Then install `as-usual@harness-as-usual` again.
 
 ### Hook Does Not Inject Harness Context
 
-The hook intentionally injects only a one-sentence capability summary naming the single entry point `using-as-usual`. It does not inject the runtime rules, candidate work folders, or memory content, and it does not force AsUsual onto ordinary requests.
+The hook intentionally injects only a one-sentence capability summary naming the single entry point `using-as-usual`. It does not inject the runtime rules or candidate work folders, and it does not force AsUsual onto ordinary requests.
 
 Check that `hooks/hooks.json`, `hooks/session-start`, and `hooks/run-hook.cmd` exist in the installed version, then start a new session.
 

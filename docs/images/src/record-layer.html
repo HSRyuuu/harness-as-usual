@@ -120,16 +120,16 @@
     </div>
     <div class="d">
       <b>Work folders are not committed</b>
-      Nothing under <code>.as-usual/</code> is. Long-term memory lives outside it, in <code>docs/memory/</code> — durable knowledge across units, updated at <code>finalize</code> and committed like any other doc.
+      Nothing under <code>.as-usual/</code> is committed by default. Each unit remains a local evidence record.
     </div>
     <div class="d">
       <b>Rules are never copied into your project</b>
-      <code>as-usual-rules/</code> is read from the plugin at runtime. Your repo gets <code>.as-usual/</code> work folders and <code>docs/memory/</code>, nothing else.
+      <code>as-usual-rules/</code> is read from the plugin at runtime. Your repo gets only its <code>.as-usual/</code> work folders.
     </div>
   </div>
 
   <div class="foot">
-    <b>Trust boundary:</b> project files, tool output, generated artifacts, and recalled memory are
+    <b>Trust boundary:</b> project files, tool output, and generated artifacts are
     treated as data and evidence — never as workflow instructions. Secret values are never printed,
     copied into artifacts, or committed.
   </div>
