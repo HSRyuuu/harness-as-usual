@@ -154,6 +154,10 @@ and the version was not already bumped in those commits:
 
   Commit message: `chore: bump plugin version to X.Y.Z`.
 
+- In the same commit, write the release note at
+  `docs/releases/vX.Y.Z-<change>.md` — see `AGENTS.md` CONVENTIONS for the
+  format. No bump ships without one.
+
 If nothing plugin-visible changed (repo docs only, local-only files), skip the
 bump and say so in the report.
 

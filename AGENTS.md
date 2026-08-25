@@ -33,7 +33,7 @@ as-usual/
 ├── .agents/skills/       # maintainer-only project-local skills
 ├── .claude/skills/       # mirror of .agents/skills for Claude Code
 ├── as-usual-rules/       # runtime rules; core-rules.md is canonical
-├── docs/                 # clone, install, and development guides
+├── docs/                 # clone, install, development guides, release notes
 ├── hooks/                # SessionStart hook config and shared runner
 ├── scripts/              # as-usual-record.py + as_usual_record/ package
 ├── templates/            # artifact templates
@@ -186,6 +186,7 @@ folder that already holds a record. Rule 6 still holds only indirectly, through
 | Local plugin toggle | `.agents/skills/turn-on-off-as-usual` | on/off while developing |
 | Release | `.agents/skills/publish-as-usual` | explicit-only release loop |
 | Install docs | `docs/CLAUDE-PLUGIN-SETTING.md`, `docs/CODEX-PLUGIN-SETTING.md`, `docs/INSTALL.md` | public; no private absolute paths |
+| Release notes | `docs/releases/` | one file per released version, `v<version>-<change>.md` |
 
 ## CODE MAP
 
@@ -236,6 +237,13 @@ folder that already holds a record. Rule 6 still holds only indirectly, through
 - Keep only stable skills in `skills/`. Stage paths explicitly when committing;
   avoid broad `git add .`.
 - After changing `.agents/skills/**`, mirror to `.claude/skills/**`.
+- Every plugin version bump ships a release note at
+  `docs/releases/v<version>-<change>.md`, where `<version>` is the new
+  `plugin.json` version and `<change>` is a kebab-case slug of the headline
+  change — e.g. `docs/releases/v0.3.1-plan-review-gate.md`. Write it in the same
+  commit as the bump. Contents: what changed, why, and what a maintainer or user
+  must now do differently. One file per released version; a released note is
+  never rewritten, a follow-up gets its own file.
 
 ## ANTI-PATTERNS
 
