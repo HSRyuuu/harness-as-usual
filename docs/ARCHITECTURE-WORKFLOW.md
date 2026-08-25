@@ -30,6 +30,12 @@ v2 makes the three kinds of work peers, so each question is answered once.
 rules or candidate work folders. The entry skill reads those from disk when they
 are actually needed.
 
+The announcement is not a route. Entry is opt-in: only an explicit ask — the name
+`as-usual`, a `.as-usual/` artifact or work-folder path, a request to resume, or a
+unit owner invoked directly — enters the workflow. An ordinary development or
+investigation request is handled normally; when one is worth recording,
+`using-as-usual` says so in one line and the work continues either way.
+
 Host branches: Claude Code (`CLAUDE_PLUGIN_ROOT`), Codex (`PLUGIN_ROOT`), Cursor
 (`CURSOR_PLUGIN_ROOT`, experimental), plus a fallback emitting both formats.
 
