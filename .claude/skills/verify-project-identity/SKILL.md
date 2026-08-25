@@ -28,12 +28,15 @@ runtime surface must describe one system.
 | File | Role |
 | --- | --- |
 | `PROJECT_IDENTITY.md` | why AsUsual exists, the failure modes it prevents, the principles that outlive any refactor |
-| `CLAUDE.md` / `AGENTS.md` | project knowledge base for maintainer agents — structure, code map, conventions, anti-patterns |
+| `AGENTS.md` | project knowledge base for maintainer agents — structure, code map, conventions, anti-patterns |
+| `CLAUDE.md` | `@AGENTS.md` reference plus Claude Code host specifics only |
 | `README.md` | public overview |
 | `docs/ARCHITECTURE-WORKFLOW.md` | detailed architecture and workflow map |
 
-`CLAUDE.md` and `AGENTS.md` are parallel files for the two hosts. A change to one
-almost always belongs in the other.
+`AGENTS.md` is the single knowledge base; `CLAUDE.md` references it with
+`@AGENTS.md` and adds only Claude-host surfaces (manifests, hook config,
+`.claude/skills/` mirror, install and reload). Host-agnostic content duplicated
+into `CLAUDE.md` is a finding.
 
 ## Checks
 
@@ -89,7 +92,7 @@ be updated — not quietly contradicted by the code.
 
 ```bash
 ls skills/ as-usual-rules/ templates/ scripts/
-rg -n '^\|' CLAUDE.md | rg 'skills/|as-usual-rules/|templates/|scripts/'
+rg -n '^\|' AGENTS.md | rg 'skills/|as-usual-rules/|templates/|scripts/'
 ```
 
 Every file in the map exists; every public skill, rules file, and template appears
