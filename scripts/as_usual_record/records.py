@@ -102,6 +102,18 @@ def latest_of_kind(events: list[JsonObject], kind: str) -> JsonObject | None:
     return None
 
 
+def resolved_targets(events: list[JsonObject], kind: str) -> set[int]:
+    """Seqs of `kind` entries that a later entry of the same kind already closed."""
+    resolved: set[int] = set()
+    for entry in events:
+        if entry.get("kind") != kind:
+            continue
+        target = entry.get("data", {}).get("resolves")
+        if isinstance(target, int) and not isinstance(target, bool):
+            resolved.add(target)
+    return resolved
+
+
 def open_verifications(events: list[JsonObject]) -> list[JsonObject]:
     """Verifications that failed and were never verified again.
 
@@ -110,19 +122,27 @@ def open_verifications(events: list[JsonObject]) -> list[JsonObject]:
     names its seq with --resolves, so a passing run on a different surface can
     no longer bury it.
     """
-    resolved: set[int] = set()
-    for entry in events:
-        if entry.get("kind") != "verification":
-            continue
-        target = entry.get("data", {}).get("resolves")
-        if isinstance(target, int) and not isinstance(target, bool):
-            resolved.add(target)
+    resolved = resolved_targets(events, "verification")
     return [
         entry
         for entry in events
         if entry.get("kind") == "verification"
         and entry.get("data", {}).get("verdict") in OPEN_VERDICTS
         and entry.get("seq") not in resolved
+    ]
+
+
+def open_blockers(events: list[JsonObject]) -> list[JsonObject]:
+    """Blockers no later blocker has resolved.
+
+    A blocker that resolves another is itself open: "A is cleared but B now
+    blocks us" is one event, and B still has to be visible.
+    """
+    resolved = resolved_targets(events, "blocker")
+    return [
+        entry
+        for entry in events
+        if entry.get("kind") == "blocker" and entry.get("seq") not in resolved
     ]
 
 

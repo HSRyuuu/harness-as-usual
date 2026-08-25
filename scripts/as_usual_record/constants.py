@@ -149,4 +149,8 @@ VERIFICATION_UNITS = {"topic", "direct-work"}
 # status-change may only target an entry that carries reasoning.
 REASONING_KINDS = {"decision", "hypothesis", "review", "work", "note"}
 
+# Kinds that carry an open/closed lifetime, so one entry may close an earlier
+# one with --resolves. Nothing else has anything to close.
+RESOLVES_KINDS = {"verification", "blocker"}
+
 JsonObject = dict[str, Any]

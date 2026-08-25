@@ -59,7 +59,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--reason",
         help="reason for a cancelled status-change, or for finalizing on a non-PASS verdict",
     )
-    add.add_argument("--resolves", type=int, help="seq of the blocker this entry resolves")
+    add.add_argument(
+        "--resolves",
+        type=int,
+        help="seq of the open verification or blocker this entry closes "
+        "(same kind only)",
+    )
     add.add_argument("--data", action="append", metavar="KEY=VALUE")
     add.set_defaults(func=cmd_add)
 

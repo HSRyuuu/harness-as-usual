@@ -130,7 +130,15 @@ def cmd_add(args: argparse.Namespace) -> int:
         next_action=args.next_action or "",
     )
     check_not_closed(events, args.kind, data)
-    check_kind_payload(work_dir, events, unit=unit, kind=args.kind, data=data)
+    check_kind_payload(
+        work_dir,
+        events,
+        unit=unit,
+        kind=args.kind,
+        actor=args.actor,
+        status=args.status,
+        data=data,
+    )
 
     entry = build_entry(
         events,

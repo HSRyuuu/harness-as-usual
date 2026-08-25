@@ -70,8 +70,11 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --phase write-plan --data findings=<n>
 ```
 
-The record helper refuses execution approval when no review entry exists, so
-skipping this blocks the work rather than speeding it up.
+`--phase write-plan` is what makes this the review core rule 7 asks for; a
+review recorded under any other phase, or with `--status error`, does not clear
+the gate. The helper refuses execution approval without `plan.md` on disk and
+such a review newer than the previous approval, so skipping this blocks the work
+rather than speeding it up.
 
 Do not add a review status section to `plan.md`. The event is the record.
 

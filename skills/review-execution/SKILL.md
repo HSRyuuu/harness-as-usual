@@ -33,6 +33,14 @@ execution summary is a claim about the diff, not the diff.
 check and what counts as a reportable finding. Use it when dispatching a
 separate reviewer; the reviewer reports, and recording stays here.
 
+Fill `{SAFETY_RULES_PATH}` with the installed plugin's own
+`as-usual-rules/safety-rules.md` — resolve `<plugin-root>` the same way the
+record commands do and pass the resolved absolute path, not a repo-relative one.
+The reviewer reads the gate from the authority instead of from a copy that
+drifts. If it returns `blocked` because that file was unreadable, treat the
+safety half of the review as not done: fix the path and re-run it, or record
+that the coverage was reduced and why. A `blocked` reviewer is not a clean one.
+
 **The implementer does not clear their own work.** When the host supports it,
 run the review as a separate agent or subagent, giving it the artifacts, the
 diff, and the recorded evidence — not the conversation. When reviewing inline,

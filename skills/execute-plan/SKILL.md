@@ -58,7 +58,8 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
 ```
 
 Without `--resolves`, the gap stays open and `finalize` will refuse
-(`core-rules.md` §6).
+(`core-rules.md` §6). It names one earlier verification that is still open — a
+gap already closed once, or an entry of another kind, is refused.
 
 **High-risk operations** need fresh approval immediately before they run, even
 though the plan describes them (`safety-rules.md`):

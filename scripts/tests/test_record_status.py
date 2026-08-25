@@ -89,7 +89,46 @@ def test_open_blockers_are_listed_until_resolved(make_unit, run):
         "--resolves",
         "2",
     )
-    assert derive_status(work_dir)["blockers"] == []
+    blockers = derive_status(work_dir)["blockers"]
+    assert [entry["seq"] for entry in blockers] == [3]
+
+
+def test_a_resolving_blocker_is_itself_open(make_unit, run):
+    """"A is cleared but B now blocks us" is one event, and B still has to show.
+
+    Filtering out every entry that carries --resolves used to swallow B, so a
+    unit could report zero blockers while it was in fact stuck.
+    """
+    work_dir = make_unit("topic")
+    run("add", "--dir", str(work_dir), "--kind", "blocker", "--summary", "missing API key")
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "blocker",
+        "--summary",
+        "key provided, but the sandbox account is suspended",
+        "--resolves",
+        "2",
+    )
+
+    blockers = derive_status(work_dir)["blockers"]
+    assert len(blockers) == 1
+    assert "sandbox account is suspended" in blockers[0]["summary"]
+
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "blocker",
+        "--summary",
+        "account restored",
+        "--resolves",
+        "3",
+    )
+    assert [entry["seq"] for entry in derive_status(work_dir)["blockers"]] == [4]
 
 
 def test_status_lists_approvals_and_confirmations(make_unit, run):
@@ -141,6 +180,7 @@ def test_move_allowed_flips_once_output_exists(make_unit):
 
 def test_state_reflects_closure(make_unit, run):
     work_dir = make_unit("topic")
+    (work_dir / "verification.md").write_text("# Verification\n", encoding="utf-8")
     run(
         "add",
         "--dir",
@@ -198,6 +238,7 @@ def test_validate_catches_hand_edited_duplicate_seq(make_unit):
 
 def test_validate_catches_an_append_after_closure(make_unit, run):
     work_dir = make_unit("topic")
+    (work_dir / "verification.md").write_text("# Verification\n", encoding="utf-8")
     run(
         "add",
         "--dir",

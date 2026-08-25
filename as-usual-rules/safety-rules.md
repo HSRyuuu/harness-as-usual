@@ -89,6 +89,7 @@ ask the user.
 
 An `issue` never modifies production code. Reading code, running the app, and
 analyzing logs are free. Writing a reproduction test or script needs an explicit
-user request or approval, recorded with `--kind approval --action execution`.
+user request or approval, recorded with
+`--kind approval --action execution --actor user`.
 When the user wants the fix implemented, propose a follow-up `topic` or
 `direct-work` unit and link it.

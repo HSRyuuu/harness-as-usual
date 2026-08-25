@@ -57,12 +57,27 @@ Kind-specific flags:
 
 | Kind | Required | Flags |
 | --- | --- | --- |
-| `lifecycle` | `--event` | `created` · `unit-selected` · `finalized` · `cancelled` · `linked`. `--event finalized` also takes `--reason` when a verification is still open (`core-rules.md` §6) |
+| `lifecycle` | `--event` | `created` · `unit-selected` · `finalized` · `cancelled` · `linked`. `--event finalized` also takes `--reason` when a verification is still open, and that door is the user's: `--actor user --status success` (`core-rules.md` §6) |
 | `verification` | `--verdict` | `PASS` · `FAIL` · `INCONCLUSIVE`. `--resolves <seq>` marks an earlier `INCONCLUSIVE` or `FAIL` verification re-verified |
-| `approval` | `--action` | `high-risk` · `execution` · `git-action` |
+| `approval` | `--action` | `high-risk` · `execution` · `git-action`, each with `--actor user --status success` |
 | `status-change` | `--target <seq>`, `--to` | `--to confirmed` needs `--evidence`; `--to cancelled` needs `--reason` |
-| `blocker` | — | `--resolves <seq>` marks an earlier blocker resolved |
+| `blocker` | — | `--resolves <seq>` marks an earlier, still-open blocker resolved |
 | others | — | free-form `--summary`, extra fields via `--data` |
+
+`--resolves` belongs to `verification` and `blocker` only, and closes one entry
+of its own kind that is still open: a verification resolves a verification, a
+blocker resolves a blocker, and neither may close a target something else
+already closed. Every other kind is refused — record what an entry relates to in
+`--summary` or `--data`. A blocker that resolves another is itself open until
+something resolves it in turn, so "A is cleared but B now blocks us" stays
+visible in `status`.
+
+The script refuses rather than warns, and each message names the rule it is
+enforcing and how to satisfy it; read the refusal rather than guessing at the
+flag. One recovery it cannot state as a flag: `record is finalized … only
+lifecycle link entries may be appended` means the unit is closed, so the work
+continues in a new unit linked to it (`core-rules.md` §7), never by reopening
+this one.
 
 Examples:
 
@@ -73,11 +88,13 @@ add --dir <d> --kind decision --summary "retries settled on exponential backoff"
     --phase gathering-context --next-action write-requirements
 
 # the pre-approval plan review that core rule 7 requires
+# --phase write-plan --status success: only this shape clears the approval gate
 add --dir <d> --kind review --summary "plan review: 2 findings, both fixed" \
     --phase write-plan --data findings=2
 
-# execution approval (refused unless a review entry already exists)
-# --actor user: the approval belongs to whoever gave it, not to the recorder
+# execution approval (refused without plan.md and a newer successful plan review)
+# --actor user: the approval belongs to whoever gave it, not to the recorder,
+# and every approval action is refused without it
 add --dir <d> --kind approval --action execution --actor user \
     --summary "<what the user approved>"
 
@@ -91,6 +108,10 @@ add --dir <d> --kind status-change --target 2 --to confirmed \
 
 # closing
 add --dir <d> --kind lifecycle --event finalized --summary "closed" --next-action none
+
+# closing over a verification the user accepted as still open
+add --dir <d> --kind lifecycle --event finalized --actor user \
+    --reason "<why this is being closed anyway>" --summary "closed" --next-action none
 ```
 
 ## move
@@ -149,22 +170,3 @@ backwards.
 ```bash
 as-usual-record.py validate --dir <work-dir>
 ```
-
-## Refusals
-
-The script refuses rather than warns. Each message names the rule:
-
-| Refusal | Fix |
-| --- | --- |
-| `verification requires --verdict` | record `INCONCLUSIVE` if evidence is unobtainable |
-| `confirming requires --evidence` | attach reproduction evidence, or an explicit "could not reproduce because …" |
-| `the plan must be critically reviewed before execution approval` | run the review, record it, then approve. On a second approval the review must be newer than the previous one |
-| `cannot finalize without a recorded verification` | record the verification (`INCONCLUSIVE` when evidence is unobtainable), or close with `--event cancelled` |
-| `cannot finalize with unresolved verifications (seq …)` | re-verify and record the passing run with `--resolves <seq>`, accept them with `--reason "<why>"`, or close with `--event cancelled` |
-| `invalid --resolves target` | point it at an earlier `verification` whose verdict was `INCONCLUSIVE` or `FAIL` |
-| `cannot init … it already holds …` | use a different slug, `move` to relabel the folder, or delete it if it was a mistake |
-| `issue cannot be finalized without conclusion.md` | write the conclusion, or close with `--event cancelled` |
-| `issue cannot be finalized without a confirmed entry` | confirm what the conclusion rests on, or close with `--event cancelled` |
-| `record is finalized … only lifecycle link entries may be appended` | the work is closed; start a new unit |
-| `cannot move … it already produced …` | create a new folder for the other unit and `link` |
-| `phase X is not used by unit Y` | use a phase from that unit's pipeline |

@@ -52,8 +52,10 @@ Confirm the record could carry a fresh session that has none of this context:
 - what was done,
 - verification: `verification.md` where the unit keeps one, otherwise the exact
   commands and their outcomes, or what was skipped and why. Any `INCONCLUSIVE` or
-  `FAIL` still open has to be re-verified with `--resolves` or accepted with a
-  `--reason` on the close — the helper refuses otherwise (`core-rules.md` §6),
+  `FAIL` still open has to be re-verified with `--resolves` or accepted by the
+  user with `--actor user --reason` on the close — the helper refuses otherwise
+  (`core-rules.md` §6). A `topic` also needs `verification.md` on disk before it
+  can close at all,
 - review findings and their dispositions,
 - decisions and constraints that still bind,
 - remaining issues, or explicitly none.
@@ -91,7 +93,10 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --summary "<outcome in one line>" --phase finalize --next-action none
 ```
 
-Use `--event cancelled` with the reason for an abandoned unit.
+Use `--event cancelled` with the reason for an abandoned unit. Closing over a
+verification the user accepted as still open adds `--actor user --reason "<why>"`.
+An `inbox` folder has no completion to declare: `move` it into a unit first, or
+cancel it.
 
 State the outcome plainly. If the work ended blocked or with issues outstanding,
 say that — a sealed record that overstates what happened is worse than no record.

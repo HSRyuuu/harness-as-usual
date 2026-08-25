@@ -69,16 +69,50 @@ exercises the CLI as a skill would call it:
 D=$(mktemp -d)/.as-usual/topic/2026-01-01-smoke
 R="python3 $PWD/scripts/as-usual-record.py"
 $R init --dir "$D" --unit topic --request "smoke" --actor claude
-$R add --dir "$D" --kind approval --summary "no review yet" --action execution   # expect: refused
-$R add --dir "$D" --kind review --summary "reviewed" --data findings=0
-$R add --dir "$D" --kind approval --summary "approved" --action execution        # expect: accepted
-$R add --dir "$D" --kind verification --summary "no verdict"                     # expect: refused
+
+# rule 7: the plan file and the plan review, each refused for its own reason
+$R add --dir "$D" --kind review --summary "reviewed" --phase write-plan --data findings=0
+$R add --dir "$D" --kind approval --summary "approved" --action execution \
+   --actor user                                     # expect: refused, names plan.md
+printf '# Plan\n' > "$D/plan.md"
+$R add --dir "$D" --kind approval --summary "recorder approved" --action execution
+                                                    # expect: refused, wants --actor user
+$R add --dir "$D" --kind approval --summary "approved" --action execution \
+   --actor user                                     # expect: accepted
+
+# a review of the wrong phase does not pay for the next approval
+$R add --dir "$D" --kind review --summary "post-execution" --phase review-execution
+$R add --dir "$D" --kind approval --summary "approved again" --action execution \
+   --actor user                                     # expect: refused, names the reviews
+
+$R add --dir "$D" --kind verification --summary "no verdict"             # expect: refused
+$R add --dir "$D" --kind verification --summary "pytest -q: ok" --verdict PASS
+$R add --dir "$D" --kind note --summary "unrelated" --resolves 2         # expect: refused, wrong kind
+
+# a topic closes only with verification.md on disk
+$R add --dir "$D" --kind lifecycle --event finalized --summary "closed"   # expect: refused, names verification.md
+printf '# Verification\n' > "$D/verification.md"
 $R status --dir "$D" --json
+$R add --dir "$D" --kind lifecycle --event finalized --summary "closed"   # expect: accepted
 $R validate --dir "$D"
 ```
 
-Expected: the two marked calls exit 2 with a message naming the rule; the rest
-exit 0; `validate` reports valid.
+Expected: every call marked refused exits 2 with a message naming its own rule —
+the missing `plan.md`, the missing `--actor user`, the reviews that were not
+successful `write-plan` reviews, the missing verdict, `--resolves` on a kind that
+closes nothing, and the missing `verification.md`. The rest exit 0, `status`
+shows `artifacts` growing as the files appear, and `validate` reports valid.
+
+Then the two closures the script refuses outright:
+
+```bash
+I=$(mktemp -d)/.as-usual/inbox/2026-01-01-smoke
+$R init --dir "$I" --unit inbox --request "smoke" --actor claude
+$R add --dir "$I" --kind lifecycle --event finalized --summary "closed"   # expect: refused
+$R add --dir "$I" --kind lifecycle --event cancelled --summary "dropped"  # expect: accepted
+```
+
+Expected: an `inbox` cannot be finalized at all, and cancelling it works.
 
 ## 4. Deleted surfaces
 

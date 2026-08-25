@@ -9,7 +9,13 @@ from __future__ import annotations
 from pathlib import Path
 
 from .constants import CLOSING_LIFECYCLE_EVENTS, MOVE_BLOCKING_FILES, JsonObject
-from .records import current_unit, latest_of_kind, open_verifications, read_events
+from .records import (
+    current_unit,
+    latest_of_kind,
+    open_blockers,
+    open_verifications,
+    read_events,
+)
 
 
 TRACKED_ARTIFACTS = MOVE_BLOCKING_FILES + (
@@ -76,20 +82,7 @@ def _summarize(entry: JsonObject) -> JsonObject:
 
 
 def _open_blockers(events: list[JsonObject]) -> list[JsonObject]:
-    resolved: set[int] = set()
-    for entry in events:
-        if entry.get("kind") != "blocker":
-            continue
-        target = entry.get("data", {}).get("resolves")
-        if isinstance(target, int) and not isinstance(target, bool):
-            resolved.add(target)
-    return [
-        _summarize(entry)
-        for entry in events
-        if entry.get("kind") == "blocker"
-        and entry.get("seq") not in resolved
-        and not entry.get("data", {}).get("resolves")
-    ]
+    return [_summarize(entry) for entry in open_blockers(events)]
 
 
 def _approvals(events: list[JsonObject]) -> list[JsonObject]:

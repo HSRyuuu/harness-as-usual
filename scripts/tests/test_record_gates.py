@@ -8,6 +8,92 @@ from __future__ import annotations
 import json
 
 
+def _plan(work_dir) -> None:
+    """The execution contract rule 7 reviews. Its content is not the script's business."""
+    (work_dir / "plan.md").write_text("# Plan\n", encoding="utf-8")
+
+
+def _verification_file(work_dir) -> None:
+    (work_dir / "verification.md").write_text("# Verification\n", encoding="utf-8")
+
+
+def _review(
+    work_dir,
+    run,
+    summary: str = "1 finding, fixed",
+    phase: str = "write-plan",
+    status: str = "success",
+) -> int:
+    return run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "review",
+        "--summary",
+        summary,
+        "--phase",
+        phase,
+        "--status",
+        status,
+    )
+
+
+def _approve(
+    work_dir,
+    run,
+    action: str = "execution",
+    actor: str = "user",
+    status: str = "success",
+) -> int:
+    return run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "approval",
+        "--summary",
+        "user said go",
+        "--action",
+        action,
+        "--actor",
+        actor,
+        "--status",
+        status,
+    )
+
+
+def _record_verification(work_dir, run, verdict="PASS"):
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "pytest -q: 12 passed",
+        "--verdict",
+        verdict,
+    )
+
+
+def _finalize(work_dir, run, *extra: str, actor: str = "claude") -> int:
+    return run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "lifecycle",
+        "--summary",
+        "closed",
+        "--event",
+        "finalized",
+        "--actor",
+        actor,
+        *extra,
+    )
+
+
 def test_verification_without_verdict_is_refused(make_unit, run):
     work_dir = make_unit("topic")
     assert (
@@ -169,70 +255,102 @@ def test_status_change_target_must_be_a_reasoning_entry(make_unit, run):
     )
 
 
+# --- Rule 7: the plan review that clears execution approval (R1) ---------------
+
+
 def test_execution_approval_requires_a_prior_plan_review(make_unit, run):
     work_dir = make_unit("topic")
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "approval",
-            "--summary",
-            "user said go",
-            "--action",
-            "execution",
-        )
-        == 2
-    )
+    _plan(work_dir)
+
+    assert _approve(work_dir, run) == 2
 
 
-def test_execution_approval_passes_after_a_review(make_unit, run):
+def test_execution_approval_passes_after_a_plan_review(make_unit, run):
     work_dir = make_unit("topic")
-    run(
-        "add",
-        "--dir",
-        str(work_dir),
-        "--kind",
-        "review",
-        "--summary",
-        "2 findings, both fixed",
-        "--data",
-        "findings=2",
-    )
+    _plan(work_dir)
+    _review(work_dir, run, summary="2 findings, both fixed")
 
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "approval",
-            "--summary",
-            "user said go",
-            "--action",
-            "execution",
-        )
-        == 0
-    )
+    assert _approve(work_dir, run) == 0
 
 
-def _review(work_dir, run, summary="1 finding, fixed") -> int:
-    return run("add", "--dir", str(work_dir), "--kind", "review", "--summary", summary)
+def test_execution_approval_is_refused_without_a_plan_file(make_unit, run, capsys):
+    """Rule 7 has two halves the script can see, and this is the first one.
+
+    A review with nothing on disk to review is a claim, not a contract.
+    """
+    work_dir = make_unit("topic")
+    _review(work_dir, run)
+    capsys.readouterr()
+
+    assert _approve(work_dir, run) == 2
+    assert "plan.md" in capsys.readouterr().err
 
 
-def _approve(work_dir, run, action="execution") -> int:
-    return run(
-        "add",
-        "--dir",
-        str(work_dir),
-        "--kind",
-        "approval",
-        "--summary",
-        "user said go",
-        "--action",
-        action,
-    )
+def test_the_missing_plan_and_missing_review_refusals_are_distinct(make_unit, run, capsys):
+    work_dir = make_unit("topic")
+    capsys.readouterr()
+    _approve(work_dir, run)
+    without_plan = capsys.readouterr().err
+
+    _plan(work_dir)
+    _approve(work_dir, run)
+    without_review = capsys.readouterr().err
+
+    assert "plan.md" in without_plan
+    assert "no review is recorded" in without_review
+    assert without_plan != without_review
+
+
+def test_a_review_execution_review_does_not_clear_the_plan_review_gate(make_unit, run, capsys):
+    """The review that satisfies rule 7 is the pre-approval one, not any review.
+
+    Reviewing what already shipped, or cleaning up after it, says nothing about
+    whether the plan was worth executing.
+    """
+    work_dir = make_unit("topic")
+    _plan(work_dir)
+    _review(work_dir, run, summary="post-execution findings", phase="review-execution")
+    capsys.readouterr()
+
+    assert _approve(work_dir, run) == 2
+    assert "--phase write-plan" in capsys.readouterr().err
+
+
+def test_a_cleanup_code_review_does_not_clear_the_plan_review_gate(make_unit, run):
+    work_dir = make_unit("topic")
+    _plan(work_dir)
+    _review(work_dir, run, summary="cleanup pass", phase="cleanup-code")
+
+    assert _approve(work_dir, run) == 2
+
+
+def test_a_failed_plan_review_does_not_clear_the_gate(make_unit, run):
+    """A review recorded as an error is a review that did not finish."""
+    work_dir = make_unit("topic")
+    _plan(work_dir)
+    _review(work_dir, run, summary="review aborted", status="error")
+
+    assert _approve(work_dir, run) == 2
+
+
+def test_the_wrong_review_refusal_names_the_reviews_it_saw(make_unit, run, capsys):
+    work_dir = make_unit("topic")
+    _plan(work_dir)
+    _review(work_dir, run, summary="post-execution findings", phase="review-execution")
+    capsys.readouterr()
+
+    _approve(work_dir, run)
+
+    assert "phase=review-execution" in capsys.readouterr().err
+
+
+def test_a_phaseless_review_does_not_clear_the_gate(make_unit, run):
+    """Recorded before the phase was required — it may be any kind of review."""
+    work_dir = make_unit("topic")
+    _plan(work_dir)
+    run("add", "--dir", str(work_dir), "--kind", "review", "--summary", "looked at it")
+
+    assert _approve(work_dir, run) == 2
 
 
 def test_reapproval_is_refused_without_a_newer_review(make_unit, run):
@@ -242,6 +360,7 @@ def test_reapproval_is_refused_without_a_newer_review(make_unit, run):
     thing — look at the plan again — rather than guessing.
     """
     work_dir = make_unit("topic")
+    _plan(work_dir)
     _review(work_dir, run)
     assert _approve(work_dir, run) == 0
 
@@ -255,6 +374,7 @@ def test_reapproval_refusal_names_the_approval_it_is_measured_against(make_unit,
     the refusal says which approval reset the requirement.
     """
     work_dir = make_unit("topic")
+    _plan(work_dir)
     _review(work_dir, run)
     _approve(work_dir, run)
     approval_seq = 3
@@ -265,11 +385,12 @@ def test_reapproval_refusal_names_the_approval_it_is_measured_against(make_unit,
     assert f"seq {approval_seq}" in capsys.readouterr().err
 
 
-def test_reapproval_survives_a_hand_edited_approval_seq(make_unit, run):
-    """A corrupted seq is a refusal, not a TypeError."""
+def test_reapproval_survives_a_hand_edited_approval_seq(make_unit, run, capsys):
+    """A corrupted seq is a refusal that says so, not a TypeError."""
     work_dir = make_unit("topic")
+    _plan(work_dir)
     _review(work_dir, run)
-    _approve(work_dir, run)
+    assert _approve(work_dir, run) == 0
 
     path = work_dir / "audit.jsonl"
     lines = path.read_text(encoding="utf-8").splitlines()
@@ -277,16 +398,40 @@ def test_reapproval_survives_a_hand_edited_approval_seq(make_unit, run):
     broken["seq"] = "three"
     lines[-1] = json.dumps(broken)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    capsys.readouterr()
 
     assert _approve(work_dir, run) == 2
+    assert "hand-edited" in capsys.readouterr().err
 
 
 def test_reapproval_passes_with_a_review_after_the_last_approval(make_unit, run):
     work_dir = make_unit("topic")
+    _plan(work_dir)
     _review(work_dir, run)
     _approve(work_dir, run)
 
     _review(work_dir, run, summary="re-checked after the plan changed")
+    assert _approve(work_dir, run) == 0
+
+
+def test_direct_work_also_needs_the_plan_review(make_unit, run):
+    work_dir = make_unit("direct-work")
+    _plan(work_dir)
+
+    assert _approve(work_dir, run) == 2
+
+
+def test_direct_work_execution_approval_passes_the_same_way(make_unit, run):
+    work_dir = make_unit("direct-work")
+    _plan(work_dir)
+    _review(work_dir, run, summary="checklist re-read")
+
+    assert _approve(work_dir, run) == 0
+
+
+def test_issue_execution_approval_is_not_gated_on_a_plan_review(make_unit, run):
+    work_dir = make_unit("issue")
+
     assert _approve(work_dir, run) == 0
 
 
@@ -296,8 +441,63 @@ def test_high_risk_approval_is_not_gated_on_a_review(make_unit, run):
     assert _approve(work_dir, run, action="high-risk") == 0
 
 
-def test_direct_work_also_needs_the_plan_review(make_unit, run):
-    work_dir = make_unit("direct-work")
+def test_git_action_approval_is_not_gated_on_a_review(make_unit, run):
+    work_dir = make_unit("topic")
+
+    assert _approve(work_dir, run, action="git-action") == 0
+
+
+# --- Rule 2/4: an approval is the user's decision (R2) -------------------------
+
+
+def test_every_approval_action_is_refused_without_actor_user(make_unit, run):
+    for action in ("execution", "high-risk", "git-action"):
+        for actor in ("claude", "codex", "system"):
+            work_dir = make_unit("topic", slug=f"2026-07-25-{action}-{actor}")
+            _plan(work_dir)
+            _review(work_dir, run)
+
+            assert _approve(work_dir, run, action=action, actor=actor) == 2, (action, actor)
+
+
+def test_every_approval_action_is_refused_on_a_non_success_status(make_unit, run):
+    for action in ("execution", "high-risk", "git-action"):
+        for status in ("error", "warning"):
+            work_dir = make_unit("topic", slug=f"2026-07-25-{action}-{status}")
+            _plan(work_dir)
+            _review(work_dir, run)
+
+            assert _approve(work_dir, run, action=action, status=status) == 2, (action, status)
+
+
+def test_every_approval_action_passes_as_a_successful_user_decision(make_unit, run):
+    for action in ("execution", "high-risk", "git-action"):
+        work_dir = make_unit("topic", slug=f"2026-07-25-{action}-ok")
+        _plan(work_dir)
+        _review(work_dir, run)
+
+        assert _approve(work_dir, run, action=action) == 0, action
+
+
+def test_the_actor_refusal_says_what_to_record_instead(make_unit, run, capsys):
+    work_dir = make_unit("topic")
+    _plan(work_dir)
+    _review(work_dir, run)
+    capsys.readouterr()
+
+    _approve(work_dir, run, actor="claude")
+
+    message = capsys.readouterr().err
+    assert "--actor user" in message
+    assert "--actor claude" in message
+
+
+def test_the_default_actor_no_longer_clears_an_approval(make_unit, run):
+    """The hole this closes: a whole record with no user event in it at all."""
+    work_dir = make_unit("topic")
+    _plan(work_dir)
+    _review(work_dir, run)
+
     assert (
         run(
             "add",
@@ -314,58 +514,13 @@ def test_direct_work_also_needs_the_plan_review(make_unit, run):
     )
 
 
-def test_issue_execution_approval_is_not_gated_on_a_plan_review(make_unit, run):
-    work_dir = make_unit("issue")
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "approval",
-            "--summary",
-            "user approved a reproduction script",
-            "--action",
-            "execution",
-        )
-        == 0
-    )
-
-
-def test_high_risk_approval_needs_no_review(make_unit, run):
-    work_dir = make_unit("topic")
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "approval",
-            "--summary",
-            "user approved deleting build/",
-            "--action",
-            "high-risk",
-        )
-        == 0
-    )
+# --- Rule 3: closing a unit (R3, R5) -------------------------------------------
 
 
 def test_issue_cannot_finalize_without_a_conclusion(make_unit, run):
     work_dir = make_unit("issue")
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "lifecycle",
-            "--summary",
-            "done",
-            "--event",
-            "finalized",
-        )
-        == 2
-    )
+
+    assert _finalize(work_dir, run) == 2
 
 
 def test_issue_cannot_finalize_without_a_confirmed_entry(make_unit, run):
@@ -373,20 +528,7 @@ def test_issue_cannot_finalize_without_a_confirmed_entry(make_unit, run):
     (work_dir / "conclusion.md").write_text("# Conclusion\n", encoding="utf-8")
     run("add", "--dir", str(work_dir), "--kind", "hypothesis", "--summary", "cache staleness")
 
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "lifecycle",
-            "--summary",
-            "done",
-            "--event",
-            "finalized",
-        )
-        == 2
-    )
+    assert _finalize(work_dir, run) == 2
 
 
 def test_issue_finalizes_once_the_conclusion_rests_on_a_confirmed_entry(make_unit, run):
@@ -409,20 +551,7 @@ def test_issue_finalizes_once_the_conclusion_rests_on_a_confirmed_entry(make_uni
         "reproduced with a cold cache",
     )
 
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "lifecycle",
-            "--summary",
-            "done",
-            "--event",
-            "finalized",
-        )
-        == 0
-    )
+    assert _finalize(work_dir, run) == 0
 
 
 def test_issue_may_be_cancelled_without_a_conclusion(make_unit, run):
@@ -443,21 +572,78 @@ def test_issue_may_be_cancelled_without_a_conclusion(make_unit, run):
     )
 
 
-def _record_verification(work_dir, run, verdict="PASS"):
-    run(
-        "add",
-        "--dir",
-        str(work_dir),
-        "--kind",
-        "verification",
-        "--summary",
-        "pytest -q: 12 passed",
-        "--verdict",
-        verdict,
+def test_inbox_cannot_be_finalized(make_unit, run, capsys):
+    """An unclassified folder has no completion to declare."""
+    work_dir = make_unit("inbox")
+    capsys.readouterr()
+
+    assert _finalize(work_dir, run) == 2
+    assert "inbox cannot be finalized" in capsys.readouterr().err
+
+
+def test_inbox_finalize_is_refused_even_with_a_reason(make_unit, run):
+    work_dir = make_unit("inbox")
+
+    assert _finalize(work_dir, run, "--reason", "not going anywhere", actor="user") == 2
+
+
+def test_inbox_may_be_cancelled(make_unit, run):
+    work_dir = make_unit("inbox")
+    assert (
+        run(
+            "add",
+            "--dir",
+            str(work_dir),
+            "--kind",
+            "lifecycle",
+            "--summary",
+            "user dropped it before classifying",
+            "--event",
+            "cancelled",
+        )
+        == 0
     )
 
 
 def test_topic_cannot_finalize_without_a_verification(make_unit, run):
+    work_dir = make_unit("topic")
+    _verification_file(work_dir)
+
+    assert _finalize(work_dir, run) == 2
+
+
+def test_direct_work_cannot_finalize_without_a_verification(make_unit, run):
+    work_dir = make_unit("direct-work")
+
+    assert _finalize(work_dir, run) == 2
+
+
+def test_topic_cannot_finalize_without_a_verification_file(make_unit, run, capsys):
+    """The record names the evidence; the document is where a later session reads it."""
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run)
+    capsys.readouterr()
+
+    assert _finalize(work_dir, run) == 2
+    assert "verification.md" in capsys.readouterr().err
+
+
+def test_topic_finalizes_once_the_verification_file_exists(make_unit, run):
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run)
+    _verification_file(work_dir)
+
+    assert _finalize(work_dir, run) == 0
+
+
+def test_direct_work_does_not_need_a_verification_file(make_unit, run):
+    work_dir = make_unit("direct-work")
+    _record_verification(work_dir, run)
+
+    assert _finalize(work_dir, run) == 0
+
+
+def test_a_cancelled_topic_needs_no_verification_file(make_unit, run):
     work_dir = make_unit("topic")
     assert (
         run(
@@ -467,45 +653,20 @@ def test_topic_cannot_finalize_without_a_verification(make_unit, run):
             "--kind",
             "lifecycle",
             "--summary",
-            "closed",
+            "user dropped it",
             "--event",
-            "finalized",
+            "cancelled",
         )
-        == 2
+        == 0
     )
 
 
-def test_direct_work_cannot_finalize_without_a_verification(make_unit, run):
-    work_dir = make_unit("direct-work")
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "lifecycle",
-            "--summary",
-            "closed",
-            "--event",
-            "finalized",
-        )
-        == 2
-    )
+def test_a_verification_directory_does_not_satisfy_the_file_gate(make_unit, run):
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run)
+    (work_dir / "verification.md").mkdir()
 
-
-def _finalize(work_dir, run, *reason: str) -> int:
-    return run(
-        "add",
-        "--dir",
-        str(work_dir),
-        "--kind",
-        "lifecycle",
-        "--summary",
-        "closed",
-        "--event",
-        "finalized",
-        *reason,
-    )
+    assert _finalize(work_dir, run) == 2
 
 
 def test_inconclusive_verification_finalizes_only_with_a_reason(make_unit, run):
@@ -519,11 +680,58 @@ def test_inconclusive_verification_finalizes_only_with_a_reason(make_unit, run):
     _record_verification(work_dir, run, verdict="INCONCLUSIVE")
 
     assert _finalize(work_dir, run) == 2
-    assert _finalize(work_dir, run, "--reason", "no UI available to screenshot") == 0
+    assert (
+        _finalize(work_dir, run, "--reason", "no UI available to screenshot", actor="user") == 0
+    )
+
+
+def test_finalizing_with_a_reason_is_the_users_call(make_unit, run, capsys):
+    """Accepting a known gap is a decision, so the agent may not sign it alone."""
+    work_dir = make_unit("direct-work")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+    capsys.readouterr()
+
+    assert _finalize(work_dir, run, "--reason", "shipping anyway") == 2
+    assert "--actor user" in capsys.readouterr().err
+
+
+def test_finalizing_with_a_reason_is_refused_on_a_non_success_status(make_unit, run):
+    work_dir = make_unit("direct-work")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+
+    assert (
+        run(
+            "add",
+            "--dir",
+            str(work_dir),
+            "--kind",
+            "lifecycle",
+            "--summary",
+            "closed",
+            "--event",
+            "finalized",
+            "--actor",
+            "user",
+            "--status",
+            "warning",
+            "--reason",
+            "shipping anyway",
+        )
+        == 2
+    )
+
+
+def test_a_clean_finalize_needs_no_user_actor(make_unit, run):
+    """Only the door over an open gap is the user's; closing clean is not."""
+    work_dir = make_unit("direct-work")
+    _record_verification(work_dir, run, verdict="PASS")
+
+    assert _finalize(work_dir, run) == 0
 
 
 def test_finalize_is_refused_on_a_failing_verdict(make_unit, run):
     work_dir = make_unit("topic")
+    _verification_file(work_dir)
     _record_verification(work_dir, run, verdict="FAIL")
 
     assert _finalize(work_dir, run) == 2
@@ -531,14 +739,19 @@ def test_finalize_is_refused_on_a_failing_verdict(make_unit, run):
 
 def test_finalize_on_a_failing_verdict_passes_with_a_reason(make_unit, run, events):
     work_dir = make_unit("topic")
+    _verification_file(work_dir)
     _record_verification(work_dir, run, verdict="FAIL")
 
-    assert _finalize(work_dir, run, "--reason", "shipping the partial fix on purpose") == 0
+    assert (
+        _finalize(work_dir, run, "--reason", "shipping the partial fix on purpose", actor="user")
+        == 0
+    )
     assert events(work_dir)[-1]["data"]["reason"] == "shipping the partial fix on purpose"
 
 
 def test_an_unresolved_failure_is_not_cancelled_out_by_an_earlier_pass(make_unit, run):
     work_dir = make_unit("topic")
+    _verification_file(work_dir)
     _record_verification(work_dir, run, verdict="PASS")
     _record_verification(work_dir, run, verdict="FAIL")
 
@@ -553,6 +766,7 @@ def test_an_earlier_gap_is_not_buried_by_a_later_pass(make_unit, run, events):
     with nothing recorded about the gap.
     """
     work_dir = make_unit("topic")
+    _verification_file(work_dir)
     _record_verification(work_dir, run, verdict="INCONCLUSIVE")
     _record_verification(work_dir, run, verdict="PASS")
 
@@ -561,6 +775,7 @@ def test_an_earlier_gap_is_not_buried_by_a_later_pass(make_unit, run, events):
 
 def test_a_later_pass_resolves_the_gap_when_it_names_the_seq(make_unit, run, events):
     work_dir = make_unit("topic")
+    _verification_file(work_dir)
     _record_verification(work_dir, run, verdict="INCONCLUSIVE")
     gap = events(work_dir)[-1]["seq"]
     run(
@@ -582,14 +797,16 @@ def test_a_later_pass_resolves_the_gap_when_it_names_the_seq(make_unit, run, eve
 
 def test_unresolved_verifications_finalize_with_a_reason(make_unit, run):
     work_dir = make_unit("topic")
+    _verification_file(work_dir)
     _record_verification(work_dir, run, verdict="INCONCLUSIVE")
     _record_verification(work_dir, run, verdict="PASS")
 
-    assert _finalize(work_dir, run, "--reason", "test data never arrived") == 0
+    assert _finalize(work_dir, run, "--reason", "test data never arrived", actor="user") == 0
 
 
 def test_the_refusal_names_every_unresolved_seq(make_unit, run, capsys):
     work_dir = make_unit("topic")
+    _verification_file(work_dir)
     _record_verification(work_dir, run, verdict="INCONCLUSIVE")
     _record_verification(work_dir, run, verdict="FAIL")
 
@@ -602,6 +819,7 @@ def test_the_refusal_names_every_unresolved_seq(make_unit, run, capsys):
 def test_a_resolving_verification_that_itself_failed_stays_open(make_unit, run, events):
     """Resolving one gap by opening another does not clear the gate."""
     work_dir = make_unit("topic")
+    _verification_file(work_dir)
     _record_verification(work_dir, run, verdict="INCONCLUSIVE")
     gap = events(work_dir)[-1]["seq"]
     run(
@@ -621,6 +839,61 @@ def test_a_resolving_verification_that_itself_failed_stays_open(make_unit, run, 
     assert _finalize(work_dir, run) == 2
 
 
+def test_finalize_without_any_verification_ignores_reason(make_unit, run):
+    """No evidence and bad evidence are different failures.
+
+    `--reason` accepts a verdict the user has seen. It must not stand in for a
+    verification that was never run.
+    """
+    work_dir = make_unit("topic")
+    _verification_file(work_dir)
+
+    assert _finalize(work_dir, run, "--reason", "trust me", actor="user") == 2
+
+
+def test_finalize_still_passes_on_a_passing_verdict(make_unit, run):
+    work_dir = make_unit("direct-work")
+    _record_verification(work_dir, run, verdict="PASS")
+
+    assert _finalize(work_dir, run) == 0
+
+
+def test_unverified_topic_may_still_be_cancelled(make_unit, run):
+    work_dir = make_unit("topic")
+    assert (
+        run(
+            "add",
+            "--dir",
+            str(work_dir),
+            "--kind",
+            "lifecycle",
+            "--summary",
+            "user dropped it",
+            "--event",
+            "cancelled",
+        )
+        == 0
+    )
+
+
+def test_topic_finalize_needs_no_conclusion_file(make_unit, run):
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run)
+    _verification_file(work_dir)
+
+    assert _finalize(work_dir, run) == 0
+
+
+def test_lifecycle_requires_a_known_event(make_unit, run):
+    work_dir = make_unit("topic")
+    assert (
+        run("add", "--dir", str(work_dir), "--kind", "lifecycle", "--summary", "s") == 2
+    )
+
+
+# --- --resolves closes one open entry of the same kind (R4) --------------------
+
+
 def _resolving_verification(work_dir, run, target: int, verdict: str = "PASS") -> int:
     return run(
         "add",
@@ -634,6 +907,12 @@ def _resolving_verification(work_dir, run, target: int, verdict: str = "PASS") -
         verdict,
         "--resolves",
         str(target),
+    )
+
+
+def _blocker(work_dir, run, summary: str = "blocked on the vendor", *extra: str) -> int:
+    return run(
+        "add", "--dir", str(work_dir), "--kind", "blocker", "--summary", summary, *extra
     )
 
 
@@ -670,64 +949,108 @@ def test_resolves_refuses_its_own_or_a_later_seq(make_unit, run, events):
     assert _resolving_verification(work_dir, run, own + 5) == 2
 
 
-def test_finalize_without_any_verification_ignores_reason(make_unit, run):
-    """No evidence and bad evidence are different failures.
-
-    `--reason` accepts a verdict the user has seen. It must not stand in for a
-    verification that was never run.
-    """
+def test_resolves_is_refused_on_kinds_that_have_nothing_to_close(make_unit, run, events):
     work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+    gap = events(work_dir)[-1]["seq"]
 
-    assert _finalize(work_dir, run, "--reason", "trust me") == 2
+    for kind in ("note", "work", "review", "decision", "hypothesis"):
+        assert (
+            run(
+                "add",
+                "--dir",
+                str(work_dir),
+                "--kind",
+                kind,
+                "--summary",
+                "unrelated",
+                "--resolves",
+                str(gap),
+            )
+            == 2
+        ), kind
 
 
-def test_finalize_still_passes_on_a_passing_verdict(make_unit, run):
-    work_dir = make_unit("direct-work")
-    _record_verification(work_dir, run, verdict="PASS")
-
-    assert _finalize(work_dir, run) == 0
-
-
-def test_unverified_topic_may_still_be_cancelled(make_unit, run):
+def test_the_wrong_kind_refusal_names_the_two_kinds_that_do(make_unit, run, events, capsys):
     work_dir = make_unit("topic")
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "lifecycle",
-            "--summary",
-            "user dropped it",
-            "--event",
-            "cancelled",
-        )
-        == 0
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+    gap = events(work_dir)[-1]["seq"]
+    capsys.readouterr()
+
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "note",
+        "--summary",
+        "unrelated",
+        "--resolves",
+        str(gap),
     )
 
+    message = capsys.readouterr().err
+    assert "blocker" in message
+    assert "verification" in message
 
-def test_topic_finalize_needs_no_conclusion_file(make_unit, run):
+
+def test_a_verification_may_not_resolve_a_blocker(make_unit, run, events):
     work_dir = make_unit("topic")
-    _record_verification(work_dir, run)
+    _blocker(work_dir, run)
+    blocker = events(work_dir)[-1]["seq"]
 
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "lifecycle",
-            "--summary",
-            "closed",
-            "--event",
-            "finalized",
-        )
-        == 0
-    )
+    assert _resolving_verification(work_dir, run, blocker) == 2
 
 
-def test_lifecycle_requires_a_known_event(make_unit, run):
+def test_a_blocker_may_not_resolve_a_verification(make_unit, run, events):
     work_dir = make_unit("topic")
-    assert (
-        run("add", "--dir", str(work_dir), "--kind", "lifecycle", "--summary", "s") == 2
-    )
+    _record_verification(work_dir, run, verdict="FAIL")
+    failure = events(work_dir)[-1]["seq"]
+
+    assert _blocker(work_dir, run, "cleared", "--resolves", str(failure)) == 2
+
+
+def test_a_blocker_may_not_resolve_a_seq_that_does_not_exist(make_unit, run):
+    work_dir = make_unit("topic")
+
+    assert _blocker(work_dir, run, "cleared", "--resolves", "99") == 2
+
+
+def test_a_blocker_resolves_an_earlier_blocker(make_unit, run, events):
+    work_dir = make_unit("topic")
+    _blocker(work_dir, run, "waiting on the vendor")
+    first = events(work_dir)[-1]["seq"]
+
+    assert _blocker(work_dir, run, "vendor replied", "--resolves", str(first)) == 0
+    assert events(work_dir)[-1]["data"]["resolves"] == first
+
+
+def test_a_blocker_cannot_be_resolved_twice(make_unit, run, events):
+    """Two closes on one blocker would hide whichever gap is still open."""
+    work_dir = make_unit("topic")
+    _blocker(work_dir, run, "waiting on the vendor")
+    first = events(work_dir)[-1]["seq"]
+    _blocker(work_dir, run, "vendor replied", "--resolves", str(first))
+
+    assert _blocker(work_dir, run, "and again", "--resolves", str(first)) == 2
+
+
+def test_a_verification_gap_cannot_be_resolved_twice(make_unit, run, events):
+    work_dir = make_unit("topic")
+    _record_verification(work_dir, run, verdict="INCONCLUSIVE")
+    gap = events(work_dir)[-1]["seq"]
+    _resolving_verification(work_dir, run, gap)
+
+    assert _resolving_verification(work_dir, run, gap) == 2
+
+
+def test_the_double_resolve_refusal_says_it_was_already_resolved(make_unit, run, events, capsys):
+    work_dir = make_unit("topic")
+    _blocker(work_dir, run, "waiting on the vendor")
+    first = events(work_dir)[-1]["seq"]
+    _blocker(work_dir, run, "vendor replied", "--resolves", str(first))
+    capsys.readouterr()
+
+    _blocker(work_dir, run, "and again", "--resolves", str(first))
+
+    assert "already resolved" in capsys.readouterr().err

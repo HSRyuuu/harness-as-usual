@@ -52,7 +52,7 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
 
 **Gather evidence.** Read code, run the app, analyze logs — all free. Writing a
 reproduction test or script needs the user's explicit approval first, recorded
-with `--kind approval --action execution`. Production code is never modified.
+with `--kind approval --action execution --actor user`. Production code is never modified.
 Put log excerpts and run outputs under `evidence/`.
 
 **Confirm or retract.** Never edit a recorded line; append the transition.

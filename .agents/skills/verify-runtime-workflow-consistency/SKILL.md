@@ -60,18 +60,34 @@ Current set:
 - the closed vocabulary and the per-unit phase subsets
 - `--verdict` required on verification, `--evidence` on confirm, `--reason` on cancel
 - a plan review before execution approval, **newer than the previous execution
-  approval** — one review does not license every later approval
+  approval** — one review does not license every later approval — and only a
+  `review` with `--phase write-plan --status success` counts, with `plan.md` on
+  disk. The three refusals are distinct: no plan file, no review at all, and
+  reviews that are not successful plan reviews
+- every approval action — `execution`, `high-risk`, `git-action` — recorded with
+  `--actor user --status success`, and the same for the `--reason` that closes a
+  unit over an open verification. This is a floor, not proof: the docs must say
+  so rather than presenting it as evidence the user decided
 - a recorded verification to finalize a `topic`/`direct-work`, **with no open
   verification left** — an `INCONCLUSIVE` or `FAIL` stays open until a later
   verification names its seq with `--resolves`, and closing with one open needs an
   explicit `--reason`, while a missing verification is refused outright and no
   reason overrides that
-- `--resolves` on a verification points at an earlier verification that actually
-  failed; anything else is refused
+- `verification.md` on disk to finalize a `topic`; `direct-work` and any
+  `cancelled` close are unaffected
+- `--resolves` only on `verification` and `blocker`, closing one still-open entry
+  of its own kind; a target of another kind, a passing verification, a target that
+  something already resolved, and any other kind carrying the flag are refused. A
+  `blocker` that resolves another is itself open in the derived status
 - `conclusion.md` plus at least one confirmed entry to finalize an `issue`
+- an `inbox` never finalizes; `move` and `cancelled` are its only closes
 - sealed records reject non-link appends
 - blocked files reject `move`, and `init` refuses a folder that already holds a
   record artifact
+
+`add` is the only path that tightened. `validate` must stay as permissive as it
+was: a value that was legal when it was written keeps auditing clean, so a gate
+added here that also rejects existing records is a defect.
 
 A rule described as enforced but not implemented is worse than one described as
 discretionary — it teaches the agent to rely on something that will not stop it.
@@ -82,12 +98,18 @@ discretionary — it teaches the agent to rely on something that will not stop i
 but must not restate its conditions. Check especially that the skills do not grow
 their own copies of the high-risk list or the completion criteria.
 
-One exception, and only one: a `*-prompt.md` dispatched to a subagent may restate
-whatever it needs, because the child cannot read the rules files. A reviewer told
-to check that high-risk operations were approved is useless without knowing what
-counts as high-risk. The rule being enforced is single ownership among files the
-*same reader* reads — a subagent is a different reader with no access. Restating
-in a file the controller itself reads is still a violation.
+One narrow exception: a `*-prompt.md` dispatched to a subagent may restate what
+the child genuinely cannot reach, because the rule being enforced is single
+ownership among files the *same reader* reads. Restating in a file the controller
+itself reads is still a violation.
+
+What the child cannot reach is now smaller than it was. `code-reviewer-prompt.md`
+takes `{SAFETY_RULES_PATH}` as a required input and makes the reviewer read the
+authority itself, returning `blocked` when it cannot — so a copy of the high-risk
+list or of the carve-outs in that prompt is a defect, not an exception. Check that
+`review-execution` actually fills the placeholder with a resolved installed path,
+and that the `blocked` verdict has a handler on the caller's side. A prompt that
+demands a file nobody passes is the same failure wearing better prose.
 
 ### 4. Owner matrices are complete and mutually consistent
 
@@ -120,8 +142,10 @@ that one story is told everywhere:
   does about it, is **defined** only in `core-rules.md` §6. `record-commands.md`,
   the skills, and `templates/**` may reference it but must not restate the
   condition. Two definitions is the failure to look for.
-- Refusal messages quoted in `record-commands.md` match what the script actually
-  prints. Run the command and compare the string, rather than trusting the table.
+- `record-commands.md` no longer keeps a table of refusals and their fixes: the
+  script's own messages carry the recovery, so a second copy would drift. Any
+  refusal wording that reappears there must match what the script actually prints
+  — run the command and compare the string.
 - `templates/report.md` §Verification links `verification.md` and states the
   outcome; it does not carry a per-criterion table. Its wording parallels
   §Review, which solved the same problem earlier.
@@ -154,6 +178,14 @@ reference it; none should restate the conditions.
 The trust boundary, the high-risk list, secret handling, and the issue read-only
 default are unchanged in substance. The refactor deliberately loosened the
 judgment layer — verify it did not loosen these.
+
+`core-rules.md` §4 also states three ceilings, and they must stay readable and
+accurate: a `direct-work` that ends without `finalize` records no completion
+transition, so rule 3 is prompt-only there; the script checks that
+`verification.md` exists but never that a `PASS` was earned; and a git action
+chosen after sealing leaves no approval event, so rule 4 rests on the user's
+choice and git history. A gate claimed but absent is the defect this check
+exists to catch — in either direction.
 
 ### 10. Language and artifact conventions hold
 
