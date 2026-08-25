@@ -1,6 +1,6 @@
 ---
 name: using-as-usual
-description: Use when the user mentions AsUsual or .as-usual artifacts, asks to resume work in progress, or asks for development or investigation work that should be recorded. The single entry point — it classifies the work unit and hands off to its owner skill.
+description: Use only when the user asks for AsUsual by name, mentions .as-usual artifacts, or asks to resume work in progress. The single entry point — it classifies the work unit and hands off to its owner skill. Do not use it for an ordinary development or investigation request the user did not route here.
 ---
 
 # Using AsUsual
@@ -26,22 +26,38 @@ separate hand-off procedure.
 
 ## Activation
 
-Treat the request as AsUsual work when any of these holds:
+AsUsual is opt-in. Enter it only when the user asked for it — any of these:
 
 - The user says `as-usual` or `AsUsual`.
 - The user mentions `.as-usual/`, `contexts.md`, `audit.jsonl`, `requirements.md`,
   `plan.md`, `conclusion.md`, or a work folder path.
 - The user asks to resume, continue, or check what is in progress, and a work
   folder exists under `.as-usual/`.
-- The user asks for development work, or for an investigation that should be
-  recorded.
+- The user invokes an owner skill directly (`run-topic`, `run-direct-work`,
+  `run-issue`).
 
-Do not force AsUsual onto a request just because the hook announced it or a
-`.as-usual/` folder exists. When the user invokes an owner skill directly
-(`run-topic`, `run-direct-work`, `run-issue`), that skill takes over and the unit
+Nothing else activates it. A development or investigation request is **not** a
+signal on its own, and neither is the hook announcement or the presence of a
+`.as-usual/` folder. Handle those requests normally.
+
+When the user invokes an owner skill directly, that skill takes over and the unit
 is settled; do not re-classify. **Creating the folder is still this skill's job**
 — an owner skill with nowhere to record routes back here for step 3, then
 continues. Naming the unit skips the choice, never the record.
+
+### Recommending it
+
+When a request the user did not route here would clearly benefit from a record —
+it will reach production, it is hard to undo, or a cause has to be established
+before anything changes — say so in one line and carry on with the work:
+
+```text
+This looks worth recording as an AsUsual `topic`. Say the word and I'll set it up.
+```
+
+One line, once, at the point you notice it. Do not ask a question, do not stop
+work, do not present the four options, and do not raise it again in the same
+session. The user not taking it up is an answer.
 
 ## New Work
 

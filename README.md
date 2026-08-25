@@ -155,6 +155,11 @@ The `SessionStart` hook announces one capability and one entry point in a single
 sentence. It injects no rules or candidate work folders — the entry skill reads
 those from disk when they are actually needed.
 
+**AsUsual is opt-in.** Nothing enters the workflow unless you ask for it — by
+saying `as-usual`, by pointing at `.as-usual/` work, or by asking to resume. An
+ordinary development or investigation request is handled normally; when one looks
+worth recording, the agent says so in one line and keeps working.
+
 ![One door, one classification — SessionStart, using-as-usual, a two-question tree, and four options](docs/images/02-classification.png)
 
 `using-as-usual` classifies with a two-question tree, then presents **all four

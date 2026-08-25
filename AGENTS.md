@@ -121,13 +121,17 @@ Host branches: Claude Code (`CLAUDE_PLUGIN_ROOT` without `COPILOT_CLI`), Codex
 (`PLUGIN_ROOT`), Cursor (`CURSOR_PLUGIN_ROOT`, experimental), otherwise a
 fallback emitting both formats. Officially supported: Claude Code and Codex.
 
-Signals that count as AsUsual work:
+AsUsual is opt-in. Only an explicit ask activates it:
 
 1. The user says `as-usual` or `AsUsual`.
 2. The user mentions `.as-usual/`, `contexts.md`, `audit.jsonl`,
    `requirements.md`, `plan.md`, `conclusion.md`, or a work folder path.
 3. The user asks to resume or continue, and a work folder exists.
-4. The user asks for development work, or an investigation that should be recorded.
+4. The user invokes an owner skill directly.
+
+A development or investigation request is not a signal by itself. When one would
+clearly benefit from a record, `using-as-usual` says so in one line and keeps
+working — a recommendation, never an entry.
 
 Plugin development requests stay plugin development even when they include these
 signals.
