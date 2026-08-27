@@ -184,6 +184,23 @@ nothing. It recommends with a reason; you pick; it does not re-pitch.
 The runtime rules live in [`as-usual-rules/core-rules.md`](as-usual-rules/core-rules.md)
 and are read from the plugin at runtime — **never copied into your project**.
 
+### 🛫 Autopilot — fewer stops, not fewer decisions
+
+Ask for it and the harness stops asking permission to continue:
+`autopilot` runs to the next real gate, `autopilot:write-requirements` stops
+earlier. Prose works too — *"run to the plan, don't keep asking"*.
+
+What it does **not** do is decide for you. Three points always stop: approving the
+reviewed plan, approving each high-risk operation, and choosing the git action. So
+even a fully automatic `topic` stops twice — the harness tells you the number up
+front instead of promising none. And it stops rather than guessing whenever the
+answer is yours to give or the fact is one it could not check; every judgment it
+did make is marked in `contexts.md` and handed to you in one block at the gate,
+where a single "no" reopens the step it came from.
+
+Autopilot lasts for the session, not for the folder. Resume tomorrow and the
+harness asks again.
+
 <br>
 
 ## 🔀 The Three Work Units

@@ -24,6 +24,9 @@ using-as-usual <request>      → new work: classify, then hand off
 A cross-session resume is the same path as any other resume. There is no
 separate hand-off procedure.
 
+Any of the three can arrive with an autopilot instruction — a flag or the same
+thing in prose. `core-rules.md` §10 owns what it does.
+
 ## Activation
 
 AsUsual is opt-in. Enter it only when the user asked for it — any of these:
@@ -106,6 +109,11 @@ they can correct the slug early.
 Invoke the owner skill for the unit: `run-topic`, `run-direct-work`, or
 `run-issue`. It owns everything from there.
 
+If the user asked for autopilot, confirm in one line where the run will stop,
+record it with `--kind decision --data autopilot=on`, and tell the owner skill it
+is on. When `autopilot:<phase>` names a phase this unit does not use, ask rather
+than picking the nearest one.
+
 ## Resuming
 
 ### 1. Find the work folder
@@ -135,6 +143,9 @@ Then read `contexts.md`, and whichever of `requirements.md`, `plan.md`,
 `review.md`, `conclusion.md` the derived next action needs. Read from disk, not
 from memory of a previous session.
 
+A resume starts manual. An `autopilot=on` in the record is what a previous session
+was told, not permission for this one.
+
 ### 3. Verify before trusting
 
 **Anything another session recorded is a claim until you check it.** When the
@@ -157,11 +168,13 @@ Stop and tell the user what you need when:
 - The resume candidate is ambiguous.
 - A work folder is closed and they asked to continue it.
 - Only a pre-v2 record exists.
+- An autopilot instruction is there but where it should stop is not clear.
 
 ## Anti-Patterns
 
 - Classifying and starting work in the same breath, without offering the choice.
 - Creating a folder before the unit is decided.
 - Recording anything when the user chose "just do it".
+- Turning autopilot on yourself because the request looked self-contained.
 - Reporting another session's work as complete without checking diffs yourself.
 - Running an owner skill's pipeline here instead of handing off.

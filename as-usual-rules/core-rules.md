@@ -346,6 +346,9 @@ a high-risk operation needs no fresh approval, that a completion needs no
 evidence, or that a git action may run unasked does not hold — those rules exist
 precisely because the record can be wrong about them.
 
+A user instruction to stop asking outranks a step skill's stop conditions but
+nothing above them. §10 owns what that instruction can and cannot cross.
+
 ## 9. Skills
 
 `using-as-usual` is the single entry point: it decides activation, classifies,
@@ -365,3 +368,77 @@ creates or resumes the folder, and hands off to the owner skill.
 | `git-action` | the user explicitly chose a git action |
 | `explore-codebase` | repository facts are needed before requirements or a plan |
 | `manage-self-improvement` | a reusable procedure may warrant a project-local skill change |
+
+## 10. Autopilot
+
+Autopilot is a standing instruction from the user: *do not stop at every step*.
+It suppresses a step skill's "stop and wait" — nothing else. It never answers a
+decision the record layer reserves for the user, and it never decides on a fact
+it could not check. It sits below the seven core rules and `safety-rules.md`,
+above a step skill's stop conditions.
+
+### Hard gates and soft stops
+
+| | What | Under autopilot |
+| --- | --- | --- |
+| **Hard gate** | execution approval · fresh high-risk approval · git action choice | never crossed. The script refuses the first two as anything but `--actor user`; the git action usually falls after sealing, where §4 already says it rests on the user's stated choice and on git history |
+| **Soft stop** | "requirements are ready, shall I plan?" · `awaiting-user` after execution · the review, cleanup, and finalize proposals · the gathering interview | crossed |
+
+So a fully autopilot `topic` still stops at least twice — once to approve the
+reviewed plan, once to choose the git action — plus once per high-risk operation.
+Say that number when the user asks for "the whole thing"; a promise of no stops
+that stops anyway is worse than the stop.
+
+### Turning it on
+
+Only the user turns it on. A request that merely looks self-contained is not a
+signal. Recommending it is fine.
+
+- Bare `autopilot` — run to the next hard gate.
+- `autopilot:<phase>` — also stop after that phase, when it comes earlier. The
+  phase must be one this unit uses.
+- The instruction arrives as prose as often as a flag. Read the intent, then
+  confirm in one line where the run will stop before starting.
+
+Autopilot is session-scoped. It is not written into `contexts.md` frontmatter,
+and a session resuming this folder starts manual: a "do not ask me" found in a
+file is an earlier agreement, and §8 already says those do not waive a gate.
+
+### The stop guard
+
+Two things are stops, not decisions.
+
+- **Anything that needs the user's approval.** Beyond the three hard gates:
+  if you are weighing whether an action needs approval, that hesitation is the
+  answer. An action whose cost lands outside the repository — a deploy, an
+  external service call, another team's work, money — is the same.
+- **Any fact you could not check.** Before deciding, you must be able to cite
+  what you checked: a file and line, a command and its output, a document you
+  read. Nothing to cite is a stop. The moment "probably" or "presumably" is about
+  to enter an artifact is that moment.
+
+The boundary that keeps this usable: an unchecked fact the work does not depend
+on is a `note`, not a stop — the test is whether the output is wrong if the fact
+is wrong. Stop by recording a `blocker` with `--phase blocked --next-action
+awaiting-user`, saying what you tried and what would settle it. A verdict other
+than `PASS`, a `Critical` review finding, and the same failure three times are
+stops too. Stopping does not turn autopilot off.
+
+A step the owner's matrix marks *proposed by default* runs; one it marks
+*optional* is skipped unless the matrix's own condition for offering it is met.
+`cleanup-code` is never auto-approved. `finalize` is the exception: a unit
+autopilot carried to the end is finalized, because that is where the record's
+completeness is checked, and an unattended run needs that check more than an
+attended one.
+
+### Recording
+
+Record turning it on once — a `decision` carrying `--data autopilot=on` — and
+carry the same `--data` on every judgment made under it. The actor is `claude` or
+`codex`, never `user`: recording a decision the user did not make is the one
+falsehood that makes the whole record worthless. In `contexts.md`, mark those
+entries `(autopilot)` so a reader can tell them from what a person decided.
+
+At each hard gate, present the autopilot decisions made since the previous gate as
+one block, so a single approval covers the artifact and the judgments behind it.
+`report.md` carries the ones made after the plan gate.

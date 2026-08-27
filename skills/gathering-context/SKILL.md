@@ -20,7 +20,8 @@ The caller provides:
 
 - the work folder,
 - the list of items to settle (what the caller cannot proceed without),
-- anything already known, so it is not asked again.
+- anything already known, so it is not asked again,
+- whether autopilot is on (`core-rules.md` §10).
 
 If there is no work folder — no `contexts.md` and `audit.jsonl` to record into —
 this skill has nothing to write to. Route to `using-as-usual`, which decides the
@@ -61,6 +62,10 @@ fill a form.
   Evidence shapes your *recommendation* on these. It never replaces the answer.
   "The reason was clear in the code" is a reason to recommend confidently, not a
   reason to skip the question.
+
+  Autopilot is the one exception, and it is narrower than it sounds: the answer is
+  not skipped, it is **decided, marked, and put in front of the user at the next
+  hard gate** where they can overturn it. See below and `core-rules.md` §10.
 - **An assumption is not a substitute for a question.** Proceeding on a stated
   assumption is what happens *after* asking and failing to converge — never
   instead of asking. Writing an unasked scope decision into "Constraints &
@@ -82,6 +87,26 @@ fill a form.
 Stop when the list is settled. If a question keeps failing to converge after
 about three rounds, say so plainly, state the assumption you would proceed on and
 its risk, and let the user accept it or decide.
+
+### Under Autopilot
+
+Autopilot does not delete the questions. It defers them, and it pays for that
+with evidence.
+
+- An item whose direction the evidence can set: decide it, with the
+  recommendation and the reason you would have given the user. Write it into the
+  Decisions band marked `(autopilot)` and record it with `--data autopilot=on`.
+- **Cite what you checked, per decision** — a file and line, a command and its
+  output, a document you read. Nothing to cite is not a decision; it is a stop.
+  The moment "probably" is about to enter an artifact is that moment.
+- An item evidence cannot settle — a fact only the user has, a cost that lands
+  outside the repository, an action you find yourself weighing for approval — is
+  not decided. Record a `blocker` and stop (`core-rules.md` §10).
+- An unchecked fact the work does not depend on is a `note`, not a stop.
+
+"An assumption is not a substitute for a question" still holds. What separates an
+autopilot decision from the assumption that rule forbids is the mark and the
+digest: drop either one and it is exactly the failure the rule exists to stop.
 
 ## Where Answers Go
 
@@ -121,6 +146,7 @@ proceed.
 
 - Deciding scope alone because the evidence looked clear.
 - Recording an unasked decision as an assumption, a constraint, or a risk.
+- Leaving an autopilot decision unmarked, uncited, or out of the digest.
 - Exercising a delegated judgment without telling the user what it excluded.
 - Branching on the calling unit (`if topic … if issue …`).
 - Appending a reversed decision below the old one instead of editing it.

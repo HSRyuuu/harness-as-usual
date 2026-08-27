@@ -386,6 +386,20 @@ cannot move … it already produced requirements.md
 phase X is not used by unit Y
 ```
 
+### Hard gates versus soft stops
+
+Only three points in a pipeline are refused by the script unless recorded as
+`--actor user`: execution approval, a fresh high-risk approval, and the git action
+choice. Every other pause — "requirements are ready, shall I plan?", the
+`awaiting-user` after execution, the review and cleanup and finalize proposals,
+the gathering interview — exists only as a sentence in a skill.
+
+That line is what autopilot is defined against: a user instruction to stop asking
+suppresses the soft stops and never the hard gates, so even a fully automatic
+`topic` stops twice. `core-rules.md` §10 owns the rule, including the guard that
+sends an unverifiable fact or an approval-shaped action back to the user instead
+of through it.
+
 **Deliberately left to judgment**: whether a post-execution review runs, how work
 is tested, whether tasks are delegated, whether a document checklist is applied,
 how deep verification sweeps go. The previous version mandated most of these; the
@@ -432,6 +446,10 @@ what they were protecting.
 - **One owner per rule.** Referencing is fine; restating is not.
 - **The record layer does not bend to model strength.** It governs permission and
   durable evidence. The judgment layer is where a capable model gets room.
+- **Autopilot removes waiting, not deciding.** The 0.2.2 auto mode was reverted
+  because it answered for the user — and, as written, could not have run: it told
+  the agent to record its own execution approval, which `gates.py` refuses. What
+  replaced it crosses no `--actor user` gate and stops on any fact it cannot cite.
 - **Work records stay local.** Nothing under `.as-usual/` is committed by
   default.
 

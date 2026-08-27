@@ -25,7 +25,7 @@ that uses current vocabulary is exactly what this exists to catch.
 
 | File | Owns |
 | --- | --- |
-| `as-usual-rules/core-rules.md` | unit definitions, classification, the seven core rules, record layer, completion, transitions |
+| `as-usual-rules/core-rules.md` | unit definitions, classification, the seven core rules, record layer, completion, transitions, autopilot |
 | `as-usual-rules/safety-rules.md` | trust boundary, high-risk gate, issue read-only default |
 | `as-usual-rules/record-commands.md` | `as-usual-record.py` command reference |
 | `hooks/session-start` | one-sentence entry announcement |
@@ -194,6 +194,20 @@ stay canonical. Structural headings stay canonical English and keep their order;
 a section that would be empty is omitted and anything extra goes last. Every
 artifact opens with `unit`/`slug`/`created` frontmatter filled with real values —
 an unreplaced `<…>` placeholder in a work folder is a defect.
+
+### 11. Autopilot has one owner and one halt line
+
+`as-usual-rules/` still holds exactly three files, and the whole autopilot rule
+lives in `core-rules.md` §10. Skills reference it; none restates the hard-gate
+list or the stop conditions in its own words.
+
+Two things the 0.2.2 auto mode got wrong, checked explicitly because they are
+what got it reverted:
+
+- Nothing anywhere tells the agent to record an approval on the user's behalf.
+  Every `--actor user` in a skill is a real user decision.
+- The stop guard survives: approval-shaped actions and facts that cannot be cited
+  are stops, and `(autopilot)` decisions are required to name their evidence.
 
 ## Report
 

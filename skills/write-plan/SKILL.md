@@ -82,10 +82,17 @@ Do not add a review status section to `plan.md`. The event is the record.
 
 Then, in one compact block:
 
+- the absolute system path of `plan.md` (e.g.
+  `/Users/me/proj/.as-usual/topic/2026-08-27-slug/plan.md`) — always print the
+  full path in the terminal, never a repo-relative path alone,
 - what the plan will do, in a line or two,
 - anything risky in it, with the rollback,
 - **how it will be executed** — inline or delegated per task. State it in the
   user's language; do not offer a menu,
+- **if the run was on autopilot**, the decisions made in the user's place, as one
+  block — what was decided, not why; `contexts.md` holds the reasons. This
+  approval covers the plan and those decisions together, so a rejected one
+  reopens the phase it came from,
 - what you need: approval to execute.
 
 Stop and wait. If the user wants a different execution approach, they will say

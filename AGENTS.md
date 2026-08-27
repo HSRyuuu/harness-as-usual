@@ -167,7 +167,7 @@ folder that already holds a record. Rule 6 still holds only indirectly, through
 
 | Task | Location | Notes |
 | --- | --- | --- |
-| Runtime rules | `as-usual-rules/core-rules.md` | units, classification, seven core rules, record layer, completion, transitions |
+| Runtime rules | `as-usual-rules/core-rules.md` | units, classification, seven core rules, record layer, completion, transitions, autopilot |
 | Safety gates | `as-usual-rules/safety-rules.md` | trust boundary, high-risk gate, issue read-only default |
 | Record commands | `as-usual-rules/record-commands.md` | `as-usual-record.py` reference |
 | Record helper | `scripts/as-usual-record.py`, `scripts/as_usual_record/` | init/add/move/link/status/validate; vocabularies in `constants.py`, gates in `gates.py` |

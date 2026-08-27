@@ -58,9 +58,11 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
 `awaiting-user`, because moving to the plan is the user's approval, not an
 automatic transition.
 
-Then tell the user the requirements are ready, point them at the Decisions band
-of `contexts.md` so they can check how their answers were read, and ask whether
-to move to the plan. Stop there — writing the plan needs their approval.
+Then tell the user the requirements are ready. Always print the absolute system
+path of `requirements.md` (e.g. `/Users/me/proj/.as-usual/topic/2026-08-27-slug/requirements.md`)
+in the terminal — never a repo-relative path alone. Point them at the Decisions
+band of `contexts.md` so they can check how their answers were read, and ask
+whether to move to the plan. Stop there — writing the plan needs their approval.
 
 ## Revising
 
