@@ -308,14 +308,25 @@ Before requirements.md / plan.md / conclusion.md exists  -> move (relabel in pla
 After                                                    -> new folder + link both ways
 ```
 
-The script decides which applies; you do not. `move` exists for exactly one
-situation: gathering revealed that the unit was chosen wrongly.
+The script decides which applies; you do not. `move` exists for two situations,
+both of them the same fact: the folder has not produced its own output yet, so
+its label is still open.
 
-So a concluded issue does not become the follow-up topic — it links to it. A
-topic that hits an unknown cause stays where it is, and a separate issue is
-created beside it and linked. One rule covers both directions: **if a linked
-unit already exists, go back to it; otherwise create one and link.** When one
-investigation spawns several follow-ups, each gets its own folder and link.
+- Gathering revealed the unit was chosen wrongly.
+- An investigation finished and the **same scope** carries straight on into the
+  work — before `conclusion.md` is written.
+
+The second keeps `contexts.md`, the evidence, and the whole reasoning trail in
+place and costs no link, so prefer it whenever the follow-up is one piece of
+work with the same boundary. It is not the expected ending of an investigation;
+confirming the cause and stopping there is (`run-issue`).
+
+Past that point the answer is always a link. A concluded issue does not become
+the follow-up topic — it links to it. A topic that hits an unknown cause stays
+where it is, and a separate issue is created beside it and linked. One rule
+covers both directions: **if a linked unit already exists, go back to it;
+otherwise create one and link.** When one investigation spawns several
+follow-ups, each gets its own folder and link.
 
 ## 8. Instruction Priority
 

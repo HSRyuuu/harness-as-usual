@@ -323,13 +323,25 @@ After                                                    →  new folder + link 
 files exists — a blocklist, not an allowlist, so unrelated stray files never
 affect the outcome.
 
-This gives `move` exactly one purpose: gathering revealed the unit was chosen
-wrongly. `inbox` escape and early misclassification are the same operation.
+This gives `move` two purposes, both of them the same fact — the label is still
+open because nothing has been produced under it:
+
+- Gathering revealed the unit was chosen wrongly. `inbox` escape and early
+  misclassification are the same operation.
+- An investigation finished and the same scope carries straight on into the
+  work, before `conclusion.md` is written. The evidence and the reasoning trail
+  stay in the folder and no link is spent. `run-issue` offers this as one of
+  three endings; stopping at the conclusion remains the expected one.
 
 Everything else links:
 
-- A concluded `issue` does not become the follow-up implementation. It links to a
-  new `topic` or `direct-work`. Several follow-ups each get their own folder.
+- A **concluded** `issue` does not become the follow-up implementation. It links
+  to a new `topic` or `direct-work`. Several follow-ups each get their own
+  folder — a split is always a link, never a move. The split itself is written
+  into `conclusion.md`'s optional **Decomposition** table before the record
+  closes, because `link` only records a follow-up that was actually created: one
+  identified and not created would otherwise leave no trace. No gate reads the
+  table; it is a recommendation that survives the session, not an obligation.
 - A `topic` that hits an unknown cause stays where it is; an `issue` is created
   beside it and linked, and its conclusion feeds back.
 
