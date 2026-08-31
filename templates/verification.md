@@ -42,10 +42,17 @@ each gap blocks. Omit the section when the surface needs no data setup.)
 
 ## Results
 
-(Criterion, verdict, and evidence — one row each. Evidence cites the record as
-`#<seq>`, so a reader can trace the claim back to the event that carries the
-actual output. A criterion whose evidence is "read the code" is `INCONCLUSIVE`,
-not `PASS`, unless the code is what the criterion is about.)
+(Criterion, verdict, and evidence — one row each. Quote the criterion as
+`requirements.md` states it; a row that paraphrases it into something easier is
+judging a different criterion. Evidence cites the record as `#<seq>`, so a reader
+can trace the claim back to the event that carries the actual output. A criterion
+whose evidence is "read the code" is `INCONCLUSIVE`, not `PASS`, unless the code
+is what the criterion is about.
+
+A criterion you had to narrow to reach a pass is `INCONCLUSIVE` for the criterion
+as written, with the narrower check recorded beside it as what was actually
+covered. Narrowing and then passing is the substitution `core-rules.md` §6 stops,
+made one step earlier than a softer verdict word.)
 
 ### Incidental Findings
 

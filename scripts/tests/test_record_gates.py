@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import json
 
+from as_usual_record.validation import audit_sealed, validate_record
+
 
 def _plan(work_dir) -> None:
     """The execution contract rule 7 reviews. Its content is not the script's business."""
@@ -1054,3 +1056,139 @@ def test_the_double_resolve_refusal_says_it_was_already_resolved(make_unit, run,
     _blocker(work_dir, run, "and again", "--resolves", str(first))
 
     assert "already resolved" in capsys.readouterr().err
+
+
+def test_a_sealed_unit_with_an_open_gap_and_no_reason_warns(make_unit, run, tmp_path):
+    """The gate that would refuse this today did not exist when such records closed.
+
+    Reporting it as a problem would reach backwards and invalidate a record that
+    was legal when written, so it is a warning and the exit code stays clean.
+    """
+    work_dir = make_unit("direct-work")
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "could not reach the service",
+        "--verdict",
+        "INCONCLUSIVE",
+    )
+    # Written straight to the file: the append gate refuses this shape today, and
+    # the point is auditing a record that got past an older one.
+    audit = work_dir / "audit.jsonl"
+    audit.write_text(
+        audit.read_text()
+        + json.dumps(
+            {
+                "seq": 3,
+                "ts": "2026-08-13T13:03:16+09:00",
+                "actor": "claude",
+                "unit": "direct-work",
+                "kind": "lifecycle",
+                "status": "success",
+                "summary": "closed",
+                "data": {"event": "finalized"},
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    warnings = audit_sealed(work_dir)
+    assert len(warnings) == 1
+    assert "seq 2 INCONCLUSIVE" in warnings[0]
+    assert "no --reason" in warnings[0]
+    assert validate_record(work_dir) == []
+
+
+def test_a_sealed_unit_whose_reason_is_not_the_users_warns(make_unit, run):
+    work_dir = make_unit("direct-work")
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "could not reach the service",
+        "--verdict",
+        "INCONCLUSIVE",
+    )
+    audit = work_dir / "audit.jsonl"
+    audit.write_text(
+        audit.read_text()
+        + json.dumps(
+            {
+                "seq": 3,
+                "ts": "2026-08-13T13:03:16+09:00",
+                "actor": "claude",
+                "unit": "direct-work",
+                "kind": "lifecycle",
+                "status": "success",
+                "summary": "closed",
+                "data": {"event": "finalized", "reason": "shipping anyway"},
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    warnings = audit_sealed(work_dir)
+    assert len(warnings) == 1
+    assert "not\nthe user" in warnings[0] or "not the user" in warnings[0]
+
+
+def test_a_sealed_topic_without_verification_md_warns_but_stays_valid(make_unit, run):
+    work_dir = make_unit("topic")
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "suite green",
+        "--verdict",
+        "PASS",
+    )
+    audit = work_dir / "audit.jsonl"
+    audit.write_text(
+        audit.read_text()
+        + json.dumps(
+            {
+                "seq": 3,
+                "ts": "2026-08-12T16:32:00+09:00",
+                "actor": "claude",
+                "unit": "topic",
+                "kind": "lifecycle",
+                "status": "success",
+                "summary": "closed",
+                "data": {"event": "finalized"},
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    warnings = audit_sealed(work_dir)
+    assert any("no verification.md" in warning for warning in warnings)
+    assert validate_record(work_dir) == []
+
+
+def test_an_open_unit_is_not_audited_as_sealed(make_unit, run):
+    work_dir = make_unit("topic")
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "could not reach the service",
+        "--verdict",
+        "INCONCLUSIVE",
+    )
+    assert audit_sealed(work_dir) == []

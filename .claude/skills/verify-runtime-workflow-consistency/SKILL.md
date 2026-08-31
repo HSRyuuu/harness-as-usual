@@ -209,6 +209,39 @@ what got it reverted:
 - The stop guard survives: approval-shaped actions and facts that cannot be cited
   are stops, and `(autopilot)` decisions are required to name their evidence.
 
+### 12. The document skeleton has one owner
+
+`contexts.md` band headings and their order live in `core-rules.md` §3, and
+`scripts/as_usual_record/contexts.py` implements that list as `SECTION_ORDER`.
+The two must name the same headings in the same order.
+
+This is a real drift, not a hypothetical one: when `init` stopped writing the
+bands as placeholders, the template stopped being the specification and the only
+surviving list was the constant in code. A prose list that has fallen behind the
+constant sends an agent to invent a heading name, and `append_to_band` then
+places a link somewhere the reader does not look — a document and a record
+disagreeing, which is the failure the record layer exists to prevent.
+
+```bash
+python3 - <<'CHECK'
+import re, sys
+sys.path.insert(0, "scripts")
+from as_usual_record.contexts import SECTION_ORDER
+
+doc = open("as-usual-rules/core-rules.md", encoding="utf-8").read()
+block = re.search(r"The bands are these headings.*?```markdown\n(.*?)```", doc, re.S)
+named = [line.split("  ")[0].strip() for line in block.group(1).splitlines()
+         if line.startswith("## ")] if block else []
+print("code :", list(SECTION_ORDER))
+print("prose:", named)
+print("match" if named == list(SECTION_ORDER) else "DRIFT")
+CHECK
+```
+
+Also confirm `templates/contexts.md` still ships no band placeholder — a
+reintroduced `_Not set._` puts the skeleton back and makes §3 the second answer
+rather than the only one.
+
 ## Report
 
 ```markdown

@@ -11,11 +11,12 @@ from .constants import (
     AUDIT_FILE,
     CONTEXTS_FILE,
     INIT_BLOCKING_FILES,
+    MOVE_BLOCKING_FILES,
     MOVE_TARGETS,
     SCHEMA_VERSION,
     JsonObject,
 )
-from .contexts import render_contexts, update_frontmatter
+from .contexts import append_to_band, prepend_notice, render_contexts, update_frontmatter
 from .gates import (
     check_kind_payload,
     check_move_allowed,
@@ -33,7 +34,7 @@ from .paths import (
 )
 from .records import append_entry, build_entry, current_unit, read_events
 from .status import derive_status
-from .validation import validate_record
+from .validation import audit_sealed, validate_record
 
 
 def _collect_data(args: argparse.Namespace) -> JsonObject:
@@ -67,6 +68,7 @@ def cmd_init(args: argparse.Namespace) -> int:
             "sealing and move restriction. use a different slug for new work, `move` "
             "to relabel this one, or delete the folder if it was created by mistake"
         )
+    orphaned = [name for name in MOVE_BLOCKING_FILES if (work_dir / name).exists()]
 
     validate_vocabulary(
         unit=args.unit,
@@ -112,6 +114,12 @@ def cmd_init(args: argparse.Namespace) -> int:
     print(f"initialized {args.unit} at {work_dir}")
     print(f"  {CONTEXTS_FILE}")
     print(f"  {AUDIT_FILE}")
+    if orphaned:
+        print(
+            f"  adopted {', '.join(orphaned)}, which had no record. "
+            "`move` is now closed for this folder, as it is for any unit that has "
+            "produced its own output"
+        )
     return 0
 
 
@@ -153,6 +161,21 @@ def cmd_add(args: argparse.Namespace) -> int:
     )
     append_entry(work_dir, entry)
     print(f"seq {entry['seq']}  {args.kind}  {args.summary}")
+
+    if args.kind == "lifecycle" and data.get("event") == "cancelled":
+        # Otherwise the document keeps reading as live work and only the log
+        # knows the unit is dead, which is how a cancelled folder goes on
+        # inviting someone to resume it.
+        reason = data.get("reason")
+        notice = f"> **CANCELLED {entry['ts'][:19].replace('T', ' ')} (#{entry['seq']})** — {args.summary}"
+        if reason:
+            notice += f"\n>\n> {reason}"
+        if not prepend_notice(work_dir, notice):
+            print(
+                f"  note: could not write the cancellation into {work_dir / CONTEXTS_FILE} "
+                "— the document has no `# Context` title. the event is recorded; add "
+                "the notice by hand"
+            )
     return 0
 
 
@@ -213,6 +236,7 @@ def cmd_link(args: argparse.Namespace) -> int:
     if work_dir == other_dir:
         raise RecordError("cannot link a work unit to itself")
 
+    unwritten: list[Path] = []
     for source, target in ((work_dir, other_dir), (other_dir, work_dir)):
         events = read_events(source)
         stored = record_path(source, target)
@@ -225,8 +249,17 @@ def cmd_link(args: argparse.Namespace) -> int:
             data={"event": "linked", "to": stored},
         )
         append_entry(source, entry)
+        note = f"- `{stored}`" + (f" — {args.summary}" if args.summary else "")
+        if not append_to_band(source, "## Linked Work", note):
+            unwritten.append(source)
 
     print(f"linked {work_dir} <-> {other_dir}")
+    for path in unwritten:
+        print(
+            f"  note: could not write the link into {path / CONTEXTS_FILE} — the "
+            "document has no frontmatter and no `# Context` title. the event is "
+            "recorded; add the link by hand"
+        )
     return 0
 
 
@@ -245,7 +278,14 @@ def cmd_status(args: argparse.Namespace) -> int:
     if status["blockers"]:
         print(f"blockers   {len(status['blockers'])} open")
     if status["verification"]:
-        print(f"verified   {status['verification']['verdict']}")
+        verdict = status["verification"]["verdict"]
+        latest = status["latestVerification"]
+        if latest and latest["verdict"] != verdict:
+            print(f"verified   {verdict} (latest run {latest['verdict']}, gaps still open)")
+        else:
+            print(f"verified   {verdict}")
+    for change in status["cancelled"]:
+        print(f"superseded #{change['seq']} {change['summary'] or ''}".rstrip())
     if status["links"]:
         for link in status["links"]:
             print(f"linked     {link}")
@@ -255,6 +295,10 @@ def cmd_status(args: argparse.Namespace) -> int:
 def cmd_validate(args: argparse.Namespace) -> int:
     work_dir = require_existing_dir(args.dir)
     problems = validate_record(work_dir)
+    # Warnings never reach the exit code: they report what today's gate would
+    # refuse about a record that was legal when it was written.
+    for warning in audit_sealed(work_dir):
+        print(f"warning: {warning}")
     if problems:
         for problem in problems:
             print(f"invalid: {problem}")

@@ -104,6 +104,12 @@ this work rather than by name, and mark the one the evidence points at:
 right one.** Do not present 2 or 3 as what is expected. If the user picks
 against the recommendation, follow it without arguing.
 
+An investigation that ends "there is nothing wrong" still ends. That answer is
+the deliverable an issue exists to produce, so it gets a `conclusion.md` and a
+close like any other — not a folder left `open` with the finding sitting in
+`audit.jsonl`. `--event cancelled` is for an investigation the user abandons,
+not for one that reached an unexciting answer.
+
 If reproduction code exists, ask under every ending: delete it, or keep it as a
 regression-test seed.
 

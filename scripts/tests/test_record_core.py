@@ -31,8 +31,10 @@ def test_init_writes_request_and_unit_into_contexts(make_unit, events):
     body = (work_dir / "contexts.md").read_text(encoding="utf-8")
 
     assert "왜 죽는지 모르겠음" in body
-    assert "## Decisions" in body
-    assert "## Q&A Log" in body
+    # The bands are not pre-written: a section arrives when it has something to
+    # hold, so a fresh document carries the request and nothing else.
+    assert "## Decisions" not in body
+    assert "## Q&A Log" not in body
 
     front = _frontmatter(body)
     assert front["unit"] == "issue"
@@ -136,7 +138,9 @@ def test_init_refusal_names_what_is_in_the_way(make_unit, run, capsys):
     )
 
     message = capsys.readouterr().err
-    assert "contexts.md" in message and "plan.md" in message
+    # The record files are what is in the way. `plan.md` beside them is not —
+    # an artifact alone no longer blocks init, so it is not named here either.
+    assert "contexts.md" in message and "audit.jsonl" in message
 
 
 def test_init_still_succeeds_in_an_empty_dir(as_usual: Path, run):
@@ -329,3 +333,195 @@ def test_link_records_project_relative_paths(make_unit, run, events, as_usual):
 
 def test_missing_record_is_reported(run, tmp_path: Path):
     assert run("add", "--dir", str(tmp_path / "nope"), "--kind", "note", "--summary", "s") == 2
+
+
+def _contexts(work_dir, body: str) -> None:
+    (work_dir / "contexts.md").write_text(body, encoding="utf-8")
+
+
+def test_append_to_band_adds_under_an_existing_band(make_unit):
+    from as_usual_record.contexts import append_to_band
+
+    work_dir = make_unit("topic")
+    _contexts(
+        work_dir,
+        "---\nunit: topic\n---\n\n# Context\n\n## Initial Request\n\nbuild it\n\n"
+        "## Linked Work\n\n- `.as-usual/issue/2026-08-01-cause` — prior investigation\n",
+    )
+
+    assert append_to_band(work_dir, "## Linked Work", "- `.as-usual/topic/2026-08-02-next` — follow-up")
+    body = (work_dir / "contexts.md").read_text()
+    assert "prior investigation" in body
+    assert "follow-up" in body
+    assert body.index("prior investigation") < body.index("follow-up")
+
+
+def test_append_to_band_replaces_an_empty_marker(make_unit):
+    from as_usual_record.contexts import append_to_band
+
+    work_dir = make_unit("topic")
+    _contexts(
+        work_dir,
+        "---\nunit: topic\n---\n\n# Context\n\n## Linked Work\n\n_None._\n",
+    )
+
+    assert append_to_band(work_dir, "## Linked Work", "- `.as-usual/topic/x` — why")
+    body = (work_dir / "contexts.md").read_text()
+    assert "_None._" not in body
+    assert "— why" in body
+
+
+def test_append_to_band_creates_a_missing_band_in_order(make_unit):
+    """A young unit has no Linked Work band at all; the entry still has a home."""
+    from as_usual_record.contexts import append_to_band
+
+    work_dir = make_unit("topic")
+    _contexts(
+        work_dir,
+        "---\nunit: topic\n---\n\n# Context\n\n## Initial Request\n\nbuild it\n\n"
+        "## Decisions\n\n### something - 2026-08-31 10:00:00\n\nagreed\n",
+    )
+
+    assert append_to_band(work_dir, "## Linked Work", "- `.as-usual/topic/x` — why")
+    body = (work_dir / "contexts.md").read_text()
+    assert "## Linked Work" in body
+    # core-rules.md fixes the order: after the request, before the decisions.
+    assert body.index("## Initial Request") < body.index("## Linked Work") < body.index("## Decisions")
+
+
+def test_append_to_band_refuses_a_damaged_document(make_unit):
+    """No frontmatter and no title: there is no safe place to put anything."""
+    from as_usual_record.contexts import append_to_band
+
+    work_dir = make_unit("topic")
+    _contexts(work_dir, "just a loose note with no structure\n")
+    before = (work_dir / "contexts.md").read_text()
+
+    assert append_to_band(work_dir, "## Linked Work", "- `.as-usual/topic/x` — why") is False
+    assert (work_dir / "contexts.md").read_text() == before
+
+
+def test_prepend_notice_lands_above_every_band(make_unit):
+    from as_usual_record.contexts import prepend_notice
+
+    work_dir = make_unit("topic")
+    _contexts(
+        work_dir,
+        "---\nunit: topic\n---\n\n# Context\n\n## Initial Request\n\nbuild it\n",
+    )
+
+    assert prepend_notice(work_dir, "> **CANCELLED 2026-08-31 (#3)** — premise was false")
+    body = (work_dir / "contexts.md").read_text()
+    assert body.index("CANCELLED") < body.index("## Initial Request")
+
+
+def test_prepend_notice_refuses_a_document_without_a_title(make_unit):
+    from as_usual_record.contexts import prepend_notice
+
+    work_dir = make_unit("topic")
+    _contexts(work_dir, "---\nunit: topic\n---\n\nno title here\n")
+    before = (work_dir / "contexts.md").read_text()
+
+    assert prepend_notice(work_dir, "> **CANCELLED**") is False
+    assert (work_dir / "contexts.md").read_text() == before
+
+
+def test_init_writes_no_placeholders(make_unit):
+    work_dir = make_unit("topic")
+    body = (work_dir / "contexts.md").read_text()
+    for marker in ("_Not set._", "_None._", "_None yet._", "_No questions raised yet._"):
+        assert marker not in body
+
+
+def test_init_adopts_a_folder_holding_only_an_artifact(as_usual: Path, run, capsys):
+    """An artifact written past the helper is not a record, and saying so was false.
+
+    The old guard refused this folder as "already a work record", which left the
+    only recovery as deleting a document nobody wanted to delete — and the
+    folder could never acquire the record it was missing.
+    """
+    work_dir = as_usual / "topic" / "2026-08-31-orphan"
+    work_dir.mkdir(parents=True)
+    (work_dir / "plan.md").write_text("# Plan\n", encoding="utf-8")
+    capsys.readouterr()
+
+    assert (
+        run(
+            "init",
+            "--dir",
+            str(work_dir),
+            "--unit",
+            "topic",
+            "--request",
+            "adopt me",
+            "--actor",
+            "claude",
+        )
+        == 0
+    )
+    assert (work_dir / "audit.jsonl").exists()
+    assert (work_dir / "contexts.md").exists()
+    assert (work_dir / "plan.md").read_text() == "# Plan\n"
+    assert "adopted plan.md" in capsys.readouterr().out
+
+
+def test_link_writes_into_both_documents(as_usual: Path, run, make_unit):
+    from as_usual_record.status import derive_status
+
+    left = make_unit("topic", slug="2026-08-31-left")
+    right = make_unit("issue", slug="2026-08-31-right")
+
+    assert run("link", "--dir", str(left), "--to-dir", str(right), "--summary", "cause of this") == 0
+
+    left_body = (left / "contexts.md").read_text()
+    right_body = (right / "contexts.md").read_text()
+    assert "## Linked Work" in left_body and "## Linked Work" in right_body
+    assert "2026-08-31-right" in left_body
+    assert "2026-08-31-left" in right_body
+    assert "cause of this" in left_body and "cause of this" in right_body
+    # The two surfaces agree: the event and the document say the same thing.
+    assert derive_status(left)["links"] == ["2026-08-31-right"] or "2026-08-31-right" in str(
+        derive_status(left)["links"]
+    )
+
+
+def test_link_leaves_a_damaged_document_alone(as_usual: Path, run, make_unit, capsys):
+    left = make_unit("topic", slug="2026-08-31-l2")
+    right = make_unit("issue", slug="2026-08-31-r2")
+    (left / "contexts.md").write_text("loose note\n", encoding="utf-8")
+    capsys.readouterr()
+
+    assert run("link", "--dir", str(left), "--to-dir", str(right), "--summary", "why") == 0
+    assert (left / "contexts.md").read_text() == "loose note\n"
+    assert "could not write the link" in capsys.readouterr().out
+    # The event still landed on both sides.
+    assert "2026-08-31-r2" in (left / "audit.jsonl").read_text()
+
+
+def test_cancelling_marks_the_document(make_unit, run):
+    work_dir = make_unit("topic")
+
+    assert (
+        run(
+            "add",
+            "--dir",
+            str(work_dir),
+            "--kind",
+            "lifecycle",
+            "--event",
+            "cancelled",
+            "--actor",
+            "user",
+            "--reason",
+            "already cached upstream",
+            "--summary",
+            "premise was false",
+        )
+        == 0
+    )
+
+    body = (work_dir / "contexts.md").read_text()
+    assert "CANCELLED" in body
+    assert "premise was false" in body
+    assert "already cached upstream" in body
+    assert body.index("CANCELLED") < body.index("## Initial Request")

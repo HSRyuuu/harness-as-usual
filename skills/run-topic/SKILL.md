@@ -64,6 +64,12 @@ python3 <plugin-root>/scripts/as-usual-record.py status --dir <work-dir> --json
   it is. Create a separate `issue` folder beside it and link the two
   (`core-rules.md` §7). Do not park the topic and do not guess the cause in
   `requirements.md`.
+- Gathering shows there is nothing to build — it is already done, already
+  correct, or the premise is false: that finding is the unit's whole output.
+  Write it into the `contexts.md` Decisions band, then close with
+  `--event cancelled` and its `--reason`. Leaving the folder `open` parks a
+  `nextAction` that outlives the question, and the finding stays buried in
+  `audit.jsonl` where the next session will not meet it.
 - Gathering reveals the unit itself was wrong: that is the one case for `move`,
   and only while the folder has produced nothing of its own — the record helper
   allows it until `requirements.md` exists. Once it does, the rule above applies

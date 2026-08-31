@@ -28,7 +28,12 @@ MOVE_BLOCKING_FILES = ("requirements.md", "plan.md", "conclusion.md")
 # Files whose presence means the folder is already a work record, so `init` must
 # not run over it. Sealing and the move restriction are both derived from the
 # record; re-initializing would reset them without leaving a trace.
-INIT_BLOCKING_FILES = (CONTEXTS_FILE, AUDIT_FILE) + MOVE_BLOCKING_FILES
+#
+# Artifacts are deliberately not in this set. A folder holding `plan.md` and no
+# record is not a record — it is an artifact somebody wrote past the helper, and
+# refusing it as "already a work record" both said something false and left the
+# only recovery as deleting the document. `init` adopts that folder instead.
+INIT_BLOCKING_FILES = (CONTEXTS_FILE, AUDIT_FILE)
 
 KINDS = {
     "lifecycle",

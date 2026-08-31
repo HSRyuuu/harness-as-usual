@@ -104,6 +104,14 @@ say that — a sealed record that overstates what happened is worse than no reco
 After sealing, the record accepts nothing but links. Further work needs a new
 unit.
 
+That makes the link the only way a sealed unit is ever corrected. Before closing,
+check the Decisions band for anything the work reversed on its way here and
+retract it now, while the record still takes events —
+`status-change --target <seq> --to cancelled --reason "<what is now true>"`, and
+edit the band so it reads as the current agreement. Once the unit is sealed the
+next unit has to carry the correction inward through `link`, and the reason it
+gives there is the only thing a reader of the stale decision will see.
+
 ## 4. Git Action
 
 Ask which git action to run. Never choose for the user, and never run one
