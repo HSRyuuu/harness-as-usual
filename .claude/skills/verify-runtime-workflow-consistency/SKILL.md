@@ -77,13 +77,16 @@ Current set:
   `cancelled` close are unaffected
 - `--resolves` only on `verification` and `blocker`, closing one still-open entry
   of its own kind; a target of another kind, a passing verification, a target that
-  something already resolved, and any other kind carrying the flag are refused. A
-  `blocker` that resolves another is itself open in the derived status
+  something already resolved, and any other kind carrying the flag are refused.
+  Whether a resolving `blocker` is itself open in the derived status is decided by
+  its `--status`: `success` means it closed something and introduced nothing, so
+  it drops off; `warning` or `error` means something still blocks, so it stays
 - `conclusion.md` plus at least one confirmed entry to finalize an `issue`
 - an `inbox` never finalizes; `move` and `cancelled` are its only closes
 - sealed records reject non-link appends
-- blocked files reject `move`, and `init` refuses a folder that already holds a
-  record artifact
+- blocked files reject `move`; `init` refuses a folder that already holds
+  `contexts.md` or `audit.jsonl`, and **adopts** one holding only artifacts —
+  that folder was never a record, so there is nothing to reset
 
 `add` is the only path that tightened. `validate` must stay as permissive as it
 was: a value that was legal when it was written keeps auditing clean, so a gate
@@ -151,9 +154,12 @@ that one story is told everywhere:
   §Review, which solved the same problem earlier.
 - Verdicts are only `PASS`, `FAIL`, `INCONCLUSIVE`. No template or skill offers a
   softer word for a gap, and none carries an emoji verdict column.
-- `verification.md` is the only artifact described as updatable after sealing, and
-  that band is marked as outside the record. The script's sealing behaviour is
-  unchanged: `check_not_closed` still admits only `lifecycle:linked`.
+- Two bands are described as changing after sealing, and no others:
+  `verification.md`, marked as outside the record, and `contexts.md`'s
+  `## Linked Work`, which `link` writes on both sides whether or not the record is
+  closed. The second exists because a sealed unit cannot retract its own decision,
+  so the link is its only correction channel. The script's sealing behaviour is
+  unchanged either way: `check_not_closed` still admits only `lifecycle:linked`.
 
 ### 7. Deleted concepts have not returned
 
