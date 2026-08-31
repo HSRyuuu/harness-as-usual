@@ -66,9 +66,12 @@ def test_status_tracks_the_latest_verification(make_unit, run):
     )
 
     status = derive_status(work_dir)
-    assert status["verification"]["verdict"] == "PASS"
-    # The latest verdict and the open gaps answer different questions: the pass is
-    # real, and the earlier INCONCLUSIVE it did not re-verify is still outstanding.
+    # The latest verdict and the open gaps answer different questions, and both
+    # are reported: the pass is real, and the earlier INCONCLUSIVE it did not
+    # re-verify is still outstanding, so the verdict that stands is not PASS.
+    assert status["latestVerification"]["verdict"] == "PASS"
+    assert status["verification"]["verdict"] == "INCONCLUSIVE"
+    assert status["verification"]["downgradedBy"] == [2]
     assert [entry["seq"] for entry in status["openVerifications"]] == [2]
     assert status["openVerifications"][0]["verdict"] == "INCONCLUSIVE"
 
@@ -89,15 +92,18 @@ def test_open_blockers_are_listed_until_resolved(make_unit, run):
         "--resolves",
         "2",
     )
-    blockers = derive_status(work_dir)["blockers"]
-    assert [entry["seq"] for entry in blockers] == [3]
+    # Recorded as success: it closed seq 2 and reports nothing still blocking, so
+    # the unit is clear rather than carrying the resolution as a phantom.
+    assert derive_status(work_dir)["blockers"] == []
 
 
 def test_a_resolving_blocker_is_itself_open(make_unit, run):
     """"A is cleared but B now blocks us" is one event, and B still has to show.
 
     Filtering out every entry that carries --resolves used to swallow B, so a
-    unit could report zero blockers while it was in fact stuck.
+    unit could report zero blockers while it was in fact stuck. The status is
+    what separates that from a plain resolution: an entry that is still blocking
+    is not a success, and only a success drops off the list.
     """
     work_dir = make_unit("topic")
     run("add", "--dir", str(work_dir), "--kind", "blocker", "--summary", "missing API key")
@@ -111,6 +117,8 @@ def test_a_resolving_blocker_is_itself_open(make_unit, run):
         "key provided, but the sandbox account is suspended",
         "--resolves",
         "2",
+        "--status",
+        "error",
     )
 
     blockers = derive_status(work_dir)["blockers"]
@@ -128,7 +136,7 @@ def test_a_resolving_blocker_is_itself_open(make_unit, run):
         "--resolves",
         "3",
     )
-    assert [entry["seq"] for entry in derive_status(work_dir)["blockers"]] == [4]
+    assert derive_status(work_dir)["blockers"] == []
 
 
 def test_status_lists_approvals_and_confirmations(make_unit, run):
@@ -164,7 +172,7 @@ def test_status_lists_approvals_and_confirmations(make_unit, run):
     )
 
     status = derive_status(work_dir)
-    assert status["confirmed"] == [2]
+    assert [entry["seq"] for entry in status["confirmed"]] == [2]
     assert status["approvals"][0]["action"] == "execution"
     # A resuming session reads status, not the raw log: who approved has to survive here.
     assert status["approvals"][0]["actor"] == "user"
@@ -444,3 +452,135 @@ def test_add_refuses_a_retired_kind(make_unit, run, kind):
 
     with pytest.raises(SystemExit):
         run("add", "--dir", str(work_dir), "--kind", kind, "--summary", "nope")
+
+
+def test_a_warning_resolution_stays_open(make_unit, run):
+    """Resolving one blocker while reporting another is not a clean close.
+
+    The counterpart of the success case: same --resolves, different status, and
+    the entry has to stay visible because it is still saying something blocks.
+    """
+    work_dir = make_unit("topic")
+    run("add", "--dir", str(work_dir), "--kind", "blocker", "--summary", "port 8080 taken")
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "blocker",
+        "--summary",
+        "port freed, but the fixture database is still empty",
+        "--resolves",
+        "2",
+        "--status",
+        "warning",
+    )
+
+    blockers = derive_status(work_dir)["blockers"]
+    assert [entry["seq"] for entry in blockers] == [3]
+
+
+def test_an_open_fail_downgrades_the_standing_verdict(make_unit, run):
+    """A pass on another surface does not make the unit's verdict a pass."""
+    work_dir = make_unit("topic")
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "contract test on the API surface",
+        "--verdict",
+        "FAIL",
+    )
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "unit tests pass",
+        "--verdict",
+        "PASS",
+    )
+
+    status = derive_status(work_dir)
+    assert status["latestVerification"]["verdict"] == "PASS"
+    assert status["verification"]["verdict"] == "INCONCLUSIVE"
+    assert status["verification"]["downgradedBy"] == [2]
+
+
+def test_the_standing_verdict_is_the_latest_once_gaps_close(make_unit, run):
+    """Nothing open, so the two answers agree and neither is invented."""
+    work_dir = make_unit("topic")
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "first run could not reach the service",
+        "--verdict",
+        "INCONCLUSIVE",
+    )
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "verification",
+        "--summary",
+        "re-run against the service",
+        "--verdict",
+        "PASS",
+        "--resolves",
+        "2",
+    )
+
+    status = derive_status(work_dir)
+    assert status["verification"]["verdict"] == "PASS"
+    assert "downgradedBy" not in status["verification"]
+    assert status["latestVerification"]["verdict"] == "PASS"
+
+
+def test_a_superseded_decision_is_readable_from_status(make_unit, run):
+    """The reversal has to be understandable without opening audit.jsonl."""
+    work_dir = make_unit("topic")
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "decision",
+        "--summary",
+        "join the promo key with a pipe",
+        "--phase",
+        "gathering-context",
+    )
+    run(
+        "add",
+        "--dir",
+        str(work_dir),
+        "--kind",
+        "status-change",
+        "--target",
+        "2",
+        "--to",
+        "cancelled",
+        "--reason",
+        "Tomcat rejects a pipe in the path with a 400",
+        "--summary",
+        "separator decision dropped",
+        "--phase",
+        "gathering-context",
+    )
+
+    cancelled = derive_status(work_dir)["cancelled"]
+    assert len(cancelled) == 1
+    assert cancelled[0]["seq"] == 2
+    assert cancelled[0]["by"] == 3
+    assert "pipe" in cancelled[0]["summary"]
+    assert "400" in cancelled[0]["why"]

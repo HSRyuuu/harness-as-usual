@@ -133,17 +133,35 @@ def open_verifications(events: list[JsonObject]) -> list[JsonObject]:
 
 
 def open_blockers(events: list[JsonObject]) -> list[JsonObject]:
-    """Blockers no later blocker has resolved.
+    """Blockers that are still blocking.
 
-    A blocker that resolves another is itself open: "A is cleared but B now
-    blocks us" is one event, and B still has to be visible.
+    An entry drops off this list two ways: a later blocker resolved it, or it is
+    itself nothing but a resolution.
+
+    The second case is what `--status` decides. "A is cleared but B now blocks
+    us" is one event and B still has to be visible, so a resolving blocker is not
+    filtered on sight — it stays open unless it was recorded as `success`, which
+    is the writer saying it closed something and introduced nothing. Without that
+    distinction every clean resolution left a phantom behind: the resolution
+    could only be closed by another blocker, which would then be open in its
+    turn.
     """
     resolved = resolved_targets(events, "blocker")
     return [
         entry
         for entry in events
-        if entry.get("kind") == "blocker" and entry.get("seq") not in resolved
+        if entry.get("kind") == "blocker"
+        and entry.get("seq") not in resolved
+        and not _is_pure_resolution(entry)
     ]
+
+
+def _is_pure_resolution(entry: JsonObject) -> bool:
+    """A blocker that closes an earlier one and reports nothing still blocking."""
+    target = entry.get("data", {}).get("resolves")
+    if not isinstance(target, int) or isinstance(target, bool):
+        return False
+    return entry.get("status") == "success"
 
 
 def current_unit(events: list[JsonObject]) -> str:

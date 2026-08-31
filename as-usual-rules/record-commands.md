@@ -18,7 +18,9 @@ never the project root.
 ## init
 
 Creates the folder, `contexts.md` from the template, and `audit.jsonl` with the
-first `lifecycle:created` event.
+first `lifecycle:created` event. The document holds the request and nothing else:
+a band is written the first time it has something to hold, never as a placeholder
+waiting to be filled.
 
 ```bash
 as-usual-record.py init \
@@ -30,11 +32,16 @@ as-usual-record.py init \
 
 Use `--unit inbox` only when the user could not choose a unit yet.
 
-Refuses if the folder already holds `contexts.md`, `audit.jsonl`,
-`requirements.md`, `plan.md`, or `conclusion.md` — sealing and the move
-restriction are both derived from the record, so re-initializing over one would
-reset both. Use a different slug for new work, `move` to relabel the folder, or
-delete it if it was created by mistake.
+Refuses if the folder already holds `contexts.md` or `audit.jsonl` — sealing and
+the move restriction are both derived from the record, so re-initializing over
+one would reset both. Use a different slug for new work, `move` to relabel the
+folder, or delete it if it was created by mistake.
+
+A folder holding only artifacts — a `plan.md` written past the helper, with no
+record beside it — is adopted rather than refused. It was never a record, so
+there is nothing to reset, and refusing it left the folder unable to acquire the
+record it was missing. `init` says what it adopted; `move` is closed from then
+on, as it is for any unit that has produced output.
 
 ## add
 
@@ -60,17 +67,17 @@ Kind-specific flags:
 | `lifecycle` | `--event` | `created` · `unit-selected` · `finalized` · `cancelled` · `linked`. `--event finalized` also takes `--reason` when a verification is still open, and that door is the user's: `--actor user --status success` (`core-rules.md` §6) |
 | `verification` | `--verdict` | `PASS` · `FAIL` · `INCONCLUSIVE`. `--resolves <seq>` marks an earlier `INCONCLUSIVE` or `FAIL` verification re-verified |
 | `approval` | `--action` | `high-risk` · `execution` · `git-action`, each with `--actor user --status success` |
-| `status-change` | `--target <seq>`, `--to` | `--to confirmed` needs `--evidence`; `--to cancelled` needs `--reason` |
-| `blocker` | — | `--resolves <seq>` marks an earlier, still-open blocker resolved |
+| `status-change` | `--target <seq>`, `--to` | `--to confirmed` needs `--evidence`; `--to cancelled` needs `--reason`. The target is any reasoning entry — `decision`, `hypothesis`, `review`, `work`, `note` — so this is how a reversed decision is retracted, not an `issue`-only move |
+| `blocker` | — | `--resolves <seq>` marks an earlier, still-open blocker resolved. With `--status success` the entry is a pure resolution and stops counting as open; `warning` or `error` means something still blocks, and it stays visible |
 | others | — | free-form `--summary`, extra fields via `--data` |
 
 `--resolves` belongs to `verification` and `blocker` only, and closes one entry
 of its own kind that is still open: a verification resolves a verification, a
 blocker resolves a blocker, and neither may close a target something else
 already closed. Every other kind is refused — record what an entry relates to in
-`--summary` or `--data`. A blocker that resolves another is itself open until
-something resolves it in turn, so "A is cleared but B now blocks us" stays
-visible in `status`.
+`--summary` or `--data`. "A is cleared but B now blocks us" is one event: record
+it as a `warning` or an `error` and it stays visible in `status`, because the
+status is what separates a compound blocker from a plain resolution.
 
 The script refuses rather than warns, and each message names the rule it is
 enforcing and how to satisfy it; read the refusal rather than guessing at the
@@ -129,14 +136,22 @@ stale path is given later, scan `.as-usual/` instead.
 
 ## link
 
-Records a two-way link between work units.
+Records a two-way link between work units, in the record and in both documents.
 
 ```bash
 as-usual-record.py link --dir <work-dir> --to-dir <other-work-dir> [--summary "<why>"]
 ```
 
-Allowed even after a record is closed — a concluded issue must be able to point
-at the follow-up it spawned. Also add the path to both `contexts.md` top bands.
+Appends the entry to each side's `## Linked Work` band, creating it when the
+document does not have one yet. If a document is too damaged to place it — no
+frontmatter and no `# Context` title — the events are still recorded and the
+command says which file to fix by hand.
+
+Allowed even after a record is closed, and this is the point: a sealed unit
+cannot mark its own decision superseded, so the link is the only channel a later
+correction has. A concluded issue points at the follow-up it spawned the same
+way. Say in `--summary` what the other unit supersedes, so a reader who lands on
+the stale decision meets the correction on the same page.
 
 Paths are recorded relative to the project root (`.as-usual/topic/…`) so the
 record survives the repository moving or being cloned elsewhere. A target
@@ -152,8 +167,18 @@ as-usual-record.py status --dir <work-dir> [--json]
 ```
 
 Returns unit, state (`open`/`finalized`/`cancelled`), phase, nextAction, open
-blockers, approvals, latest verification, confirmed/cancelled seqs, links,
-artifacts present, and whether `move` is still allowed.
+blockers, approvals, the verdict that stands, the latest verification event,
+confirmed and cancelled reasoning entries, links, artifacts present, and whether
+`move` is still allowed.
+
+`verification` is the verdict that stands for the unit, not merely the newest
+one: while any `FAIL` or `INCONCLUSIVE` is unresolved it reads `INCONCLUSIVE` and
+names what downgraded it. `latestVerification` is the newest event itself. The
+two answer different questions and both are reported, so neither has to be
+reconstructed from `openVerifications`.
+
+`confirmed` and `cancelled` carry the target's summary and the reason or evidence
+given, so a superseded decision can be read without opening `audit.jsonl`.
 
 ## validate
 
@@ -161,6 +186,14 @@ Structural audit of an existing record: duplicate or non-increasing seqs,
 vocabulary violations, missing payloads, appends after closure, and a
 `contexts.md` whose declared unit disagrees with the record. Use it when a
 record looks hand-edited or a concurrent write is suspected.
+
+It also re-judges a sealed unit against today's finalize gate and reports what
+that gate would now refuse — a unit closed over an open verification with no
+`--reason` or with someone other than the user's, a sealed `topic` with no
+`verification.md`, a sealed `issue` with no `conclusion.md`. These are
+`warning:` lines and never reach the exit code. The append gates only run when a
+unit closes, so a record sealed before a gate existed is not made retroactively
+invalid by it — the same promise retired vocabulary keeps.
 
 Retired vocabulary is accepted here and refused by `add`: a value that was legal
 when it was written keeps auditing clean, while nothing new can be written with

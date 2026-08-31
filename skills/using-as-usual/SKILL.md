@@ -122,8 +122,16 @@ than picking the nearest one.
   is a file or nested folder inside one, walk upward. If it is a project root or
   a unit collection directory, list recent candidates and ask which.
 - **No path**: scan `.as-usual/inbox|topic|direct-work|issue/`. List up to three
-  recent candidates across all units with their unit, slug, and next action, then
-  ask which to resume. If nothing is there, say so.
+  recent candidates across all units with their unit, slug, next action, and how
+  long ago their last event was. Mark an `open` unit whose last event is older
+  than the units around it as stale and worth confirming before resuming — an
+  abandoned folder keeps its `nextAction` forever, so the most prominent thing
+  the list offers can be an invitation to start work that already shipped
+  somewhere else. Then ask which to resume. If nothing is there, say so.
+- **A folder with artifacts and no `audit.jsonl`** is not a resume candidate and
+  not nothing: it is work that went past the helper, so no gate ever saw it and
+  no link can point at it. Report it while listing candidates. `init` on that
+  folder adopts it.
 - **Stale path** (the folder moved units): scan `.as-usual/` for the slug rather
   than failing. `move` can rename the slug as well as the unit, so when the slug
   finds nothing, fall back to the date in the path and then to the initial

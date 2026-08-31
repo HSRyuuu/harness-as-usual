@@ -55,6 +55,13 @@ work turns out to:
 If nothing has been produced yet, `move` handles the relabel; the record helper
 allows it until `plan.md` exists.
 
+When gathering shows there is nothing to change — already done, already correct,
+the premise false — that finding is the output. Record it in the `contexts.md`
+Decisions band and close with `--event cancelled` and its `--reason`. Do not
+leave the folder `open`: its `nextAction` will go on inviting someone to resume a
+question that is already answered, and the answer itself stays in `audit.jsonl`
+where nobody reads it.
+
 ## Gates
 
 - **Plan review before execution approval** (core rule 7). Lighter than a

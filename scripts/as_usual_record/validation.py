@@ -21,11 +21,12 @@ from .constants import (
     UNIT_PHASES,
     UNITS,
     VERDICTS,
+    VERIFICATION_UNITS,
     JsonObject,
 )
 from .contexts import read_declared_unit
 from .paths import RecordError, audit_path, contexts_path
-from .records import current_unit, read_events
+from .records import current_unit, latest_of_kind, open_verifications, read_events
 
 
 REQUIRED_FIELDS = ("seq", "ts", "actor", "unit", "kind", "status", "summary")
@@ -166,3 +167,76 @@ def _check_payload(entry: JsonObject, where: str) -> list[str]:
             problems.append(f"{where}: confirmed status-change requires evidence")
 
     return problems
+
+
+def audit_sealed(work_dir: Path) -> list[str]:
+    """Re-judge a sealed unit against today's finalize gate.
+
+    Deliberately separate from `validate_record`, and deliberately not a problem.
+
+    The append gates only run when a unit closes, so a record sealed before a
+    gate existed keeps auditing clean forever — four such units are in real use.
+    Reaching backwards to fail them would break the same promise the retired
+    vocabulary keeps: an entry legal when it was written stays legal. So this
+    reports what today's contract would refuse and lets the caller decide, and
+    `cmd_validate` deliberately keeps its exit code out of it.
+    """
+    events = read_events(work_dir)
+    closing = _closing_entry(events)
+    if closing is None or _event(closing) != "finalized":
+        return []
+
+    try:
+        unit = current_unit(events)
+    except RecordError:
+        return []
+
+    warnings: list[str] = []
+    where = audit_path(work_dir)
+    seq = closing.get("seq")
+    data = closing.get("data") if isinstance(closing.get("data"), dict) else {}
+
+    if unit in VERIFICATION_UNITS:
+        unresolved = open_verifications(events)
+        if unresolved:
+            listed = ", ".join(
+                f"seq {entry.get('seq')} {entry.get('data', {}).get('verdict')}"
+                for entry in unresolved
+            )
+            if not data.get("reason"):
+                warnings.append(
+                    f"{where}: sealed at seq {seq} over unresolved verifications "
+                    f"({listed}) with no --reason. today's gate refuses this; the record "
+                    "may predate it"
+                )
+            elif closing.get("actor") != "user":
+                warnings.append(
+                    f"{where}: sealed at seq {seq} over unresolved verifications "
+                    f"({listed}) with a --reason recorded by {closing.get('actor')}, not "
+                    "the user. accepting a known gap is the user's call; the record may "
+                    "predate that gate"
+                )
+        if latest_of_kind(events, "verification") is None:
+            warnings.append(
+                f"{where}: sealed at seq {seq} with no verification recorded at all. "
+                "today's gate refuses this; the record may predate it"
+            )
+
+    if unit == "topic" and not (work_dir / "verification.md").is_file():
+        warnings.append(
+            f"{work_dir}: sealed topic has no verification.md. today's gate refuses "
+            "this; the record may predate it"
+        )
+    if unit == "issue" and not (work_dir / "conclusion.md").is_file():
+        warnings.append(
+            f"{work_dir}: sealed issue has no conclusion.md. today's gate refuses "
+            "this; the record may predate it"
+        )
+    return warnings
+
+
+def _closing_entry(events: list[JsonObject]) -> JsonObject | None:
+    for entry in events:
+        if entry.get("kind") == "lifecycle" and _event(entry) in CLOSING_LIFECYCLE_EVENTS:
+            return entry
+    return None

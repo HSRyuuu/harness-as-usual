@@ -9,7 +9,13 @@ created: <yyyy-MM-dd>
 ## Confirmed Cause / Direction
 
 (The confirmed root cause, or the confirmed solution or improvement direction.
-State it as what is now known to be true, not as what is suspected.)
+State it as what is now known to be true, not as what is suspected.
+
+State the direction, not the task list. File-by-file execution steps belong to
+the follow-up unit's `plan.md`, which reads the code at the time it runs and is
+free to decide differently. A plan written here is sealed with the conclusion, so
+when the follow-up overrules it there is no way for this document to say so — it
+goes on reading as settled.)
 
 ## Supporting Evidence
 

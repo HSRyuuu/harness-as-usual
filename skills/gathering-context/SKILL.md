@@ -49,6 +49,13 @@ fill a form.
   recording your own recommendation as their decision.
 - **Never ask what the codebase, logs, or git history can answer.** Look it up.
   Use `explore-codebase` when the surface is unfamiliar.
+- **Check whether another unit already decided this.** Before recommending a
+  decision about a file, a key, or a contract, read `.as-usual/*/*/report.md` and
+  `git log -S` for it. An earlier unit that settled this surface goes in
+  `## Linked Work` whether or not you agree with what it settled — and if you are
+  about to reverse it, say so in the link. Looking up the code is not the same
+  check: code answers what the value is now, not who chose it or what they ruled
+  out, and a citation can be true and still miss the reason the choice was made.
 - **Always ask what is the user's to decide, however clear the evidence looks.**
   Looking things up settles *facts*. It never settles *ownership*. These stay the
   user's no matter what the code says:

@@ -123,14 +123,40 @@ record helper, then three bands with three different rules:
 History is not lost by editing the middle band: `audit.jsonl` is append-only and
 keeps it.
 
+The bands are these headings, in this order. A section appears the first time it
+has something to hold — `init` writes only the request, because a heading over a
+placeholder is a section pretending to be filled in:
+
+```markdown
+# Context
+## Initial Request     (top)
+## Boundary            (top)  — with ### In Scope and ### Out Of Scope
+## Linked Work         (top)
+## Decisions           (middle)
+## Q&A Log             (bottom)
+```
+
 Near-fixed means existing entries are not rewritten, not that the band cannot
 grow. Links accumulate as the work spawns follow-ups: one entry is a path and
-why, in a line or two. A correction to an earlier premise is a decision — it
-belongs in the middle band, not appended to the link that it revises.
+why, in a line or two — `link` writes them into both documents. A correction to
+an earlier premise is a decision — it belongs in the middle band, not appended to
+the link that it revises.
+
+**`## Linked Work` keeps changing after the unit is sealed.** It is the one band
+that does, alongside `verification.md`. The record accepts nothing but links once
+a unit closes, so a sealed unit cannot mark its own decision superseded and the
+link is the only channel a later correction has. Say in the link's reason what it
+supersedes; a reader who arrives at the stale decision then meets the correction
+on the same page.
 
 There is no artifact-list section. `status --json` derives `artifacts` from what
 is actually on disk, so a hand-written copy only supplies a second answer that
 can be wrong.
+
+A document written for someone outside this unit — an API spec, a handoff note —
+is a deliverable, not a record artifact. Put it where its audience will look and
+link it from `report.md`. Left in the work folder it goes on being edited after
+the unit seals, and the copy its readers actually use drifts from it.
 
 Every timestamped entry in the Decisions and Q&A Log bands uses one heading
 shape — what the entry is about first, when it was written last:
@@ -175,7 +201,9 @@ question has been raised the band says so in one line and carries no skeleton.
   be traced back to `audit.jsonl`.
 - `verification.md` is the one artifact that keeps being updated after the record
   is sealed, and those updates go in its own band, marked as outside the record.
-  Every other artifact is final once the unit closes.
+  `contexts.md` keeps one such band too — `## Linked Work`, which `link` writes on
+  both sides whenever it runs, closed record or not. Every other artifact, and
+  every other band, is final once the unit closes.
 - When asking for approval or a material decision, cover the requested action,
   its reason, scope/files, risk, rollback, and the exact choice needed. Omit
   only what truly does not apply.
@@ -244,6 +272,18 @@ python3 <plugin-root>/scripts/as-usual-record.py status --dir <work-dir> --json
 Event kinds (10): `lifecycle` · `approval` · `verification` · `review` ·
 `decision` · `work` · `hypothesis` · `status-change` · `blocker` · `note`.
 
+`status-change` retracts reasoning, and a `decision` is reasoning like any other
+— it is not an `issue`-only move for hypotheses. When an agreed decision is
+reversed, `--target <seq> --to cancelled --reason "<what is now true>"` says so
+on the record while the middle band is edited to read as the current agreement.
+Without it the reversal exists only as prose the next session has to notice, and
+`status` still reports the dead decision as live.
+
+A `blocker` recorded with `--resolves` and `--status success` says it closed
+something and introduced nothing, so it stops counting as open. One that is still
+blocking is a `warning` or an `error`, and stays visible however many earlier
+blockers it cleared.
+
 Removing a value does not reach backwards. It becomes retired vocabulary, which
 `validate` still accepts and `add` refuses — the record is append-only, so an
 entry written while a value was legal stays valid after it is dropped.
@@ -287,6 +327,12 @@ context only.
   refuses it as anyone else's. Verdicts are only `PASS`, `FAIL`, and
   `INCONCLUSIVE`; a softer word for a gap is the substitution this rule exists
   to stop.
+- Recording an unverified criterion as a `blocker` is the same substitution
+  wearing a different kind. "Excluded from verification" and "partially
+  satisfied" are `INCONCLUSIVE`, and filing them anywhere else keeps the gap out
+  of `openVerifications`, where every gate that could catch it looks. Narrowing
+  the criterion until it passes is the same move made one step earlier: the
+  verdict belongs to the criterion as `requirements.md` states it.
 - Evidence lives in `verification.md`: the event's `summary` indexes it, the
   document carries the environment, the commands, the per-criterion results, and
   the gaps. A `topic` keeps one and cannot be finalized without it on disk; a

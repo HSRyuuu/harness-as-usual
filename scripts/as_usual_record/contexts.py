@@ -25,33 +25,21 @@ created: {created}
 ## Initial Request
 
 {initial_request}
-
-## Boundary
-
-### In Scope
-
-_Not set._
-
-### Out Of Scope
-
-_Not set._
-
-## Linked Work
-
-_None._
-
----
-
-## Decisions
-
-_None yet._
-
----
-
-## Q&A Log
-
-_No questions raised yet._
 """
+
+# `core-rules.md` §3 fixes this order, and a section that would be empty is left
+# out rather than filled with a placeholder. So a new document holds only the
+# request, and a band is created the first time it has something to hold —
+# which means an inserter has to know where a missing band belongs.
+SECTION_ORDER = (
+    "## Initial Request",
+    "## Boundary",
+    "## Linked Work",
+    "## Decisions",
+    "## Q&A Log",
+)
+
+_EMPTY_MARKERS = ("_Not set._", "_None._", "_None yet._", "_No questions raised yet._")
 
 _PLACEHOLDER = re.compile(r"\{(initial_request|unit|slug|created)\}")
 
@@ -169,3 +157,103 @@ def _update_legacy_unit_section(path: Path, body: str, unit: str) -> None:
                 path.write_text("\n".join(lines) + "\n", encoding="utf-8")
                 return
         return
+
+
+def append_to_band(work_dir: Path, heading: str, text: str) -> bool:
+    """Add an entry under `heading`, creating the band if it is not there yet.
+
+    Returns False without writing when the document is too damaged to place the
+    entry safely — no frontmatter and no `# Context` title. That is the only
+    refusal: a band that simply does not exist yet is the normal case for a young
+    unit, not a reason to drop the entry on the floor.
+    """
+    path = work_dir / CONTEXTS_FILE
+    if not path.exists():
+        return False
+    body = path.read_text(encoding="utf-8")
+    if _FRONTMATTER.match(body) is None and not body.lstrip().startswith("# Context"):
+        return False
+
+    lines = body.splitlines()
+    start = _heading_index(lines, heading)
+    if start is None:
+        return _create_band(path, lines, heading, text)
+
+    end = _band_end(lines, start)
+    block = lines[start + 1 : end]
+    if any(line.strip() in _EMPTY_MARKERS for line in block):
+        block = [line for line in block if line.strip() not in _EMPTY_MARKERS]
+    kept = _trim(block)
+    # A list keeps its items together; anything else reads as a paragraph and
+    # wants the blank line.
+    separator = [] if _is_list_item(kept[-1:]) and _is_list_item([text]) else [""]
+    rebuilt = [lines[start], *kept, *separator, *text.rstrip().splitlines(), ""]
+    path.write_text("\n".join([*lines[:start], *rebuilt, *lines[end:]]) + "\n", encoding="utf-8")
+    return True
+
+
+def prepend_notice(work_dir: Path, text: str) -> bool:
+    """Put a notice where a reader opening the document meets it first.
+
+    Directly under `# Context`, above every band. A cancellation that lives only
+    in `audit.jsonl` leaves the document reading as live work, which is how a
+    dead unit keeps inviting someone to continue it.
+    """
+    path = work_dir / CONTEXTS_FILE
+    if not path.exists():
+        return False
+    body = path.read_text(encoding="utf-8")
+    lines = body.splitlines()
+    for index, line in enumerate(lines):
+        if line.strip() == "# Context":
+            block = ["", *text.rstrip().splitlines()]
+            path.write_text(
+                "\n".join([*lines[: index + 1], *block, *lines[index + 1 :]]) + "\n",
+                encoding="utf-8",
+            )
+            return True
+    return False
+
+
+def _create_band(path: Path, lines: list[str], heading: str, text: str) -> bool:
+    """Insert a new band at the position `SECTION_ORDER` gives it."""
+    if heading in SECTION_ORDER:
+        following = SECTION_ORDER[SECTION_ORDER.index(heading) + 1 :]
+    else:
+        following = ()
+    insert_at = len(lines)
+    for candidate in following:
+        found = _heading_index(lines, candidate)
+        if found is not None:
+            insert_at = found
+            break
+    block = [heading, "", *text.rstrip().splitlines(), ""]
+    head = _trim(lines[:insert_at])
+    path.write_text("\n".join([*head, "", *block, *lines[insert_at:]]) + "\n", encoding="utf-8")
+    return True
+
+
+def _heading_index(lines: list[str], heading: str) -> int | None:
+    for index, line in enumerate(lines):
+        if line.strip() == heading:
+            return index
+    return None
+
+
+def _band_end(lines: list[str], start: int) -> int:
+    """Where the band stops: the next heading of the same or higher level, or a rule."""
+    for index in range(start + 1, len(lines)):
+        stripped = lines[index].strip()
+        if stripped.startswith("# ") or stripped.startswith("## ") or stripped == "---":
+            return index
+    return len(lines)
+
+
+def _is_list_item(lines: list[str]) -> bool:
+    return bool(lines) and lines[0].lstrip().startswith(("- ", "* "))
+
+
+def _trim(block: list[str]) -> list[str]:
+    while block and not block[-1].strip():
+        block.pop()
+    return block
