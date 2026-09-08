@@ -51,11 +51,8 @@ Confirm the record could carry a fresh session that has none of this context:
 
 - what was done,
 - verification: `verification.md` where the unit keeps one, otherwise the exact
-  commands and their outcomes, or what was skipped and why. Any `INCONCLUSIVE` or
-  `FAIL` still open has to be re-verified with `--resolves` or accepted by the
-  user with `--actor user --reason` on the close — the helper refuses otherwise
-  (`core-rules.md` §6). A `topic` also needs `verification.md` on disk before it
-  can close at all,
+  commands and their outcomes, or what was skipped and why; apply the
+  current-state and completion checks in `core-rules.md` §6,
 - review findings and their dispositions,
 - decisions and constraints that still bind,
 - remaining issues, or explicitly none.

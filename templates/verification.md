@@ -17,7 +17,10 @@ a friendlier name, which is the substitution `core-rules.md` §6 exists to stop.
 ## Environment
 
 (What was run, where, and against which data — the build or branch, the instance,
-the database, anything external. Name **what you did not touch**: a port left
+the database, anything external. Identify the tested revision and relevant
+uncommitted changes, plus whether the check actually ran or reused/skipped work.
+Use these to apply `core-rules.md` §6's current-state check.
+Name **what you did not touch**: a port left
 alone, a shared instance someone else was using. A reader reproducing this needs
 to know where the boundary was.)
 

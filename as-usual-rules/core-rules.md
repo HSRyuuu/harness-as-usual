@@ -313,6 +313,12 @@ context only.
 - Evidence must match the surface: CLI/script/test = the command re-run plus its
   actual output; API = the actual request/response; UI = a screenshot or a
   recorded manual check by the user.
+- Evidence must also match the current code, configuration, and data. Before a
+  completion claim, compare the verified state with the current state. If a
+  relevant change invalidates an earlier `PASS`, keep that event as history and
+  record a new `INCONCLUSIVE` naming the affected criterion and earlier seq;
+  re-run the affected check and resolve the new gap. An unchanged branch name or
+  a cached/skipped test result does not establish that the changed surface ran.
 - Tests alone never prove done.
 - For a bug fix, the evidence includes the failure reproduced before the fix. A
   check written afterwards shows that it passes, not that it fixed anything.
