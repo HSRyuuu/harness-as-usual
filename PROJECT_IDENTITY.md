@@ -52,7 +52,7 @@ AsUsual is tuned for frontier models, which draws a deliberate line. The record 
 
 - Work-unit artifacts are the source of truth; chat memory is supporting context. Every unit keeps `contexts.md` (the agreed decisions) and `audit.jsonl` (the append-only evidence trail).
 - The unit is decided before any work folder exists, and it is the user's choice: the agent classifies and recommends, but presents the options and follows what the user picks — including the option to use no harness at all.
-- An `issue` never modifies production code. Implementation starts as a separately linked work unit after the cause or solution direction is confirmed with evidence.
+- An `issue` never modifies production code. After the cause or solution direction is confirmed with evidence, implementation continues under a development unit using the transition rules in `as-usual-rules/core-rules.md` §7.
 - Gated implementation — work that is ambiguous, risky, or hard to reverse — requires a completed `requirements.md` and approved `plan.md`. Size alone does not gate; ambiguity and risk do.
 - `direct-work` is for clear, low-risk, reversible work, gated on ambiguity and risk rather than size. It skips the requirements agreement, not the record: it still keeps `contexts.md` and `audit.jsonl`, and it still needs a plan review before execution approval.
 - Material decisions are clarified with the user and recorded before they are built on. Questions are asked in chat and their answers written down by the agent — the user is never made to open a file and fill in a field. Every agreed decision lands in one document, `contexts.md`, whenever in the work it was made.

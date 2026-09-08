@@ -271,8 +271,8 @@ go to `review.md` in three severities; Critical and Important each reach a
 disposition — fixed and re-reviewed, or rejected with a technical reason —
 before the work closes. An Important finding may also be accepted by a user who
 was told the real risk. A Critical one may not: consent decides whether to ship,
-not whether the work is done, so an unresolved Critical closes the unit as
-blocked.
+not whether the work is done, so an unresolved Critical leaves the unit open
+in the `blocked` phase, with no closing event.
 
 **`cleanup-code`** — user-approved only, after the correctness review. Four
 lenses (reuse, simplification, efficiency, abstraction) over the changed code
