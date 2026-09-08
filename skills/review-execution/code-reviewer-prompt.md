@@ -29,7 +29,7 @@ Read {SAFETY_RULES_PATH} in full before you start reviewing. It defines which op
 
 ## Findings
 
-Report only findings you are confident are real: each cites where it is (file and line, or the exact changed area) and how it fails (trigger, state, bad outcome). If you cannot name both, it is not a finding. A clean review is a valid result. Do not re-litigate decisions already approved in the requirements or plan, and do not flag unchanged code unless it creates a critical risk for this work.
+Report only findings you are confident are real: each cites where it is (file and line, or the exact changed area) and how it fails (trigger, state, bad outcome). If you cannot name both, it is not a finding. A clean review is a valid result. Do not re-litigate decisions already approved in the requirements or plan. Inspect unchanged callers, consumers, and configuration when this change can affect them. Report regressions caused by the change at their actual severity, even when the failing caller is unchanged. Do not expand the review to unrelated pre-existing issues unless they create a critical risk for this work.
 
 Severity: Critical — the work cannot honestly be called done; Important — must be resolved before the work closes; Minor — polish, never blocking.
 

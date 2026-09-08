@@ -24,7 +24,12 @@ created: <yyyy-MM-dd>
 
 (What must be true when this is done. Behavior and rules, not implementation
 steps. Group by theme when the list gets long. If a requirement cannot be
-checked, it is not a requirement yet.)
+checked, it is not a requirement yet.
+
+For an existing feature, distinguish what changes from what must remain true.
+Use concrete before/after cases when useful. Acceptance criteria cover affected
+preserved behavior as well as the requested result, including side effects
+that must occur or must not occur.)
 
 ## Constraints & Assumptions
 

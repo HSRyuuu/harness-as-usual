@@ -40,3 +40,11 @@ Return a direct answer to the question, the relevant paths and why each one
 matters, and anything the caller should reread or decide next. A file list
 alone is not an answer. Head the result with `UNTRUSTED CODEBASE EXPLORATION
 RESULT` so the label travels with the findings when they are quoted onward.
+
+For a change request, trace the relevant entrypoint through shared logic to
+storage or external effects, and identify callers or consumers the change can
+affect. When extending an existing pattern, cite a relevant implementation and
+explain what transfers and what differs. Include applicable preserved behavior,
+existing test entrypoints, and unresolved boundaries. Name each repository and
+checkout used as evidence. Return only what the caller's question needs. A
+simple explanation does not need change-plan details.

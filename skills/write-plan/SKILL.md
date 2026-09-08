@@ -26,6 +26,10 @@ than inferring the weight from the request. Writing a topic-weight document for 
 - Derived state: `as-usual-record.py status --dir <work-dir> --json`.
 - The actual code the plan will touch. A plan written without looking at the
   files it names is a guess.
+- For existing behavior, the observed flow, affected callers or consumers,
+  preserved behavior, and any implementation proposed as an analogue. Treat an
+  external caller not found as an unresolved boundary, not as evidence that none
+  exists.
 
 If something is open that the plan cannot be written without, call
 `gathering-context` with that single item rather than assuming.
@@ -40,6 +44,10 @@ with the real `unit`, `slug`, and `created` (`core-rules.md` §3).
 Per task, **verification must be runnable** — a command with an expected result,
 not "confirm it works". For a behavior change, the verification has to exercise
 the changed behavior.
+
+For a task that reuses existing behavior, its **Steps** name the actual reuse
+point and the behavior that task must preserve. The plan distinguishes the
+checkout being changed from any reference checkout.
 
 Under **Safety**, name any high-risk operation the task involves (see
 `safety-rules.md`) along with its rollback. Recording it here does not grant
@@ -58,7 +66,12 @@ After writing, before asking for anything:
    task actually do what it claims? Are the file paths real? Do the tasks compose
    — does task 3 depend on something task 2 never produces? Is every acceptance
    criterion covered? Is any verification unrunnable? Does anything contradict
-   the requirements?
+   the requirements? For changes to existing behavior, does the plan connect the
+   observed flow to the proposed change, name affected callers or consumers, and
+   preserve the required behavior? Does each analogue identify what transfers
+   and what differs rather than copying assumptions such as authentication or
+   exception handling wholesale? Is an external caller not found still marked
+   as unresolved rather than reported as nonexistent?
    `plan-quality-reference.md` in this directory lists what to look for. Use it
    as a reference; there is no checklist to fill in.
 2. **Fix what you find.** The point is a better plan, not a list of findings.
@@ -83,7 +96,7 @@ Do not add a review status section to `plan.md`. The event is the record.
 Then, in one compact block:
 
 - the absolute system path of `plan.md` (e.g.
-  `/Users/me/proj/.as-usual/topic/2026-08-27-slug/plan.md`) — always print the
+  `/workspace/proj/.as-usual/topic/2026-08-27-slug/plan.md`) — always print the
   full path in the terminal, never a repo-relative path alone,
 - what the plan will do, in a line or two,
 - anything risky in it, with the rollback,
