@@ -9,9 +9,8 @@ The single entry point for AsUsual. It decides whether the harness applies,
 classifies the work into one unit, creates or resumes the work folder, and hands
 off. It owns no pipeline of its own.
 
-Read `as-usual-rules/core-rules.md` before acting. Resolve the plugin root from
-the SessionStart hook announcement, or as the parent of the `skills/` directory
-containing this file.
+Read `as-usual-rules/core-rules.md` before acting. `record-commands.md` says how
+to resolve `<plugin-root>`.
 
 ## Three Ways In
 
@@ -76,29 +75,21 @@ Execution approval follows `core-rules.md` §4; a plan file alone is not consent
 Apply the two-question tree in `core-rules.md` §2 and form a recommendation.
 
 While you are there, scan `.as-usual/` for folders that are still open and read
-their `contexts.md` boundaries. You need this for the next step: a request that
-falls inside an open folder's scope belongs to that folder, not to a new one or
-to "just do it" — changing files an open record makes claims about desyncs that
-record from the tree. Route it back instead.
+their `contexts.md` boundaries. A request that falls inside an open folder's
+scope belongs to that folder (`core-rules.md` §2).
 
 ### 2. Offer the choice
 
-Unless the user already named a unit, present the four options once — describing
-what happens **to this request** under each, not what the units are called — and
-mark your recommendation with its reason. The four options and the presentation
-rules are in `core-rules.md` §2.
+Unless the user already named a unit, present the four options as
+`core-rules.md` §2 describes, including the `inbox` fallback when the user cannot
+choose.
 
-- The user picking something else is the end of it. Follow their choice; do not
-  re-pitch.
-- "Just do it" means no folder and no record. Nothing is written, including the
-  fact that they chose it.
-- If the user cannot choose, create an `inbox` folder and use
-  `gathering-context` to narrow it, then `move` into the chosen unit.
+"Just do it" means no folder and no record. Nothing is written, including the
+fact that they chose it.
 
 ### 3. Create the folder
 
-Only after the unit is decided (core rule 6). Choose
-`yyyy-MM-dd-<lowercase-kebab-slug>` with the actual current date.
+Only after the unit is decided (core rule 6). Naming follows `core-rules.md` §3.
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py init \
@@ -108,18 +99,16 @@ python3 <plugin-root>/scripts/as-usual-record.py init \
   --actor claude
 ```
 
-Use `--actor codex` on Codex. Then tell the user the folder path in one line so
-they can correct the slug early.
+Use `--actor codex` on Codex.
 
 ### 4. Hand off
 
 Invoke the owner skill for the unit: `run-topic`, `run-direct-work`, or
 `run-issue`. It owns everything from there.
 
-If the user asked for autopilot, confirm in one line where the run will stop,
-record it with `--kind decision --data autopilot=on`, and tell the owner skill it
-is on. When `autopilot:<phase>` names a phase this unit does not use, ask rather
-than picking the nearest one.
+If the user asked for autopilot, confirm and record it as `core-rules.md` §10
+says, and tell the owner skill it is on. When `autopilot:<phase>` names a phase
+this unit does not use, ask rather than picking the nearest one.
 
 ## Resuming
 
@@ -157,11 +146,7 @@ python3 <plugin-root>/scripts/as-usual-record.py status --dir <work-dir> --json
 ```
 
 Then read `contexts.md`, and whichever of `requirements.md`, `plan.md`,
-`review.md`, `conclusion.md` the derived next action needs. Read from disk, not
-from memory of a previous session.
-
-A resume starts manual. An `autopilot=on` in the record is what a previous session
-was told, not permission for this one.
+`review.md`, `conclusion.md` the derived next action needs.
 
 ### 3. Verify before trusting
 
@@ -186,12 +171,3 @@ Stop and tell the user what you need when:
 - A work folder is closed and they asked to continue it.
 - Only a pre-v2 record exists.
 - An autopilot instruction is there but where it should stop is not clear.
-
-## Anti-Patterns
-
-- Classifying and starting work in the same breath, without offering the choice.
-- Creating a folder before the unit is decided.
-- Recording anything when the user chose "just do it".
-- Turning autopilot on yourself because the request looked self-contained.
-- Reporting another session's work as complete without checking diffs yourself.
-- Running an owner skill's pipeline here instead of handing off.

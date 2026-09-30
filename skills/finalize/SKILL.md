@@ -123,9 +123,8 @@ Ask in the user's language, and offer exactly these four:
 - commit + push + PR
 ```
 
-When they choose, invoke `git-action`. For an `issue`, do not ask this by
-default — confirming a cause and stopping is a normal ending, and there is
-usually nothing to commit.
+When they choose, invoke `git-action`. Skip the question when the caller's
+matrix says not to ask it by default.
 
 ## Anti-Patterns
 

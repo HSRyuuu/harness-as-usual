@@ -111,7 +111,7 @@ fill a form.
   question even is, do not ask both.
 - Ask in chat. Never make the user open a file and write into it.
 
-Stop when the list is settled. If a question keeps failing to converge after
+If a question keeps failing to converge after
 about three rounds, say so plainly, state the assumption you would proceed on and
 its risk, and let the user accept it or decide.
 
@@ -123,13 +123,10 @@ with evidence.
 - An item whose direction the evidence can set: decide it, with the
   recommendation and the reason you would have given the user. Write it into the
   Decisions band marked `(autopilot)` and record it with `--data autopilot=on`.
-- **Cite what you checked, per decision** — a file and line, a command and its
-  output, a document you read. Nothing to cite is not a decision; it is a stop.
-  The moment "probably" is about to enter an artifact is that moment.
+- **Cite what you checked, per decision** (`core-rules.md` §10, stop guard).
 - An item evidence cannot settle — a fact only the user has, a cost that lands
   outside the repository, an action you find yourself weighing for approval — is
   not decided. Record a `blocker` and stop (`core-rules.md` §10).
-- An unchecked fact the work does not depend on is a `note`, not a stop.
 
 "An assumption is not a substitute for a question" still holds. What separates an
 autopilot decision from the assumption that rule forbids is the mark and the
@@ -143,8 +140,7 @@ matter which stage produced it.
 The three bands and their mutability are defined in `core-rules.md` §3. What
 matters while writing them: the Decisions band holds what was agreed, not a
 transcript — what was decided, and enough of why that a later session does not
-re-litigate it. Never leave two contradicting decisions side by side for the
-reader to resolve.
+re-litigate it.
 
 **Record each material decision** as you go:
 
@@ -175,7 +171,3 @@ proceed.
 - Recording an unasked decision as an assumption, a constraint, or a risk.
 - Leaving an autopilot decision unmarked, uncited, or out of the digest.
 - Exercising a delegated judgment without telling the user what it excluded.
-- Branching on the calling unit (`if topic … if issue …`).
-- Appending a reversed decision below the old one instead of editing it.
-- Editing the append-only Q&A band.
-- Continuing past an unanswered question by assuming the answer.

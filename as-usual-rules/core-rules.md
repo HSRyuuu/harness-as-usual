@@ -199,11 +199,9 @@ question has been raised the band says so in one line and carries no skeleton.
   day the unit was created, not the day the file was last touched.
 - Cite a record entry as `#<seq>` — `#12`, or `#4–#6` for a range. A date cannot
   be traced back to `audit.jsonl`.
-- `verification.md` is the one artifact that keeps being updated after the record
-  is sealed, and those updates go in its own band, marked as outside the record.
-  `contexts.md` keeps one such band too — `## Linked Work`, which `link` writes on
-  both sides whenever it runs, closed record or not. Every other artifact, and
-  every other band, is final once the unit closes.
+- Updates to `verification.md` after the record is sealed (§6) go in its own
+  band, marked as outside the record. Apart from that band and `## Linked Work`,
+  every artifact is final once the unit closes.
 - When asking for approval or a material decision, cover the requested action,
   its reason, scope/files, risk, rollback, and the exact choice needed. Omit
   only what truly does not apply.
@@ -462,7 +460,7 @@ above a step skill's stop conditions.
 
 | | What | Under autopilot |
 | --- | --- | --- |
-| **Hard gate** | execution approval · fresh high-risk approval · git action choice | never crossed. The script refuses the first two as anything but `--actor user`; the git action usually falls after sealing, where §4 already says it rests on the user's stated choice and on git history |
+| **Hard gate** | execution approval · fresh high-risk approval · git action choice | never crossed. The script refuses the first two as anything but `--actor user`; for the git action see §4, What the script cannot see |
 | **Soft stop** | "requirements are ready, shall I plan?" · `awaiting-user` after execution · the review, cleanup, and finalize proposals · the gathering interview | crossed |
 
 So a fully autopilot `topic` still stops at least twice — once to approve the
@@ -500,8 +498,8 @@ Two things are stops, not decisions.
 
 The boundary that keeps this usable: an unchecked fact the work does not depend
 on is a `note`, not a stop — the test is whether the output is wrong if the fact
-is wrong. Stop by recording a `blocker` with `--phase blocked --next-action
-awaiting-user`, saying what you tried and what would settle it. A verdict other
+is wrong. Stop the way §5 describes for `blocked`, with the `blocker` saying what
+you tried and what would settle it. A verdict other
 than `PASS`, a `Critical` review finding, and the same failure three times are
 stops too. Stopping does not turn autopilot off.
 
@@ -511,6 +509,23 @@ A step the owner's matrix marks *proposed by default* runs; one it marks
 autopilot carried to the end is finalized, because that is where the record's
 completeness is checked, and an unattended run needs that check more than an
 attended one.
+
+### Ending a turn
+
+Under autopilot, a message with no tool call ends the turn, and the run stops
+there. While the unit's work is still owed — open `plan.md` items, an `issue`
+not yet concluded, or a `finalize` the run still owes — and neither the request boundary (§4) nor a stop above
+applies, that is a report, not completion. Status notes and recommendations go
+in the same message as the next tool call.
+
+NEVER, under autopilot:
+- End with a summary that announces the next step instead of taking it.
+- Offer to continue "unless you'd prefer otherwise" and wait for the answer.
+- Hand the user a list of decisions that, by your own account, block nothing.
+- Stop to report because the turn got long or a milestone is done.
+
+If something you started is still running — a background command, a subagent —
+wait for its output before treating the step as done.
 
 ### Recording
 

@@ -35,14 +35,14 @@ gathering-context → investigating (loop) → concluding → finalize → git-a
 | `investigating` | this skill | required — the loop below |
 | `concluding` | this skill | required — one of the three endings below |
 | `finalize` | `finalize` | required, unless the ending was `move` |
-| `git-action` | `git-action` | on explicit choice only |
+| `git-action` | `git-action` | on explicit choice only; `finalize` does not ask by default — confirming a cause and stopping is a normal ending, and there is usually nothing to commit |
 
 There is no phase pipeline inside `investigating`. Hypotheses, reproduction, and
 retraction are events, not stages.
 
 ## The Investigation Loop
 
-Investigate, then record. Not the other way round, and not in a batch at the end.
+Investigate, then record. Not the other way round.
 
 **Form hypotheses.**
 
@@ -51,10 +51,8 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --kind hypothesis --summary "<what you think is happening>" --phase investigating
 ```
 
-**Gather evidence.** Read code, run the app, analyze logs — all free. Writing a
-reproduction test or script needs the user's explicit approval first, recorded
-with `--kind approval --action execution --actor user`. Production code is never modified.
-Put log excerpts and run outputs under `evidence/`.
+**Gather evidence** within the read-only default (`safety-rules.md`, Read-Only
+Default For Issues). Put log excerpts and run outputs under `evidence/`.
 
 **Confirm or retract.** For a cause claim, connect the observed defect to the
 reported symptom: trace the request, state changes, downstream handling, and
@@ -62,7 +60,6 @@ visible outcome, or reproduce the causal link. A local defect may be confirmed
 while its relevance to the report remains a hypothesis. State which boundary
 was not observed and keep investigating that link. An inability to reproduce
 can establish a limitation under the tested conditions, not the suspected cause.
-Never edit a recorded line; append the transition.
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
@@ -80,9 +77,8 @@ evidence supports the claim. Retract promptly — a
 confirmed item that turns out wrong must be cancelled with the contradicting
 evidence, so the record shows when and why the conclusion reversed.
 
-**Keep `contexts.md` current.** Its middle band is the live snapshot: current
-understanding, background knowledge from the user, active hypotheses. Update it
-as understanding changes; that is what a new session reads first.
+**Keep `contexts.md` current.** Update its middle band (`core-rules.md` §3) as
+understanding changes; that is what a new session reads first.
 
 **Record before the turn ends.** If this turn produced a finding, decision,
 hypothesis, confirmation, or retraction, at least one matching event must be
@@ -92,8 +88,7 @@ survives to the next session.
 
 **Come back to the user** when hypotheses conflict, when evidence contradicts
 what the user believes, or when a domain gap blocks progress. Summarize the
-evidence and ask for their judgment — one question at a time, through
-`gathering-context`.
+evidence and ask for their judgment through `gathering-context`.
 
 ## Concluding
 
@@ -124,15 +119,12 @@ regression-test seed.
 
 ### 1 — conclusion only
 
-1. Write `conclusion.md` from `templates/conclusion.md`, with the frontmatter
-   placeholders replaced by real values, citing `#<seq>` for what backs each
-   claim (`core-rules.md` §3). Self-review it.
+1. Write `conclusion.md` from `templates/conclusion.md`, citing `#<seq>` for
+   what backs each claim (`core-rules.md` §3). Self-review it.
 2. Hand to `finalize`, which checks and closes the record.
    The helper refuses to finalize an issue with no `conclusion.md`, and refuses
    one whose record holds nothing confirmed — a conclusion needs something it
-   rests on. Use `--event cancelled` when the user abandons the investigation.
-
-Do not ask the git-action question by default.
+   rests on.
 
 ### 2 — carry on
 
@@ -163,9 +155,6 @@ found is already in `contexts.md` and in the confirmed entries. That is what
 what it settled, so the new owner asks only for what a code change now needs —
 acceptance, constraints, risk — instead of re-interviewing from the top.
 
-Use this only when the follow-up is **one** piece of work with the **same**
-boundary. A wider scope, or more than one deliverable, is ending 3.
-
 ### 3 — split
 
 Ending 1 first — the conclusion is what the follow-ups are built on — with its
@@ -181,24 +170,8 @@ that is a question for `gathering-context`, not something to settle alone.
 
 Then, after the record is closed, create each row the user wants as its own
 `topic` or `direct-work` folder, copying the row's scope into its `contexts.md`
-boundary, and link both directions (`core-rules.md` §7). `link` is allowed after
-closure precisely for this. Rows the user declines stay in the table with the
-reason.
+boundary, and link both directions (`core-rules.md` §7). Rows the user declines
+stay in the table with the reason.
 
 Nothing enforces the table — no gate reads it. It holds only because it is
 written before the record closes.
-
-## Anti-Patterns
-
-- Modifying production code.
-- Writing a reproduction script before the user approved it.
-- Confirming a hypothesis on reasoning alone, with no evidence.
-- Leaving a disproven confirmation standing instead of cancelling it.
-- Ending a turn with new reasoning unrecorded.
-- Writing `conclusion.md` after recording closure.
-- Writing `conclusion.md` when the work is carrying straight on, then creating a
-  second folder for what a `move` would have covered.
-- `move`-ing into a follow-up that is wider than what was investigated, or into
-  the first of several — that is a link, not a move.
-- Turning a concluded folder into the follow-up implementation instead of
-  linking to one.
