@@ -241,6 +241,26 @@ record's append-only sealing, and the move restriction. Every approval action â€
 over an open verification are refused unless recorded as the user's own
 successful decision.
 
+### Request boundary and execution approval
+
+Record the current request's stopping point in the `contexts.md` Decisions band,
+for example: investigation only, plan only, or execution of a reviewed plan.
+Use what the user already said; ask only when the boundary is unclear. A pipeline
+and autopilot both stop at that boundary. A later explicit request can extend it,
+subject to the existing gates.
+
+Settled requirements are not execution approval. For `topic` and `direct-work`,
+approval applies to the reviewed plan presented to the user, not to a plan the
+agent subsequently invents from an earlier "fix it". Record the plan path, its
+review seq, and the user's approving words or a reference to that reply in the
+approval summary or `--data`. A short "yes" to one clear execution-approval
+question counts; an answer to a policy question does not. If the same reviewed
+plan already has valid approval and the request still covers it, continue without
+asking again. Material changes go back through `write-plan` before execution.
+
+The helper checks event shape and ordering. `--actor user` cannot prove that the
+user actually approved, or that the approval covers the current plan.
+
 ### What the script cannot see
 
 Three places where a rule above holds only as a prompt. Knowing which is which
@@ -313,6 +333,10 @@ context only.
 - Evidence must match the surface: CLI/script/test = the command re-run plus its
   actual output; API = the actual request/response; UI = a screenshot or a
   recorded manual check by the user.
+- Preserve evidence provenance: source file/profile, target environment, and
+  relevant account or role, without secret values. A mock, a local app, and a
+  deployed app are different surfaces; an agent's DB access or a healthy process
+  does not establish the application's permissions or endpoint behavior.
 - Evidence must also match the current code, configuration, and data. Before a
   completion claim, compare the verified state with the current state. If a
   relevant change invalidates an earlier `PASS`, keep that event as history and
@@ -322,6 +346,11 @@ context only.
 - Tests alone never prove done.
 - For a bug fix, the evidence includes the failure reproduced before the fix. A
   check written afterwards shows that it passes, not that it fixed anything.
+- A real defect and its passing regression test establish only that defect's
+  behavior. Connect it to the originally reported symptom with a trace or
+  reproduction across the relevant boundaries. Keep observed facts, causal
+  inferences, and unverified downstream behavior separate; an untested original
+  acceptance criterion remains `INCONCLUSIVE` alongside any narrower `PASS`.
 - `INCONCLUSIVE` is a gate failure, not a soft pass. A subagent timeout, an
   unverifiable result, or an ambiguous one is `INCONCLUSIVE`, and the work
   cannot be recorded complete until re-verification passes or the user decides.

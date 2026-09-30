@@ -103,7 +103,7 @@ add --dir <d> --kind review --summary "plan review: 2 findings, both fixed" \
 # --actor user: the approval belongs to whoever gave it, not to the recorder,
 # and every approval action is refused without it
 add --dir <d> --kind approval --action execution --actor user \
-    --summary "<what the user approved>"
+    --summary "<plan path, review #seq, and user's approving reply or its reference>"
 
 # verification with real output
 add --dir <d> --kind verification --verdict PASS \

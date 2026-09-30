@@ -1,6 +1,6 @@
 ---
 name: write-plan
-description: Use when a topic or direct-work unit needs plan.md. Writes the execution contract, critically reviews it, fixes what the review finds, then asks for execution approval.
+description: Use when a topic or direct-work unit needs plan.md. Writes and critically reviews the execution contract, then follows the requested stopping point or asks for execution approval.
 ---
 
 # Write Plan
@@ -41,6 +41,12 @@ The calling unit's matrix says how much of it to write; a `direct-work`
 checklist leaves out what it does not need. Replace the frontmatter placeholders
 with the real `unit`, `slug`, and `created` (`core-rules.md` §3).
 
+Keep the contract focused on current behavior, the intended change, preserved
+behavior, and the checks that distinguish them. Reference settled decisions
+instead of copying the interview. Adapt a supplied plan to current files and
+dependencies; do not fill tasks with speculative replacement code or automatic
+per-task commits. Each task needs its purpose, affected files, steps, and check.
+
 Per task, **verification must be runnable** — a command with an expected result,
 not "confirm it works". For a behavior change, the verification has to exercise
 the changed behavior.
@@ -80,7 +86,7 @@ After writing, before asking for anything:
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --kind review --summary "<what was found and what changed>" \
-  --phase write-plan --data findings=<n>
+  --phase write-plan --next-action awaiting-user --data findings=<n>
 ```
 
 `--phase write-plan` is what makes this the review core rule 7 asks for; a
@@ -92,6 +98,11 @@ rather than speeding it up.
 Do not add a review status section to `plan.md`. The event is the record.
 
 ## Asking For Approval
+
+Apply the request boundary in `core-rules.md` §4 first. When the user asked for
+the plan only, report the reviewed plan and stop here; leave the unit open at
+`write-plan` with `nextAction=awaiting-user`. Do not ask to implement it or report
+the implementation complete.
 
 Then, in one compact block:
 
@@ -110,6 +121,10 @@ Then, in one compact block:
 
 Stop and wait. If the user wants a different execution approach, they will say
 so; follow it.
+
+When approval arrives, record it using `core-rules.md` §4's plan and reply
+references and `--next-action execute-plan`, then hand back to the caller for
+execution.
 
 ## Revising Before Approval
 

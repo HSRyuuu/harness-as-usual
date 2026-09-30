@@ -183,8 +183,8 @@ def _check_status_change(events: list[JsonObject], data: JsonObject) -> None:
 
     if state == "confirmed" and not data.get("evidence"):
         raise RecordError(
-            "confirming requires --evidence. record the reproduction evidence, or an "
-            "explicit 'could not reproduce because ...' judgment as the evidence text"
+            "confirming requires --evidence supporting the specific claim. "
+            "inability to reproduce supports a limitation, not a suspected cause"
         )
     if state == "cancelled" and not data.get("reason"):
         raise RecordError("cancelling requires --reason")
@@ -376,8 +376,8 @@ def _check_finalize(
         raise RecordError(
             "issue cannot be finalized without a confirmed entry: a conclusion needs something "
             "it rests on. confirm the hypothesis or direction with --kind status-change "
-            "--to confirmed --evidence, using an explicit 'could not reproduce because ...' as "
-            "the evidence when that is the finding, or close with the cancelled event"
+            "--to confirmed --evidence supporting that specific claim (an inability to "
+            "reproduce confirms a limitation, not a cause), or close with the cancelled event"
         )
 
 

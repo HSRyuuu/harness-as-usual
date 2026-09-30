@@ -20,6 +20,9 @@ a friendlier name, which is the substitution `core-rules.md` §6 exists to stop.
 the database, anything external. Identify the tested revision and relevant
 uncommitted changes, plus whether the check actually ran or reused/skipped work.
 Use these to apply `core-rules.md` §6's current-state check.
+Keep the source file/profile with each configuration finding; identify mock,
+local, or deployed execution and the relevant application/agent role without
+secret values. These identify which environment each result actually describes.
 Name **what you did not touch**: a port left
 alone, a shared instance someone else was using. A reader reproducing this needs
 to know where the boundary was.)
@@ -55,7 +58,9 @@ is what the criterion is about.
 A criterion you had to narrow to reach a pass is `INCONCLUSIVE` for the criterion
 as written, with the narrower check recorded beside it as what was actually
 covered. Narrowing and then passing is the substitution `core-rules.md` §6 stops,
-made one step earlier than a softer verdict word.)
+made one step earlier than a softer verdict word. For a reported bug, show which
+evidence connects the local defect to the original symptom and where that trace
+remains unverified.)
 
 ### Incidental Findings
 

@@ -47,7 +47,12 @@ the plan is the real review.
 
 ## Finishing
 
-Record the artifact and hand back:
+If the user already requested a plan and these requirements only capture the
+existing agreement, record the artifact with `--next-action write-plan` and
+hand back to the owner to continue. Do not ask permission for that transition
+again. New material decisions still go through `gathering-context`.
+
+Otherwise, the next phase is still a choice. Record the artifact and hand back:
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \

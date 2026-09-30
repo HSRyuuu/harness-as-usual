@@ -56,12 +56,18 @@ reproduction test or script needs the user's explicit approval first, recorded
 with `--kind approval --action execution --actor user`. Production code is never modified.
 Put log excerpts and run outputs under `evidence/`.
 
-**Confirm or retract.** Never edit a recorded line; append the transition.
+**Confirm or retract.** For a cause claim, connect the observed defect to the
+reported symptom: trace the request, state changes, downstream handling, and
+visible outcome, or reproduce the causal link. A local defect may be confirmed
+while its relevance to the report remains a hypothesis. State which boundary
+was not observed and keep investigating that link. An inability to reproduce
+can establish a limitation under the tested conditions, not the suspected cause.
+Never edit a recorded line; append the transition.
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --kind status-change --target <seq> --to confirmed \
-  --evidence "<reproduction evidence, or 'could not reproduce because …'>" \
+  --evidence "<observed evidence supporting this specific claim>" \
   --summary "<what settled it>"
 
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
@@ -69,7 +75,8 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --reason "<the contradicting evidence>" --summary "<what overturned it>"
 ```
 
-The helper refuses a confirmation with no evidence. Retract promptly — a
+The helper refuses a confirmation with no evidence; it cannot judge whether the
+evidence supports the claim. Retract promptly — a
 confirmed item that turns out wrong must be cancelled with the contradicting
 evidence, so the record shows when and why the conclusion reversed.
 
@@ -90,8 +97,10 @@ evidence and ask for their judgment — one question at a time, through
 
 ## Concluding
 
-When a hypothesis or direction is confirmed with evidence, the investigation is
-over. Three endings are possible. Present them once, in terms of what happens to
+When the investigation's question is answered with evidence, conclude it; an
+incidental defect alone does not answer a root-cause question. Three endings are
+possible. If the user already chose conclusion only, follow that request boundary
+(`core-rules.md` §4). Otherwise present them once, in terms of what happens to
 this work rather than by name, and mark the one the evidence points at:
 
 ```text

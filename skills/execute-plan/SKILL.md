@@ -15,7 +15,7 @@ wrong once you are in the code, that is a route back, not a review pass.
 ## Preconditions
 
 - `plan.md` exists and is current.
-- The user explicitly approved execution, and that approval is recorded.
+- The recorded execution approval covers this plan (`core-rules.md` §4).
 - The user's latest request still matches the plan.
 
 If any of these is missing, name it and stop.
@@ -28,7 +28,9 @@ not subagents did the typing.
 
 **Per task:**
 
-1. Do the work as the plan describes it.
+1. Re-read the affected files and relevant working-tree changes before editing,
+   especially when other work may have changed them since planning. Do the work
+   as the plan describes it; preserve unrelated concurrent changes.
 2. Run the task's verification. What counts as evidence is owned by
    `core-rules.md` §6 — it must match the surface, and tests alone never prove
    done.
@@ -88,8 +90,11 @@ Plans meet reality. When a task cannot be done as written:
 
 - **Small and obvious** — a path moved, a helper is named differently: adapt,
   record a `note` saying what differed, carry on.
-- **Changes the approach, risk, or verification**: stop. Ask the user through
-  `gathering-context`, record the decision, update `plan.md`, then resume.
+- **Changes the agreed behavior, approach, risk, or verification**: stop. Route
+  the unresolved decision through `gathering-context`, then return to
+  `write-plan` for revision and the approval required by `core-rules.md` §4.
+  Calling a task "refactoring" does not cover new DB writes, external side
+  effects, or changed retry eligibility outside the agreement.
 - **Same failure three times**: stop repeating it. Record the pattern as a
   `blocker` and reassess whether the plan, an assumption, or the environment is
   wrong. Ask the user only if files cannot answer it.

@@ -27,6 +27,13 @@ If there is no work folder — no `contexts.md` and `audit.jsonl` to record into
 this skill has nothing to write to. Route to `using-as-usual`, which decides the
 unit and creates it (core rule 6), and come back.
 
+Before asking, reconcile the request and any supplied plan with the current
+code: what is already agreed, what changed, and what is still undecided. Cite the
+source for carried-forward decisions; separate explicit user choices from an
+earlier agent's suggestions and unverified progress. Record the request boundary
+under `core-rules.md` §4. A path or implementation change alone does not reopen
+settled policy. Ask only about a missing decision or a material conflict.
+
 This skill returns when every item is settled or the user chose to proceed on a
 stated assumption. **Zero questions is a valid outcome** — when nothing on the
 list is actually open, record that and return immediately. Do not manufacture
@@ -43,10 +50,10 @@ fill a form.
 - **Every question carries your recommended answer with its reason.** A question
   without a recommendation pushes the decision back to the user without helping
   them make it.
-- **A recommendation is not an answer.** A bare approval — "go", "ok", or its
-  local equivalent — accepts nothing in particular. When the reply does not
-  identify what the user chose, ask that one question again rather than
-  recording your own recommendation as their decision.
+- **A recommendation is not an answer.** Interpret a short "go" or "ok" against
+  the question it answers. Accept it when there is one clear proposed decision;
+  if several choices remain ambiguous, ask only which one they meant. Do not
+  turn a policy answer into execution approval (`core-rules.md` §4).
 - **Never ask what the codebase, logs, or git history can answer.** Look it up.
   Use `explore-codebase` when the surface is unfamiliar.
 - **Check whether another unit already decided this.** Before recommending a
@@ -67,7 +74,7 @@ fill a form.
   default. Looking up the code is not the same check: code answers what the
   value is now, not who chose it or what they ruled out, and a citation can be
   true and still miss the reason the choice was made.
-- **Always ask what is the user's to decide, however clear the evidence looks.**
+- **Ask for unresolved decisions the user owns.**
   Looking things up settles *facts*. It never settles *ownership*. These stay the
   user's no matter what the code says:
   - **what is in and out of scope** — which files, directories, and surfaces this
@@ -77,7 +84,9 @@ fill a form.
   - **anything whose cost lands outside this repository** — a deploy step, a
     manual operation, another team's work.
 
-  Evidence shapes your *recommendation* on these. It never replaces the answer.
+  An explicit answer already in the request or the applicable agreement settles
+  the item; do not ask it again. Evidence shapes your *recommendation* on an open
+  item. It never replaces the answer.
   "The reason was clear in the code" is a reason to recommend confidently, not a
   reason to skip the question.
 

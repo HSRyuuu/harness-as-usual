@@ -17,7 +17,7 @@ containing this file.
 
 ```text
 using-as-usual                → nothing in progress named: scan .as-usual/ and offer resume candidates
-using-as-usual <path>         → resume the work folder that path belongs to
+using-as-usual <path>         → resume its work folder, or bring an external plan into new work
 using-as-usual <request>      → new work: classify, then hand off
 ```
 
@@ -63,6 +63,13 @@ work, do not present the four options, and do not raise it again in the same
 session. The user not taking it up is an answer.
 
 ## New Work
+
+An existing plan from another workflow is input to these same steps. Read it,
+keep its source path, and pass its prior decisions and claimed progress to
+`gathering-context`. The owner reuses applicable content at its normal artifact
+strength; do not start the interview over or recreate past audit events.
+`write-plan` reconciles the plan with current code and reviews it.
+Execution approval follows `core-rules.md` §4; a plan file alone is not consent.
 
 ### 1. Classify
 
@@ -120,7 +127,9 @@ than picking the nearest one.
 
 - **Path given**: if it contains `contexts.md` and `audit.jsonl`, use it. If it
   is a file or nested folder inside one, walk upward. If it is a project root or
-  a unit collection directory, list recent candidates and ask which.
+  a unit collection directory, list recent candidates and ask which. A plan
+  outside an AsUsual work folder goes through New Work as input; do not adopt or
+  move its source directory as a work folder.
 - **No path**: scan `.as-usual/inbox|topic|direct-work|issue/`. List up to three
   recent candidates across all units with their unit, slug, next action, and how
   long ago their last event was. Mark an `open` unit whose last event is older

@@ -33,6 +33,12 @@ execution summary is a claim about the diff, not the diff.
 check and what counts as a reportable finding. Use it when dispatching a
 separate reviewer; the reviewer reports, and recording stays here.
 
+Fill `{REVIEW_CONTEXT}` with the agreed goal and exclusions (citing their record
+or artifact), known concurrent work, and the exact reviewed revision plus relevant
+uncommitted changes. Distinguish this unit's changes from adjacent work. If that
+ownership is uncertain, report the uncertainty rather than attributing the whole
+working-tree diff to this unit.
+
 Fill `{SAFETY_RULES_PATH}` with the installed plugin's own
 `as-usual-rules/safety-rules.md` — resolve `<plugin-root>` the same way the
 record commands do and pass the resolved absolute path, not a repo-relative one.

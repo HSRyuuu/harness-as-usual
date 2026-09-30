@@ -14,7 +14,7 @@ the point.
 ```text
 ┌─ hook ────────── announces the capability and one entry point, one sentence
 ├─ rules ───────── what is true for every work unit (3 files)
-├─ skills ──────── entry · 3 unit owners · 8 shared steps · 3 utilities
+├─ skills ──────── entry · 3 unit owners · 8 shared steps · 2 utilities
 └─ record ──────── one script, one schema, append-only, refuses rather than warns
 ```
 
@@ -251,6 +251,11 @@ The user reviewing it before approving the plan is the real review.
 and fixes what it finds before asking for approval**. This is core rule 7: the
 user approves a plan that has already been checked. The review is recorded as one
 `review` event, and the record helper refuses execution approval without it.
+
+The requested stopping point still applies (`core-rules.md` §4): a plan-only
+request ends with the reviewed plan waiting for the user. A plan from another
+workflow enters through `using-as-usual`; gathering reuses established decisions
+and planning reconciles it with current code before the usual approval gate.
 
 Execution approach — inline or delegated, how tests are structured — is the
 agent's call. It is stated at approval time ("실행은 인라인으로 합니다"), not
