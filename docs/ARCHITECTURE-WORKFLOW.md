@@ -259,7 +259,10 @@ and planning reconciles it with current code before the usual approval gate.
 
 Execution approach — inline or delegated, how tests are structured — is the
 agent's call. It is stated at approval time ("실행은 인라인으로 합니다"), not
-offered as a menu.
+offered as a menu. A behavior change defaults to test-first, so the failing run
+is part of the evidence. When the target project has its own plan convention,
+the plan is written there and the work folder keeps a pointer (`core-rules.md`
+§3).
 
 **`execute-plan`** — executes the approved plan. Per task: do the work, run the
 verification, record both. Evidence must match the surface; an unverifiable
@@ -267,9 +270,14 @@ result is `INCONCLUSIVE`, and the task is not done. High-risk operations need
 fresh approval immediately before running, regardless of what the plan says. A
 subagent's `DONE` is a claim to be checked, not a fact.
 
-When a plan meets reality and is wrong: adapt silently only for the trivial (a
-moved path), stop and ask when the approach, risk, or verification changes, and
-stop retrying after the same failure three times.
+When a plan meets reality and is wrong: adapt only for the trivial (a moved
+path) and log it in the plan's `## Changes During Execution`, stop and ask when
+the approach, risk, or verification changes, and stop retrying after the same
+failure three times. A change the user directs is different: their instruction
+is recorded as the decision and the approval, the plan is amended and its
+amendment reviewed, and execution continues without asking again — unless the
+change adds a high-risk operation, raises the agreed risk, or leaves a question
+the instruction does not answer (`core-rules.md` §4).
 
 **`review-execution`** — reads the actual diff, not the summary of it. Findings
 go to `review.md` in three severities; Critical and Important each reach a

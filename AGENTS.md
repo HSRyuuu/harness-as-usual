@@ -105,7 +105,8 @@ two-way link. The script decides which applies, not the agent.
   skills, install, reload — belong in `CLAUDE.md`/`AGENTS.md` and
   `.agents/skills/**`, never in the runtime surface.
 - Do not copy runtime rules into target projects. Target projects contain
-  `.as-usual/<unit>/...` artifacts only.
+  `.as-usual/<unit>/...` artifacts only, plus a plan written to the project's own
+  plan convention (`core-rules.md` §3).
 - Requests that modify this repository are plugin development. Do not force the
   `.as-usual/` workflow onto them unless the user explicitly asks to run plugin
   development itself as an AsUsual work unit.

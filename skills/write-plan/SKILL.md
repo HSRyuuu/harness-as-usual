@@ -62,7 +62,18 @@ permission: it still needs fresh approval immediately before it runs.
 Decide yourself how the work gets executed — inline or delegated to subagents,
 how tests are structured. Do not ask the user to choose.
 
-`plan.md` is a contract, not a ledger. Progress goes in `audit.jsonl`.
+A behavior change is test-first by default: the task writes the test, sees it
+fail for the expected reason, then implements. Skip it where no test can express
+the behavior or a failing-first step adds nothing, and say why under the task's
+Verification. This is how the work is executed, not a test policy — adding a
+test harness the project lacks is policy.
+
+Where the plan lives when the project has its own plan convention is
+`core-rules.md` §3.
+
+`plan.md` is a contract, not a ledger. Progress goes in `audit.jsonl`; how the
+work departed from the approved plan goes in `## Changes During Execution`,
+which execution appends to.
 
 ## The Review (required)
 
@@ -134,6 +145,9 @@ execution.
 - Material (scope, risk, strategy, acceptance, or verification policy): take it
   through `gathering-context`, update `requirements.md` if it moved, then rewrite
   the affected plan section and review again.
+
+After approval, a change the user directs is amended in place and its review
+recorded here; the route is `core-rules.md` §4.
 
 ## Anti-Patterns
 

@@ -39,8 +39,9 @@ Read `contexts.md`, `requirements.md` (when the unit has one), the current
   each still needs fresh approval immediately before it runs. Local,
   reversible, test-only work is not over-classified as high risk.
 - **Restraint** — the plan decides no test, CI, commit, PR, release, or deploy
-  policy the work never agreed, and carries no progress ledger or review
-  status block.
+  policy the work never agreed (the test-first default is execution approach,
+  not policy), and carries no progress ledger or review status block (the
+  `## Changes During Execution` log of departures is not a ledger).
 
 ## Calibration
 

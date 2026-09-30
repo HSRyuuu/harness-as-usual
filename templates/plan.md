@@ -55,3 +55,9 @@ manually and by whom.)
 command, review, or manual check. A criterion with no task behind it is a gap in
 the plan; one whose task verification never exercises it is the same gap wearing
 a task number.)
+
+## Changes During Execution
+
+(Appended during execution, one entry per departure from the approved plan:
+what changed, why, and who decided it — the user's instruction by `#<seq>`, or
+the small adaptation you made. Omit while nothing has changed.)

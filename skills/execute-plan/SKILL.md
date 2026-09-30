@@ -31,7 +31,9 @@ not subagents did the typing.
 1. Re-read the affected files and relevant working-tree changes before editing,
    especially when other work may have changed them since planning. Do the work
    as the plan describes it; preserve unrelated concurrent changes.
-2. Run the task's verification. What counts as evidence is owned by
+2. When the task is test-first, run the new test before the change and keep the
+   failing output — it is what shows the test exercises the change.
+   Then run the task's verification. What counts as evidence is owned by
    `core-rules.md` §6 — it must match the surface, and tests alone never prove
    done.
 3. Record it.
@@ -84,13 +86,21 @@ contract.
 A subagent's `DONE` is a claim. Check it against the diff and the evidence before
 recording anything. If you cannot verify it, it is `INCONCLUSIVE`.
 
+## When The User Changes The Plan
+
+A change the user raises during execution follows the user-directed route in
+`core-rules.md` §4: their instruction is the approval, and the plan is amended
+in place.
+
 ## When The Plan Is Wrong
 
 Plans meet reality. When a task cannot be done as written:
 
 - **Small and obvious** — a path moved, a helper is named differently: adapt,
-  record a `note` saying what differed, carry on.
-- **Changes the agreed behavior, approach, risk, or verification**: stop. Route
+  record a `note`, add a line to the plan's `## Changes During Execution`, carry
+  on.
+- **Changes the agreed behavior, approach, risk, or verification**, and the user
+  did not raise it (including one you then asked them about): stop. Route
   the unresolved decision through `gathering-context`, then return to
   `write-plan` for revision and the approval required by `core-rules.md` §4.
   Calling a task "refactoring" does not cover new DB writes, external side

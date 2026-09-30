@@ -59,7 +59,8 @@ python3 <plugin-root>/scripts/as-usual-record.py status --dir <work-dir> --json
   record it, and stop. Do not silently obey and do not silently refuse.
 - A completed artifact needs a change before the next approval: hand back to its
   owner skill (`write-requirements` for `requirements.md`, `write-plan` for
-  `plan.md`), which decides whether to absorb it or reopen the earlier phase.
+  `plan.md`), which decides whether to absorb it or reopen the earlier phase. A
+  change the user directs during execution follows `core-rules.md` §4 instead.
 - The cause of something turns out to be unknown mid-topic: this topic stays as
   it is. Create a separate `issue` folder beside it and link the two
   (`core-rules.md` §7). Do not park the topic and do not guess the cause in
