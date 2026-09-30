@@ -393,9 +393,12 @@ phase X is not used by unit Y
 
 ### Hard gates versus soft stops
 
-Only three points in a pipeline are refused by the script unless recorded as
-`--actor user`: execution approval, a fresh high-risk approval, and the git action
-choice. Every other pause — "requirements are ready, shall I plan?", the
+Three points in a pipeline are hard gates: execution approval, a fresh high-risk
+approval, and the git action choice. The script refuses the first two unless
+recorded as `--actor user`. The git action usually comes after `finalize` has
+sealed the record, so it leaves no approval event; there the gate holds only as
+a prompt, resting on the user's stated choice and git history (`core-rules.md`
+§4, What the script cannot see). Every other pause — "requirements are ready, shall I plan?", the
 `awaiting-user` after execution, the review and cleanup and finalize proposals,
 the gathering interview — exists only as a sentence in a skill.
 
