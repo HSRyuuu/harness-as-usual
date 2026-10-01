@@ -16,8 +16,8 @@ from as_usual_record.status import derive_status
 from as_usual_record.validation import validate_record
 
 
-def test_status_reports_unit_phase_and_next_action(make_unit, run):
-    work_dir = make_unit("topic")
+def test_status_reports_unit_phase_and_next_action(make_work, run):
+    work_dir = make_work()
     run(
         "add",
         "--dir",
@@ -33,15 +33,15 @@ def test_status_reports_unit_phase_and_next_action(make_unit, run):
     )
 
     status = derive_status(work_dir)
-    assert status["unit"] == "topic"
+    assert status["unit"] == "work"
     assert status["state"] == "open"
     assert status["phase"] == "gathering-context"
     assert status["nextAction"] == "write-requirements"
     assert status["eventCount"] == 2
 
 
-def test_status_tracks_the_latest_verification(make_unit, run):
-    work_dir = make_unit("direct-work")
+def test_status_tracks_the_latest_verification(make_work, run):
+    work_dir = make_work()
     run(
         "add",
         "--dir",
@@ -76,8 +76,8 @@ def test_status_tracks_the_latest_verification(make_unit, run):
     assert status["openVerifications"][0]["verdict"] == "INCONCLUSIVE"
 
 
-def test_open_blockers_are_listed_until_resolved(make_unit, run):
-    work_dir = make_unit("topic")
+def test_open_blockers_are_listed_until_resolved(make_work, run):
+    work_dir = make_work()
     run("add", "--dir", str(work_dir), "--kind", "blocker", "--summary", "missing API key")
     assert len(derive_status(work_dir)["blockers"]) == 1
 
@@ -97,7 +97,7 @@ def test_open_blockers_are_listed_until_resolved(make_unit, run):
     assert derive_status(work_dir)["blockers"] == []
 
 
-def test_a_resolving_blocker_is_itself_open(make_unit, run):
+def test_a_resolving_blocker_is_itself_open(make_work, run):
     """"A is cleared but B now blocks us" is one event, and B still has to show.
 
     Filtering out every entry that carries --resolves used to swallow B, so a
@@ -105,7 +105,7 @@ def test_a_resolving_blocker_is_itself_open(make_unit, run):
     what separates that from a plain resolution: an entry that is still blocking
     is not a success, and only a success drops off the list.
     """
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     run("add", "--dir", str(work_dir), "--kind", "blocker", "--summary", "missing API key")
     run(
         "add",
@@ -139,8 +139,8 @@ def test_a_resolving_blocker_is_itself_open(make_unit, run):
     assert derive_status(work_dir)["blockers"] == []
 
 
-def test_status_lists_approvals_and_confirmations(make_unit, run):
-    work_dir = make_unit("issue")
+def test_status_lists_approvals_and_confirmations(make_work, run):
+    work_dir = make_work()
     run("add", "--dir", str(work_dir), "--kind", "hypothesis", "--summary", "retry storm")
     run(
         "add",
@@ -166,29 +166,31 @@ def test_status_lists_approvals_and_confirmations(make_unit, run):
         "--summary",
         "repro script approved",
         "--action",
-        "execution",
+        "reproduction",
         "--actor",
         "user",
     )
 
     status = derive_status(work_dir)
     assert [entry["seq"] for entry in status["confirmed"]] == [2]
-    assert status["approvals"][0]["action"] == "execution"
+    assert status["approvals"][0]["action"] == "reproduction"
     # A resuming session reads status, not the raw log: who approved has to survive here.
     assert status["approvals"][0]["actor"] == "user"
 
 
-def test_move_allowed_flips_once_output_exists(make_unit):
-    work_dir = make_unit("topic")
-    assert derive_status(work_dir)["moveAllowed"] is True
+def test_status_lists_artifacts_and_no_longer_reports_move(make_work):
+    work_dir = make_work()
+    assert "moveAllowed" not in derive_status(work_dir)
 
     (work_dir / "plan.md").write_text("# Plan\n", encoding="utf-8")
-    assert derive_status(work_dir)["moveAllowed"] is False
+    (work_dir / "conclusion.md").write_text("# Conclusion\n", encoding="utf-8")
+    artifacts = derive_status(work_dir)["artifacts"]
+    assert "plan.md" in artifacts and "conclusion.md" in artifacts
 
 
-def test_state_reflects_closure(make_unit, run):
-    work_dir = make_unit("topic")
-    (work_dir / "verification.md").write_text("# Verification\n", encoding="utf-8")
+def test_state_reflects_closure(make_work, run, approve_execution):
+    work_dir = make_work()
+    approve_execution(work_dir)
     run(
         "add",
         "--dir",
@@ -215,26 +217,26 @@ def test_state_reflects_closure(make_unit, run):
     assert derive_status(work_dir)["state"] == "finalized"
 
 
-def test_status_json_output(make_unit, run, capsys):
-    work_dir = make_unit("issue")
+def test_status_json_output(make_work, run, capsys):
+    work_dir = make_work()
     capsys.readouterr()
 
     assert run("status", "--dir", str(work_dir), "--json") == 0
 
     payload = json.loads(capsys.readouterr().out)
-    assert payload["unit"] == "issue"
+    assert payload["unit"] == "work"
 
 
-def test_validate_accepts_a_healthy_record(make_unit, run):
-    work_dir = make_unit("topic")
+def test_validate_accepts_a_healthy_record(make_work, run):
+    work_dir = make_work()
     run("add", "--dir", str(work_dir), "--kind", "note", "--summary", "n")
 
     assert validate_record(work_dir) == []
     assert run("validate", "--dir", str(work_dir)) == 0
 
 
-def test_validate_catches_hand_edited_duplicate_seq(make_unit):
-    work_dir = make_unit("topic")
+def test_validate_catches_hand_edited_duplicate_seq(make_work):
+    work_dir = make_work()
     path = work_dir / "audit.jsonl"
     forged = json.loads(path.read_text(encoding="utf-8").splitlines()[0])
     with path.open("a", encoding="utf-8") as handle:
@@ -244,9 +246,9 @@ def test_validate_catches_hand_edited_duplicate_seq(make_unit):
     assert any("duplicate seq" in problem for problem in problems)
 
 
-def test_validate_catches_an_append_after_closure(make_unit, run):
-    work_dir = make_unit("topic")
-    (work_dir / "verification.md").write_text("# Verification\n", encoding="utf-8")
+def test_validate_catches_an_append_after_closure(make_work, run, approve_execution):
+    work_dir = make_work()
+    approve_execution(work_dir)
     run(
         "add",
         "--dir",
@@ -277,7 +279,7 @@ def test_validate_catches_an_append_after_closure(make_unit, run):
                     "seq": 99,
                     "ts": "2026-07-25T00:00:00+09:00",
                     "actor": "claude",
-                    "unit": "topic",
+                    "unit": "work",
                     "kind": "note",
                     "status": "success",
                     "summary": "snuck in",
@@ -290,8 +292,8 @@ def test_validate_catches_an_append_after_closure(make_unit, run):
     assert any("after the record was closed" in problem for problem in problems)
 
 
-def test_validate_catches_a_verification_without_verdict(make_unit):
-    work_dir = make_unit("topic")
+def test_validate_catches_a_verification_without_verdict(make_work):
+    work_dir = make_work()
     path = work_dir / "audit.jsonl"
     with path.open("a", encoding="utf-8") as handle:
         handle.write(
@@ -300,7 +302,7 @@ def test_validate_catches_a_verification_without_verdict(make_unit):
                     "seq": 2,
                     "ts": "2026-07-25T00:00:00+09:00",
                     "actor": "claude",
-                    "unit": "topic",
+                    "unit": "work",
                     "kind": "verification",
                     "status": "success",
                     "summary": "trust me",
@@ -313,28 +315,24 @@ def test_validate_catches_a_verification_without_verdict(make_unit):
     assert any("valid verdict" in problem for problem in problems)
 
 
-def test_validate_catches_a_phase_outside_the_unit(make_unit):
-    work_dir = make_unit("topic")
-    path = work_dir / "audit.jsonl"
-    with path.open("a", encoding="utf-8") as handle:
-        handle.write(
-            json.dumps(
-                {
-                    "seq": 2,
-                    "ts": "2026-07-25T00:00:00+09:00",
-                    "actor": "claude",
-                    "unit": "topic",
-                    "kind": "note",
-                    "status": "success",
-                    "summary": "n",
-                    "phase": "investigating",
-                }
-            )
-            + "\n"
-        )
+def test_validate_catches_an_unknown_phase(make_work):
+    work_dir = make_work()
+    _append(
+        work_dir,
+        {
+            "seq": 2,
+            "ts": "2026-07-25T00:00:00+09:00",
+            "actor": "claude",
+            "unit": "work",
+            "kind": "note",
+            "status": "success",
+            "summary": "n",
+            "phase": "not-a-phase",
+        },
+    )
 
     problems = validate_record(work_dir)
-    assert any("not used by unit" in problem for problem in problems)
+    assert any("invalid phase" in problem for problem in problems)
 
 
 def _append(work_dir, entry: dict) -> None:
@@ -344,19 +342,19 @@ def _append(work_dir, entry: dict) -> None:
 
 
 @pytest.mark.parametrize("kind", ["artifact", "memory"])
-def test_validate_accepts_a_retired_kind(make_unit, kind):
+def test_validate_accepts_a_retired_kind(make_work, kind):
     """A value that was legal when it was written stays readable after removal.
 
     `validate` audits for hand-editing, not for vocabulary drift over time.
     """
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     _append(
         work_dir,
         {
             "seq": 2,
             "ts": "2026-07-25T00:00:00+09:00",
             "actor": "claude",
-            "unit": "topic",
+            "unit": "work",
             "kind": kind,
             "status": "success",
             "summary": "requirements.md written",
@@ -366,15 +364,15 @@ def test_validate_accepts_a_retired_kind(make_unit, kind):
     assert validate_record(work_dir) == []
 
 
-def test_validate_accepts_a_retired_lifecycle_event(make_unit):
-    work_dir = make_unit("topic")
+def test_validate_accepts_a_retired_lifecycle_event(make_work):
+    work_dir = make_work()
     _append(
         work_dir,
         {
             "seq": 2,
             "ts": "2026-07-25T00:00:00+09:00",
             "actor": "claude",
-            "unit": "topic",
+            "unit": "work",
             "kind": "lifecycle",
             "status": "success",
             "summary": "entered write-plan",
@@ -389,22 +387,22 @@ def _write_contexts(work_dir, body: str) -> None:
     (work_dir / "contexts.md").write_text(body, encoding="utf-8")
 
 
-def test_validate_catches_a_unit_mismatch_in_the_legacy_section(make_unit):
+def test_validate_catches_a_unit_mismatch_in_the_legacy_section(make_legacy):
     """The pre-frontmatter form still has to be cross-checked.
 
     Work folders created before the frontmatter format are still resumed, so
     this path is live rather than historical.
     """
-    work_dir = make_unit("topic")
+    work_dir = make_legacy("topic")
     _write_contexts(work_dir, "# Context\n\n## Work Unit\n\nissue\n")
 
     problems = validate_record(work_dir)
     assert any("issue" in problem and "topic" in problem for problem in problems)
 
 
-def test_validate_reads_the_unit_from_frontmatter(make_unit):
+def test_validate_reads_the_unit_from_frontmatter(make_legacy):
     """Frontmatter wins over a leftover section — the priority is the point."""
-    work_dir = make_unit("topic")
+    work_dir = make_legacy("topic")
     _write_contexts(
         work_dir,
         "---\nunit: issue\nslug: 2026-07-25-sample\n---\n\n# Context\n\n"
@@ -415,25 +413,36 @@ def test_validate_reads_the_unit_from_frontmatter(make_unit):
     assert any("issue" in problem for problem in problems)
 
 
-def test_validate_passes_when_the_declared_unit_agrees(make_unit):
-    work_dir = make_unit("issue")
-    _write_contexts(work_dir, "---\nunit: issue\nslug: 2026-07-25-sample\n---\n\n# Context\n")
-
+def test_validate_passes_when_the_declared_unit_agrees(make_work, make_legacy):
+    work_dir = make_work()
+    _write_contexts(work_dir, "---\nunit: work\nslug: 2026-07-25-sample\n---\n\n# Context\n")
     assert validate_record(work_dir) == []
 
+    legacy = make_legacy("issue")
+    _write_contexts(legacy, "---\nunit: issue\nslug: 2026-07-25-legacy\n---\n\n# Context\n")
+    assert validate_record(legacy) == []
 
-def test_validate_catches_a_missing_unit_declaration(make_unit):
+
+def test_validate_catches_a_work_record_declaring_a_legacy_unit(make_work):
+    work_dir = make_work()
+    _write_contexts(work_dir, "---\nunit: topic\nslug: 2026-07-25-sample\n---\n\n# Context\n")
+
+    problems = validate_record(work_dir)
+    assert any("topic" in problem and "work" in problem for problem in problems)
+
+
+def test_validate_catches_a_missing_unit_declaration(make_work):
     """Deleting the declaration must not be a way around the cross-check."""
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     _write_contexts(work_dir, "# Context\n\nno declaration anywhere\n")
 
     problems = validate_record(work_dir)
     assert any("declare" in problem for problem in problems)
 
 
-def test_validate_refuses_a_missing_contexts_file(make_unit, run):
+def test_validate_refuses_a_missing_contexts_file(make_work, run):
     """Already enforced by `require_existing_dir`; pinned here so it stays that way."""
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     (work_dir / "contexts.md").unlink()
 
     assert run("validate", "--dir", str(work_dir)) == 2
@@ -446,21 +455,21 @@ def test_retired_vocabulary_is_disjoint_from_current():
 
 
 @pytest.mark.parametrize("kind", ["artifact", "memory"])
-def test_add_refuses_a_retired_kind(make_unit, run, kind):
+def test_add_refuses_a_retired_kind(make_work, run, kind):
     """Retiring a value keeps the past readable; it must not keep the future open."""
-    work_dir = make_unit("topic")
+    work_dir = make_work()
 
     with pytest.raises(SystemExit):
         run("add", "--dir", str(work_dir), "--kind", kind, "--summary", "nope")
 
 
-def test_a_warning_resolution_stays_open(make_unit, run):
+def test_a_warning_resolution_stays_open(make_work, run):
     """Resolving one blocker while reporting another is not a clean close.
 
     The counterpart of the success case: same --resolves, different status, and
     the entry has to stay visible because it is still saying something blocks.
     """
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     run("add", "--dir", str(work_dir), "--kind", "blocker", "--summary", "port 8080 taken")
     run(
         "add",
@@ -480,9 +489,9 @@ def test_a_warning_resolution_stays_open(make_unit, run):
     assert [entry["seq"] for entry in blockers] == [3]
 
 
-def test_an_open_fail_downgrades_the_standing_verdict(make_unit, run):
+def test_an_open_fail_downgrades_the_standing_verdict(make_work, run):
     """A pass on another surface does not make the unit's verdict a pass."""
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     run(
         "add",
         "--dir",
@@ -512,9 +521,9 @@ def test_an_open_fail_downgrades_the_standing_verdict(make_unit, run):
     assert status["verification"]["downgradedBy"] == [2]
 
 
-def test_the_standing_verdict_is_the_latest_once_gaps_close(make_unit, run):
+def test_the_standing_verdict_is_the_latest_once_gaps_close(make_work, run):
     """Nothing open, so the two answers agree and neither is invented."""
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     run(
         "add",
         "--dir",
@@ -546,9 +555,9 @@ def test_the_standing_verdict_is_the_latest_once_gaps_close(make_unit, run):
     assert status["latestVerification"]["verdict"] == "PASS"
 
 
-def test_a_superseded_decision_is_readable_from_status(make_unit, run):
+def test_a_superseded_decision_is_readable_from_status(make_work, run):
     """The reversal has to be understandable without opening audit.jsonl."""
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     run(
         "add",
         "--dir",
@@ -584,3 +593,106 @@ def test_a_superseded_decision_is_readable_from_status(make_unit, run):
     assert cancelled[0]["by"] == 3
     assert "pipe" in cancelled[0]["summary"]
     assert "400" in cancelled[0]["why"]
+
+
+# --- Legacy records stay resumable ---------------------------------------------
+
+
+@pytest.mark.parametrize("unit", ["topic", "direct-work", "issue", "inbox"])
+def test_a_legacy_record_can_add_status_and_validate(make_legacy, run, events, capsys, unit):
+    work_dir = make_legacy(unit)
+
+    assert run("add", "--dir", str(work_dir), "--kind", "decision", "--summary", "resumed",
+               "--phase", "gathering-context", "--next-action", "investigate") == 0
+    assert events(work_dir)[-1]["unit"] == unit
+
+    capsys.readouterr()
+    assert run("status", "--dir", str(work_dir), "--json") == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert (payload["unit"], payload["state"], payload["nextAction"]) == (
+        unit, "open", "investigate")
+
+    assert validate_record(work_dir) == []
+    assert run("validate", "--dir", str(work_dir)) == 0
+
+
+def _legacy_entry(seq: int, unit: str, **fields) -> dict:
+    return {
+        "seq": seq,
+        "ts": "2026-07-25T11:00:00+09:00",
+        "actor": "claude",
+        "unit": unit,
+        "kind": "note",
+        "status": "success",
+        "summary": "legacy entry",
+        **fields,
+    }
+
+
+@pytest.mark.parametrize("phase", ["investigating", "concluding"])
+def test_validate_accepts_a_retired_phase(make_legacy, phase):
+    work_dir = make_legacy("issue")
+    _append(work_dir, _legacy_entry(2, "issue", phase=phase, nextAction=phase))
+
+    assert validate_record(work_dir) == []
+
+
+@pytest.mark.parametrize("phase", ["investigating", "concluding"])
+def test_add_refuses_a_retired_phase(make_legacy, run, phase):
+    work_dir = make_legacy("issue")
+
+    assert run("add", "--dir", str(work_dir), "--kind", "note", "--summary", "s",
+               "--phase", phase) == 2
+    assert run("add", "--dir", str(work_dir), "--kind", "note", "--summary", "s",
+               "--next-action", phase) == 2
+
+
+def test_validate_accepts_a_legacy_unit_selected_event(make_legacy):
+    """What `move` left behind: the record switches unit mid-way."""
+    work_dir = make_legacy("topic")
+    _append(
+        work_dir,
+        _legacy_entry(
+            2,
+            "topic",
+            kind="lifecycle",
+            summary="unit selected: inbox -> topic",
+            data={
+                "event": "unit-selected",
+                "from": ".as-usual/inbox/2026-07-25-legacy",
+                "to": ".as-usual/topic/2026-07-25-legacy",
+            },
+        ),
+    )
+
+    assert validate_record(work_dir) == []
+
+
+def test_add_refuses_the_unit_selected_event(make_work, make_legacy, run):
+    for work_dir in (make_work(), make_legacy("topic")):
+        assert run("add", "--dir", str(work_dir), "--kind", "lifecycle",
+                   "--event", "unit-selected", "--summary", "s") == 2
+
+
+def test_status_after_legacy_move_reports_the_selected_unit(make_legacy, run, events):
+    """A moved inbox record reads by its last unit, and resumes under it."""
+    work_dir = make_legacy("topic")
+    lines = (work_dir / "audit.jsonl").read_text(encoding="utf-8").splitlines()
+    created = json.loads(lines[0])
+    created["unit"] = "inbox"
+    (work_dir / "audit.jsonl").write_text(json.dumps(created) + "\n", encoding="utf-8")
+    _append(
+        work_dir,
+        _legacy_entry(
+            2,
+            "topic",
+            kind="lifecycle",
+            summary="unit selected: inbox -> topic",
+            data={"event": "unit-selected"},
+        ),
+    )
+
+    assert derive_status(work_dir)["unit"] == "topic"
+    assert run("add", "--dir", str(work_dir), "--kind", "note", "--summary", "resumed") == 0
+    assert events(work_dir)[-1]["unit"] == "topic"
+    assert validate_record(work_dir) == []

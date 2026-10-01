@@ -66,9 +66,9 @@ Then the live smoke, in a scratch directory — the tests exercise the gates, th
 exercises the CLI as a skill would call it:
 
 ```bash
-D=$(mktemp -d)/.as-usual/topic/2026-01-01-smoke
+D=$(mktemp -d)/.as-usual/work/2026-01-01-smoke
 R="python3 $PWD/scripts/as-usual-record.py"
-$R init --dir "$D" --unit topic --request "smoke" --actor claude
+$R init --dir "$D" --request "smoke" --actor claude
 
 # rule 7: the plan file and the plan review, each refused for its own reason
 $R add --dir "$D" --kind review --summary "reviewed" --phase write-plan --data findings=0
@@ -89,7 +89,8 @@ $R add --dir "$D" --kind verification --summary "no verdict"             # expec
 $R add --dir "$D" --kind verification --summary "pytest -q: ok" --verdict PASS
 $R add --dir "$D" --kind note --summary "unrelated" --resolves 2         # expect: refused, wrong kind
 
-# a topic closes only with verification.md on disk
+# agreed requirements close only with verification.md on disk
+printf '# Requirements\n' > "$D/requirements.md"
 $R add --dir "$D" --kind lifecycle --event finalized --summary "closed"   # expect: refused, names verification.md
 printf '# Verification\n' > "$D/verification.md"
 $R status --dir "$D" --json
@@ -103,16 +104,33 @@ successful `write-plan` reviews, the missing verdict, `--resolves` on a kind tha
 closes nothing, and the missing `verification.md`. The rest exit 0, `status`
 shows `artifacts` growing as the files appear, and `validate` reports valid.
 
-Then the two closures the script refuses outright:
+Then an investigation, and the closures the script refuses outright:
 
 ```bash
-I=$(mktemp -d)/.as-usual/inbox/2026-01-01-smoke
-$R init --dir "$I" --unit inbox --request "smoke" --actor claude
-$R add --dir "$I" --kind lifecycle --event finalized --summary "closed"   # expect: refused
-$R add --dir "$I" --kind lifecycle --event cancelled --summary "dropped"  # expect: accepted
+N=$(mktemp -d)/.as-usual/work/2026-01-01-investigate
+$R init --dir "$N" --unit topic --request "smoke" --actor claude          # expect: refused, only work
+$R init --dir "$N" --request "smoke" --actor claude
+$R add --dir "$N" --kind lifecycle --event finalized --summary "closed"   # expect: refused, nothing to finalize
+printf '# Conclusion\n' > "$N/conclusion.md"
+$R add --dir "$N" --kind lifecycle --event finalized --summary "closed"   # expect: refused, no confirmed entry
+$R add --dir "$N" --kind hypothesis --summary "cause" --phase investigate
+$R add --dir "$N" --kind approval --summary "repro" --action reproduction \
+   --actor user                                     # expect: accepted, no plan review needed
+$R add --dir "$N" --kind status-change --target 2 --to confirmed \
+   --evidence "reproduced" --summary "confirmed"
+$R add --dir "$N" --kind lifecycle --event finalized --summary "closed"   # expect: accepted
+$R move --dir "$N" --to topic                       # expect: refused, no such command
+
+C=$(mktemp -d)/.as-usual/work/2026-01-01-cancel
+$R init --dir "$C" --request "smoke" --actor claude
+$R add --dir "$C" --kind lifecycle --event cancelled --summary "dropped"  # expect: accepted
 ```
 
-Expected: an `inbox` cannot be finalized at all, and cancelling it works.
+Expected: `init` accepts only `work`; a record with neither an approved execution
+nor `conclusion.md` cannot be finalized, only cancelled; a conclusion needs a
+confirmed entry; `reproduction` is approved without a plan; `move` is gone.
+Legacy-folder resume (`topic`/`direct-work`/`issue`/`inbox`) is covered by
+`scripts/tests/`.
 
 ## 4. Deleted surfaces
 
@@ -127,11 +145,13 @@ ls skills/
 git ls-tree -r --name-only HEAD | rg '^(commands/|skills/as-usual-(interview|execute|test)/)'
 ```
 
-Expected: no output from every `rg`. `ls skills/` shows exactly the fourteen:
-`using-as-usual`, `run-topic`, `run-direct-work`, `run-issue`,
-`gathering-context`, `write-requirements`, `write-plan`, `execute-plan`,
-`review-execution`, `cleanup-code`, `finalize`, `git-action`,
-`explore-codebase`, `manage-self-improvement`.
+Expected: no output from every `rg`. `ls skills/` shows exactly the thirteen:
+`using-as-usual`, `run-work`, `gathering-context`, `investigate`,
+`write-requirements`, `write-plan`, `execute-plan`, `review-execution`,
+`cleanup-code`, `finalize`, `git-action`, `explore-codebase`,
+`manage-self-improvement`. `run-topic`, `run-direct-work`, and `run-issue` must
+be absent. If the set changed on purpose, update this list and the README count
+in the same change.
 
 `skills/using-as-usual/SKILL.md` is the one allowed hit for the old artifact
 names — it detects pre-v2 folders in order to refuse resuming them. Check the

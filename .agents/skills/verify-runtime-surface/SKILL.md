@@ -24,7 +24,7 @@ prompts make the agent try to "fix AsUsual" inside someone else's project.
 
 ## Runtime-Facing Surfaces
 
-`hooks/session-start` · `as-usual-rules/**` · `skills/**` (all fourteen, plus their
+`hooks/session-start` · `as-usual-rules/**` · `skills/**` (every skill, plus their
 prompt and reference files) · `templates/**` · `scripts/**`
 
 Maintainer-only surfaces, which may contain this guidance freely:
@@ -104,7 +104,7 @@ which is a deliverable rule, not a grant of freedom.
 
 ## 6. Vocabulary is user-facing
 
-Read the runtime prompts and check they speak about the user's work — work units,
+Read the runtime prompts and check they speak about the user's work — work records,
 decisions, plans, verification — rather than about this repository's internals.
 References to `scripts/as-usual-record.py` are fine: that is the runtime helper a
 target project actually invokes.

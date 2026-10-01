@@ -19,7 +19,7 @@ runtime surface must describe one system.
 
 - After changing the runtime contract: `as-usual-rules/**`, `skills/**`,
   `templates/**`, `scripts/**`, `hooks/session-start`
-- After adding, removing, or renaming a work unit, artifact, phase, or skill
+- After adding, removing, or renaming a unit, artifact, phase, or skill
 - After creating, deleting, or renaming a verification skill under `.agents/skills/**`
 - Before finishing a broad refactor that a future maintainer would need explained
 
@@ -44,16 +44,22 @@ into `CLAUDE.md` is a finding.
 
 Every durable document that describes the workflow must agree on:
 
-- **three peer work units** — `topic`, `direct-work`, `issue` — under
-  `.as-usual/<unit>/yyyy-MM-dd-<slug>/`, plus `inbox/` for unclassified work,
-- **two required files per unit**: `contexts.md` and `audit.jsonl`,
-- **one entry point**, `using-as-usual`, which classifies once and hands off to a
-  unit owner,
+- **one work unit**, `work`, under `.as-usual/work/yyyy-MM-dd-<slug>/`; legacy
+  `topic`/`direct-work`/`issue`/`inbox` folders readable and resumable, never
+  offered for new work,
+- **two required files per record**: `contexts.md` and `audit.jsonl`,
+- **one entry point**, `using-as-usual`, which creates or resumes the folder,
+  records the request boundary (investigation only / plan only / execute), and
+  hands off to the one owner, `run-work` — no classification menu,
+- **what the record produces follows from the work**: `requirements.md` when
+  requirements need agreeing, `investigate` → `conclusion.md` or a carry-on in
+  the same folder, `plan.md` and verification for a change,
 - **the seven core rules** as the only mandatory gates, with everything else left
   to the agent's judgment,
 - **one record helper**, `scripts/as-usual-record.py`, over `as-usual.record.v1`,
-- **transitions**: `move` while the unit has produced no output, a new folder plus
-  a two-way link afterwards.
+  whose finalize gates judge record content, not the unit label,
+- **follow-up work**: an investigation carries on into the change in the same
+  folder; genuinely separate work gets a new folder plus a two-way link. No `move`.
 
 ### 2. Removed concepts are gone
 
@@ -62,10 +68,12 @@ No durable document should still present these as current: `topic.md`,
 `topic-log.py`, `journal-log.py`, `start-work`, `hand-off`, `find-cause`,
 `direct-execute`, `core-workflow.md`, `find-cause-workflow.md`,
 `routed-to-find-cause`, mandatory execution review, execution-mode selection, the
-question-file cycle.
+question-file cycle, `run-topic`/`run-direct-work`/`run-issue`, the four-option
+classification menu, `move`, and `inbox` as a way to defer the choice. A legacy
+unit name is fine where the text is about resuming a legacy folder.
 
 ```bash
-rg -n 'topic\.md|question-c|problem\.md|journal\.jsonl|code-review-report|topic-log|journal-log|start-work|hand-off|find-cause|direct-execute|core-workflow|routing-rules|logging-rules|completion-rules' \
+rg -n 'topic\.md|question-c|problem\.md|journal\.jsonl|code-review-report|topic-log|journal-log|start-work|hand-off|find-cause|direct-execute|core-workflow|routing-rules|logging-rules|completion-rules|run-topic|run-direct-work|run-issue|moveAllowed|unit-selected' \
   PROJECT_IDENTITY.md AGENTS.md CLAUDE.md README.md docs/ARCHITECTURE-WORKFLOW.md
 ```
 

@@ -1,6 +1,6 @@
 ---
 name: write-requirements
-description: Use when a topic needs requirements.md written or updated from the agreed context. Synthesizes one reviewable requirements document; the user is its reviewer.
+description: Use when AsUsual work needs its requirements agreed and requirements.md written or updated from the agreed context. Synthesizes one reviewable requirements document; the user is its reviewer.
 ---
 
 # Write Requirements
@@ -9,7 +9,7 @@ Turns the agreed context into one `requirements.md` that both the user and a
 later planner can rely on.
 
 This skill does not interview the user — `gathering-context` owns that. It reads
-what was agreed and writes it up. Only `topic` uses this step.
+what was agreed and writes it up. `run-work` says when the work needs it.
 
 ## Inputs
 
@@ -64,7 +64,7 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
 automatic transition.
 
 Then tell the user the requirements are ready. Always print the absolute system
-path of `requirements.md` (e.g. `/workspace/proj/.as-usual/topic/2026-08-27-slug/requirements.md`)
+path of `requirements.md` (e.g. `/workspace/proj/.as-usual/work/2026-08-27-slug/requirements.md`)
 in the terminal — never a repo-relative path alone. Point them at the Decisions
 band of `contexts.md` so they can check how their answers were read, and ask
 whether to move to the plan. Stop there — writing the plan needs their approval.
@@ -82,7 +82,7 @@ When the user asks for a change before approving the plan:
 ## Anti-Patterns
 
 - Writing requirements from chat memory instead of `contexts.md`.
-- Writing requirements for a bug whose cause is unconfirmed — that is an `issue`.
+- Writing requirements for a bug whose cause is unconfirmed — that is `investigate`.
 - Filling in placeholder or `TBD` sections to satisfy the template.
 - Adding a review status block or checklist output to `requirements.md`.
-- Splitting one topic across several requirements documents.
+- Splitting one piece of work across several requirements documents.

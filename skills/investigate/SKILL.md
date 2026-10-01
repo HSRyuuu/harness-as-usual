@@ -1,43 +1,19 @@
 ---
-name: run-issue
-description: Use when AsUsual work is classified as an issue — confirming a root cause, a solution direction, or feasibility without changing code. Owns the issue pipeline and the investigation loop.
+name: investigate
+description: Use when AsUsual work must establish a root cause, a solution direction, or feasibility from code, logs, or an experiment before anything changes. Runs the investigation loop and ends it with a conclusion, a carry-on into the change, or a split.
 ---
 
-# Run Issue
+# Investigate
 
-Owns the `issue` pipeline: confirming **what is actually true** — a root cause, a
-solution direction, or whether an approach is viable — without changing
-production code.
+Establishes **what is actually true** — a root cause, a solution direction, or
+whether an approach is viable — within the read-only default (`safety-rules.md`).
 
 Your job here is not to fix anything. It is to help the user reach a conclusion
 they can rely on, with the reasoning trail recorded so it can be reconstructed
-and resumed.
-
-Unlike the other two owners, this skill also owns its middle procedure: the
-investigation loop and the conclusion. Read `as-usual-rules/core-rules.md` and
+and resumed. The phase is `investigate`. Read `as-usual-rules/core-rules.md` and
 `as-usual-rules/safety-rules.md` first.
 
-**Precondition**: a work folder with `contexts.md` and `audit.jsonl` exists. If it
-does not — the user named the unit and came straight here — `using-as-usual`
-creates it first (core rule 1 and 6). Being told the unit settles the
-classification, not the record.
-
-## Pipeline
-
-```text
-gathering-context → investigating (loop) → concluding → finalize → git-action?
-                                                     └→ move → the new unit's owner
-```
-
-| Phase | Owner | Applies |
-| --- | --- | --- |
-| `gathering-context` | `gathering-context` | required — symptoms, impact, reproduction conditions, boundary |
-| `investigating` | this skill | required — the loop below |
-| `concluding` | this skill | required — one of the three endings below |
-| `finalize` | `finalize` | required, unless the ending was `move` |
-| `git-action` | `git-action` | on explicit choice only; `finalize` does not ask by default — confirming a cause and stopping is a normal ending, and there is usually nothing to commit |
-
-There is no phase pipeline inside `investigating`. Hypotheses, reproduction, and
+There is no phase pipeline inside `investigate`. Hypotheses, reproduction, and
 retraction are events, not stages.
 
 ## The Investigation Loop
@@ -48,11 +24,19 @@ Investigate, then record. Not the other way round.
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
-  --kind hypothesis --summary "<what you think is happening>" --phase investigating
+  --kind hypothesis --summary "<what you think is happening>" --phase investigate
 ```
 
 **Gather evidence** within the read-only default (`safety-rules.md`, Read-Only
-Default For Issues). Put log excerpts and run outputs under `evidence/`.
+Default For Investigation). Put log excerpts and run outputs under
+`evidence/`. A reproduction test or script needs the user's approval first,
+recorded as:
+
+```bash
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind approval --action reproduction --actor user --status success \
+  --summary "<what the reproduction covers, and the user's words>" --phase investigate
+```
 
 **Confirm or retract.** For a cause claim, connect the observed defect to the
 reported symptom: trace the request, state changes, downstream handling, and
@@ -90,17 +74,18 @@ survives to the next session.
 what the user believes, or when a domain gap blocks progress. Summarize the
 evidence and ask for their judgment through `gathering-context`.
 
-## Concluding
+## Ending
 
-When the investigation's question is answered with evidence, conclude it; an
+When the investigation's question is answered with evidence, end it; an
 incidental defect alone does not answer a root-cause question. Three endings are
-possible. If the user already chose conclusion only, follow that request boundary
-(`core-rules.md` §4). Otherwise present them once, in terms of what happens to
-this work rather than by name, and mark the one the evidence points at:
+possible. If the recorded request boundary already settles it — investigation
+only means conclusion only (`core-rules.md` §2) — follow that. Otherwise present
+them once, in terms of what happens to this work rather than by name, and mark
+the one the evidence points at:
 
 ```text
 1. conclusion only  — the question is answered. Nothing gets built now.
-2. carry on         — the same scope becomes the work. This folder changes unit.
+2. carry on         — the same scope becomes the change, in this folder.
 3. split            — the finding opens several separate pieces of work.
 ```
 
@@ -109,10 +94,10 @@ right one.** Do not present 2 or 3 as what is expected. If the user picks
 against the recommendation, follow it without arguing.
 
 An investigation that ends "there is nothing wrong" still ends. That answer is
-the deliverable an issue exists to produce, so it gets a `conclusion.md` and a
-close like any other — not a folder left `open` with the finding sitting in
-`audit.jsonl`. `--event cancelled` is for an investigation the user abandons,
-not for one that reached an unexciting answer.
+the deliverable, so it gets a `conclusion.md` and a close like any other — not a
+folder left `open` with the finding sitting in `audit.jsonl`. `--event
+cancelled` is for an investigation the user abandons, not for one that reached
+an unexciting answer.
 
 If reproduction code exists, ask under every ending: delete it, or keep it as a
 regression-test seed.
@@ -122,38 +107,32 @@ regression-test seed.
 1. Write `conclusion.md` from `templates/conclusion.md`, citing `#<seq>` for
    what backs each claim (`core-rules.md` §3). Self-review it.
 2. Hand to `finalize`, which checks and closes the record.
-   The helper refuses to finalize an issue with no `conclusion.md`, and refuses
-   one whose record holds nothing confirmed — a conclusion needs something it
-   rests on.
+   The helper refuses to finalize a `conclusion.md` whose record holds nothing
+   confirmed — a conclusion needs something it rests on.
 
 ### 2 — carry on
 
-Do this **before `conclusion.md` is written**. The move gate closes the moment
-it is on disk, and closure seals the record — after either, ending 3 is the only
-one left (`core-rules.md` §7).
+The work continues in this folder; nothing is moved or linked. Record the
+handoff in the same turn, naming the next phase by the `run-work` matrix —
+`write-requirements` when the requirements need agreeing, `write-plan`
+otherwise:
 
 ```bash
-python3 <plugin-root>/scripts/as-usual-record.py move --dir <work-dir> \
-  --to <topic | direct-work> [--slug <yyyy-MM-dd-new-slug>]
+python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
+  --kind decision --summary "investigation answered; carrying on into the change" \
+  --phase investigate --next-action <write-requirements | write-plan>
 ```
 
-`move` carries no phase, so until something else does, `status` keeps deriving
-`investigating` — a phase the new unit does not use, and `status` is what a
-resuming session reads. Land the handoff in the same turn:
-
-```bash
-python3 <plugin-root>/scripts/as-usual-record.py add --dir <new-work-dir> \
-  --kind decision --summary "carried on from the investigation as <unit>" \
-  --phase gathering-context --next-action gathering-context
-```
-
-Then hand to `run-topic` or `run-direct-work` and tell the user the new path.
-
-Do not write `conclusion.md` — the folder is not an issue any more, and what was
-found is already in `contexts.md` and in the confirmed entries. That is what
-`write-requirements` reads. Say in the handoff that gathering already ran and
-what it settled, so the new owner asks only for what a code change now needs —
+Extend the request boundary in the Decisions band only on the user's explicit
+request (`core-rules.md` §2). No `conclusion.md` unless the user wants one — what
+was found is already in `contexts.md` and in the confirmed entries, and that is
+what the next step reads. Say in the handoff that gathering already ran and what
+it settled, so the next step asks only for what a code change now needs —
 acceptance, constraints, risk — instead of re-interviewing from the top.
+
+Writing the fix is a code change: it goes through `write-plan` and execution
+approval like any other. A kept reproduction is the failure reproduced before
+the fix (`core-rules.md` §6).
 
 ### 3 — split
 
@@ -168,8 +147,8 @@ lands in exactly one row; a row covering nothing is not follow-up work. If the
 rows are not obvious — where one boundary ends, whether two belong together —
 that is a question for `gathering-context`, not something to settle alone.
 
-Then, after the record is closed, create each row the user wants as its own
-`topic` or `direct-work` folder, copying the row's scope into its `contexts.md`
+Then, after the record is closed, create each row the user wants as its own work
+folder through `using-as-usual`, copying the row's scope into its `contexts.md`
 boundary, and link both directions (`core-rules.md` §7). Rows the user declines
 stay in the table with the reason.
 

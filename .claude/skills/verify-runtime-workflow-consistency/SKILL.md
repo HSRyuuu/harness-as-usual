@@ -1,6 +1,6 @@
 ---
 name: verify-runtime-workflow-consistency
-description: Verifies that AsUsual runtime rules, the entry skill, the three unit owners, the shared step skills, and the artifact templates stay semantically aligned. Use after changing anything under as-usual-rules/, skills/, templates/, or scripts/.
+description: Verifies that AsUsual runtime rules, the entry skill, the `run-work` owner matrix, the shared step skills, and the artifact templates stay semantically aligned. Use after changing anything under as-usual-rules/, skills/, templates/, or scripts/.
 ---
 
 # Verify Runtime Workflow Consistency
@@ -25,14 +25,14 @@ that uses current vocabulary is exactly what this exists to catch.
 
 | File | Owns |
 | --- | --- |
-| `as-usual-rules/core-rules.md` | unit definitions, classification, the seven core rules, record layer, completion, transitions, autopilot |
-| `as-usual-rules/safety-rules.md` | trust boundary, high-risk gate, issue read-only default |
+| `as-usual-rules/core-rules.md` | the work model, the request boundary, the seven core rules, record layer, completion, follow-up work, autopilot |
+| `as-usual-rules/safety-rules.md` | trust boundary, high-risk gate, read-only default for investigation |
 | `as-usual-rules/record-commands.md` | `as-usual-record.py` command reference |
 | `hooks/session-start` | one-sentence entry announcement |
-| `skills/using-as-usual/SKILL.md` | activation, classification, folder creation, resume, hand-off |
-| `skills/run-topic`, `run-direct-work`, `run-issue` | per-unit application matrices; `run-issue` also owns the investigation loop |
+| `skills/using-as-usual/SKILL.md` | activation, folder creation, request boundary, resume (legacy folders too), hand-off |
+| `skills/run-work/SKILL.md` | the one application matrix, a condition per row |
 | `skills/gathering-context/SKILL.md` | all user-facing context gathering |
-| `skills/write-requirements`, `write-plan`, `execute-plan`, `review-execution`, `cleanup-code`, `finalize`, `git-action` | shared step skills |
+| `skills/investigate`, `write-requirements`, `write-plan`, `execute-plan`, `review-execution`, `cleanup-code`, `finalize`, `git-action` | shared step skills; `investigate` owns the investigation loop and its endings |
 | `skills/*/…-quality-reference.md`, `…-reviewer-prompt.md` | quality references and reviewer prompts |
 | `templates/**` | artifact shapes |
 | `scripts/as_usual_record/constants.py`, `gates.py` | the vocabularies and gates everything else describes |
@@ -42,9 +42,15 @@ that uses current vocabulary is exactly what this exists to catch.
 ### 1. Vocabulary matches the script
 
 `constants.py` is the authority. Every phase, kind, verdict, approval action, and
-next-action value named in rules, skills, or templates must exist there — and each
-unit's phase subset in `UNIT_PHASES` must match what its owner skill's matrix
-claims. A skill that documents a phase the script would reject is a defect.
+next-action value named in rules, skills, or templates must exist there — and every
+phase in `PHASES` except `blocked` must be a row in `run-work`'s matrix. There are
+no per-unit phase subsets. A skill that documents a phase the script would reject
+is a defect.
+
+`UNITS` is `{"work"}`; `LEGACY_UNITS` (`inbox`, `topic`, `direct-work`, `issue`)
+stay readable and resumable. Runtime surfaces offer only `work` for new folders
+and never present the legacy labels as a choice — but resuming a legacy folder
+must still be described as supported.
 
 Two vocabularies, not one: `KINDS`/`LIFECYCLE_EVENTS` are what `add` may write,
 and `AUDITABLE_*` add the retired values that `validate` still accepts. Runtime
@@ -57,36 +63,46 @@ Every gate the docs describe as enforced must actually be enforced, and every
 refusal the script can produce should be documented where an agent would hit it.
 Current set:
 
-- the closed vocabulary and the per-unit phase subsets
+- the closed vocabulary (one phase set; `investigating`/`concluding` and
+  `lifecycle:unit-selected` retired — `validate` accepts, `add` refuses)
 - `--verdict` required on verification, `--evidence` on confirm, `--reason` on cancel
 - a plan review before execution approval, **newer than the previous execution
   approval** — one review does not license every later approval — and only a
   `review` with `--phase write-plan --status success` counts, with `plan.md` on
   disk. The three refusals are distinct: no plan file, no review at all, and
   reviews that are not successful plan reviews
-- every approval action — `execution`, `high-risk`, `git-action` — recorded with
-  `--actor user --status success`, and the same for the `--reason` that closes a
-  unit over an open verification. This is a floor, not proof: the docs must say
-  so rather than presenting it as evidence the user decided
-- a recorded verification to finalize a `topic`/`direct-work`, **with no open
-  verification left** — an `INCONCLUSIVE` or `FAIL` stays open until a later
-  verification names its seq with `--resolves`, and closing with one open needs an
-  explicit `--reason`, while a missing verification is refused outright and no
-  reason overrides that
-- `verification.md` on disk to finalize a `topic`; `direct-work` and any
-  `cancelled` close are unaffected
+- every approval action — `execution`, `high-risk`, `reproduction`,
+  `git-action` — recorded with `--actor user --status success`, and the same for
+  the `--reason` that closes a record over an open verification. This is a floor,
+  not proof: the docs must say so rather than presenting it as evidence the user
+  decided. `reproduction` needs no plan review
+- finalize judges record content, not the unit label:
+  - refused as "nothing to finalize" when the record holds neither an
+    `execution` approval nor `conclusion.md`
+  - with an approved execution: a recorded verification, **with no open
+    verification left** — an `INCONCLUSIVE` or `FAIL` stays open until a later
+    verification names its seq with `--resolves`, and closing with one open needs
+    an explicit `--reason`, while a missing verification is refused outright and
+    no reason overrides that — plus `verification.md` on disk when
+    `requirements.md` exists
+  - with `conclusion.md`: at least one confirmed entry
+  - both sets when one folder investigated and implemented; a `cancelled` close
+    is unaffected
+- two legacy shims only: a legacy `issue`'s `execution` approval is a
+  reproduction script (not plan-gated, not a code change), and a legacy `topic`
+  always needs `verification.md` to finalize. Any other branch on the unit label
+  in `gates.py` or `records.py` is a defect
 - `--resolves` only on `verification` and `blocker`, closing one still-open entry
   of its own kind; a target of another kind, a passing verification, a target that
   something already resolved, and any other kind carrying the flag are refused.
   Whether a resolving `blocker` is itself open in the derived status is decided by
   its `--status`: `success` means it closed something and introduced nothing, so
   it drops off; `warning` or `error` means something still blocks, so it stays
-- `conclusion.md` plus at least one confirmed entry to finalize an `issue`
-- an `inbox` never finalizes; `move` and `cancelled` are its only closes
 - sealed records reject non-link appends
-- blocked files reject `move`; `init` refuses a folder that already holds
-  `contexts.md` or `audit.jsonl`, and **adopts** one holding only artifacts —
-  that folder was never a record, so there is nothing to reset
+- `init` creates only `work`, refuses a folder that already holds `contexts.md`
+  or `audit.jsonl`, and **adopts** one holding only artifacts — that folder was
+  never a record, so there is nothing to reset
+- no `move` command exists; `status --json` carries no `moveAllowed`
 
 `add` is the only path that tightened. `validate` must stay as permissive as it
 was: a value that was legal when it was written keeps auditing clean, so a gate
@@ -114,21 +130,23 @@ list or of the carve-outs in that prompt is a defect, not an exception. Check th
 and that the `blocked` verdict has a handler on the caller's side. A prompt that
 demands a file nobody passes is the same failure wearing better prose.
 
-### 4. Owner matrices are complete and mutually consistent
+### 4. The owner matrix is complete
 
-Each of the three owners declares every step it uses, with a strength. A step
-skill that exists but appears in no matrix is unreachable; a matrix entry naming a
-skill that does not exist is a dangling route. `write-plan` must appear for both
-`topic` and `direct-work` with different strengths, since it carries core rule 7
-for both.
+`run-work` declares every step with a condition and a strength, and contains no
+procedure. A step skill that exists but appears in no row is unreachable; a row
+naming a skill that does not exist is a dangling route. `write-plan` must carry
+both strengths (full with `requirements.md`, checklist otherwise), since it
+carries core rule 7 for both. `investigate` must appear with its three endings
+owned by `investigate` itself, not restated in the matrix.
 
 ### 5. Step skills stay unit-agnostic
 
-`gathering-context`, `write-plan`, `execute-plan`, `review-execution`,
-`cleanup-code`, `finalize`, and `git-action` must not branch on the calling unit.
-Strength differences belong in the owner's matrix and in what the caller passes,
-not in `if unit == topic` inside the step. This was the original defect being
-refactored away; it regresses easily.
+`gathering-context`, `investigate`, `write-requirements`, `write-plan`,
+`execute-plan`, `review-execution`, `cleanup-code`, `finalize`, and `git-action`
+must not branch on a unit label. Strength differences belong in the matrix and in
+what the caller passes. Conditions a step reads from the record — whether
+`requirements.md` or `conclusion.md` exists — are content, not a label, and are
+fine.
 
 ### 6. Templates match the skills that write them
 
@@ -138,7 +156,7 @@ marker — those were removed with the gates that required them.
 
 ### 6a. Verification has one owner and one vocabulary
 
-`verification.md` is the evidence document for `topic` and `direct-work`. Check
+`verification.md` is the evidence document for any executed change. Check
 that one story is told everywhere:
 
 - The condition that keeps an `INCONCLUSIVE` or `FAIL` open, and what `--resolves`
@@ -157,7 +175,7 @@ that one story is told everywhere:
 - Two bands are described as changing after sealing, and no others:
   `verification.md`, marked as outside the record, and `contexts.md`'s
   `## Linked Work`, which `link` writes on both sides whether or not the record is
-  closed. The second exists because a sealed unit cannot retract its own decision,
+  closed. The second exists because a sealed record cannot retract its own decision,
   so the link is its only correction channel. The script's sealing behaviour is
   unchanged either way: `check_not_closed` still admits only `lifecycle:linked`.
 
@@ -168,27 +186,35 @@ None of these should appear as live guidance anywhere in the runtime surface:
 `code-review-report.md`, `execute/`, `clean-up/`, `topic-log.py`,
 `journal-log.py`, `start-work`, `hand-off`, `find-cause`, `direct-execute`,
 `routed-to-find-cause`, `-complete` phases, execution-mode selection, the
-question-file cycle.
+question-file cycle, `run-topic`, `run-direct-work`, `run-issue`, the
+four-option classification menu, `move`, `inbox` as a new unit, and the
+`investigating`/`concluding` phases.
+
+Legacy unit names may appear only where a legacy folder is being read or resumed.
 
 `using-as-usual` may name the old artifacts in exactly one place: detecting a
 pre-v2 folder to refuse resuming it.
 
-### 8. Records and transitions are described identically everywhere
+### 8. Follow-up work is described identically everywhere
 
-The `move`-versus-new-folder rule, the blocked-file list, and the "if a linked
-unit exists, go back to it" rule appear in `core-rules.md` §7. Owner skills may
-reference it; none should restate the conditions.
+The same-folder carry-on after an investigation, and the "if a linked record
+exists, go back to it; otherwise create one and link" rule, appear in
+`core-rules.md` §7. `run-work` and `investigate` may reference it; neither should
+restate the conditions.
 
 ### 9. Safety survives the trimming
 
-The trust boundary, the high-risk list, secret handling, and the issue read-only
-default are unchanged in substance. The refactor deliberately loosened the
+The trust boundary, the high-risk list, secret handling, and the read-only
+default for investigation (with `reproduction` approval) are unchanged in
+substance. The refactor deliberately loosened the
 judgment layer — verify it did not loosen these.
 
-`core-rules.md` §4 also states three ceilings, and they must stay readable and
-accurate: a `direct-work` that ends without `finalize` records no completion
+`core-rules.md` §4 also states four ceilings, and they must stay readable and
+accurate: work that ends without `finalize` records no completion
 transition, so rule 3 is prompt-only there; the script checks that
-`verification.md` exists but never that a `PASS` was earned; and a git action
+`verification.md` exists but never that a `PASS` was earned; a pointer
+`plan.md` satisfies the plan-file check without the script seeing the plan
+behind it; and a git action
 chosen after sealing leaves no approval event, so rule 4 rests on the user's
 choice and git history. A gate claimed but absent is the defect this check
 exists to catch — in either direction.

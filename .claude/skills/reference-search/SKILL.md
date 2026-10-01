@@ -17,7 +17,7 @@ Hardcoded reference root:
 
 Treat the reference root's `index.md` and current directory structure as the source of truth for what references exist and how they should be read. Do not assume AsUsual must keep following any one reference project after its own runtime contract has diverged.
 
-This skill is not for running an AsUsual runtime topic in a target project. Use it only when the user explicitly asks for reference search or reference-backed development research inside the AsUsual repository.
+This skill is not for running AsUsual runtime work in a target project. Use it only when the user explicitly asks for reference search or reference-backed development research inside the AsUsual repository.
 
 ## Search Order
 

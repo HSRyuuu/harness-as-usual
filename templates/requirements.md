@@ -1,5 +1,5 @@
 ---
-unit: <topic | direct-work | issue>
+unit: <from the record — work, or a legacy folder's own unit>
 slug: <yyyy-MM-dd-slug>
 created: <yyyy-MM-dd>
 ---

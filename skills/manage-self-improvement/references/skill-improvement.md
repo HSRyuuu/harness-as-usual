@@ -10,7 +10,7 @@ A reusable, non-trivial procedure is a skill candidate if 3+ hold:
 5. has a verification method
 
 Short facts, judgment criteria, preferences, and one-off lessons remain in the
-work unit's artifacts. They are not skill candidates.
+work record's artifacts. They are not skill candidates.
 
 ## Overlap analysis (Pass 1)
 
@@ -24,7 +24,7 @@ Compare each candidate to existing registered skills:
 
 This skill creates/patches the skill file directly. Follow writing-skills conventions
 (name, trigger-rich description, procedure, verification). When an open work
-unit exists, record the approved change with `add --kind work --phase finalize`.
+record exists, record the approved change with `add --kind work --phase finalize`.
 
 ## Destination (project-local)
 

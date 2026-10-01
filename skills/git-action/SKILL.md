@@ -1,14 +1,13 @@
 ---
 name: git-action
-description: Use when the user has explicitly chosen a git action for a work unit — none, commit, commit + push, or commit + push + PR. Shared by all three work units.
+description: Use when the user has explicitly chosen a git action for AsUsual work — none, commit, commit + push, or commit + push + PR.
 ---
 
 # Git Action
 
 Runs the git action the user chose. Nothing else, and nothing unchosen.
 
-Available to `topic`, `direct-work`, and `issue` alike. What makes it safe is not
-which unit called it but core rule 4: **the user picked the action explicitly.**
+What makes it safe is not which step called it but core rule 4: **the user picked the action explicitly.**
 If you are here without that, you are in the wrong place.
 
 ## Preconditions
@@ -21,7 +20,7 @@ If you are here without that, you are in the wrong place.
 *after* sealing, so by the time this skill runs the record often accepts no more
 events:
 
-- **Record still open** (a direct-work unit that skipped finalize, or a pre-seal
+- **Record still open** (work that skipped finalize, or a pre-seal
   call): record the selection, and later the outcome, as events.
 - **Record sealed**: skip the record entirely and report in chat. This is by
   design, not a gap — the commits themselves are the durable evidence, in git's
@@ -48,8 +47,9 @@ style and language.
 If the tree holds unrelated changes, ask before staging them. Never
 `git add .` — stage paths explicitly, always.
 
-**`.as-usual/` handling**: work-unit folders (`topic/`, `direct-work/`, `issue/`,
-`inbox/`) stay out unless the project says otherwise or the user asks.
+**`.as-usual/` handling**: work folders (`work/`, and legacy `topic/`,
+`direct-work/`, `issue/`, `inbox/`) stay out unless the project says otherwise or
+the user asks.
 
 ## Commits
 
@@ -101,7 +101,7 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
   --kind work --summary "<commands run and their outcomes>" --phase git-action
 ```
 
-If the unit is already sealed, the record takes no more events — report the
+If the record is already sealed, the record takes no more events — report the
 outcome in chat instead. Say what failed if something failed; a partial push
 reported as success is worse than the failure.
 
@@ -109,7 +109,7 @@ reported as success is worse than the failure.
 
 - Running any git command the user did not choose.
 - `git add .`.
-- Committing work-unit artifacts without policy or approval.
+- Committing work-record artifacts without policy or approval.
 - Pushing to `main`/`master` without asking.
 - Force-pushing without an explicit request.
 - Reporting success for a step that did not run.

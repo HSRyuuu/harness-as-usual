@@ -8,7 +8,7 @@ import hashlib
 from pathlib import Path
 import tempfile
 
-from .constants import AUDIT_FILE, CONTEXTS_FILE
+from .constants import AUDIT_FILE, AUDITABLE_UNITS, CONTEXTS_FILE
 
 
 class RecordError(ValueError):
@@ -44,12 +44,7 @@ def as_usual_root(work_dir: Path) -> Path:
     instead of crashing.
     """
     parent = work_dir.parent
-    if parent.parent.name == ".as-usual" or parent.name in {
-        "inbox",
-        "topic",
-        "direct-work",
-        "issue",
-    }:
+    if parent.parent.name == ".as-usual" or parent.name in AUDITABLE_UNITS:
         return parent.parent
     return parent
 
@@ -62,8 +57,7 @@ def record_path(work_dir: Path, target: Path) -> str:
     target outside it keeps its absolute form — relativizing that only produces
     `../..` noise.
 
-    Pure path arithmetic: the target need not exist. `move` records the path it
-    just moved away from.
+    Pure path arithmetic: the target need not exist.
     """
     as_usual = as_usual_root(work_dir)
     if as_usual.name != ".as-usual":

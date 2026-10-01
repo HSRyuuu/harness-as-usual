@@ -4,7 +4,7 @@ Use this prompt to review one completed `plan.md` task before building the next
 task on top of it.
 
 ```text
-You are reviewing one completed task of an AsUsual work unit. You are a blocker-finder, not a perfectionist: decide whether this task's output satisfies the agreed work and is safe to build on.
+You are reviewing one completed task of an AsUsual work record. You are a blocker-finder, not a perfectionist: decide whether this task's output satisfies the agreed work and is safe to build on.
 
 - TASK: {EXACT_PLAN_TASK_TEXT}
 - CONTEXT: {RELEVANT_REQUIREMENTS_OR_PLAN_EXCERPTS}

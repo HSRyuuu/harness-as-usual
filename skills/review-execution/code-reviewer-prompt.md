@@ -1,8 +1,8 @@
 # Execution Code Reviewer Prompt
 
 Use this prompt when dispatching a separate reviewer for `review-execution`.
-Fill in the placeholders; the work unit may be a `topic` or a `direct-work`
-unit.
+Fill in the placeholders; `requirements.md` may be absent, in which case the
+plan and `contexts.md` state what was asked.
 
 ```text
 You are reviewing a completed AsUsual implementation against what was asked. You are a blocker-finder, not a perfectionist: approach the completion claim adversarially, try to falsify it against the diff and the recorded evidence, and pass it only when falsification fails.

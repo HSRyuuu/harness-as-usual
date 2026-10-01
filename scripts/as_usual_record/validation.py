@@ -14,19 +14,24 @@ from .constants import (
     AUDITABLE_KINDS,
     AUDITABLE_LIFECYCLE_EVENTS,
     CLOSING_LIFECYCLE_EVENTS,
+    AUDITABLE_PHASES,
+    AUDITABLE_UNITS,
     NEXT_ACTION_SPECIALS,
-    PHASES,
     STATUS_CHANGE_STATES,
     STATUSES,
-    UNIT_PHASES,
-    UNITS,
     VERDICTS,
-    VERIFICATION_UNITS,
     JsonObject,
 )
 from .contexts import read_declared_unit
 from .paths import RecordError, audit_path, contexts_path
-from .records import current_unit, latest_of_kind, open_verifications, read_events
+from .records import (
+    authorizes_code_change,
+    current_unit,
+    latest_of_kind,
+    needs_verification_doc,
+    open_verifications,
+    read_events,
+)
 
 
 REQUIRED_FIELDS = ("seq", "ts", "actor", "unit", "kind", "status", "summary")
@@ -99,8 +104,7 @@ def _check_declared_unit(work_dir: Path, events: list[JsonObject]) -> list[str]:
     if declared != recorded:
         return [
             f"{where}: declares unit {declared}, but the record says {recorded}. "
-            "one of the two was edited by hand — correct the document, or `move` the "
-            "folder so both agree"
+            "one of the two was edited by hand — correct the document so both agree"
         ]
     return []
 
@@ -117,7 +121,7 @@ def _check_vocabulary(entry: JsonObject, where: str) -> list[str]:
     problems: list[str] = []
     unit = entry.get("unit")
     checks = (
-        ("unit", unit, UNITS),
+        ("unit", unit, AUDITABLE_UNITS),
         ("kind", entry.get("kind"), AUDITABLE_KINDS),
         ("actor", entry.get("actor"), ACTORS),
         ("status", entry.get("status"), STATUSES),
@@ -128,14 +132,12 @@ def _check_vocabulary(entry: JsonObject, where: str) -> list[str]:
 
     phase = entry.get("phase")
     if isinstance(phase, str) and phase:
-        if phase not in PHASES:
+        if phase not in AUDITABLE_PHASES:
             problems.append(f"{where}: invalid phase {phase}")
-        elif isinstance(unit, str) and unit in UNIT_PHASES and phase not in UNIT_PHASES[unit]:
-            problems.append(f"{where}: phase {phase} is not used by unit {unit}")
 
     next_action = entry.get("nextAction")
     if isinstance(next_action, str) and next_action:
-        if next_action not in PHASES | NEXT_ACTION_SPECIALS:
+        if next_action not in AUDITABLE_PHASES | NEXT_ACTION_SPECIALS:
             problems.append(f"{where}: invalid nextAction {next_action}")
 
     return problems
@@ -196,7 +198,7 @@ def audit_sealed(work_dir: Path) -> list[str]:
     seq = closing.get("seq")
     data = closing.get("data") if isinstance(closing.get("data"), dict) else {}
 
-    if unit in VERIFICATION_UNITS:
+    if authorizes_code_change(events, unit):
         unresolved = open_verifications(events)
         if unresolved:
             listed = ", ".join(
@@ -221,16 +223,15 @@ def audit_sealed(work_dir: Path) -> list[str]:
                 f"{where}: sealed at seq {seq} with no verification recorded at all. "
                 "today's gate refuses this; the record may predate it"
             )
-
-    if unit == "topic" and not (work_dir / "verification.md").is_file():
+        if needs_verification_doc(work_dir, unit) and not (work_dir / "verification.md").is_file():
+            warnings.append(
+                f"{work_dir}: sealed with agreed requirements but no verification.md. "
+                "today's gate refuses this; the record may predate it"
+            )
+    elif not (work_dir / "conclusion.md").is_file():
         warnings.append(
-            f"{work_dir}: sealed topic has no verification.md. today's gate refuses "
-            "this; the record may predate it"
-        )
-    if unit == "issue" and not (work_dir / "conclusion.md").is_file():
-        warnings.append(
-            f"{work_dir}: sealed issue has no conclusion.md. today's gate refuses "
-            "this; the record may predate it"
+            f"{work_dir}: sealed with neither an approved execution nor a conclusion.md. "
+            "today's gate refuses this; the record may predate it"
         )
     return warnings
 

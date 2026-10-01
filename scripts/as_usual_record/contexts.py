@@ -74,7 +74,7 @@ def read_declared_unit(work_dir: Path) -> str | None:
     section is read only when there is no frontmatter at all, which is how
     folders created before the format change still resolve.
 
-    The reading counterpart of `update_frontmatter`, and deliberately built from
+    Deliberately built from
     the same two rules — a format read one way and written another is how the
     document and the record start disagreeing.
     """
@@ -98,7 +98,7 @@ def _read_field(block: str, key: str) -> str | None:
 
 
 def _read_legacy_unit_section(body: str) -> str | None:
-    """Mirror of `_update_legacy_unit_section`, in the reading direction."""
+    """Read the unit from a pre-frontmatter `## Work Unit` section."""
     lines = body.splitlines()
     for index, line in enumerate(lines):
         if line.strip() != "## Work Unit":
@@ -108,55 +108,6 @@ def _read_legacy_unit_section(body: str) -> str | None:
                 return lines[offset].strip()
         return None
     return None
-
-
-def update_frontmatter(work_dir: Path, *, unit: str, slug: str) -> None:
-    """Rewrite `unit` and `slug` in the frontmatter after a move.
-
-    Best effort: if the document has neither frontmatter nor the pre-frontmatter
-    `## Work Unit` section, leave the file untouched rather than guessing where
-    the values belong.
-    """
-    path = work_dir / CONTEXTS_FILE
-    if not path.exists():
-        return
-    body = path.read_text(encoding="utf-8")
-
-    match = _FRONTMATTER.match(body)
-    if match is None:
-        _update_legacy_unit_section(path, body, unit)
-        return
-
-    updated = _rewrite_fields(match.group(1), {"unit": unit, "slug": slug})
-    path.write_text(body[: match.start(1)] + updated + body[match.end(1) :], encoding="utf-8")
-
-
-def _rewrite_fields(block: str, values: dict[str, str]) -> str:
-    lines = block.split("\n")
-    for index, line in enumerate(lines):
-        key = line.split(":", 1)[0].strip()
-        if key in values:
-            lines[index] = f"{key}: {values[key]}"
-    return "\n".join(lines)
-
-
-def _update_legacy_unit_section(path: Path, body: str, unit: str) -> None:
-    """Update a `## Work Unit` section written before the frontmatter format.
-
-    AsUsual shipped the section form, so work folders in other projects still
-    use it. Without this, `move` would silently leave those documents claiming a
-    unit the record no longer agrees with.
-    """
-    lines = body.splitlines()
-    for index, line in enumerate(lines):
-        if line.strip() != "## Work Unit":
-            continue
-        for offset in range(index + 1, min(index + 5, len(lines))):
-            if lines[offset].strip():
-                lines[offset] = unit
-                path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-                return
-        return
 
 
 def append_to_band(work_dir: Path, heading: str, text: str) -> bool:

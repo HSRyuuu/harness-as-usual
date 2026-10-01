@@ -1,15 +1,15 @@
 ---
 name: gathering-context
-description: Use as the first step of any AsUsual work unit, and whenever context has to be gathered from the user. Interviews the user to settle open items and records the agreed decisions in contexts.md.
+description: Use as the first step of any AsUsual work, and whenever context has to be gathered from the user. Interviews the user to settle open items and records the agreed decisions in contexts.md.
 ---
 
 # Gathering Context
 
-Every work unit starts here. This skill owns **all** conversation with the user
+Every piece of AsUsual work starts here. This skill owns **all** conversation with the user
 about what the work is: the questions, their shape, their order, and where the
 answers land.
 
-It is a general engine. It does not know which unit called it and must never
+It is a general engine. It does not know which step called it and must never
 branch on one. The caller passes **a list of items that must be settled**; this
 skill talks with the user until that list is settled, records the outcome, and
 returns.
@@ -24,8 +24,8 @@ The caller provides:
 - whether autopilot is on (`core-rules.md` §10).
 
 If there is no work folder — no `contexts.md` and `audit.jsonl` to record into —
-this skill has nothing to write to. Route to `using-as-usual`, which decides the
-unit and creates it (core rule 6), and come back.
+this skill has nothing to write to. Route to `using-as-usual`, which creates it
+(core rule 6), and come back.
 
 Before asking, reconcile the request and any supplied plan with the current
 code: what is already agreed, what changed, and what is still undecided. Cite the
@@ -56,7 +56,7 @@ fill a form.
   turn a policy answer into execution approval (`core-rules.md` §4).
 - **Never ask what the codebase, logs, or git history can answer.** Look it up.
   Use `explore-codebase` when the surface is unfamiliar.
-- **Check whether another unit already decided this.** Before recommending a
+- **Check whether other work already decided this.** Before recommending a
   decision about a file, key, or contract, locate related work by the user's
   referenced path and the relevant repositories or known worktrees. Read its
   derived status and contexts, then the requirements, plan, conclusion, or
@@ -78,9 +78,9 @@ fill a form.
   Looking things up settles *facts*. It never settles *ownership*. These stay the
   user's no matter what the code says:
   - **what is in and out of scope** — which files, directories, and surfaces this
-    unit covers, and what stays outside it;
-  - **how far "done" reaches** — what gets verified, and what is left to a later
-    unit;
+    work covers, and what stays outside it;
+  - **how far "done" reaches** — what gets verified, and what is left to later
+    work;
   - **anything whose cost lands outside this repository** — a deploy step, a
     manual operation, another team's work.
 
@@ -151,14 +151,6 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
 
 Material means it could change the requirements, the plan, the implementation
 approach, the risk, or the verification. Wording and typo fixes are not.
-
-## Deciding The Unit
-
-When called from an `inbox` folder, the list to settle is exactly one item:
-**which unit this work is**. Ask what the two questions in `core-rules.md` §2
-ask, in that order and in those terms — do not paraphrase them into a different
-test here. Once it is clear, record the decision, tell the caller, and let it
-`move` the folder.
 
 ## Stop Conditions
 

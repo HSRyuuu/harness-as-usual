@@ -9,8 +9,8 @@ import pytest
 from as_usual_record.constants import SCHEMA_VERSION
 
 
-def test_init_creates_both_common_files(make_unit, events):
-    work_dir = make_unit("topic")
+def test_init_creates_both_common_files(make_work, events):
+    work_dir = make_work()
 
     assert (work_dir / "contexts.md").exists()
     assert (work_dir / "audit.jsonl").exists()
@@ -19,15 +19,15 @@ def test_init_creates_both_common_files(make_unit, events):
     assert len(recorded) == 1
     created = recorded[0]
     assert created["seq"] == 1
-    assert created["unit"] == "topic"
+    assert created["unit"] == "work"
     assert created["kind"] == "lifecycle"
     assert created["data"]["event"] == "created"
     assert created["data"]["schemaVersion"] == SCHEMA_VERSION
     assert created["data"]["initialRequest"] == "sample request"
 
 
-def test_init_writes_request_and_unit_into_contexts(make_unit, events):
-    work_dir = make_unit("issue", request="왜 죽는지 모르겠음", slug="2026-07-25-crash")
+def test_init_writes_request_and_unit_into_contexts(make_work, events):
+    work_dir = make_work(request="왜 죽는지 모르겠음", slug="2026-07-25-crash")
     body = (work_dir / "contexts.md").read_text(encoding="utf-8")
 
     assert "왜 죽는지 모르겠음" in body
@@ -37,16 +37,16 @@ def test_init_writes_request_and_unit_into_contexts(make_unit, events):
     assert "## Q&A Log" not in body
 
     front = _frontmatter(body)
-    assert front["unit"] == "issue"
+    assert front["unit"] == "work"
     assert front["slug"] == "2026-07-25-crash"
     # Taken from the `created` event, so the document cannot disagree with the
     # record about the day.
     assert front["created"] == events(work_dir)[0]["ts"][:10]
 
 
-def test_init_leaves_no_template_scaffolding_behind(make_unit):
+def test_init_leaves_no_template_scaffolding_behind(make_work):
     """The rendered document is the user's first read; it must not look like a form."""
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     body = (work_dir / "contexts.md").read_text(encoding="utf-8")
 
     assert "<!--" not in body
@@ -56,9 +56,9 @@ def test_init_leaves_no_template_scaffolding_behind(make_unit):
     assert "{unit}" not in body and "{slug}" not in body and "{created}" not in body
 
 
-def test_request_containing_a_placeholder_is_not_substituted_again(make_unit):
+def test_request_containing_a_placeholder_is_not_substituted_again(make_work):
     """The request is verbatim user text and may name a placeholder token."""
-    work_dir = make_unit("topic", request="rename {slug} to {created} everywhere")
+    work_dir = make_work(request="rename {slug} to {created} everywhere")
     body = (work_dir / "contexts.md").read_text(encoding="utf-8")
 
     assert "rename {slug} to {created} everywhere" in body
@@ -74,15 +74,13 @@ def _frontmatter(body: str) -> dict[str, str]:
     )
 
 
-def test_init_refuses_to_overwrite_existing_record(make_unit, run):
-    work_dir = make_unit("topic")
+def test_init_refuses_to_overwrite_existing_record(make_work, run):
+    work_dir = make_work()
     assert (
         run(
             "init",
             "--dir",
             str(work_dir),
-            "--unit",
-            "topic",
             "--request",
             "again",
             "--actor",
@@ -92,13 +90,13 @@ def test_init_refuses_to_overwrite_existing_record(make_unit, run):
     )
 
 
-def test_init_refuses_after_the_audit_is_deleted(make_unit, run):
+def test_init_refuses_after_the_audit_is_deleted(make_work, run):
     """Deleting the record must not hand the folder back as a fresh unit.
 
-    Sealing and the move restriction both read `audit.jsonl`, so re-initializing
-    over a folder that still holds its other artifacts wipes both gates at once.
+    Sealing and the plan-review history both read `audit.jsonl`, so
+    re-initializing over a folder that still holds its other artifacts wipes them.
     """
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     (work_dir / "plan.md").write_text("a plan", encoding="utf-8")
     (work_dir / "audit.jsonl").unlink()
 
@@ -107,8 +105,6 @@ def test_init_refuses_after_the_audit_is_deleted(make_unit, run):
             "init",
             "--dir",
             str(work_dir),
-            "--unit",
-            "direct-work",
             "--request",
             "starting over",
             "--actor",
@@ -119,9 +115,9 @@ def test_init_refuses_after_the_audit_is_deleted(make_unit, run):
     assert not (work_dir / "audit.jsonl").exists()
 
 
-def test_init_refusal_names_what_is_in_the_way(make_unit, run, capsys):
+def test_init_refusal_names_what_is_in_the_way(make_work, run, capsys):
     """"Cannot init" without naming the file leaves the user guessing."""
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     (work_dir / "plan.md").write_text("a plan", encoding="utf-8")
     capsys.readouterr()
 
@@ -129,8 +125,6 @@ def test_init_refusal_names_what_is_in_the_way(make_unit, run, capsys):
         "init",
         "--dir",
         str(work_dir),
-        "--unit",
-        "topic",
         "--request",
         "again",
         "--actor",
@@ -145,7 +139,7 @@ def test_init_refusal_names_what_is_in_the_way(make_unit, run, capsys):
 
 def test_init_still_succeeds_in_an_empty_dir(as_usual: Path, run):
     """The normal path — a folder with nothing in it — is untouched."""
-    work_dir = as_usual / "topic" / "2026-07-26-empty"
+    work_dir = as_usual / "work" / "2026-07-26-empty"
     work_dir.mkdir(parents=True)
 
     assert (
@@ -153,8 +147,6 @@ def test_init_still_succeeds_in_an_empty_dir(as_usual: Path, run):
             "init",
             "--dir",
             str(work_dir),
-            "--unit",
-            "topic",
             "--request",
             "fresh start",
             "--actor",
@@ -164,23 +156,41 @@ def test_init_still_succeeds_in_an_empty_dir(as_usual: Path, run):
     )
 
 
-def test_seq_increments_across_appends(make_unit, run, events):
-    work_dir = make_unit("direct-work")
+def test_seq_increments_across_appends(make_work, run, events):
+    work_dir = make_work()
     for index in range(3):
         assert run("add", "--dir", str(work_dir), "--kind", "note", "--summary", f"n{index}") == 0
 
     assert [entry["seq"] for entry in events(work_dir)] == [1, 2, 3, 4]
 
 
-def test_unit_is_inherited_from_the_record(make_unit, run, events):
-    work_dir = make_unit("issue")
+def test_unit_is_inherited_from_the_record(make_work, run, events):
+    work_dir = make_work()
     run("add", "--dir", str(work_dir), "--kind", "hypothesis", "--summary", "maybe the cache")
 
-    assert events(work_dir)[-1]["unit"] == "issue"
+    assert events(work_dir)[-1]["unit"] == "work"
 
 
-def test_data_pairs_are_recorded(make_unit, run, events):
-    work_dir = make_unit("topic")
+def test_init_refuses_a_legacy_unit(as_usual: Path, run):
+    """Legacy units stay resumable, but no new folder may be created under one."""
+    work_dir = as_usual / "topic" / "2026-07-25-new"
+    for unit in ("topic", "direct-work", "issue", "inbox"):
+        with pytest.raises(SystemExit):
+            run("init", "--dir", str(work_dir), "--unit", unit,
+                "--request", "r", "--actor", "claude")
+    assert not work_dir.exists()
+
+
+def test_init_accepts_the_work_unit_explicitly(as_usual: Path, run, events):
+    work_dir = as_usual / "work" / "2026-07-25-explicit"
+
+    assert run("init", "--dir", str(work_dir), "--unit", "work",
+               "--request", "r", "--actor", "claude") == 0
+    assert events(work_dir)[0]["unit"] == "work"
+
+
+def test_data_pairs_are_recorded(make_work, run, events):
+    work_dir = make_work()
     run(
         "add",
         "--dir",
@@ -199,36 +209,39 @@ def test_data_pairs_are_recorded(make_unit, run, events):
 @pytest.mark.parametrize(
     "argv_tail",
     [
+        # Retired with the issue unit: readable in old records, never appended.
         ("--kind", "note", "--summary", "s", "--phase", "investigating"),
+        ("--kind", "note", "--summary", "s", "--phase", "concluding"),
+        ("--kind", "note", "--summary", "s", "--next-action", "concluding"),
         ("--kind", "note", "--summary", "s", "--next-action", "not-a-phase"),
     ],
 )
-def test_phase_vocabulary_is_scoped_to_the_unit(make_unit, run, argv_tail):
-    work_dir = make_unit("topic")
+def test_add_refuses_retired_and_unknown_phases(make_work, run, argv_tail):
+    work_dir = make_work()
     assert run("add", "--dir", str(work_dir), *argv_tail) == 2
 
 
-def test_issue_may_use_its_own_phases(make_unit, run, events):
-    work_dir = make_unit("issue")
-    assert (
-        run(
-            "add",
-            "--dir",
-            str(work_dir),
-            "--kind",
-            "note",
-            "--summary",
-            "s",
-            "--phase",
-            "investigating",
-        )
-        == 0
-    )
-    assert events(work_dir)[-1]["phase"] == "investigating"
+def test_every_phase_is_open_to_a_work_record(make_work, run, events):
+    """No per-unit subsets: investigating and implementing share one folder."""
+    work_dir = make_work()
+    for phase in ("investigate", "write-requirements", "write-plan", "execute-plan"):
+        assert run("add", "--dir", str(work_dir), "--kind", "note",
+                   "--summary", "s", "--phase", phase) == 0
+    assert events(work_dir)[-1]["phase"] == "execute-plan"
 
 
-def test_record_is_sealed_after_finalize(make_unit, run):
-    work_dir = make_unit("direct-work")
+def test_a_legacy_issue_cannot_append_its_retired_phase(make_legacy, run):
+    work_dir = make_legacy("issue")
+
+    assert run("add", "--dir", str(work_dir), "--kind", "note",
+               "--summary", "s", "--phase", "investigating") == 2
+    assert run("add", "--dir", str(work_dir), "--kind", "note",
+               "--summary", "s", "--phase", "investigate") == 0
+
+
+def test_record_is_sealed_after_finalize(make_work, run, approve_execution):
+    work_dir = make_work()
+    approve_execution(work_dir)
     run(
         "add",
         "--dir",
@@ -240,23 +253,26 @@ def test_record_is_sealed_after_finalize(make_unit, run):
         "--verdict",
         "PASS",
     )
-    run(
-        "add",
-        "--dir",
-        str(work_dir),
-        "--kind",
-        "lifecycle",
-        "--summary",
-        "done",
-        "--event",
-        "finalized",
+    assert (
+        run(
+            "add",
+            "--dir",
+            str(work_dir),
+            "--kind",
+            "lifecycle",
+            "--summary",
+            "done",
+            "--event",
+            "finalized",
+        )
+        == 0
     )
 
     assert run("add", "--dir", str(work_dir), "--kind", "note", "--summary", "late") == 2
 
 
-def test_link_is_still_allowed_after_closure(make_unit, run, events, as_usual):
-    issue_dir = make_unit("issue", slug="2026-07-25-crash")
+def test_link_is_still_allowed_after_closure(make_work, run, events, as_usual):
+    issue_dir = make_work(slug="2026-07-25-crash")
     (issue_dir / "conclusion.md").write_text("# Conclusion\n", encoding="utf-8")
     run(
         "add",
@@ -298,14 +314,12 @@ def test_link_is_still_allowed_after_closure(make_unit, run, events, as_usual):
         == 0
     )
 
-    follow_up = as_usual / "topic" / "2026-07-25-fix-retry"
+    follow_up = as_usual / "work" / "2026-07-25-fix-retry"
     assert (
         run(
             "init",
             "--dir",
             str(follow_up),
-            "--unit",
-            "topic",
             "--request",
             "fix the retry loop",
             "--actor",
@@ -316,18 +330,21 @@ def test_link_is_still_allowed_after_closure(make_unit, run, events, as_usual):
     assert run("link", "--dir", str(issue_dir), "--to-dir", str(follow_up)) == 0
 
     assert events(issue_dir)[-1]["data"]["event"] == "linked"
-    assert events(follow_up)[-1]["data"]["to"] == ".as-usual/issue/2026-07-25-crash"
+    assert events(follow_up)[-1]["data"]["to"] == ".as-usual/work/2026-07-25-crash"
 
 
-def test_link_records_project_relative_paths(make_unit, run, events, as_usual):
-    """An absolute path bakes this machine into an append-only record forever."""
-    first = make_unit("topic", slug="2026-07-25-one")
-    second = make_unit("issue", slug="2026-07-25-two")
+def test_link_records_project_relative_paths(make_work, make_legacy, run, events, as_usual):
+    """An absolute path bakes this machine into an append-only record forever.
+
+    The second side is a legacy folder: follow-up work still links to it.
+    """
+    first = make_work(slug="2026-07-25-one")
+    second = make_legacy("issue", slug="2026-07-25-two")
 
     assert run("link", "--dir", str(first), "--to-dir", str(second)) == 0
 
     assert events(first)[-1]["data"]["to"] == ".as-usual/issue/2026-07-25-two"
-    assert events(second)[-1]["data"]["to"] == ".as-usual/topic/2026-07-25-one"
+    assert events(second)[-1]["data"]["to"] == ".as-usual/work/2026-07-25-one"
     assert not str(as_usual).startswith(".")  # the fixture root really is absolute
 
 
@@ -339,10 +356,10 @@ def _contexts(work_dir, body: str) -> None:
     (work_dir / "contexts.md").write_text(body, encoding="utf-8")
 
 
-def test_append_to_band_adds_under_an_existing_band(make_unit):
+def test_append_to_band_adds_under_an_existing_band(make_work):
     from as_usual_record.contexts import append_to_band
 
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     _contexts(
         work_dir,
         "---\nunit: topic\n---\n\n# Context\n\n## Initial Request\n\nbuild it\n\n"
@@ -356,10 +373,10 @@ def test_append_to_band_adds_under_an_existing_band(make_unit):
     assert body.index("prior investigation") < body.index("follow-up")
 
 
-def test_append_to_band_replaces_an_empty_marker(make_unit):
+def test_append_to_band_replaces_an_empty_marker(make_work):
     from as_usual_record.contexts import append_to_band
 
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     _contexts(
         work_dir,
         "---\nunit: topic\n---\n\n# Context\n\n## Linked Work\n\n_None._\n",
@@ -371,11 +388,11 @@ def test_append_to_band_replaces_an_empty_marker(make_unit):
     assert "— why" in body
 
 
-def test_append_to_band_creates_a_missing_band_in_order(make_unit):
+def test_append_to_band_creates_a_missing_band_in_order(make_work):
     """A young unit has no Linked Work band at all; the entry still has a home."""
     from as_usual_record.contexts import append_to_band
 
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     _contexts(
         work_dir,
         "---\nunit: topic\n---\n\n# Context\n\n## Initial Request\n\nbuild it\n\n"
@@ -389,11 +406,11 @@ def test_append_to_band_creates_a_missing_band_in_order(make_unit):
     assert body.index("## Initial Request") < body.index("## Linked Work") < body.index("## Decisions")
 
 
-def test_append_to_band_refuses_a_damaged_document(make_unit):
+def test_append_to_band_refuses_a_damaged_document(make_work):
     """No frontmatter and no title: there is no safe place to put anything."""
     from as_usual_record.contexts import append_to_band
 
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     _contexts(work_dir, "just a loose note with no structure\n")
     before = (work_dir / "contexts.md").read_text()
 
@@ -401,10 +418,10 @@ def test_append_to_band_refuses_a_damaged_document(make_unit):
     assert (work_dir / "contexts.md").read_text() == before
 
 
-def test_prepend_notice_lands_above_every_band(make_unit):
+def test_prepend_notice_lands_above_every_band(make_work):
     from as_usual_record.contexts import prepend_notice
 
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     _contexts(
         work_dir,
         "---\nunit: topic\n---\n\n# Context\n\n## Initial Request\n\nbuild it\n",
@@ -415,10 +432,10 @@ def test_prepend_notice_lands_above_every_band(make_unit):
     assert body.index("CANCELLED") < body.index("## Initial Request")
 
 
-def test_prepend_notice_refuses_a_document_without_a_title(make_unit):
+def test_prepend_notice_refuses_a_document_without_a_title(make_work):
     from as_usual_record.contexts import prepend_notice
 
-    work_dir = make_unit("topic")
+    work_dir = make_work()
     _contexts(work_dir, "---\nunit: topic\n---\n\nno title here\n")
     before = (work_dir / "contexts.md").read_text()
 
@@ -426,8 +443,8 @@ def test_prepend_notice_refuses_a_document_without_a_title(make_unit):
     assert (work_dir / "contexts.md").read_text() == before
 
 
-def test_init_writes_no_placeholders(make_unit):
-    work_dir = make_unit("topic")
+def test_init_writes_no_placeholders(make_work):
+    work_dir = make_work()
     body = (work_dir / "contexts.md").read_text()
     for marker in ("_Not set._", "_None._", "_None yet._", "_No questions raised yet._"):
         assert marker not in body
@@ -440,7 +457,7 @@ def test_init_adopts_a_folder_holding_only_an_artifact(as_usual: Path, run, caps
     only recovery as deleting a document nobody wanted to delete — and the
     folder could never acquire the record it was missing.
     """
-    work_dir = as_usual / "topic" / "2026-08-31-orphan"
+    work_dir = as_usual / "work" / "2026-08-31-orphan"
     work_dir.mkdir(parents=True)
     (work_dir / "plan.md").write_text("# Plan\n", encoding="utf-8")
     capsys.readouterr()
@@ -450,8 +467,6 @@ def test_init_adopts_a_folder_holding_only_an_artifact(as_usual: Path, run, caps
             "init",
             "--dir",
             str(work_dir),
-            "--unit",
-            "topic",
             "--request",
             "adopt me",
             "--actor",
@@ -465,11 +480,11 @@ def test_init_adopts_a_folder_holding_only_an_artifact(as_usual: Path, run, caps
     assert "adopted plan.md" in capsys.readouterr().out
 
 
-def test_link_writes_into_both_documents(as_usual: Path, run, make_unit):
+def test_link_writes_into_both_documents(as_usual: Path, run, make_work):
     from as_usual_record.status import derive_status
 
-    left = make_unit("topic", slug="2026-08-31-left")
-    right = make_unit("issue", slug="2026-08-31-right")
+    left = make_work(slug="2026-08-31-left")
+    right = make_work(slug="2026-08-31-right")
 
     assert run("link", "--dir", str(left), "--to-dir", str(right), "--summary", "cause of this") == 0
 
@@ -485,9 +500,9 @@ def test_link_writes_into_both_documents(as_usual: Path, run, make_unit):
     )
 
 
-def test_link_leaves_a_damaged_document_alone(as_usual: Path, run, make_unit, capsys):
-    left = make_unit("topic", slug="2026-08-31-l2")
-    right = make_unit("issue", slug="2026-08-31-r2")
+def test_link_leaves_a_damaged_document_alone(as_usual: Path, run, make_work, capsys):
+    left = make_work(slug="2026-08-31-l2")
+    right = make_work(slug="2026-08-31-r2")
     (left / "contexts.md").write_text("loose note\n", encoding="utf-8")
     capsys.readouterr()
 
@@ -498,8 +513,8 @@ def test_link_leaves_a_damaged_document_alone(as_usual: Path, run, make_unit, ca
     assert "2026-08-31-r2" in (left / "audit.jsonl").read_text()
 
 
-def test_cancelling_marks_the_document(make_unit, run):
-    work_dir = make_unit("topic")
+def test_cancelling_marks_the_document(make_work, run):
+    work_dir = make_work()
 
     assert (
         run(

@@ -15,7 +15,7 @@ as-usual/
 ├── hooks/                            # SessionStart hook + shared runner
 ├── skills/                           # stable public runtime skills
 ├── docs/                             # install + architecture guides
-└── templates/                        # topic artifact templates
+└── templates/                        # artifact templates
 ```
 
 ## Smoke Test

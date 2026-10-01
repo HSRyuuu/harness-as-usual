@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .constants import CLOSING_LIFECYCLE_EVENTS, MOVE_BLOCKING_FILES, JsonObject
+from .constants import ADOPTABLE_ARTIFACTS, CLOSING_LIFECYCLE_EVENTS, JsonObject
 from .records import (
     current_unit,
     latest_of_kind,
@@ -18,7 +18,7 @@ from .records import (
 )
 
 
-TRACKED_ARTIFACTS = MOVE_BLOCKING_FILES + (
+TRACKED_ARTIFACTS = ADOPTABLE_ARTIFACTS + (
     "contexts.md",
     "verification.md",
     "review.md",
@@ -51,7 +51,6 @@ def derive_status(work_dir: Path) -> JsonObject:
         "cancelled": _status_changes(events, "cancelled"),
         "links": _links(events),
         "artifacts": [name for name in TRACKED_ARTIFACTS if (work_dir / name).exists()],
-        "moveAllowed": not any((work_dir / name).exists() for name in MOVE_BLOCKING_FILES),
     }
 
 

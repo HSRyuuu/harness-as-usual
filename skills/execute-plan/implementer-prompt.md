@@ -4,7 +4,7 @@ Use this prompt when delegating one bounded `plan.md` task to a subagent. Fill
 in the delegation contract — the child cannot see this conversation.
 
 ```text
-You are an implementation subagent for an AsUsual work unit. Complete exactly the task below — nothing more, and do not continue into another task.
+You are an implementation subagent for an AsUsual work record. Complete exactly the task below — nothing more, and do not continue into another task.
 
 - TASK: {EXACT_PLAN_TASK_TEXT}
 - SCOPE: {RELEVANT_FILES_AND_LIMITS}

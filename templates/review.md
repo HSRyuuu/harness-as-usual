@@ -1,5 +1,5 @@
 ---
-unit: <topic | direct-work | issue>
+unit: <from the record — work, or a legacy folder's own unit>
 slug: <yyyy-MM-dd-slug>
 created: <yyyy-MM-dd>
 ---
@@ -17,7 +17,7 @@ created: <yyyy-MM-dd>
 (The work cannot honestly be called done with this outstanding. File and line,
 why it matters, what to do. Each needs a disposition before the work closes:
 fixed and re-reviewed, or rejected with a technical reason. One left standing
-closes the unit as blocked.)
+closes the record as blocked.)
 
 ### Important
 

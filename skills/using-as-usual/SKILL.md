@@ -1,13 +1,13 @@
 ---
 name: using-as-usual
-description: Use only when the user asks for AsUsual by name, mentions .as-usual artifacts, or asks to resume work in progress. The single entry point — it classifies the work unit and hands off to its owner skill. Do not use it for an ordinary development or investigation request the user did not route here.
+description: Use only when the user asks for AsUsual by name, mentions .as-usual artifacts, or asks to resume work in progress. The single entry point — it creates or resumes the work folder and hands off to run-work. Do not use it for an ordinary development or investigation request the user did not route here.
 ---
 
 # Using AsUsual
 
 The single entry point for AsUsual. It decides whether the harness applies,
-classifies the work into one unit, creates or resumes the work folder, and hands
-off. It owns no pipeline of its own.
+creates or resumes the work folder, records the request boundary, and hands off
+to `run-work`. It owns no pipeline of its own.
 
 Read `as-usual-rules/core-rules.md` before acting. `record-commands.md` says how
 to resolve `<plugin-root>`.
@@ -17,7 +17,7 @@ to resolve `<plugin-root>`.
 ```text
 using-as-usual                → nothing in progress named: scan .as-usual/ and offer resume candidates
 using-as-usual <path>         → resume its work folder, or bring an external plan into new work
-using-as-usual <request>      → new work: classify, then hand off
+using-as-usual <request>      → new work: create the folder, then hand off
 ```
 
 A cross-session resume is the same path as any other resume. There is no
@@ -35,17 +35,15 @@ AsUsual is opt-in. Enter it only when the user asked for it — any of these:
   `plan.md`, `conclusion.md`, or a work folder path.
 - The user asks to resume, continue, or check what is in progress, and a work
   folder exists under `.as-usual/`.
-- The user invokes an owner skill directly (`run-topic`, `run-direct-work`,
-  `run-issue`).
+- The user invokes the owner skill (`run-work`) directly.
 
 Nothing else activates it. A development or investigation request is **not** a
 signal on its own, and neither is the hook announcement or the presence of a
 `.as-usual/` folder. Handle those requests normally.
 
-When the user invokes an owner skill directly, that skill takes over and the unit
-is settled; do not re-classify. **Creating the folder is still this skill's job**
-— an owner skill with nowhere to record routes back here for step 3, then
-continues. Naming the unit skips the choice, never the record.
+When the user invokes `run-work` directly, **creating the folder is still this
+skill's job** — `run-work` with nowhere to record routes back here for step 2,
+then continues.
 
 ### Recommending it
 
@@ -54,11 +52,11 @@ it will reach production, it is hard to undo, or a cause has to be established
 before anything changes — say so in one line and carry on with the work:
 
 ```text
-This looks worth recording as an AsUsual `topic`. Say the word and I'll set it up.
+This looks worth recording as AsUsual work. Say the word and I'll set it up.
 ```
 
 One line, once, at the point you notice it. Do not ask a question, do not stop
-work, do not present the four options, and do not raise it again in the same
+work, and do not raise it again in the same
 session. The user not taking it up is an answer.
 
 ## New Work
@@ -70,45 +68,43 @@ strength; do not start the interview over or recreate past audit events.
 `write-plan` reconciles the plan with current code and reviews it.
 Execution approval follows `core-rules.md` §4; a plan file alone is not consent.
 
-### 1. Classify
+### 1. Check open work
 
-Apply the two-question tree in `core-rules.md` §2 and form a recommendation.
+Scan `.as-usual/` for folders that are still open and read their `contexts.md`
+boundaries. A request that falls inside an open folder's scope belongs to that
+folder: resume it instead of creating a second record — changing files that an
+open record makes claims about desyncs that record from the tree.
 
-While you are there, scan `.as-usual/` for folders that are still open and read
-their `contexts.md` boundaries. A request that falls inside an open folder's
-scope belongs to that folder (`core-rules.md` §2).
+### 2. Create the folder
 
-### 2. Offer the choice
+Naming and the project root follow `core-rules.md` §3 — inside a git worktree
+the root is the main checkout:
 
-Unless the user already named a unit, present the four options as
-`core-rules.md` §2 describes, including the `inbox` fallback when the user cannot
-choose.
-
-"Just do it" means no folder and no record. Nothing is written, including the
-fact that they chose it.
-
-### 3. Create the folder
-
-Only after the unit is decided (core rule 6). Naming follows `core-rules.md` §3.
+```bash
+dirname "$(git rev-parse --path-format=absolute --git-common-dir)"
+```
 
 ```bash
 python3 <plugin-root>/scripts/as-usual-record.py init \
-  --dir <project-root>/.as-usual/<unit>/yyyy-MM-dd-<slug> \
-  --unit <topic|direct-work|issue|inbox> \
+  --dir <project-root>/.as-usual/work/yyyy-MM-dd-<slug> \
   --request "<the user's request, verbatim>" \
   --actor claude
 ```
 
 Use `--actor codex` on Codex.
 
+### 3. Record the request boundary
+
+Record where this request stops — investigation only, plan only, or execution of
+a reviewed plan — in the `contexts.md` Decisions band (`core-rules.md` §2). Use
+what the user already said; ask only when it is unclear.
+
 ### 4. Hand off
 
-Invoke the owner skill for the unit: `run-topic`, `run-direct-work`, or
-`run-issue`. It owns everything from there.
+Invoke `run-work`. It owns everything from there.
 
 If the user asked for autopilot, confirm and record it as `core-rules.md` §10
-says, and tell the owner skill it is on. When `autopilot:<phase>` names a phase
-this unit does not use, ask rather than picking the nearest one.
+says, and tell `run-work` it is on.
 
 ## Resuming
 
@@ -116,13 +112,14 @@ this unit does not use, ask rather than picking the nearest one.
 
 - **Path given**: if it contains `contexts.md` and `audit.jsonl`, use it. If it
   is a file or nested folder inside one, walk upward. If it is a project root or
-  a unit collection directory, list recent candidates and ask which. A plan
+  a `.as-usual/` collection directory, list recent candidates and ask which. A plan
   outside an AsUsual work folder goes through New Work as input; do not adopt or
   move its source directory as a work folder.
-- **No path**: scan `.as-usual/inbox|topic|direct-work|issue/`. List up to three
-  recent candidates across all units with their unit, slug, next action, and how
-  long ago their last event was. Mark an `open` unit whose last event is older
-  than the units around it as stale and worth confirming before resuming — an
+- **No path**: scan `.as-usual/work/`, and the legacy
+  `.as-usual/inbox|topic|direct-work|issue/` folders (`core-rules.md` §3). List
+  up to three recent candidates with their slug, next action, and how
+  long ago their last event was. Mark an `open` record whose last event is older
+  than the records around it as stale and worth confirming before resuming — an
   abandoned folder keeps its `nextAction` forever, so the most prominent thing
   the list offers can be an invitation to start work that already shipped
   somewhere else. Then ask which to resume. If nothing is there, say so.
@@ -130,11 +127,12 @@ this unit does not use, ask rather than picking the nearest one.
   not nothing: it is work that went past the helper, so no gate ever saw it and
   no link can point at it. Report it while listing candidates. `init` on that
   folder adopts it.
-- **Stale path** (the folder moved units): scan `.as-usual/` for the slug rather
-  than failing. `move` can rename the slug as well as the unit, so when the slug
-  finds nothing, fall back to the date in the path and then to the initial
-  request text recorded in each candidate's `contexts.md`. List what you found
-  and ask rather than guessing between two plausible folders.
+- **Stale path** (a legacy record relabelled by the retired `move`): scan
+  `.as-usual/` for the slug rather than failing. `move` could rename the slug as
+  well as the unit, so when the slug finds nothing, fall back to the date in the
+  path and then to the initial request text recorded in each candidate's
+  `contexts.md`. List what you found and ask rather than guessing between two
+  plausible folders.
 - A folder holding `topic.md`, `journal.jsonl`, `problem.md`, or `question-c*.md`
   is a pre-v2 record. It is not a resume target. Say so and offer to start fresh
   work, reading the old files as input.
@@ -158,15 +156,17 @@ personally verified.
 
 ### 4. Hand off
 
-Invoke the owner skill for the folder's unit. Let it route on the derived phase.
-If the derived state is `finalized` or `cancelled`, the work is closed — offer to
-start a new unit rather than reopening it.
+Invoke `run-work`, whatever the folder's unit label, and let it route on the
+derived phase. A legacy record whose derived phase is `investigating` or
+`concluding` resumes at `investigate`. If the derived state is `finalized` or
+`cancelled`, the work is closed — offer to start new work rather than reopening
+it.
 
 ## Stop Conditions
 
 Stop and tell the user what you need when:
 
-- The unit choice is waiting on them.
+- The request boundary is unclear.
 - The resume candidate is ambiguous.
 - A work folder is closed and they asked to continue it.
 - Only a pre-v2 record exists.

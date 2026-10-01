@@ -1,5 +1,5 @@
 ---
-unit: <topic | direct-work | issue>
+unit: <from the record — work, or a legacy folder's own unit>
 slug: <yyyy-MM-dd-slug>
 created: <yyyy-MM-dd>
 ---
@@ -12,7 +12,7 @@ created: <yyyy-MM-dd>
 State it as what is now known to be true, not as what is suspected.
 
 State the direction, not the task list. File-by-file execution steps belong to
-the follow-up unit's `plan.md`, which reads the code at the time it runs and is
+the follow-up work's `plan.md`, which reads the code at the time it runs and is
 free to decide differently. A plan written here is sealed with the conclusion, so
 when the follow-up overrules it there is no way for this document to say so — it
 goes on reading as settled.)
@@ -30,11 +30,12 @@ confirmed and later overturned, say so and cite both.)
 ## Decomposition
 
 (Only when the finding opens **more than one** piece of follow-up work. A single
-follow-up with the same boundary is a `move`, not a split — omit this section.)
+follow-up with the same boundary carries on in this folder, not a split — omit
+this section.)
 
-| # | Unit & slug | Scope | Depends on | Covers |
+| # | Folder | Scope | Depends on | Covers |
 | --- | --- | --- | --- | --- |
-| 1 | `topic/yyyy-MM-dd-<slug>` | what it changes, and its boundary | — | which findings above |
+| 1 | `work/yyyy-MM-dd-<slug>` | what it changes, and its boundary | — | which findings above |
 
 Every finding above lands in exactly one row. A row covering nothing is not
 follow-up work — drop it. A finding no row covers is either out of scope and

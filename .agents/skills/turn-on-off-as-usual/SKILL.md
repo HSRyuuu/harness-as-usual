@@ -15,7 +15,7 @@ This is plugin development and local plugin administration. It is not an AsUsual
 
 Do not:
 
-- Start an AsUsual runtime topic.
+- Start AsUsual runtime work.
 - Create `.as-usual/` work-unit artifacts.
 - Apply the question/requirements/plan workflow just because the request mentions AsUsual.
 - Copy this skill to `skills/` or expose it through `.codex-plugin/plugin.json`.

@@ -171,3 +171,26 @@ def current_unit(events: list[JsonObject]) -> str:
         if isinstance(unit, str) and unit:
             return unit
     raise RecordError("record has no unit; the folder was not initialized by this helper")
+
+
+def authorizes_code_change(events: list[JsonObject], unit: str) -> bool:
+    """Whether the record approved executing a plan, which makes closing it a
+    completion claim (core rule 3) and the approval itself subject to rule 7.
+
+    A legacy `issue` recorded its reproduction scripts as `execution`
+    approvals, before `reproduction` existed; there they never meant a code
+    change.
+    """
+    if unit == "issue":
+        return False
+    return any(
+        entry.get("kind") == "approval" and entry.get("data", {}).get("action") == "execution"
+        for entry in events
+    )
+
+
+def needs_verification_doc(work_dir: Path, unit: str) -> bool:
+    """Agreed requirements make the evidence something a later reader checks
+    criterion by criterion, so it has to be a document, not only summaries.
+    A legacy `topic` always agreed requirements."""
+    return unit == "topic" or (work_dir / "requirements.md").is_file()

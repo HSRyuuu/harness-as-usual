@@ -1,6 +1,6 @@
 ---
 name: write-plan
-description: Use when a topic or direct-work unit needs plan.md. Writes and critically reviews the execution contract, then follows the requested stopping point or asks for execution approval.
+description: Use when AsUsual work changes code and needs plan.md. Writes and critically reviews the execution contract, then follows the requested stopping point or asks for execution approval.
 ---
 
 # Write Plan
@@ -14,15 +14,16 @@ core rule 7.
 
 ## Strength
 
-Both `topic` and `direct-work` use this skill and the procedure is the same. The
-caller sets the strength, and its own matrix row states it — read that row rather
-than inferring the weight from the request. Writing a topic-weight document for a
-`direct-work` checklist, or a checklist for a topic, means the row was not read.
+The procedure is the same at every strength. The caller sets the strength, and
+its matrix row states it — read that row rather than inferring the weight from
+the request. Writing a full plan document where a checklist was asked for, or a
+checklist where `requirements.md` calls for a full plan, means the row was not
+read.
 
 ## Inputs
 
-- `requirements.md` (topic) or `contexts.md` (direct-work) — current content from
-  disk, not memory.
+- `requirements.md` when it exists, otherwise `contexts.md` — current content
+  from disk, not memory.
 - Derived state: `as-usual-record.py status --dir <work-dir> --json`.
 - The actual code the plan will touch. A plan written without looking at the
   files it names is a guess.
@@ -37,8 +38,8 @@ If something is open that the plan cannot be written without, call
 ## Writing
 
 Follow `templates/plan.md` — it carries the sections and what each one holds.
-The calling unit's matrix says how much of it to write; a `direct-work`
-checklist leaves out what it does not need. Replace the frontmatter placeholders
+The caller's matrix says how much of it to write; a checklist leaves out what
+it does not need. Replace the frontmatter placeholders
 with the real `unit`, `slug`, and `created` (`core-rules.md` §3).
 
 Keep the contract focused on current behavior, the intended change, preserved
@@ -110,15 +111,15 @@ Do not add a review status section to `plan.md`. The event is the record.
 
 ## Asking For Approval
 
-Apply the request boundary in `core-rules.md` §4 first. When the user asked for
-the plan only, report the reviewed plan and stop here; leave the unit open at
+Apply the request boundary in `core-rules.md` §2 first. When the user asked for
+the plan only, report the reviewed plan and stop here; leave the record open at
 `write-plan` with `nextAction=awaiting-user`. Do not ask to implement it or report
 the implementation complete.
 
 Then, in one compact block:
 
 - the absolute system path of `plan.md` (e.g.
-  `/workspace/proj/.as-usual/topic/2026-08-27-slug/plan.md`) — always print the
+  `/workspace/proj/.as-usual/work/2026-08-27-slug/plan.md`) — always print the
   full path in the terminal, never a repo-relative path alone,
 - what the plan will do, in a line or two,
 - anything risky in it, with the rollback,

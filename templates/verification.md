@@ -1,5 +1,5 @@
 ---
-unit: <topic | direct-work>
+unit: <from the record — work, or a legacy folder's own unit>
 slug: <yyyy-MM-dd-slug>
 created: <yyyy-MM-dd>
 ---
@@ -8,7 +8,7 @@ created: <yyyy-MM-dd>
 
 ## Verdict
 
-(The unit's verdict — `PASS`, `FAIL`, or `INCONCLUSIVE` — and the count per
+(The work's verdict — `PASS`, `FAIL`, or `INCONCLUSIVE` — and the count per
 criterion. It matches the newest `verification` event, and it is not `PASS` while
 any recorded `INCONCLUSIVE` or `FAIL` is still unresolved. No other vocabulary:
 "excluded from verification" and "partially satisfied" are `INCONCLUSIVE` wearing
@@ -32,7 +32,7 @@ to know where the boundary was.)
 (What cost time here, or would mislead the next person, numbered. A missing
 required header, a profile that changes which row is read, a field that differs
 per request, a cache that has to be cleared first. Write the trap and its cause,
-not just the symptom, so this unit's verification remains reproducible.)
+not just the symptom, so this work's verification remains reproducible.)
 
 ### Commands
 
@@ -82,9 +82,9 @@ putting them here is how this section loses its shape.)
 dated, newest last.
 
 **This band is outside the record.** `audit.jsonl` accepts nothing but links once
-the unit is finalized, so nothing here is backed by a `verification` event, and
+the record is finalized, so nothing here is backed by a `verification` event, and
 nothing here changes the Verdict above — that verdict is what the gate actually
 judged.
 
 When the follow-up verification turns into real work rather than one more check,
-that is a new work unit linked to this one, not a longer band.)
+that is new work linked to this one, not a longer band.)

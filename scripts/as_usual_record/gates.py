@@ -13,24 +13,27 @@ from .constants import (
     APPROVAL_ACTIONS,
     CLOSING_LIFECYCLE_EVENTS,
     KINDS,
+    AUDITABLE_UNITS,
     LIFECYCLE_EVENTS,
-    MOVE_BLOCKING_FILES,
     NEXT_ACTION_SPECIALS,
     OPEN_VERDICTS,
     PHASES,
-    PLAN_REVIEW_UNITS,
     REASONING_KINDS,
     RESOLVES_KINDS,
     STATUS_CHANGE_STATES,
     STATUSES,
-    UNIT_PHASES,
-    UNITS,
     VERDICTS,
-    VERIFICATION_UNITS,
     JsonObject,
 )
 from .paths import RecordError
-from .records import find_entry, latest_of_kind, open_verifications, resolved_targets
+from .records import (
+    authorizes_code_change,
+    find_entry,
+    latest_of_kind,
+    needs_verification_doc,
+    open_verifications,
+    resolved_targets,
+)
 
 
 def validate_enum(name: str, value: str, allowed: set[str]) -> None:
@@ -47,18 +50,12 @@ def validate_vocabulary(
     phase: str,
     next_action: str,
 ) -> None:
-    validate_enum("unit", unit, UNITS)
+    validate_enum("unit", unit, AUDITABLE_UNITS)
     validate_enum("kind", kind, KINDS)
     validate_enum("actor", actor, ACTORS)
     validate_enum("status", status, STATUSES)
     if phase:
         validate_enum("phase", phase, PHASES)
-        allowed = UNIT_PHASES[unit]
-        if phase not in allowed:
-            raise RecordError(
-                f"phase {phase} is not used by unit {unit}. "
-                f"allowed: {', '.join(sorted(allowed))}"
-            )
     if next_action:
         validate_enum("nextAction", next_action, PHASES | NEXT_ACTION_SPECIALS)
 
@@ -67,7 +64,7 @@ def check_not_closed(events: list[JsonObject], kind: str, data: JsonObject) -> N
     """Core gate: a finalized or cancelled record is sealed.
 
     The single exception is linking another work unit, which must stay possible
-    after closure so a concluded issue can point at the follow-up work it spawned.
+    after closure so a concluded record can point at the follow-up work it spawned.
     """
     closing = _closing_event(events)
     if closing is None:
@@ -200,7 +197,9 @@ def _check_approval(
 ) -> None:
     action = data.get("action")
     if not action:
-        raise RecordError("approval requires --action (high-risk|execution|git-action)")
+        raise RecordError(
+            "approval requires --action (high-risk|execution|reproduction|git-action)"
+        )
     validate_enum("approval action", str(action), APPROVAL_ACTIONS)
 
     _check_user_decision(
@@ -211,7 +210,9 @@ def _check_approval(
         "note or a decision instead",
     )
 
-    if action == "execution" and unit in PLAN_REVIEW_UNITS:
+    # A legacy issue's `execution` was a reproduction script (see
+    # authorizes_code_change); everywhere else it executes a plan.
+    if action == "execution" and unit != "issue":
         _check_plan_review(work_dir, events)
 
 
@@ -313,82 +314,82 @@ def _check_finalize(
     status: str,
     data: JsonObject,
 ) -> None:
-    if unit == "inbox":
+    executed = authorizes_code_change(events, unit)
+    concluded = (work_dir / "conclusion.md").exists()
+    if not executed and not concluded:
         raise RecordError(
-            "inbox cannot be finalized: the work unit was never chosen, so there is "
-            "nothing to declare complete. move it to topic, direct-work, or issue "
-            "first, or close it with the cancelled event"
+            "nothing to finalize: the record holds neither an approved execution nor "
+            f"a conclusion.md in {work_dir}. write the conclusion, finish the approved "
+            "work, or close with the cancelled event"
         )
-    if unit in VERIFICATION_UNITS:
-        latest = latest_of_kind(events, "verification")
-        # Two distinct failures, deliberately not merged: no evidence at all is
-        # not something the user can accept with a reason, because there is no
-        # result for them to have seen.
-        if latest is None:
+    if executed:
+        _check_completion_evidence(events, work_dir, unit, actor, status, data)
+    if concluded:
+        _check_conclusion_rests_on_something(events)
+
+
+def _check_completion_evidence(
+    events: list[JsonObject],
+    work_dir: Path,
+    unit: str,
+    actor: str,
+    status: str,
+    data: JsonObject,
+) -> None:
+    latest = latest_of_kind(events, "verification")
+    # Two distinct failures, deliberately not merged: no evidence at all is
+    # not something the user can accept with a reason, because there is no
+    # result for them to have seen.
+    if latest is None:
+        raise RecordError(
+            "cannot finalize without a recorded verification: a completion claim needs "
+            "evidence that matches the surface. record --kind verification with a verdict, "
+            "using INCONCLUSIVE when the evidence could not be obtained, or close with the "
+            "cancelled event"
+        )
+    # Not "is the newest verdict PASS" — a later pass on another surface used
+    # to bury an earlier gap and close the unit clean. Every failed run stays
+    # open until something re-verifies it by seq.
+    unresolved = open_verifications(events)
+    if unresolved:
+        if not data.get("reason"):
+            listed = ", ".join(
+                f"seq {entry.get('seq')} {entry.get('data', {}).get('verdict')}"
+                for entry in unresolved
+            )
             raise RecordError(
-                "cannot finalize without a recorded verification: a completion claim needs "
-                "evidence that matches the surface. record --kind verification with a verdict, "
-                "using INCONCLUSIVE when the evidence could not be obtained, or close with the "
-                "cancelled event"
+                f"cannot finalize with unresolved verifications ({listed}): re-verify and "
+                "record the passing run with --resolves <seq>, accept them explicitly with "
+                '--reason "<why this is being closed anyway>", or close with the cancelled '
+                "event"
             )
-        # Not "is the newest verdict PASS" — a later pass on another surface used
-        # to bury an earlier gap and close the unit clean. Every failed run stays
-        # open until something re-verifies it by seq.
-        unresolved = open_verifications(events)
-        if unresolved:
-            if not data.get("reason"):
-                listed = ", ".join(
-                    f"seq {entry.get('seq')} {entry.get('data', {}).get('verdict')}"
-                    for entry in unresolved
-                )
-                raise RecordError(
-                    f"cannot finalize with unresolved verifications ({listed}): re-verify and "
-                    "record the passing run with --resolves <seq>, accept them explicitly with "
-                    '--reason "<why this is being closed anyway>", or close with the cancelled '
-                    "event"
-                )
-            # Closing over a known gap is the user's call, not the agent's.
-            _check_user_decision(
-                "finalizing with --reason over an open verification",
-                actor,
-                status,
-                "if the user has not accepted the gap, the unit stays open: "
-                "re-verify and close it with --resolves, or leave the record open "
-                "until they decide",
-            )
-    if unit == "topic" and not (work_dir / "verification.md").is_file():
-        raise RecordError(
-            f"topic cannot be finalized without verification.md in {work_dir}: the "
-            "record points at evidence that has to be readable in a later session. "
-            "write it before recording closure, or close with the cancelled event"
+        # Closing over a known gap is the user's call, not the agent's.
+        _check_user_decision(
+            "finalizing with --reason over an open verification",
+            actor,
+            status,
+            "if the user has not accepted the gap, the unit stays open: "
+            "re-verify and close it with --resolves, or leave the record open "
+            "until they decide",
         )
-    if unit != "issue":
-        return
-    if not (work_dir / "conclusion.md").exists():
+    if needs_verification_doc(work_dir, unit) and not (work_dir / "verification.md").is_file():
         raise RecordError(
-            f"issue cannot be finalized without conclusion.md in {work_dir}. "
-            "write the conclusion before recording closure, or close with the cancelled event"
+            f"cannot finalize without verification.md in {work_dir}: agreed requirements "
+            "are verified criterion by criterion, and the record points at evidence that "
+            "has to be readable in a later session. write it before recording closure, or "
+            "close with the cancelled event"
         )
+
+
+def _check_conclusion_rests_on_something(events: list[JsonObject]) -> None:
     if not any(
         entry.get("kind") == "status-change" and entry.get("data", {}).get("to") == "confirmed"
         for entry in events
     ):
         raise RecordError(
-            "issue cannot be finalized without a confirmed entry: a conclusion needs something "
-            "it rests on. confirm the hypothesis or direction with --kind status-change "
-            "--to confirmed --evidence supporting that specific claim (an inability to "
-            "reproduce confirms a limitation, not a cause), or close with the cancelled event"
-        )
-
-
-def check_move_allowed(work_dir: Path) -> None:
-    """A folder that produced its own work output keeps its unit label.
-
-    Blocklist, not allowlist: stray files must never change the outcome.
-    """
-    present = [name for name in MOVE_BLOCKING_FILES if (work_dir / name).exists()]
-    if present:
-        raise RecordError(
-            f"cannot move {work_dir}: it already produced {', '.join(present)}. "
-            "create a new work folder for the other unit and link the two instead"
+            "cannot finalize a conclusion without a confirmed entry: a conclusion needs "
+            "something it rests on. confirm the hypothesis or direction with --kind "
+            "status-change --to confirmed --evidence supporting that specific claim (an "
+            "inability to reproduce confirms a limitation, not a cause), or close with the "
+            "cancelled event"
         )

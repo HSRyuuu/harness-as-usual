@@ -9,7 +9,6 @@ from .commands import (
     cmd_add,
     cmd_init,
     cmd_link,
-    cmd_move,
     cmd_status,
     cmd_validate,
     resolve_lock_dir,
@@ -18,7 +17,6 @@ from .constants import (
     ACTORS,
     APPROVAL_ACTIONS,
     KINDS,
-    MOVE_TARGETS,
     STATUS_CHANGE_STATES,
     STATUSES,
     UNITS,
@@ -30,13 +28,13 @@ from .paths import RecordError, work_lock
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="as-usual-record",
-        description="Append-only record helper for AsUsual work units (topic, direct-work, issue).",
+        description="Append-only record helper for AsUsual work records.",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
     init = sub.add_parser("init", help="Create a work folder with contexts.md and audit.jsonl.")
     init.add_argument("--dir", required=True)
-    init.add_argument("--unit", required=True, choices=sorted(UNITS))
+    init.add_argument("--unit", default="work", choices=sorted(UNITS))
     init.add_argument("--request", required=True, help="The user's initial request, verbatim.")
     init.add_argument("--actor", required=True, choices=sorted(ACTORS))
     init.set_defaults(func=cmd_init)
@@ -67,13 +65,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
     add.add_argument("--data", action="append", metavar="KEY=VALUE")
     add.set_defaults(func=cmd_add)
-
-    move = sub.add_parser("move", help="Relabel an unstarted work folder into another unit.")
-    move.add_argument("--dir", required=True)
-    move.add_argument("--to", required=True, choices=sorted(MOVE_TARGETS))
-    move.add_argument("--slug", help="Rename the folder while moving.")
-    move.add_argument("--actor", default="claude", choices=sorted(ACTORS))
-    move.set_defaults(func=cmd_move)
 
     link = sub.add_parser("link", help="Link two work units in both directions.")
     link.add_argument("--dir", required=True)

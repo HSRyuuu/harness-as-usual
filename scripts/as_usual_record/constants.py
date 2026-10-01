@@ -15,15 +15,15 @@ SCHEMA_VERSION = "as-usual.record.v1"
 CONTEXTS_FILE = "contexts.md"
 AUDIT_FILE = "audit.jsonl"
 
-# Work units. `inbox` is the pre-classification staging unit; the other three are
-# the durable work units.
-UNITS = {"inbox", "topic", "direct-work", "issue"}
-MOVE_TARGETS = {"topic", "direct-work", "issue"}
+# One work unit. `init` creates only `work`; the four earlier units are legacy:
+# their folders stay readable and resumable, and every gate now judges what the
+# record holds rather than which unit label it carries.
+UNITS = {"work"}
+LEGACY_UNITS = {"inbox", "topic", "direct-work", "issue"}
+AUDITABLE_UNITS = UNITS | LEGACY_UNITS
 
-# Files whose presence means the folder has produced its own work output, which
-# freezes its unit label. Blocklist, not allowlist: unrelated stray files must
-# never affect the decision.
-MOVE_BLOCKING_FILES = ("requirements.md", "plan.md", "conclusion.md")
+# Artifacts a folder may already hold when `init` adopts it.
+ADOPTABLE_ARTIFACTS = ("requirements.md", "plan.md", "conclusion.md")
 
 # Files whose presence means the folder is already a work record, so `init` must
 # not run over it. Sealing and the move restriction are both derived from the
@@ -50,7 +50,6 @@ KINDS = {
 
 LIFECYCLE_EVENTS = {
     "created",
-    "unit-selected",
     "finalized",
     "cancelled",
     "linked",
@@ -76,6 +75,8 @@ RETIRED_LIFECYCLE_EVENTS = {
     # Phase moves are carried by the `phase` field, so the event was redundant.
     # Used by topic/2026-07-26-record-gate-hardening.
     "phase-entered",
+    # `move` was removed with the unit split; legacy records carry it.
+    "unit-selected",
 }
 
 # What an audit of an existing record may contain, as opposed to what `add` may
@@ -87,50 +88,22 @@ AUDITABLE_LIFECYCLE_EVENTS = LIFECYCLE_EVENTS | RETIRED_LIFECYCLE_EVENTS
 PHASES = {
     "gathering-context",
     "write-requirements",
+    "investigate",
     "write-plan",
     "execute-plan",
     "review-execution",
     "cleanup-code",
-    "investigating",
-    "concluding",
     "finalize",
     "git-action",
     "blocked",
 }
 
-# Each unit uses only its subset. This mirrors the owner skills' matrices.
-UNIT_PHASES = {
-    "inbox": {"gathering-context", "blocked"},
-    "topic": {
-        "gathering-context",
-        "write-requirements",
-        "write-plan",
-        "execute-plan",
-        "review-execution",
-        "cleanup-code",
-        "finalize",
-        "git-action",
-        "blocked",
-    },
-    "direct-work": {
-        "gathering-context",
-        "write-plan",
-        "execute-plan",
-        "review-execution",
-        "cleanup-code",
-        "finalize",
-        "git-action",
-        "blocked",
-    },
-    "issue": {
-        "gathering-context",
-        "investigating",
-        "concluding",
-        "finalize",
-        "git-action",
-        "blocked",
-    },
+RETIRED_PHASES = {
+    # The issue unit's two middle phases, folded into `investigate`.
+    "investigating",
+    "concluding",
 }
+AUDITABLE_PHASES = PHASES | RETIRED_PHASES
 
 # nextAction is either the next phase name or one of these.
 NEXT_ACTION_SPECIALS = {"awaiting-user", "none"}
@@ -142,14 +115,9 @@ VERDICTS = {"PASS", "FAIL", "INCONCLUSIVE"}
 # verification re-verifies them by seq (core-rules.md §6).
 OPEN_VERDICTS = {"FAIL", "INCONCLUSIVE"}
 STATUS_CHANGE_STATES = {"confirmed", "cancelled"}
-APPROVAL_ACTIONS = {"high-risk", "execution", "git-action"}
-
-# Units whose execution approval must be preceded by a plan review (core rule 7).
-PLAN_REVIEW_UNITS = {"topic", "direct-work"}
-
-# Units that produce a code change, so finalizing one is a completion claim and
-# needs recorded verification behind it (core rule 3).
-VERIFICATION_UNITS = {"topic", "direct-work"}
+# `reproduction` covers a script or test written only to reproduce a behaviour
+# while investigating: it needs the user's approval but no plan review.
+APPROVAL_ACTIONS = {"high-risk", "execution", "reproduction", "git-action"}
 
 # status-change may only target an entry that carries reasoning.
 REASONING_KINDS = {"decision", "hypothesis", "review", "work", "note"}

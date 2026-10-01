@@ -11,7 +11,7 @@ memory and without editing the plan to track progress.
 
 ## What To Check
 
-Read `contexts.md`, `requirements.md` (when the unit has one), the current
+Read `contexts.md`, `requirements.md` (when the work has one), the current
 `plan.md`, and the project files the plan cites. Then check:
 
 - **Coverage** — every accepted acceptance criterion maps to a task, and the

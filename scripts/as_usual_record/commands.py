@@ -4,28 +4,24 @@ from __future__ import annotations
 
 import argparse
 import json
-import shutil
 from pathlib import Path
 
 from .constants import (
+    ADOPTABLE_ARTIFACTS,
     AUDIT_FILE,
     CONTEXTS_FILE,
     INIT_BLOCKING_FILES,
-    MOVE_BLOCKING_FILES,
-    MOVE_TARGETS,
     SCHEMA_VERSION,
     JsonObject,
 )
-from .contexts import append_to_band, prepend_notice, render_contexts, update_frontmatter
+from .contexts import append_to_band, prepend_notice, render_contexts
 from .gates import (
     check_kind_payload,
-    check_move_allowed,
     check_not_closed,
     validate_vocabulary,
 )
 from .paths import (
     RecordError,
-    as_usual_root,
     audit_path,
     contexts_path,
     record_path,
@@ -65,10 +61,10 @@ def cmd_init(args: argparse.Namespace) -> int:
         raise RecordError(
             f"cannot init {work_dir}: it already holds {', '.join(present)}. "
             "this folder is already a work record — re-initializing would reset its "
-            "sealing and move restriction. use a different slug for new work, `move` "
-            "to relabel this one, or delete the folder if it was created by mistake"
+            "sealing. use a different slug for new work, resume this one, or delete the "
+            "folder if it was created by mistake"
         )
-    orphaned = [name for name in MOVE_BLOCKING_FILES if (work_dir / name).exists()]
+    orphaned = [name for name in ADOPTABLE_ARTIFACTS if (work_dir / name).exists()]
 
     validate_vocabulary(
         unit=args.unit,
@@ -115,11 +111,7 @@ def cmd_init(args: argparse.Namespace) -> int:
     print(f"  {CONTEXTS_FILE}")
     print(f"  {AUDIT_FILE}")
     if orphaned:
-        print(
-            f"  adopted {', '.join(orphaned)}, which had no record. "
-            "`move` is now closed for this folder, as it is for any unit that has "
-            "produced its own output"
-        )
+        print(f"  adopted {', '.join(orphaned)}, which had no record")
     return 0
 
 
@@ -176,57 +168,6 @@ def cmd_add(args: argparse.Namespace) -> int:
                 "— the document has no `# Context` title. the event is recorded; add "
                 "the notice by hand"
             )
-    return 0
-
-
-def cmd_move(args: argparse.Namespace) -> int:
-    work_dir = require_existing_dir(args.dir)
-    events = read_events(work_dir)
-    unit = current_unit(events)
-
-    if args.to not in MOVE_TARGETS:
-        raise RecordError(
-            f"invalid move target: {args.to}. allowed: {', '.join(sorted(MOVE_TARGETS))}"
-        )
-    check_not_closed(events, "lifecycle", {"event": "unit-selected"})
-    check_move_allowed(work_dir)
-
-    slug = args.slug or work_dir.name
-    target_dir = as_usual_root(work_dir) / args.to / slug
-    if target_dir == work_dir:
-        raise RecordError(f"already at {target_dir}")
-    if target_dir.exists():
-        raise RecordError(f"target already exists: {target_dir}")
-
-    validate_vocabulary(
-        unit=args.to,
-        kind="lifecycle",
-        actor=args.actor,
-        status="success",
-        phase="",
-        next_action="",
-    )
-
-    source = work_dir
-    target_dir.parent.mkdir(parents=True, exist_ok=True)
-    shutil.move(str(source), str(target_dir))
-
-    entry = build_entry(
-        read_events(target_dir),
-        unit=args.to,
-        kind="lifecycle",
-        actor=args.actor,
-        summary=f"unit selected: {unit} -> {args.to}",
-        data={
-            "event": "unit-selected",
-            "from": record_path(target_dir, source),
-            "to": record_path(target_dir, target_dir),
-        },
-    )
-    append_entry(target_dir, entry)
-    update_frontmatter(target_dir, unit=args.to, slug=target_dir.name)
-
-    print(f"moved to {target_dir}")
     return 0
 
 

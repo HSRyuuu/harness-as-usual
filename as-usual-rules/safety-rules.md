@@ -1,8 +1,8 @@
 # Safety Rules
 
 Single source of truth for the safety gates that apply to every request AsUsual
-touches — the `topic`, `direct-work`, and `issue` units alike, and equally to
-work carried out with no record at all. Other runtime files reference this file
+touches — every work record, and equally work carried out with no record at
+all. Other runtime files reference this file
 instead of restating it. Core rules 2 and 5 in `core-rules.md` point here.
 
 ## Trust Boundary
@@ -85,11 +85,11 @@ python3 <plugin-root>/scripts/as-usual-record.py add --dir <work-dir> \
 If the approval is missing or ambiguous, stop before running the operation and
 ask the user.
 
-## Read-Only Default For Issues
+## Read-Only Default For Investigation
 
-An `issue` never modifies production code. Reading code, running the app, and
-analyzing logs are free. Writing a reproduction test or script needs an explicit
-user request or approval, recorded with
-`--kind approval --action execution --actor user`.
-When the user wants the fix implemented, propose a follow-up `topic` or
-`direct-work` unit and link it.
+While investigating — the `investigate` phase, whatever the request boundary
+(`core-rules.md` §2) — production code is never modified. Reading code, running the app, and analyzing logs are
+free. Writing a reproduction test or script needs an explicit user request or
+approval, recorded with `--kind approval --action reproduction --actor user`.
+When the user wants the fix implemented, that extends the boundary: record it,
+and the same folder carries on into `write-plan` (`core-rules.md` §7).

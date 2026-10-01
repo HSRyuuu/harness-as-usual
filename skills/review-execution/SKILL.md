@@ -8,8 +8,8 @@ description: Use after execution completes to review the actual changes against 
 Reviews what was actually built against what was asked, by reading the real diff
 rather than the summary of it.
 
-`topic` offers this by default; `direct-work` offers it when the change was broad
-or touched something delicate. Either way the user decides whether it runs — but
+It is proposed by default when `requirements.md` exists, and offered otherwise
+when the change was broad or touched something delicate. Either way the user decides whether it runs — but
 once it runs, its findings have to reach a disposition before the work closes.
 
 ## Preconditions
@@ -35,9 +35,9 @@ separate reviewer; the reviewer reports, and recording stays here.
 
 Fill `{REVIEW_CONTEXT}` with the agreed goal and exclusions (citing their record
 or artifact), known concurrent work, and the exact reviewed revision plus relevant
-uncommitted changes. Distinguish this unit's changes from adjacent work. If that
+uncommitted changes. Distinguish this work's changes from adjacent work. If that
 ownership is uncertain, report the uncertainty rather than attributing the whole
-working-tree diff to this unit.
+working-tree diff to this work.
 
 Fill `{SAFETY_RULES_PATH}` with the installed plugin's own
 `as-usual-rules/safety-rules.md` — resolve `<plugin-root>` the same way the
@@ -61,7 +61,7 @@ findings over speculative noise, and cite file and line.
 
 Write findings to `review.md` in the work folder, following `templates/review.md`,
 with the frontmatter placeholders replaced by real values (`core-rules.md` §3).
-One document per work unit: later task reviews and cleanup reviews append their
+One document per work record: later task reviews and cleanup reviews append their
 own sections to it rather than creating new files.
 
 | Severity | Meaning |
@@ -103,9 +103,9 @@ If fixes need implementation, route back: `execute-plan` when the existing plan
 covers them, otherwise `write-plan` or `write-requirements`. Do not implement
 fixes inside this skill and then review your own fix in the same breath.
 
-If a Critical finding is left unresolved, record a `blocker` and set the unit to
+If a Critical finding is left unresolved, record a `blocker` and set the record to
 `--phase blocked --next-action awaiting-user`. It stays **open** — blocked is a
-unit waiting on a decision, not a way to close one, and there is no closing event
+record waiting on a decision, not a way to close one, and there is no closing event
 for it. Say so plainly; it is a real state, not a failure to report.
 
 ## Handing Back

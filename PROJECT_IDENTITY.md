@@ -2,7 +2,7 @@
 
 AsUsual은 단순한 바이브코딩 보조 도구가 아니다. AsUsual은 24시간 열려 있는 실제 프로덕션 웹사이트에 배포할 수 있는 수준의 작업을, 사용자가 통제 가능한 방식으로 agent와 함께 진행하기 위한 개발 하네스다.
 
-처음에는 개인 작업 방식을 보존하기 위해 만든 하네스지만, 목표는 특정 개인이나 특정 기술 스택에 갇히지 않는다. AsUsual은 언어 중립 runtime workflow를 지향한다. 요청은 진입 시점에 세 작업 단위 중 하나로 분류된다: 요구사항 합의가 필요한 `topic`, 무엇을 할지 이미 정해진 `direct-work`, 코드를 고치지 않고 원인이나 방향을 확정하는 `issue`. 어떤 기술 스택이든 사용자가 중요하게 여기는 요구사항, 조사 근거, 승인, 위험, 검증, 리뷰 흐름을 파일로 남기고 재개할 수 있어야 한다.
+처음에는 개인 작업 방식을 보존하기 위해 만든 하네스지만, 목표는 특정 개인이나 특정 기술 스택에 갇히지 않는다. AsUsual은 언어 중립 runtime workflow를 지향한다. 작업 단위는 하나다: 요청마다 작업 폴더 하나를 만들고, 요구사항 합의·원인 조사·코드 변경 중 무엇을 거칠지는 진입 시점의 분류가 아니라 작업이 필요로 하는 것에 따라 정해진다. 어떤 기술 스택이든 사용자가 중요하게 여기는 요구사항, 조사 근거, 승인, 위험, 검증, 리뷰 흐름을 파일로 남기고 재개할 수 있어야 한다.
 
 ## Identity Statement
 
@@ -11,7 +11,7 @@ AsUsual exists to keep AI-assisted development from becoming uncontrolled implem
 AsUsual should help an agent:
 
 - stop before guessing unclear requirements,
-- preserve user decisions and investigation evidence as durable work-unit artifacts,
+- preserve user decisions and investigation evidence as durable work-record artifacts,
 - expose likely DB/API and external behavior impact before implementation,
 - require explicit approval before dangerous operations,
 - record verification evidence instead of relying on optimistic summaries,
@@ -50,11 +50,11 @@ AsUsual is tuned for frontier models, which draws a deliberate line. The record 
 
 ## Runtime Principles
 
-- Work-unit artifacts are the source of truth; chat memory is supporting context. Every unit keeps `contexts.md` (the agreed decisions) and `audit.jsonl` (the append-only evidence trail).
-- The unit is decided before any work folder exists, and it is the user's choice: the agent classifies and recommends, but presents the options and follows what the user picks — including the option to use no harness at all.
-- An `issue` never modifies production code. After the cause or solution direction is confirmed with evidence, implementation continues under a development unit using the transition rules in `as-usual-rules/core-rules.md` §7.
+- Work-record artifacts are the source of truth; chat memory is supporting context. Every record keeps `contexts.md` (the agreed decisions) and `audit.jsonl` (the append-only evidence trail).
+- There is one kind of work record. No work starts before the folder exists and the request boundary — investigation only, plan only, or execute — is recorded. Using no harness at all stays the user's choice: AsUsual is opt-in.
+- An investigation-only request never modifies production code. After the cause or solution direction is confirmed with evidence, implementation carries on in the same folder when the user extends the boundary; genuinely separate follow-up work gets its own linked folder (`as-usual-rules/core-rules.md` §7).
 - Gated implementation — work that is ambiguous, risky, or hard to reverse — requires a completed `requirements.md` and approved `plan.md`. Size alone does not gate; ambiguity and risk do.
-- `direct-work` is for clear, low-risk, reversible work, gated on ambiguity and risk rather than size. It skips the requirements agreement, not the record: it still keeps `contexts.md` and `audit.jsonl`, and it still needs a plan review before execution approval.
+- Clear, low-risk, reversible work skips the requirements agreement, not the record: it still keeps `contexts.md` and `audit.jsonl`, and it still needs a plan review before execution approval.
 - Material decisions are clarified with the user and recorded before they are built on. Questions are asked in chat and their answers written down by the agent — the user is never made to open a file and fill in a field. Every agreed decision lands in one document, `contexts.md`, whenever in the work it was made.
 - `requirements.md` should read like a human-friendly requirements definition document: domain-specific rules, constraints, invariants, side effects, and acceptance criteria should be explicit enough for both a human developer and an agent to plan from it.
 - `contexts.md` is live: when a later decision reverses an earlier one, the earlier entry is edited so the document always reads as the current agreement. Nothing is lost — `audit.jsonl` is append-only and keeps the history.
