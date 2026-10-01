@@ -297,7 +297,9 @@ blockers it cleared.
 
 Removing a value does not reach backwards. It becomes retired vocabulary, which
 `validate` still accepts and `add` refuses — the record is append-only, so an
-entry written while a value was legal stays valid after it is dropped.
+entry written while a value was legal stays valid after it is dropped. The one
+exception is the pre-v2.0 units and their phases and events, which are no longer
+supported at all (§3).
 
 A kind exists only when a script gate enforces something with it. Detail that no
 gate checks belongs in `summary` or `--data`, not in a new kind.

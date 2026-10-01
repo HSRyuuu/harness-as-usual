@@ -69,7 +69,7 @@ a label chosen up front:
     contexts.md · audit.jsonl                                  (always)
     requirements.md · plan.md · verification.md · review.md    (as the work needs them)
     evidence/ · conclusion.md                                  (when something was investigated)
-    report.md                                                  (at close)
+    report.md                                                  (at close, when finalize writes one)
 ```
 
 Inside a git worktree the project root is the main checkout, so the record
@@ -320,7 +320,7 @@ registry.
 - The v2 record format broke compatibility deliberately: pre-v2 folders
   (`topic.md`, `journal.jsonl`, `question-cN.md`) are not resume targets.
 - v2.0 has a single unit, `work`, and the gates judge record content only — no
-  branch on a unit label. `topic`/`direct-work`/`issue`/`inbox` folders are not
-  supported: they are not resume targets, `add` and `link` refuse them, and
+  branch on a unit label. Since v2.1, `topic`/`direct-work`/`issue`/`inbox`
+  folders are not supported: they are not resume targets, `add` and `link` refuse them, and
   `validate` reports their unit as invalid. Their files can be read as input to
   new work.

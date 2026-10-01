@@ -185,7 +185,8 @@ invalid by it — the same promise retired vocabulary keeps.
 Retired vocabulary is accepted here and refused by `add`: a value that was legal
 when it was written keeps auditing clean, while nothing new can be written with
 it. The record is append-only, so shrinking the vocabulary must not reach
-backwards.
+backwards. Pre-v2.0 units and their phases and events are the exception: they are
+reported as invalid (`core-rules.md` §3).
 
 ```bash
 as-usual-record.py validate --dir <work-dir>

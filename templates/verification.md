@@ -9,7 +9,7 @@ created: <yyyy-MM-dd>
 ## Verdict
 
 (The work's verdict — `PASS`, `FAIL`, or `INCONCLUSIVE` — and the count per
-criterion. It matches the newest `verification` event, and it is not `PASS` while
+criterion. It matches the verdict that stands (`status` → `verification`), and it is not `PASS` while
 any recorded `INCONCLUSIVE` or `FAIL` is still unresolved. No other vocabulary:
 "excluded from verification" and "partially satisfied" are `INCONCLUSIVE` wearing
 a friendlier name, which is the substitution `core-rules.md` §6 exists to stop.)

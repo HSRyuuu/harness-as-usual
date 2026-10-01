@@ -73,10 +73,9 @@ python3 <plugin-root>/scripts/as-usual-record.py status --dir <work-dir> --json
   owner skill (`write-requirements` for `requirements.md`, `write-plan` for
   `plan.md`), which decides whether to absorb it or reopen the earlier phase. A
   change the user directs during execution follows `core-rules.md` §4 instead.
-- The cause of something turns out to be unknown mid-change: when it lies inside
-  this record's boundary, enter `investigate` in this folder. When it is separate
-  work, create a separate folder beside this one and link the two
-  (`core-rules.md` §7). Do not guess the cause in `requirements.md`.
+- The cause of something turns out to be unknown mid-change: enter `investigate`
+  here or open a linked folder, as `core-rules.md` §7 decides. Do not guess the
+  cause in `requirements.md`.
 - Gathering shows there is nothing to do — it is already done, already correct,
   or the premise is false: that finding is the record's whole output. Write it
   into the `contexts.md` Decisions band, then close with `--event cancelled` and

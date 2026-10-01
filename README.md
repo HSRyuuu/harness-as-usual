@@ -140,7 +140,7 @@ Prefer to do it by hand? Follow [`docs/INSTALL.md`](docs/INSTALL.md) — remove 
 <tr><td>🔌 <strong>Impact, surfaced early</strong></td><td>DB / API / external-behavior impact is exposed <em>before</em> code is written.</td></tr>
 <tr><td>🔐 <strong>Explicit approval</strong></td><td>High-risk operations require fresh approval — appearing in an approved plan is not enough, and running without a work folder does not lower the gate.</td></tr>
 <tr><td>🧪 <strong>Evidence over optimism</strong></td><td>Verification evidence is recorded instead of relying on a hopeful "looks done" summary.</td></tr>
-<tr><td>🔍 <strong>Review the diff, not the summary</strong></td><td>What was actually built is reviewed against what was asked, before the work closes.</td></tr>
+<tr><td>🔍 <strong>Review the diff, not the summary</strong></td><td>When a review runs, it reads the actual diff against what was asked — proposed by default when requirements were agreed, offered otherwise.</td></tr>
 <tr><td>🔁 <strong>Resume from disk</strong></td><td>A session that starts cold picks the work up from the record — phase and next action are derived, never remembered.</td></tr>
 </tbody>
 </table>
@@ -257,7 +257,7 @@ declares, nine steps do the work, and two utilities are available to anyone.
 <tr><td><a href="skills/execute-plan"><code>execute-plan</code></a></td><td>Executes the approved plan without drifting from it and records each task's verification evidence. Whether to delegate is its call; the evidence is not. A subagent's <code>DONE</code> is a claim, checked against files and diffs before anything is recorded.</td></tr>
 <tr><td><a href="skills/review-execution"><code>review-execution</code></a></td><td>Reviews the real diff against what was asked — not the summary of it. Findings land in <code>review.md</code> and reach a recorded disposition before the work closes.</td></tr>
 <tr><td><a href="skills/cleanup-code"><code>cleanup-code</code></a> <sub><i>approval only</i></sub></td><td>Behavior-preserving improvement of the change surface — reuse what already exists, cut ceremony, sit at the right level of abstraction — then re-verified.</td></tr>
-<tr><td><a href="skills/finalize"><code>finalize</code></a></td><td>Checks the record can carry a fresh session, optionally proposes a reusable project-local skill improvement, writes <code>report.md</code>, and seals the record.</td></tr>
+<tr><td><a href="skills/finalize"><code>finalize</code></a></td><td>Checks the record can carry a fresh session, optionally proposes a reusable project-local skill improvement, writes <code>report.md</code> when the work executed a change, and seals the record.</td></tr>
 <tr><td><a href="skills/git-action"><code>git-action</code></a> <sub><i>your choice only</i></sub></td><td>Runs the git action you picked — none, commit, commit + push, or commit + push + PR. Nothing else, and nothing unchosen.</td></tr>
 <tr><td colspan="2"><sub><b>UTILITIES</b> — not workflow phases; they add no phase and no next action.</sub></td></tr>
 <tr><td><a href="skills/explore-codebase"><code>explore-codebase</code></a> <sub><i>read-only</i></sub></td><td>Answers a concrete question about the repository by reading it — affected files, existing behavior, test locations, local conventions. Discovers facts; what to do with them stays with the caller.</td></tr>
@@ -285,7 +285,7 @@ needed. One script writes all of them, and it refuses rather than warns.
     ├── review.md
     ├── evidence/             # when something was investigated
     ├── conclusion.md
-    └── report.md             # at close
+    └── report.md             # at close, when finalize writes one
 ```
 
 > [!NOTE]

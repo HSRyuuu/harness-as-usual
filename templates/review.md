@@ -17,7 +17,7 @@ created: <yyyy-MM-dd>
 (The work cannot honestly be called done with this outstanding. File and line,
 why it matters, what to do. Each needs a disposition before the work closes:
 fixed and re-reviewed, or rejected with a technical reason. One left standing
-closes the record as blocked.)
+leaves the record open at `blocked` (`core-rules.md` §5).)
 
 ### Important
 

@@ -31,7 +31,7 @@ Before asking, reconcile the request and any supplied plan with the current
 code: what is already agreed, what changed, and what is still undecided. Cite the
 source for carried-forward decisions; separate explicit user choices from an
 earlier agent's suggestions and unverified progress. Record the request boundary
-under `core-rules.md` §4. A path or implementation change alone does not reopen
+under `core-rules.md` §2. A path or implementation change alone does not reopen
 settled policy. Ask only about a missing decision or a material conflict.
 
 This skill returns when every item is settled or the user chose to proceed on a

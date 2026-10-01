@@ -70,7 +70,7 @@ Execution approval follows `core-rules.md` §4; a plan file alone is not consent
 
 ### 1. Check open work
 
-Scan `.as-usual/` for folders that are still open and read their `contexts.md`
+Scan `.as-usual/work/` for folders that are still open and read their `contexts.md`
 boundaries. A request that falls inside an open folder's scope belongs to that
 folder: resume it instead of creating a second record — changing files that an
 open record makes claims about desyncs that record from the tree.
@@ -150,8 +150,7 @@ personally verified.
 
 ### 4. Hand off
 
-Invoke `run-work`, whatever the folder's unit label, and let it route on the
-derived phase. If the derived state is `finalized` or
+Invoke `run-work` and let it route on the derived phase. If the derived state is `finalized` or
 `cancelled`, the work is closed — offer to start new work rather than reopening
 it.
 

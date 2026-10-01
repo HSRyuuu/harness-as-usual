@@ -22,7 +22,7 @@ the point.
 investigation and lightweight execution were added later, they were bolted on as
 branches of that pipeline — which meant the same question ("what kind of work is
 this?") was answered in four places, and the same rules were restated in each.
-v2 made three kinds of work peers; v2.0 goes one step further and drops the
+v1.x made three kinds of work peers; v2.0 goes one step further and drops the
 label altogether. There is one kind of work record, and what it produces follows
 from what the work needs, so the question is never answered up front at all.
 
@@ -128,7 +128,7 @@ when it is not asked for.
     contexts.md · audit.jsonl                                  (always)
     requirements.md · plan.md · verification.md · review.md    (as the work needs them)
     evidence/ · conclusion.md                                  (when something was investigated)
-    report.md                                                  (at close)
+    report.md                                                  (at close, when finalize writes one)
 ```
 
 Inside a git worktree the project root is the main checkout, so the record
@@ -272,7 +272,8 @@ Findings append as a section to the same `review.md`.
 
 **`finalize`** — optionally proposes a project-local skill improvement when the
 work exposed a reusable procedure, then checks that the record could carry a
-fresh session, writes `report.md`, and seals the record. After sealing, only
+fresh session, writes `report.md` when the work executed a change, and seals
+the record. After sealing, only
 links may be appended.
 
 **`git-action`** — runs only the action the user chose, stages paths explicitly,
@@ -413,7 +414,7 @@ what they were protecting.
 | `skills/finalize/`, `git-action/` | close-out |
 | `skills/explore-codebase/`, `manage-self-improvement/` | utilities |
 | `templates/contexts.md` | the common document |
-| `templates/{requirements,plan,review,report,conclusion}.md` | per-need artifacts |
+| `templates/{requirements,plan,verification,review,report,conclusion}.md` | per-need artifacts |
 
 ---
 
@@ -437,8 +438,8 @@ what they were protecting.
 
 ## 9. Compatibility
 
-v2.0 does not support the four earlier unit folders (`topic`, `direct-work`,
-`issue`, `inbox`): they are not resume targets, `add` and `link` refuse them, and
+Since v2.1, the four earlier unit folders (`topic`, `direct-work`, `issue`,
+`inbox`) are not supported: they are not resume targets, `add` and `link` refuse them, and
 `validate` reports their unit as invalid. No gate branches on a unit label.
 Removed: `move`, `lifecycle:unit-selected`, the classification menu, per-unit
 owner skills, and the `investigating`/`concluding` phases.

@@ -61,7 +61,9 @@ CLOSING_LIFECYCLE_EVENTS = {"finalized", "cancelled"}
 # shrinking the vocabulary must not reach backwards and invalidate history.
 #
 # Add a value here only when a real record used it, with the reason inline.
-# Without that discipline this list becomes a place to park removals.
+# Without that discipline this list becomes a place to park removals. The records
+# cited below predate the single unit, which `validate` now reports as invalid
+# on their unit anyway.
 RETIRED_KINDS = {
     # Replaced by `work`. Used by topic/2026-07-26-record-gate-hardening.
     "artifact",
