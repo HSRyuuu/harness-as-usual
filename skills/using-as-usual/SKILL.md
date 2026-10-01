@@ -115,8 +115,7 @@ says, and tell `run-work` it is on.
   a `.as-usual/` collection directory, list recent candidates and ask which. A plan
   outside an AsUsual work folder goes through New Work as input; do not adopt or
   move its source directory as a work folder.
-- **No path**: scan `.as-usual/work/`, and the legacy
-  `.as-usual/inbox|topic|direct-work|issue/` folders (`core-rules.md` §3). List
+- **No path**: scan `.as-usual/work/` (`core-rules.md` §3). List
   up to three recent candidates with their slug, next action, and how
   long ago their last event was. Mark an `open` record whose last event is older
   than the records around it as stale and worth confirming before resuming — an
@@ -127,15 +126,10 @@ says, and tell `run-work` it is on.
   not nothing: it is work that went past the helper, so no gate ever saw it and
   no link can point at it. Report it while listing candidates. `init` on that
   folder adopts it.
-- **Stale path** (a legacy record relabelled by the retired `move`): scan
-  `.as-usual/` for the slug rather than failing. `move` could rename the slug as
-  well as the unit, so when the slug finds nothing, fall back to the date in the
-  path and then to the initial request text recorded in each candidate's
-  `contexts.md`. List what you found and ask rather than guessing between two
-  plausible folders.
-- A folder holding `topic.md`, `journal.jsonl`, `problem.md`, or `question-c*.md`
-  is a pre-v2 record. It is not a resume target. Say so and offer to start fresh
-  work, reading the old files as input.
+- A folder under `.as-usual/inbox|topic|direct-work|issue/`, or one holding
+  `topic.md`, `journal.jsonl`, `problem.md`, or `question-c*.md`, is a record from
+  before the single unit. It is not a resume target. Say so and offer to start
+  fresh work, reading the old files as input.
 
 ### 2. Read state
 
@@ -157,8 +151,7 @@ personally verified.
 ### 4. Hand off
 
 Invoke `run-work`, whatever the folder's unit label, and let it route on the
-derived phase. A legacy record whose derived phase is `investigating` or
-`concluding` resumes at `investigate`. If the derived state is `finalized` or
+derived phase. If the derived state is `finalized` or
 `cancelled`, the work is closed — offer to start new work rather than reopening
 it.
 

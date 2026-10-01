@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — one door</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .chain { display: flex; align-items: stretch; gap: 0; margin-bottom: 20px; }
+  .chain .node {
+    flex: 1 1 0;
+    border: 2px solid var(--line-2);
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 13px 17px;
+  }
+  .chain .node .t { font-size: 19px; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
+  .chain .node .s { margin-top: 3px; font-size: 15px; color: var(--muted); }
+  .chain .node.entry { background: var(--blue-bg); border-color: var(--blue); }
+  .chain .node.entry .t { color: var(--blue-dark); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .chain .node.entry .s { color: var(--blue); }
+  .chain .ar { flex: 0 0 44px; display: flex; align-items: center; justify-content: center; color: var(--line-2); font-size: 28px; }
+
+  .two { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; }
+  .box { border: 2px solid var(--line); border-radius: 13px; overflow: hidden; }
+  .box .h { padding: 12px 18px; background: var(--slate-bg); display: flex; align-items: baseline; gap: 12px; }
+  .box .h .n { font-size: 13px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .box .h .t { font-size: 20px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; }
+  .box ul { list-style: none; padding: 8px 18px 12px; }
+  .box li { position: relative; padding: 8px 0 8px 24px; font-size: 16.5px; color: var(--ink-2); line-height: 1.4; border-bottom: 1px dashed var(--line); }
+  .box li:last-child { border-bottom: 0; }
+  .box li::before { position: absolute; left: 0; top: 8px; font-weight: 800; }
+  .box.yes { border-color: var(--green-line); }
+  .box.yes .h { background: var(--green-bg); }
+  .box.yes .h .n { color: var(--green); }
+  .box.yes li::before { content: "✓"; color: var(--green); }
+  .box.no li::before { content: "✕"; color: var(--faint); }
+  .box li b { color: var(--ink); }
+  .box .rec { margin: 0 18px 14px; padding: 10px 14px; border-radius: 9px; background: var(--panel); border: 1.5px dashed var(--line-2); font-size: 15.5px; color: var(--muted); line-height: 1.4; }
+  .box .rec b { color: var(--ink-2); }
+
+  .ways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+  .way { border: 2px solid var(--blue-line); border-radius: 12px; padding: 11px 16px; }
+  .way .c { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 16.5px; font-weight: 800; color: var(--blue-dark); }
+  .way .d { margin-top: 3px; font-size: 15.5px; color: var(--ink-2); line-height: 1.4; }
+
+  .steps { margin-top: 18px; }
+  .steps .step { border-color: var(--blue-line); }
+  .steps .step.last { border-color: var(--violet); background: var(--violet-bg); }
+  .steps .step.last .nm { color: var(--violet); }
+  .steps .nm { font-size: 19px; }
+
+  .bounds { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .bounds span {
+    display: block; font-size: 14.5px; font-weight: 700; color: var(--blue-dark);
+    background: var(--blue-bg); border: 1.5px solid var(--blue-line); border-radius: 7px; padding: 3px 10px;
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Entry</div>
+  <h1>One door. No menu.</h1>
+  <p class="lede">
+    The SessionStart hook announces one capability and one entry point in a single sentence — no rules,
+    no folder list. <code>using-as-usual</code> reads the rest from disk, sets the record up, and hands
+    it to the one owner. What the record goes on to produce follows from the request, not from a label
+    picked at the door.
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="chain">
+    <div class="node"><div class="t">Your request</div><div class="s">development, or an investigation</div></div>
+    <div class="ar">→</div>
+    <div class="node"><div class="t">SessionStart hook</div><div class="s">one sentence · injects no rules</div></div>
+    <div class="ar">→</div>
+    <div class="node entry"><div class="t">using-as-usual</div><div class="s">the single entry point · owns no pipeline</div></div>
+  </div>
+
+  <div class="two">
+    <section class="box yes">
+      <div class="h"><div class="n">Opt-in</div><div class="t">Only an explicit ask activates it</div></div>
+      <ul>
+        <li>You say <b><code>as-usual</code></b> or <b>AsUsual</b></li>
+        <li>You mention <code>.as-usual/</code>, <code>contexts.md</code>, <code>audit.jsonl</code>, <code>requirements.md</code>, <code>plan.md</code>, <code>conclusion.md</code>, or a work folder path</li>
+        <li>You ask to <b>resume or continue</b>, and a work folder exists</li>
+        <li>You invoke the owner, <code>run-work</code>, directly — the folder is still created here first</li>
+      </ul>
+    </section>
+    <section class="box no">
+      <div class="h"><div class="n">Not a signal</div><div class="t">Handled normally</div></div>
+      <ul>
+        <li>A development or investigation request <b>on its own</b></li>
+        <li>The hook announcement</li>
+        <li>A <code>.as-usual/</code> folder merely being there</li>
+      </ul>
+      <div class="rec"><b>Worth a record?</b> When work will reach production, is hard to undo, or needs a cause found first, the agent says so <b>in one line, once</b> — and keeps working.</div>
+    </section>
+  </div>
+
+  <div class="ways">
+    <div class="way"><div class="c">using-as-usual</div><div class="d">Nothing named: scans <code>.as-usual/work/</code> and offers up to three resume candidates.</div></div>
+    <div class="way"><div class="c">using-as-usual &lt;path&gt;</div><div class="d">Resumes that work folder — or brings an external plan in as input to new work.</div></div>
+    <div class="way"><div class="c">using-as-usual &lt;request&gt;</div><div class="d">New work: create the folder, record the boundary, hand off.</div></div>
+  </div>
+
+  <div class="row steps">
+    <div class="step">
+      <div class="tagline">Step 1</div>
+      <div class="nm">check open work</div>
+      <div class="dt">A request inside an open folder's scope <b>resumes that folder</b> instead of opening a second record.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step">
+      <div class="tagline">Step 2</div>
+      <div class="nm">create the folder</div>
+      <div class="dt"><code>init</code> writes <code>contexts.md</code> and <code>audit.jsonl</code>, and you are told the path in one line.</div>
+      <div class="bounds"><span><code>.as-usual/work/yyyy-MM-dd-&lt;slug&gt;/</code></span></div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step">
+      <div class="tagline">Step 3</div>
+      <div class="nm">record the boundary</div>
+      <div class="dt">Where this request stops, in the <code>contexts.md</code> Decisions band:</div>
+      <div class="bounds"><span>investigation only</span><span>plan only</span><span>execute a reviewed plan</span></div>
+    </div>
+    <div class="ar">→</div>
+    <div class="step last">
+      <div class="tagline">Step 4</div>
+      <div class="nm">hand off</div>
+      <div class="dt">Invokes <code>run-work</code>, which owns everything from there.</div>
+    </div>
+  </div>
+
+  <div class="gateband">
+    <div class="g">🔒 Core rule 6</div>
+    <div class="x"><b>No work starts</b> before the folder exists and the request boundary is recorded. Unclear boundary? The agent asks.</div>
+  </div>
+
+  <div class="foot">
+    <b>Resuming</b> derives state with <code>status --json</code>, then checks every recorded claim against
+    <code>git status</code> and the diffs before trusting it. &nbsp;·&nbsp;
+    <b>A closed record</b> (finalized or cancelled) is not reopened — new work is offered instead. &nbsp;·&nbsp;
+    <b>Not using AsUsual at all</b> stays your choice: "just do it" is simply not invoking it.
+  </div>
+
+</div>
+</body>
+</html>

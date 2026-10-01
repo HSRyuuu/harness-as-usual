@@ -14,11 +14,11 @@ from .constants import (
     AUDITABLE_KINDS,
     AUDITABLE_LIFECYCLE_EVENTS,
     CLOSING_LIFECYCLE_EVENTS,
-    AUDITABLE_PHASES,
-    AUDITABLE_UNITS,
     NEXT_ACTION_SPECIALS,
+    PHASES,
     STATUS_CHANGE_STATES,
     STATUSES,
+    UNITS,
     VERDICTS,
     JsonObject,
 )
@@ -121,7 +121,7 @@ def _check_vocabulary(entry: JsonObject, where: str) -> list[str]:
     problems: list[str] = []
     unit = entry.get("unit")
     checks = (
-        ("unit", unit, AUDITABLE_UNITS),
+        ("unit", unit, UNITS),
         ("kind", entry.get("kind"), AUDITABLE_KINDS),
         ("actor", entry.get("actor"), ACTORS),
         ("status", entry.get("status"), STATUSES),
@@ -132,12 +132,12 @@ def _check_vocabulary(entry: JsonObject, where: str) -> list[str]:
 
     phase = entry.get("phase")
     if isinstance(phase, str) and phase:
-        if phase not in AUDITABLE_PHASES:
+        if phase not in PHASES:
             problems.append(f"{where}: invalid phase {phase}")
 
     next_action = entry.get("nextAction")
     if isinstance(next_action, str) and next_action:
-        if next_action not in AUDITABLE_PHASES | NEXT_ACTION_SPECIALS:
+        if next_action not in PHASES | NEXT_ACTION_SPECIALS:
             problems.append(f"{where}: invalid nextAction {next_action}")
 
     return problems
@@ -188,17 +188,12 @@ def audit_sealed(work_dir: Path) -> list[str]:
     if closing is None or _event(closing) != "finalized":
         return []
 
-    try:
-        unit = current_unit(events)
-    except RecordError:
-        return []
-
     warnings: list[str] = []
     where = audit_path(work_dir)
     seq = closing.get("seq")
     data = closing.get("data") if isinstance(closing.get("data"), dict) else {}
 
-    if authorizes_code_change(events, unit):
+    if authorizes_code_change(events):
         unresolved = open_verifications(events)
         if unresolved:
             listed = ", ".join(
@@ -223,7 +218,7 @@ def audit_sealed(work_dir: Path) -> list[str]:
                 f"{where}: sealed at seq {seq} with no verification recorded at all. "
                 "today's gate refuses this; the record may predate it"
             )
-        if needs_verification_doc(work_dir, unit) and not (work_dir / "verification.md").is_file():
+        if needs_verification_doc(work_dir) and not (work_dir / "verification.md").is_file():
             warnings.append(
                 f"{work_dir}: sealed with agreed requirements but no verification.md. "
                 "today's gate refuses this; the record may predate it"

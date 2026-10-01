@@ -1,5 +1,5 @@
 ---
-unit: <from the record — work, or a legacy folder's own unit>
+unit: work
 slug: <yyyy-MM-dd-slug>
 created: <yyyy-MM-dd>
 ---

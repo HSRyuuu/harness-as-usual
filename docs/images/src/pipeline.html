@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — the run-work pipeline</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .eyebrow { color: var(--violet); }
+  h1 .u { color: var(--violet); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  .flow {
+    margin-bottom: 18px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 16px; font-weight: 700;
+    color: var(--ink-2); background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 12px 18px; line-height: 1.7;
+  }
+  .flow i { font-style: normal; color: var(--faint); font-weight: 400; }
+  .flow .o { color: var(--muted); font-weight: 600; }
+
+  .mhead, .mx { display: grid; grid-template-columns: 44px 258px 1fr 1fr; gap: 0 18px; align-items: start; }
+  .mhead { padding: 0 18px 7px; font-size: 12.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+
+  .mx { border: 2px solid var(--violet-line); border-radius: 12px; padding: 12px 18px; }
+  .mx + .mx, .mx + .stop, .stop + .mx, .gateband + .mx, .mx + .gateband { margin-top: 8px; }
+  .mx.opt { border-style: dashed; border-color: var(--line-2); background: var(--panel); }
+  .mx .no { font-size: 15px; font-weight: 800; color: var(--faint); padding-top: 2px; }
+  .mx .nm { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 19px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; }
+  .mx.opt .nm { color: var(--muted); }
+  .mx .nm small { display: block; font-family: -apple-system, sans-serif; font-size: 12.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin-top: 2px; }
+  .mx .w, .mx .s { font-size: 15.5px; color: var(--ink-2); line-height: 1.42; }
+  .mx .s { color: var(--muted); }
+  .mx b { color: var(--ink); }
+
+  .stop {
+    display: flex; align-items: center; gap: 14px;
+    border: 2px dashed var(--blue); background: var(--blue-bg); border-radius: 11px; padding: 9px 18px;
+  }
+  .stop .k { font-size: 13px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); white-space: nowrap; }
+  .stop .v { font-size: 16px; color: var(--blue-dark); }
+  .stop .v b { color: #1e3a8a; }
+
+  .gateband { margin: 8px 0 0; }
+
+  .endsbar {
+    margin-top: 16px;
+    display: flex; align-items: center; gap: 18px;
+    background: var(--ink); color: #e2e8f0;
+    border-radius: 13px; padding: 16px 22px;
+  }
+  .endsbar .k { font-size: 13px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #c4b5fd; white-space: nowrap; }
+  .endsbar .v { font-size: 18px; color: #fff; font-weight: 500; line-height: 1.45; }
+  .endsbar .v code { color: #ddd6fe; }
+  .sw-stop { border: 2px dashed var(--blue); background: var(--blue-bg); }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Owner</div>
+  <h1><span class="u">run-work</span> — one pipeline, a condition per row</h1>
+  <p class="lede">
+    A declaration, not a procedure. Every step is owned by its own skill; the matrix only says which steps
+    apply, at what strength, and which gates stand between them. Every path stops at the
+    <b>request boundary</b> recorded at the door.
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="flow">
+    gathering-context <i>→</i> <span class="o">investigate?</span> <i>→</i> <span class="o">write-requirements?</span> <i>→</i> write-plan <i>→</i> execute-plan
+    <i>→</i> <span class="o">review-execution?</span> <i>→</i> <span class="o">cleanup-code?</span> <i>→</i> finalize <i>→</i> <span class="o">git-action?</span>
+  </div>
+
+  <div class="mhead"><div></div><div>Step skill</div><div>Applies when</div><div>Strength</div></div>
+
+  <div class="mx">
+    <div class="no">1</div>
+    <div class="nm">gathering-context<small>always</small></div>
+    <div class="w">Always — the first step of every record.</div>
+    <div class="s">Settle what later steps need: scope, constraints, acceptance for a change; symptoms, impact, reproduction conditions for an investigation. <b>Zero questions is normal.</b></div>
+  </div>
+
+  <div class="mx opt">
+    <div class="no">2</div>
+    <div class="nm">investigate<small>when needed</small></div>
+    <div class="w">A cause, direction, or feasibility must be established from code, logs, or an experiment before anything changes — including a bug whose cause is unconfirmed, <b>however small the fix</b>.</div>
+    <div class="s">Read-only by default. Ends in one of its three endings: conclusion only · carry on · split.</div>
+  </div>
+
+  <div class="stop">
+    <div class="k">◼ Investigation only</div>
+    <div class="v">stops here: the answer is written to <code>conclusion.md</code> and goes straight to <b>finalize</b>.</div>
+  </div>
+
+  <div class="mx opt">
+    <div class="no">3</div>
+    <div class="nm">write-requirements<small>when needed</small></div>
+    <div class="w">The requirements need agreeing: a choice between viable approaches; a contract or product surface — public API, data model, auth, migration, deployment, dependency policy, user-facing wording, business rules; hard to reverse or verify; built around a high-risk operation. <b>Size is not the test.</b></div>
+    <div class="s">A full <code>requirements.md</code>. Never for a bug whose cause is unconfirmed — the cause is found, not agreed.</div>
+  </div>
+
+  <div class="mx">
+    <div class="no">4</div>
+    <div class="nm">write-plan<small>the work changes code</small></div>
+    <div class="w">The work changes code.</div>
+    <div class="s">A full <code>plan.md</code> when <code>requirements.md</code> exists; checklist strength — steps and verification method — otherwise. <b>Ends in the pre-approval critical review either way.</b></div>
+  </div>
+
+  <div class="stop">
+    <div class="k">◼ Plan only</div>
+    <div class="v">stops here: the reviewed plan waits at <code>awaiting-user</code>. There is nothing to finalize yet.</div>
+  </div>
+
+  <div class="gateband">
+    <div class="g">🔒 Gate</div>
+    <div class="x">A <b>successful <code>write-plan</code> review</b> newer than the previous approval, then the user's <b>explicit execution approval</b>. High-risk operations need a fresh approval of their own.</div>
+  </div>
+
+  <div class="mx">
+    <div class="no">5</div>
+    <div class="nm">execute-plan<small>user approved</small></div>
+    <div class="w">The user approved execution of the reviewed plan.</div>
+    <div class="s">Evidence in <code>verification.md</code> when <code>requirements.md</code> exists; otherwise only when the evidence needs more than the record's summaries.</div>
+  </div>
+
+  <div class="mx opt">
+    <div class="no">6</div>
+    <div class="nm">review-execution<small>proposed or offered</small></div>
+    <div class="w">Execution finished.</div>
+    <div class="s">Proposed by default when <code>requirements.md</code> exists; otherwise offered when the change is broad or touched something delicate. <b>You decide.</b></div>
+  </div>
+
+  <div class="mx opt">
+    <div class="no">7</div>
+    <div class="nm">cleanup-code<small>approval only</small></div>
+    <div class="w">You explicitly approve cleanup.</div>
+    <div class="s">Behavior-preserving, then re-verified.</div>
+  </div>
+
+  <div class="gateband">
+    <div class="g">🔒 Gate</div>
+    <div class="x">No completion claim without <b>verification evidence that matches the surface</b> — and <code>INCONCLUSIVE</code> is not <code>PASS</code>.</div>
+  </div>
+
+  <div class="mx">
+    <div class="no">8</div>
+    <div class="nm">finalize<small>required or offered</small></div>
+    <div class="w"><b>Required</b> with <code>conclusion.md</code>, or an approved execution with <code>requirements.md</code>. <b>Offered</b> for an approved execution without <code>requirements.md</code> — a passing verification already completes it. <b>Neither:</b> the helper refuses.</div>
+    <div class="s"><code>report.md</code>, then the record is sealed. No <code>report.md</code> when the conclusion is the whole deliverable.</div>
+  </div>
+
+  <div class="mx opt">
+    <div class="no">9</div>
+    <div class="nm">git-action<small>your choice only</small></div>
+    <div class="w">You explicitly choose one: none · commit · commit + push · commit + push + PR.</div>
+    <div class="s">Not asked by default when the work ended in a conclusion only — there is usually nothing to commit.</div>
+  </div>
+
+  <div class="stop">
+    <div class="k">◼ Execute</div>
+    <div class="v">runs through to here — and never on into release or deploy.</div>
+  </div>
+
+  <div class="endsbar">
+    <div class="k">Re-read as it learns</div>
+    <div class="v">A change that looked settled and turns out to need a decision, touch a contract surface, or be
+      hard to reverse enters <code>write-requirements</code> <b>before</b> the plan is approved.</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="sw sw-req"></span>applies</span>
+    <span><span class="sw sw-opt"></span>conditional — its row says when</span>
+    <span><span class="sw sw-stop"></span>a request boundary stops</span>
+    <span><span class="sw sw-gate"></span>a gate the helper <b>refuses</b> to pass</span>
+  </div>
+
+  <div class="foot">
+    <b>Gathering finds nothing to do?</b> That finding is the record's whole output: it goes in the Decisions band
+    and the record closes as <code>cancelled</code> with its reason. &nbsp;·&nbsp;
+    <b>An investigation that finds nothing wrong</b> is different — it ends with a <code>conclusion.md</code>.
+  </div>
+
+</div>
+</body>
+</html>

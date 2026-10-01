@@ -29,7 +29,7 @@ that uses current vocabulary is exactly what this exists to catch.
 | `as-usual-rules/safety-rules.md` | trust boundary, high-risk gate, read-only default for investigation |
 | `as-usual-rules/record-commands.md` | `as-usual-record.py` command reference |
 | `hooks/session-start` | one-sentence entry announcement |
-| `skills/using-as-usual/SKILL.md` | activation, folder creation, request boundary, resume (legacy folders too), hand-off |
+| `skills/using-as-usual/SKILL.md` | activation, folder creation, request boundary, resume, hand-off |
 | `skills/run-work/SKILL.md` | the one application matrix, a condition per row |
 | `skills/gathering-context/SKILL.md` | all user-facing context gathering |
 | `skills/investigate`, `write-requirements`, `write-plan`, `execute-plan`, `review-execution`, `cleanup-code`, `finalize`, `git-action` | shared step skills; `investigate` owns the investigation loop and its endings |
@@ -47,10 +47,10 @@ phase in `PHASES` except `blocked` must be a row in `run-work`'s matrix. There a
 no per-unit phase subsets. A skill that documents a phase the script would reject
 is a defect.
 
-`UNITS` is `{"work"}`; `LEGACY_UNITS` (`inbox`, `topic`, `direct-work`, `issue`)
-stay readable and resumable. Runtime surfaces offer only `work` for new folders
-and never present the legacy labels as a choice — but resuming a legacy folder
-must still be described as supported.
+`UNITS` is `{"work"}`, and nothing else is accepted by `add`, `link`, or
+`validate`. Pre-v2.0 unit folders (`inbox`, `topic`, `direct-work`, `issue`) are
+not supported: runtime surfaces never offer them for new work and never describe
+resuming one — only detecting one to refuse it.
 
 Two vocabularies, not one: `KINDS`/`LIFECYCLE_EVENTS` are what `add` may write,
 and `AUDITABLE_*` add the retired values that `validate` still accepts. Runtime
@@ -63,8 +63,8 @@ Every gate the docs describe as enforced must actually be enforced, and every
 refusal the script can produce should be documented where an agent would hit it.
 Current set:
 
-- the closed vocabulary (one phase set; `investigating`/`concluding` and
-  `lifecycle:unit-selected` retired — `validate` accepts, `add` refuses)
+- the closed vocabulary (one phase set, one unit; `investigating`/`concluding`
+  and `lifecycle:unit-selected` are not in it)
 - `--verdict` required on verification, `--evidence` on confirm, `--reason` on cancel
 - a plan review before execution approval, **newer than the previous execution
   approval** — one review does not license every later approval — and only a
@@ -88,10 +88,7 @@ Current set:
   - with `conclusion.md`: at least one confirmed entry
   - both sets when one folder investigated and implemented; a `cancelled` close
     is unaffected
-- two legacy shims only: a legacy `issue`'s `execution` approval is a
-  reproduction script (not plan-gated, not a code change), and a legacy `topic`
-  always needs `verification.md` to finalize. Any other branch on the unit label
-  in `gates.py` or `records.py` is a defect
+- no branch on the unit label in `gates.py` or `records.py`; any is a defect
 - `--resolves` only on `verification` and `blocker`, closing one still-open entry
   of its own kind; a target of another kind, a passing verification, a target that
   something already resolved, and any other kind carrying the flag are refused.
@@ -190,7 +187,8 @@ question-file cycle, `run-topic`, `run-direct-work`, `run-issue`, the
 four-option classification menu, `move`, `inbox` as a new unit, and the
 `investigating`/`concluding` phases.
 
-Legacy unit names may appear only where a legacy folder is being read or resumed.
+Pre-v2.0 unit names may appear only where such a folder is detected to refuse
+resuming it.
 
 `using-as-usual` may name the old artifacts in exactly one place: detecting a
 pre-v2 folder to refuse resuming it.

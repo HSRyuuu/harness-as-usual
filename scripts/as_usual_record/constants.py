@@ -15,19 +15,17 @@ SCHEMA_VERSION = "as-usual.record.v1"
 CONTEXTS_FILE = "contexts.md"
 AUDIT_FILE = "audit.jsonl"
 
-# One work unit. `init` creates only `work`; the four earlier units are legacy:
-# their folders stay readable and resumable, and every gate now judges what the
-# record holds rather than which unit label it carries.
+# One work unit. Every gate judges what the record holds, not its unit label.
+# Folders of the pre-v2.0 units (`inbox`, `topic`, `direct-work`, `issue`) are
+# not supported: the helper refuses to append to them.
 UNITS = {"work"}
-LEGACY_UNITS = {"inbox", "topic", "direct-work", "issue"}
-AUDITABLE_UNITS = UNITS | LEGACY_UNITS
 
 # Artifacts a folder may already hold when `init` adopts it.
 ADOPTABLE_ARTIFACTS = ("requirements.md", "plan.md", "conclusion.md")
 
 # Files whose presence means the folder is already a work record, so `init` must
-# not run over it. Sealing and the move restriction are both derived from the
-# record; re-initializing would reset them without leaving a trace.
+# not run over it. Sealing is derived from the record; re-initializing would
+# reset it without leaving a trace.
 #
 # Artifacts are deliberately not in this set. A folder holding `plan.md` and no
 # record is not a record — it is an artifact somebody wrote past the helper, and
@@ -75,8 +73,6 @@ RETIRED_LIFECYCLE_EVENTS = {
     # Phase moves are carried by the `phase` field, so the event was redundant.
     # Used by topic/2026-07-26-record-gate-hardening.
     "phase-entered",
-    # `move` was removed with the unit split; legacy records carry it.
-    "unit-selected",
 }
 
 # What an audit of an existing record may contain, as opposed to what `add` may
@@ -97,13 +93,6 @@ PHASES = {
     "git-action",
     "blocked",
 }
-
-RETIRED_PHASES = {
-    # The issue unit's two middle phases, folded into `investigate`.
-    "investigating",
-    "concluding",
-}
-AUDITABLE_PHASES = PHASES | RETIRED_PHASES
 
 # nextAction is either the next phase name or one of these.
 NEXT_ACTION_SPECIALS = {"awaiting-user", "none"}

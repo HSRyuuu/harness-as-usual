@@ -67,26 +67,16 @@ def render_contexts(*, initial_request: str, unit: str, slug: str, created: str)
 
 
 def read_declared_unit(work_dir: Path) -> str | None:
-    """Return the unit `contexts.md` claims, or None when it claims none.
-
-    Frontmatter is the authority: once a document has it, a leftover
-    `## Work Unit` section below is stale text, not a second opinion. The
-    section is read only when there is no frontmatter at all, which is how
-    folders created before the format change still resolve.
-
-    Deliberately built from
-    the same two rules — a format read one way and written another is how the
-    document and the record start disagreeing.
-    """
+    """Return the unit the `contexts.md` frontmatter claims, or None when it claims none."""
     path = work_dir / CONTEXTS_FILE
     if not path.exists():
         return None
     body = path.read_text(encoding="utf-8")
 
     match = _FRONTMATTER.match(body)
-    if match is not None:
-        return _read_field(match.group(1), "unit")
-    return _read_legacy_unit_section(body)
+    if match is None:
+        return None
+    return _read_field(match.group(1), "unit")
 
 
 def _read_field(block: str, key: str) -> str | None:
@@ -96,18 +86,6 @@ def _read_field(block: str, key: str) -> str | None:
             return value.strip() or None
     return None
 
-
-def _read_legacy_unit_section(body: str) -> str | None:
-    """Read the unit from a pre-frontmatter `## Work Unit` section."""
-    lines = body.splitlines()
-    for index, line in enumerate(lines):
-        if line.strip() != "## Work Unit":
-            continue
-        for offset in range(index + 1, min(index + 5, len(lines))):
-            if lines[offset].strip():
-                return lines[offset].strip()
-        return None
-    return None
 
 
 def append_to_band(work_dir: Path, heading: str, text: str) -> bool:

@@ -441,23 +441,6 @@ def test_reproduction_approval_is_not_gated_on_a_plan_review(make_work, run, eve
     assert events(work_dir)[-1]["data"]["action"] == "reproduction"
 
 
-def test_legacy_issue_execution_approval_is_not_gated_on_a_plan_review(make_legacy, run):
-    """A legacy issue recorded its reproduction scripts as `execution`."""
-    work_dir = make_legacy("issue")
-
-    assert _approve(work_dir, run) == 0
-
-
-@pytest.mark.parametrize("unit", ["topic", "direct-work", "inbox"])
-def test_legacy_non_issue_execution_approval_is_still_gated(make_legacy, run, unit):
-    work_dir = make_legacy(unit)
-    _plan(work_dir)
-
-    assert _approve(work_dir, run) == 2
-    _review(work_dir, run)
-    assert _approve(work_dir, run) == 0
-
-
 def test_high_risk_approval_is_not_gated_on_a_review(make_work, run):
     work_dir = make_work()
 
@@ -916,59 +899,20 @@ def test_finalize_without_any_verification_ignores_reason(make_work, run):
     assert _finalize(work_dir, run, "--reason", "trust me", actor="user") == 2
 
 
-# --- Legacy records keep their two shims ---------------------------------------
+# --- Pre-v2.0 unit folders are not supported ------------------------------------
 
 
-def test_legacy_issue_execution_does_not_require_a_verification(make_legacy, run, events):
-    """A legacy issue's `execution` was a reproduction, not a completion claim."""
-    work_dir = make_legacy("issue")
-    assert _approve(work_dir, run) == 0
-    _confirmed_conclusion(work_dir, run, events)
+@pytest.mark.parametrize("unit", ["inbox", "topic", "direct-work", "issue"])
+def test_a_pre_v2_unit_folder_is_refused(make_legacy, make_work, run, events, unit):
+    """No shim judges an old unit differently: the helper refuses to touch it."""
+    work_dir = make_legacy(unit)
+    other = make_work()
+    before, other_before = events(work_dir), events(other)
 
-    assert _finalize(work_dir, run) == 0
-
-
-def test_legacy_issue_execution_alone_is_nothing_to_finalize(make_legacy, run):
-    work_dir = make_legacy("issue")
-    _approve(work_dir, run)
-
-    assert _finalize(work_dir, run) == 2
-
-
-def test_legacy_issue_still_needs_a_confirmed_entry(make_legacy, run):
-    work_dir = make_legacy("issue")
-    (work_dir / "conclusion.md").write_text("# Conclusion\n", encoding="utf-8")
-
-    assert _finalize(work_dir, run) == 2
-
-
-def test_legacy_topic_needs_verification_md_without_requirements(make_legacy, run, capsys):
-    """A legacy topic always agreed requirements, even if the file is missing."""
-    work_dir = make_legacy("topic")
-    _executed(work_dir, run)
-    _record_verification(work_dir, run)
-    capsys.readouterr()
-
-    assert _finalize(work_dir, run) == 2
-    assert "verification.md" in capsys.readouterr().err
-    _verification_file(work_dir)
-    assert _finalize(work_dir, run) == 0
-
-
-def test_legacy_direct_work_finalizes_on_content(make_legacy, run):
-    work_dir = make_legacy("direct-work")
-    assert _finalize(work_dir, run) == 2
-    _executed(work_dir, run)
-    _record_verification(work_dir, run)
-
-    assert _finalize(work_dir, run) == 0
-
-
-def test_legacy_inbox_has_nothing_to_finalize(make_legacy, run):
-    work_dir = make_legacy("inbox")
-
-    assert _finalize(work_dir, run, "--reason", "not going anywhere", actor="user") == 2
-    assert _cancel(work_dir, run) == 0
+    assert run("add", "--dir", str(work_dir), "--kind", "note", "--summary", "s") == 2
+    assert run("link", "--dir", str(other), "--to-dir", str(work_dir)) == 2
+    assert (events(work_dir), events(other)) == (before, other_before)
+    assert any(f"invalid unit {unit}" in problem for problem in validate_record(work_dir))
 
 
 def test_lifecycle_requires_a_known_event(make_work, run):
@@ -1143,7 +1087,7 @@ def test_the_double_resolve_refusal_says_it_was_already_resolved(make_work, run,
     assert "already resolved" in capsys.readouterr().err
 
 
-def _seal_by_hand(work_dir, events, unit: str = "work", **data) -> None:
+def _seal_by_hand(work_dir, events, **data) -> None:
     """Append a finalized event straight to the file.
 
     The append gate refuses these shapes today; the point is auditing a record
@@ -1156,7 +1100,7 @@ def _seal_by_hand(work_dir, events, unit: str = "work", **data) -> None:
                     "seq": len(events(work_dir)) + 1,
                     "ts": "2026-08-13T13:03:16+09:00",
                     "actor": "claude",
-                    "unit": unit,
+                    "unit": "work",
                     "kind": "lifecycle",
                     "status": "success",
                     "summary": "closed",
@@ -1215,30 +1159,6 @@ def test_a_sealed_record_with_nothing_to_finalize_warns(make_work, events):
 
     warnings = audit_sealed(work_dir)
     assert any("neither an approved execution nor a conclusion.md" in w for w in warnings)
-    assert validate_record(work_dir) == []
-
-
-def test_a_sealed_legacy_topic_without_verification_md_warns_but_stays_valid(
-    make_legacy, run, events
-):
-    work_dir = make_legacy("topic")
-    _executed(work_dir, run)
-    _record_verification(work_dir, run)
-    _seal_by_hand(work_dir, events, unit="topic")
-
-    warnings = audit_sealed(work_dir)
-    assert any("no verification.md" in warning for warning in warnings)
-    assert validate_record(work_dir) == []
-
-
-def test_a_sealed_legacy_issue_audits_on_its_conclusion(make_legacy, run, events):
-    """Its `execution` approvals were reproductions: no verification is owed."""
-    work_dir = make_legacy("issue")
-    _approve(work_dir, run)
-    _confirmed_conclusion(work_dir, run, events)
-    assert _finalize(work_dir, run) == 0
-
-    assert audit_sealed(work_dir) == []
     assert validate_record(work_dir) == []
 
 

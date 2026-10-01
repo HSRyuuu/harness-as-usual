@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>AsUsual — the 14 runtime skills</title>
+<title>AsUsual — the 13 runtime skills</title>
 <link rel="stylesheet" href="_style.css">
 <style>
   .layer { margin-top: 18px; }
@@ -13,6 +13,7 @@
   .l-entry .t { color: var(--blue-dark); }
   .l-own   .t { color: var(--violet); }
   .l-step  .t { color: var(--green); }
+  .l-gath  .t { color: var(--amber); }
   .l-util  .t { color: var(--muted); }
 
   .grid { display: grid; gap: 12px; }
@@ -31,6 +32,8 @@
   .k-own   .n { color: var(--violet); }
   .k-step  { border-color: var(--green-line); border-left-color: var(--green); }
   .k-step  .n { color: var(--green); }
+  .k-gath  { border-color: var(--amber-line); border-left-color: var(--amber); }
+  .k-gath  .n { color: var(--amber); }
   .k-util  { border-color: var(--line); border-left-color: var(--line-2); background: var(--panel); }
   .k-util  .n { color: var(--muted); }
 
@@ -42,10 +45,10 @@
 <div class="sheet">
 
   <div class="eyebrow">Skill layer</div>
-  <h1>14 runtime skills, four jobs</h1>
+  <h1>13 runtime skills, five jobs</h1>
   <p class="lede">
-    One entry point decides. Three owners declare. Eight steps do the work and never ask which unit
-    called them. Two utilities are available to anyone.
+    One entry point opens the record. One owner declares the pipeline. One skill talks to you. Eight steps
+    do the work and never branch on what kind of work called them. Two utilities are available to anyone.
   </p>
 
   <div class="rule"></div>
@@ -55,30 +58,41 @@
     <div class="grid g1">
       <div class="sk k-entry wide">
         <div class="n">using-as-usual</div>
-        <div class="r">Decides whether the harness applies at all, classifies the work, creates or resumes the folder, and hands off. Owns no pipeline of its own.</div>
+        <div class="r">Decides whether the harness applies at all, creates or resumes the work folder, records the request boundary, and hands off. Owns no pipeline of its own.</div>
       </div>
     </div>
   </div>
 
   <div class="layer l-own">
-    <div class="lh"><div class="t">Owners</div><div class="c">declarations, not procedures — each is a matrix of which steps apply, in what order, behind which gates</div></div>
-    <div class="grid g3">
-      <div class="sk k-own"><div class="n">run-topic</div><div class="r">Declares the <code>topic</code> pipeline and routes each phase to its step skill.</div></div>
-      <div class="sk k-own"><div class="n">run-direct-work</div><div class="r">Declares the short pipeline, and routes back for reclassification when a decision surfaces.</div></div>
-      <div class="sk k-own"><div class="n">run-issue</div><div class="r">The one owner that also owns a procedure: the investigation loop and the conclusion.</div></div>
+    <div class="lh"><div class="t">Owner</div><div class="c">a declaration, not a procedure — one matrix of which steps apply, at what strength, behind which gates</div></div>
+    <div class="grid g1">
+      <div class="sk k-own wide">
+        <div class="n">run-work</div>
+        <div class="r">The owner of every work record. Derives state with <code>status --json</code> and routes each phase to its step skill by what the work needs.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layer l-gath">
+    <div class="lh"><div class="t">Gathering</div><div class="c">the first step of every record, and the only skill that interviews you</div></div>
+    <div class="grid g1">
+      <div class="sk k-gath wide">
+        <div class="n">gathering-context</div>
+        <div class="r">Settles the open items, recommends an answer with every question, and writes what was agreed into <code>contexts.md</code> for you.</div>
+      </div>
     </div>
   </div>
 
   <div class="layer l-step">
-    <div class="lh"><div class="t">Steps</div><div class="c">shared and unit-agnostic — strength comes from the caller, never from an <code>if unit ==</code> branch</div></div>
+    <div class="lh"><div class="t">Steps</div><div class="c">shared and condition-agnostic — strength comes from the matrix and the caller, never from a branch inside the step</div></div>
     <div class="grid g2">
-      <div class="sk k-step"><div class="n">gathering-context</div><div class="r">The only skill that interviews you — recommends an answer with every question, and writes the answers down for you.</div></div>
-      <div class="sk k-step"><div class="n">write-requirements <span>topic only</span></div><div class="r">Turns the agreed context into one reviewable <code>requirements.md</code> — outcomes, not tasks.</div></div>
+      <div class="sk k-step"><div class="n">investigate <span>read-only</span></div><div class="r">Runs the investigation loop and ends it: a conclusion, a carry-on into the change, or a split.</div></div>
+      <div class="sk k-step"><div class="n">write-requirements</div><div class="r">Turns the agreed context into one reviewable <code>requirements.md</code> — you are its reviewer.</div></div>
       <div class="sk k-step"><div class="n">write-plan</div><div class="r">Writes the execution contract, then reviews it critically and fixes what it finds <b>before</b> asking you to approve.</div></div>
-      <div class="sk k-step"><div class="n">execute-plan</div><div class="r">Executes without drifting and records each task's verification evidence. Delegation is its call; the evidence is not.</div></div>
-      <div class="sk k-step"><div class="n">review-execution</div><div class="r">Reviews the real diff, not the summary. Findings land in <code>review.md</code> and reach a disposition.</div></div>
+      <div class="sk k-step"><div class="n">execute-plan</div><div class="r">Executes the approved plan in order and records each task's verification evidence. Delegation is its call; the evidence is not.</div></div>
+      <div class="sk k-step"><div class="n">review-execution</div><div class="r">Reviews the real changes against what was asked. Findings land in <code>review.md</code> and reach a disposition.</div></div>
       <div class="sk k-step"><div class="n">cleanup-code <span>approval only</span></div><div class="r">Behavior-preserving improvement of the change surface, then re-verified.</div></div>
-      <div class="sk k-step"><div class="n">finalize</div><div class="r">Checks the record, optionally proposes a project-local skill improvement, writes <code>report.md</code>, then seals it.</div></div>
+      <div class="sk k-step"><div class="n">finalize</div><div class="r">Checks the record can carry a fresh session, optionally proposes a skill improvement, writes <code>report.md</code>, then seals it.</div></div>
       <div class="sk k-step"><div class="n">git-action <span>your choice only</span></div><div class="r">Runs the action you picked — none, commit, commit + push, or commit + push + PR.</div></div>
     </div>
   </div>
@@ -86,15 +100,15 @@
   <div class="layer l-util">
     <div class="lh"><div class="t">Utilities</div><div class="c">not workflow phases — they add no phase and no next action</div></div>
     <div class="grid g2">
-      <div class="sk k-util"><div class="n">explore-codebase <span>read-only</span></div><div class="r">Answers a concrete question about the repository by reading it.</div></div>
-      <div class="sk k-util"><div class="n">manage-self-improvement</div><div class="r">Proposes project-local skill updates for reusable procedures learned from a unit.</div></div>
+      <div class="sk k-util"><div class="n">explore-codebase <span>read-only</span></div><div class="r">Finds repository facts — affected files, code flow, interfaces, tests, local conventions — by reading.</div></div>
+      <div class="sk k-util"><div class="n">manage-self-improvement</div><div class="r">Proposes project-local skill updates for reusable procedures learned from the work, then applies the approved ones.</div></div>
     </div>
   </div>
 
   <div class="foot">
-    <b>The rule that keeps this honest:</b> a step skill containing <code>if unit == topic</code> is the
-    exact defect this design removes. Strength differences live in the owner's matrix and in what the
-    caller passes — never inside the step.
+    <b>The rule that keeps this honest:</b> differences in strength live in the owner's matrix and in what the
+    caller passes — never inside a step. A step that branches on what kind of work called it is the exact
+    defect this design removes.
   </div>
 
 </div>

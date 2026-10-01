@@ -44,9 +44,8 @@ into `CLAUDE.md` is a finding.
 
 Every durable document that describes the workflow must agree on:
 
-- **one work unit**, `work`, under `.as-usual/work/yyyy-MM-dd-<slug>/`; legacy
-  `topic`/`direct-work`/`issue`/`inbox` folders readable and resumable, never
-  offered for new work,
+- **one work unit**, `work`, under `.as-usual/work/yyyy-MM-dd-<slug>/`; pre-v2.0
+  `topic`/`direct-work`/`issue`/`inbox` folders neither offered nor resumed,
 - **two required files per record**: `contexts.md` and `audit.jsonl`,
 - **one entry point**, `using-as-usual`, which creates or resumes the folder,
   records the request boundary (investigation only / plan only / execute), and
@@ -69,8 +68,8 @@ No durable document should still present these as current: `topic.md`,
 `direct-execute`, `core-workflow.md`, `find-cause-workflow.md`,
 `routed-to-find-cause`, mandatory execution review, execution-mode selection, the
 question-file cycle, `run-topic`/`run-direct-work`/`run-issue`, the four-option
-classification menu, `move`, and `inbox` as a way to defer the choice. A legacy
-unit name is fine where the text is about resuming a legacy folder.
+classification menu, `move`, and `inbox` as a way to defer the choice. An old
+unit name is fine where the text is about refusing such a folder.
 
 ```bash
 rg -n 'topic\.md|question-c|problem\.md|journal\.jsonl|code-review-report|topic-log|journal-log|start-work|hand-off|find-cause|direct-execute|core-workflow|routing-rules|logging-rules|completion-rules|run-topic|run-direct-work|run-issue|moveAllowed|unit-selected' \

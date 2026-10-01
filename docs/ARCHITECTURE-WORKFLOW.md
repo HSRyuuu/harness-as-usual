@@ -73,7 +73,7 @@ that branches on a unit label is the exact defect this design removes.
 ### Layer 4 — Record
 
 `scripts/as-usual-record.py` over schema `as-usual.record.v1`. One writer for every
-record, legacy folders included.
+record.
 
 ```text
 scripts/as_usual_record/
@@ -133,7 +133,7 @@ when it is not asked for.
 
 Inside a git worktree the project root is the main checkout, so the record
 outlives the worktree. Folders under `.as-usual/{topic,direct-work,issue,inbox}/`
-are legacy records; they resume like any other.
+are pre-v2.0 unit records; they are not resumed.
 
 ### `contexts.md` — the one document every record keeps
 
@@ -437,12 +437,11 @@ what they were protecting.
 
 ## 9. Compatibility
 
-v2.0 keeps the four earlier unit folders (`topic`, `direct-work`, `issue`,
-`inbox`) readable and resumable. Two legacy shims remain: a legacy `issue`'s
-`execution` approval meant a reproduction script (not plan-gated), and a legacy
-`topic` always needs `verification.md` to finalize. Removed: `move`,
-`lifecycle:unit-selected` (retired vocabulary), the classification menu, per-unit
-owner skills, and the `investigating`/`concluding` phases (retired).
+v2.0 does not support the four earlier unit folders (`topic`, `direct-work`,
+`issue`, `inbox`): they are not resume targets, `add` and `link` refuse them, and
+`validate` reports their unit as invalid. No gate branches on a unit label.
+Removed: `move`, `lifecycle:unit-selected`, the classification menu, per-unit
+owner skills, and the `investigating`/`concluding` phases.
 
 The v2 record format broke compatibility deliberately. Folders holding `topic.md`,
 `journal.jsonl`, `question-cN.md`, or `problem.md` are **pre-v2 and are not

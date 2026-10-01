@@ -8,7 +8,7 @@ import hashlib
 from pathlib import Path
 import tempfile
 
-from .constants import AUDIT_FILE, AUDITABLE_UNITS, CONTEXTS_FILE
+from .constants import AUDIT_FILE, CONTEXTS_FILE, UNITS
 
 
 class RecordError(ValueError):
@@ -44,7 +44,7 @@ def as_usual_root(work_dir: Path) -> Path:
     instead of crashing.
     """
     parent = work_dir.parent
-    if parent.parent.name == ".as-usual" or parent.name in AUDITABLE_UNITS:
+    if parent.parent.name == ".as-usual" or parent.name in UNITS:
         return parent.parent
     return parent
 

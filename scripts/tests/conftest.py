@@ -60,7 +60,8 @@ def make_work(as_usual: Path, run):
 def make_legacy(as_usual: Path):
     """Hand-write a record the way pre-2.0 `init --unit <unit>` left it.
 
-    `init` no longer creates these units, but their folders stay resumable.
+    Those units are no longer supported; tests use this to prove the helper
+    refuses them.
     """
 
     def _make(unit: str, slug: str = "2026-07-25-legacy", request: str = "legacy request") -> Path:

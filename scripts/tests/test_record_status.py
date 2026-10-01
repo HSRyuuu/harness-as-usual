@@ -387,43 +387,26 @@ def _write_contexts(work_dir, body: str) -> None:
     (work_dir / "contexts.md").write_text(body, encoding="utf-8")
 
 
-def test_validate_catches_a_unit_mismatch_in_the_legacy_section(make_legacy):
-    """The pre-frontmatter form still has to be cross-checked.
-
-    Work folders created before the frontmatter format are still resumed, so
-    this path is live rather than historical.
-    """
-    work_dir = make_legacy("topic")
-    _write_contexts(work_dir, "# Context\n\n## Work Unit\n\nissue\n")
-
-    problems = validate_record(work_dir)
-    assert any("issue" in problem and "topic" in problem for problem in problems)
-
-
-def test_validate_reads_the_unit_from_frontmatter(make_legacy):
-    """Frontmatter wins over a leftover section — the priority is the point."""
-    work_dir = make_legacy("topic")
+def test_validate_reads_the_unit_from_frontmatter(make_work):
+    """Only the frontmatter declares the unit; a body section is plain text."""
+    work_dir = make_work()
     _write_contexts(
         work_dir,
         "---\nunit: issue\nslug: 2026-07-25-sample\n---\n\n# Context\n\n"
-        "## Work Unit\n\ntopic\n",
+        "## Work Unit\n\nwork\n",
     )
 
     problems = validate_record(work_dir)
     assert any("issue" in problem for problem in problems)
 
 
-def test_validate_passes_when_the_declared_unit_agrees(make_work, make_legacy):
+def test_validate_passes_when_the_declared_unit_agrees(make_work):
     work_dir = make_work()
     _write_contexts(work_dir, "---\nunit: work\nslug: 2026-07-25-sample\n---\n\n# Context\n")
     assert validate_record(work_dir) == []
 
-    legacy = make_legacy("issue")
-    _write_contexts(legacy, "---\nunit: issue\nslug: 2026-07-25-legacy\n---\n\n# Context\n")
-    assert validate_record(legacy) == []
 
-
-def test_validate_catches_a_work_record_declaring_a_legacy_unit(make_work):
+def test_validate_catches_a_work_record_declaring_an_old_unit(make_work):
     work_dir = make_work()
     _write_contexts(work_dir, "---\nunit: topic\nslug: 2026-07-25-sample\n---\n\n# Context\n")
 
@@ -595,104 +578,7 @@ def test_a_superseded_decision_is_readable_from_status(make_work, run):
     assert "400" in cancelled[0]["why"]
 
 
-# --- Legacy records stay resumable ---------------------------------------------
-
-
-@pytest.mark.parametrize("unit", ["topic", "direct-work", "issue", "inbox"])
-def test_a_legacy_record_can_add_status_and_validate(make_legacy, run, events, capsys, unit):
-    work_dir = make_legacy(unit)
-
-    assert run("add", "--dir", str(work_dir), "--kind", "decision", "--summary", "resumed",
-               "--phase", "gathering-context", "--next-action", "investigate") == 0
-    assert events(work_dir)[-1]["unit"] == unit
-
-    capsys.readouterr()
-    assert run("status", "--dir", str(work_dir), "--json") == 0
-    payload = json.loads(capsys.readouterr().out)
-    assert (payload["unit"], payload["state"], payload["nextAction"]) == (
-        unit, "open", "investigate")
-
-    assert validate_record(work_dir) == []
-    assert run("validate", "--dir", str(work_dir)) == 0
-
-
-def _legacy_entry(seq: int, unit: str, **fields) -> dict:
-    return {
-        "seq": seq,
-        "ts": "2026-07-25T11:00:00+09:00",
-        "actor": "claude",
-        "unit": unit,
-        "kind": "note",
-        "status": "success",
-        "summary": "legacy entry",
-        **fields,
-    }
-
-
-@pytest.mark.parametrize("phase", ["investigating", "concluding"])
-def test_validate_accepts_a_retired_phase(make_legacy, phase):
-    work_dir = make_legacy("issue")
-    _append(work_dir, _legacy_entry(2, "issue", phase=phase, nextAction=phase))
-
-    assert validate_record(work_dir) == []
-
-
-@pytest.mark.parametrize("phase", ["investigating", "concluding"])
-def test_add_refuses_a_retired_phase(make_legacy, run, phase):
-    work_dir = make_legacy("issue")
-
-    assert run("add", "--dir", str(work_dir), "--kind", "note", "--summary", "s",
-               "--phase", phase) == 2
-    assert run("add", "--dir", str(work_dir), "--kind", "note", "--summary", "s",
-               "--next-action", phase) == 2
-
-
-def test_validate_accepts_a_legacy_unit_selected_event(make_legacy):
-    """What `move` left behind: the record switches unit mid-way."""
-    work_dir = make_legacy("topic")
-    _append(
-        work_dir,
-        _legacy_entry(
-            2,
-            "topic",
-            kind="lifecycle",
-            summary="unit selected: inbox -> topic",
-            data={
-                "event": "unit-selected",
-                "from": ".as-usual/inbox/2026-07-25-legacy",
-                "to": ".as-usual/topic/2026-07-25-legacy",
-            },
-        ),
-    )
-
-    assert validate_record(work_dir) == []
-
-
-def test_add_refuses_the_unit_selected_event(make_work, make_legacy, run):
-    for work_dir in (make_work(), make_legacy("topic")):
-        assert run("add", "--dir", str(work_dir), "--kind", "lifecycle",
-                   "--event", "unit-selected", "--summary", "s") == 2
-
-
-def test_status_after_legacy_move_reports_the_selected_unit(make_legacy, run, events):
-    """A moved inbox record reads by its last unit, and resumes under it."""
-    work_dir = make_legacy("topic")
-    lines = (work_dir / "audit.jsonl").read_text(encoding="utf-8").splitlines()
-    created = json.loads(lines[0])
-    created["unit"] = "inbox"
-    (work_dir / "audit.jsonl").write_text(json.dumps(created) + "\n", encoding="utf-8")
-    _append(
-        work_dir,
-        _legacy_entry(
-            2,
-            "topic",
-            kind="lifecycle",
-            summary="unit selected: inbox -> topic",
-            data={"event": "unit-selected"},
-        ),
-    )
-
-    assert derive_status(work_dir)["unit"] == "topic"
-    assert run("add", "--dir", str(work_dir), "--kind", "note", "--summary", "resumed") == 0
-    assert events(work_dir)[-1]["unit"] == "topic"
-    assert validate_record(work_dir) == []
+def test_add_refuses_the_retired_unit_selected_event(make_work, run):
+    work_dir = make_work()
+    assert run("add", "--dir", str(work_dir), "--kind", "lifecycle",
+               "--event", "unit-selected", "--summary", "s") == 2

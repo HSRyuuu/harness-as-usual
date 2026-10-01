@@ -74,7 +74,8 @@ a label chosen up front:
 
 Inside a git worktree the project root is the main checkout, so the record
 outlives the worktree. Folders under `.as-usual/{topic,direct-work,issue,inbox}/`
-are legacy records; they stay readable and resumable.
+are pre-v2.0 unit records; they are not resumed and the helper refuses to append
+to them.
 
 Entry is a single door. `using-as-usual` decides activation, creates or resumes
 the folder, records the request boundary (investigation only / plan only /
@@ -172,7 +173,7 @@ folder that already holds a record. Rule 6 is prompt-only.
 | Safety gates | `as-usual-rules/safety-rules.md` | trust boundary, high-risk gate, read-only default for investigation |
 | Record commands | `as-usual-rules/record-commands.md` | `as-usual-record.py` reference |
 | Record helper | `scripts/as-usual-record.py`, `scripts/as_usual_record/` | init/add/link/status/validate; vocabularies in `constants.py`, gates in `gates.py` |
-| Entry skill | `skills/using-as-usual/SKILL.md` | activation, folder creation, request boundary, resume (legacy folders too) |
+| Entry skill | `skills/using-as-usual/SKILL.md` | activation, folder creation, request boundary, resume |
 | Owner | `skills/run-work/SKILL.md` | the one pipeline matrix, a condition per row |
 | Context gathering | `skills/gathering-context/SKILL.md` | the only skill that interviews the user |
 | Step skills | `skills/write-requirements`, `investigate`, `write-plan`, `execute-plan`, `review-execution`, `cleanup-code`, `finalize`, `git-action` | `investigate` owns the investigation loop and its endings |
@@ -213,8 +214,8 @@ folder that already holds a record. Rule 6 is prompt-only.
 - The runtime contract lives in exactly three files: `core-rules.md`,
   `safety-rules.md`, `record-commands.md`. A rule has one owner; other files may
   reference it but must not restate its conditions.
-- Canonical paths are `.as-usual/work/yyyy-MM-dd-<slug>/`. Legacy
-  `.as-usual/{inbox,topic,direct-work,issue}/` folders are resumed, never created.
+- Canonical paths are `.as-usual/work/yyyy-MM-dd-<slug>/`. Pre-v2.0
+  `.as-usual/{inbox,topic,direct-work,issue}/` folders are neither created nor resumed.
 - Every record keeps `contexts.md` and `audit.jsonl`. `contexts.md` has three
   bands: near-fixed top, freely updated middle, append-only bottom.
 - `audit.jsonl` is append-only and script-managed. Never hand-edit it. If the
@@ -318,7 +319,8 @@ registry.
 - `scripts/as-usual-record.py` is the only writer of `audit.jsonl`, for every record.
 - The v2 record format broke compatibility deliberately: pre-v2 folders
   (`topic.md`, `journal.jsonl`, `question-cN.md`) are not resume targets.
-- v2.0 has a single unit, `work`. `topic`/`direct-work`/`issue`/`inbox` folders
-  are legacy but resumable; the gates judge their content, with two shims only
-  (a legacy `issue`'s `execution` approval meant a reproduction script; a legacy
-  `topic` always needs `verification.md` to finalize).
+- v2.0 has a single unit, `work`, and the gates judge record content only — no
+  branch on a unit label. `topic`/`direct-work`/`issue`/`inbox` folders are not
+  supported: they are not resume targets, `add` and `link` refuse them, and
+  `validate` reports their unit as invalid. Their files can be read as input to
+  new work.

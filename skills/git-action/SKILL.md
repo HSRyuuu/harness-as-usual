@@ -47,9 +47,8 @@ style and language.
 If the tree holds unrelated changes, ask before staging them. Never
 `git add .` — stage paths explicitly, always.
 
-**`.as-usual/` handling**: work folders (`work/`, and legacy `topic/`,
-`direct-work/`, `issue/`, `inbox/`) stay out unless the project says otherwise or
-the user asks.
+**`.as-usual/` handling**: everything under `.as-usual/` stays out unless the
+project says otherwise or the user asks.
 
 ## Commits
 

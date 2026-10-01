@@ -12,12 +12,14 @@ from .constants import (
     CONTEXTS_FILE,
     INIT_BLOCKING_FILES,
     SCHEMA_VERSION,
+    UNITS,
     JsonObject,
 )
 from .contexts import append_to_band, prepend_notice, render_contexts
 from .gates import (
     check_kind_payload,
     check_not_closed,
+    validate_enum,
     validate_vocabulary,
 )
 from .paths import (
@@ -176,6 +178,9 @@ def cmd_link(args: argparse.Namespace) -> int:
     other_dir = require_existing_dir(args.to_dir)
     if work_dir == other_dir:
         raise RecordError("cannot link a work unit to itself")
+    # Both sides first, so an unsupported folder leaves neither side half-linked.
+    for side in (work_dir, other_dir):
+        validate_enum("unit", current_unit(read_events(side)), UNITS)
 
     unwritten: list[Path] = []
     for source, target in ((work_dir, other_dir), (other_dir, work_dir)):

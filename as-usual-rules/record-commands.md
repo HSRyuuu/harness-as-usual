@@ -29,9 +29,9 @@ as-usual-record.py init \
   --actor claude|codex
 ```
 
-`--unit` defaults to `work`, the only unit `init` creates. Folders of the legacy
-units (`topic`, `direct-work`, `issue`, `inbox`) are resumed with `add`, never
-re-created.
+`--unit` defaults to `work`, the only unit. Folders of the pre-v2.0 units
+(`topic`, `direct-work`, `issue`, `inbox`) are refused by `add` and `link`, and
+`validate` reports their unit as invalid.
 
 Refuses if the folder already holds `contexts.md` or `audit.jsonl` — sealing is
 derived from the record, so re-initializing over one would reset it. Use a

@@ -58,8 +58,8 @@ risk are what call for agreed requirements.
 ```
 
 Folders under `.as-usual/{topic,direct-work,issue,inbox}/` are records from
-before the single unit. They resume like any other; the gates judge what they
-hold, not their label.
+before the single unit. They are not resumed — the helper refuses to append to
+them; their files can be read as input to new work.
 
 - Inside a git worktree, the project root is the main checkout —
   `dirname "$(git rev-parse --path-format=absolute --git-common-dir)"` — so the
@@ -304,8 +304,7 @@ gate checks belongs in `summary` or `--data`, not in a new kind.
 
 `phase` is the name of the skill that currently owns the work, so there is no
 mapping table to keep. `nextAction` is either the next phase name,
-`awaiting-user`, or `none`. A legacy record whose phase is `investigating` or
-`concluding` resumes at `investigate`.
+`awaiting-user`, or `none`.
 
 One phase names no skill: `blocked` belongs to whichever skill is holding the
 work. Use

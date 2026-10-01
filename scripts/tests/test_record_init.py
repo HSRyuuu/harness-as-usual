@@ -42,8 +42,8 @@ def test_stray_files_are_neither_adopted_nor_blocking(as_usual, run, capsys):
 
 
 @pytest.mark.parametrize("unit", ["inbox", "topic", "direct-work", "issue"])
-def test_init_refuses_a_legacy_folder_that_holds_a_record(make_legacy, run, events, unit):
-    """Re-initializing a legacy folder as work would reset its sealing; resume it."""
+def test_init_refuses_a_pre_v2_folder_that_holds_a_record(make_legacy, run, events, unit):
+    """Re-initializing an old unit's folder as work would rewrite its history."""
     work_dir = make_legacy(unit)
     before = events(work_dir)
 

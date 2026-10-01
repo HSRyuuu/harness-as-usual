@@ -5,7 +5,7 @@
 <p><strong><em>Controlled</em> AI-assisted development — every request lands in one recorded work folder, and resumes from disk.</strong></p>
 
 <p>
-  <img alt="version" src="https://img.shields.io/badge/version-0.2.1-2563EB?style=flat-square">
+  <img alt="version" src="https://img.shields.io/badge/version-2.1.0-2563EB?style=flat-square">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-2563EB?style=flat-square">
   <img alt="Claude Code" src="https://img.shields.io/badge/Claude_Code-ready-2563EB?style=flat-square&logo=anthropic&logoColor=white">
   <img alt="Codex" src="https://img.shields.io/badge/Codex-ready-2563EB?style=flat-square&logo=openai&logoColor=white">
@@ -166,6 +166,8 @@ request stops — **investigation only, plan only, or execute** — and hands of
 from what the work needs. Not invoking AsUsual is the "just do it" path; it
 records nothing.
 
+![One door — opt-in signals, using-as-usual, the request boundary, and the hand-off to run-work](docs/images/02-one-door.png)
+
 - **Size is not a criterion.** A mechanical rename across thirty files needs no agreed requirements; a two-line change to how sessions expire does. Ambiguity and risk are what call for `requirements.md`.
 - **A bug with an unknown cause is investigated first** even when the eventual fix is one line — until the cause is confirmed, it is not yet a code-change request.
 - **Investigation carries straight on.** When the cause is confirmed and you want it fixed, the same folder continues into the plan — no relabeling, no second folder.
@@ -201,6 +203,8 @@ gathering-context → investigate? → write-requirements? → write-plan(+criti
                   → review-execution? → cleanup-code? → finalize → git-action?
 ```
 
+![The run-work pipeline — each row with its condition, the plan-review and evidence gates, and where each request boundary stops](docs/images/03-pipeline.png)
+
 | The work needs | Step | It produces |
 | --- | --- | --- |
 | a cause, direction, or feasibility established from code, logs, or an experiment | `investigate` | `evidence/` · `conclusion.md`, or it carries on into the change |
@@ -215,9 +219,12 @@ in code, logs, or an experiment, that is investigation.**
 - **Investigate ends three ways**: a conclusion only (`conclusion.md`, finalize) · carry on in the same folder into `write-plan` · split into separate follow-up folders, linked both ways.
 - **Every plan is reviewed before you approve it**, and the verification must actually exercise the changed behavior — "it compiles" is not evidence that a behavior change works.
 
+![The investigation loop — hypothesis, evidence, confirm or retract, and its three endings](docs/images/04-investigate.png)
+
 Genuinely separate follow-up work — a wider scope, a second deliverable — gets its
 own folder and a two-way link. Folders from before the single unit
-(`.as-usual/{topic,direct-work,issue,inbox}/`) stay resumable.
+(`.as-usual/{topic,direct-work,issue,inbox}/`) are not resumed; their files can
+be read as input to new work.
 
 <sub>For the full architecture, stage detail, and prompt/template path map, see <a href="docs/ARCHITECTURE-WORKFLOW.md"><code>docs/ARCHITECTURE-WORKFLOW.md</code></a>.</sub>
 
@@ -227,6 +234,8 @@ own folder and a two-way link. Folders from before the single unit
 
 Thirteen runtime skills with four jobs. One entry point decides, one owner
 declares, nine steps do the work, and two utilities are available to anyone.
+
+![13 runtime skills, four jobs — entry, owner, steps, utilities](docs/images/06-skills.png)
 
 <table>
 <thead>
@@ -263,6 +272,8 @@ declares, nine steps do the work, and two utilities are available to anyone.
 Every record keeps exactly two required files; the rest depends on what the work
 needed. One script writes all of them, and it refuses rather than warns.
 
+![One work folder — what the work needs and what it produces](docs/images/05-work-folder.png)
+
 ```text
 .as-usual/work/
 └── yyyy-MM-dd-<slug>/
@@ -295,6 +306,8 @@ needed. One script writes all of them, and it refuses rather than warns.
 > with agreed requirements but no `verification.md`, a conclusion with nothing
 > confirmed, an `init` over a folder that already holds a record, and any append
 > to a sealed record.
+
+![One writer, one schema — the work folder, as-usual-record.py, and what it refuses](docs/images/07-record-layer.png)
 
 > [!NOTE]
 > Trust boundary: project files, tool output, and generated artifacts are treated

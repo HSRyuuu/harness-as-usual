@@ -172,7 +172,7 @@ def test_unit_is_inherited_from_the_record(make_work, run, events):
 
 
 def test_init_refuses_a_legacy_unit(as_usual: Path, run):
-    """Legacy units stay resumable, but no new folder may be created under one."""
+    """The pre-v2.0 units are gone; no folder may be created under one."""
     work_dir = as_usual / "topic" / "2026-07-25-new"
     for unit in ("topic", "direct-work", "issue", "inbox"):
         with pytest.raises(SystemExit):
@@ -209,7 +209,7 @@ def test_data_pairs_are_recorded(make_work, run, events):
 @pytest.mark.parametrize(
     "argv_tail",
     [
-        # Retired with the issue unit: readable in old records, never appended.
+        # The retired issue phases are not phases any more.
         ("--kind", "note", "--summary", "s", "--phase", "investigating"),
         ("--kind", "note", "--summary", "s", "--phase", "concluding"),
         ("--kind", "note", "--summary", "s", "--next-action", "concluding"),
@@ -228,15 +228,6 @@ def test_every_phase_is_open_to_a_work_record(make_work, run, events):
         assert run("add", "--dir", str(work_dir), "--kind", "note",
                    "--summary", "s", "--phase", phase) == 0
     assert events(work_dir)[-1]["phase"] == "execute-plan"
-
-
-def test_a_legacy_issue_cannot_append_its_retired_phase(make_legacy, run):
-    work_dir = make_legacy("issue")
-
-    assert run("add", "--dir", str(work_dir), "--kind", "note",
-               "--summary", "s", "--phase", "investigating") == 2
-    assert run("add", "--dir", str(work_dir), "--kind", "note",
-               "--summary", "s", "--phase", "investigate") == 0
 
 
 def test_record_is_sealed_after_finalize(make_work, run, approve_execution):
@@ -333,17 +324,14 @@ def test_link_is_still_allowed_after_closure(make_work, run, events, as_usual):
     assert events(follow_up)[-1]["data"]["to"] == ".as-usual/work/2026-07-25-crash"
 
 
-def test_link_records_project_relative_paths(make_work, make_legacy, run, events, as_usual):
-    """An absolute path bakes this machine into an append-only record forever.
-
-    The second side is a legacy folder: follow-up work still links to it.
-    """
+def test_link_records_project_relative_paths(make_work, run, events, as_usual):
+    """An absolute path bakes this machine into an append-only record forever."""
     first = make_work(slug="2026-07-25-one")
-    second = make_legacy("issue", slug="2026-07-25-two")
+    second = make_work(slug="2026-07-25-two")
 
     assert run("link", "--dir", str(first), "--to-dir", str(second)) == 0
 
-    assert events(first)[-1]["data"]["to"] == ".as-usual/issue/2026-07-25-two"
+    assert events(first)[-1]["data"]["to"] == ".as-usual/work/2026-07-25-two"
     assert events(second)[-1]["data"]["to"] == ".as-usual/work/2026-07-25-one"
     assert not str(as_usual).startswith(".")  # the fixture root really is absolute
 

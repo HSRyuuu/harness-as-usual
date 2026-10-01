@@ -129,8 +129,8 @@ $R add --dir "$C" --kind lifecycle --event cancelled --summary "dropped"  # expe
 Expected: `init` accepts only `work`; a record with neither an approved execution
 nor `conclusion.md` cannot be finalized, only cancelled; a conclusion needs a
 confirmed entry; `reproduction` is approved without a plan; `move` is gone.
-Legacy-folder resume (`topic`/`direct-work`/`issue`/`inbox`) is covered by
-`scripts/tests/`.
+Refusing a pre-v2.0 unit folder (`topic`/`direct-work`/`issue`/`inbox`) is
+covered by `scripts/tests/`.
 
 ## 4. Deleted surfaces
 

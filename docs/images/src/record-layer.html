@@ -49,6 +49,12 @@
   .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
   .d { border: 2px solid var(--line); border-radius: 12px; padding: 13px 17px; background: var(--panel); font-size: 15.5px; color: var(--ink-2); line-height: 1.45; }
   .d b { display: block; color: var(--ink); font-size: 16.5px; margin-bottom: 4px; }
+  .blind { margin-top: 18px; border: 2px solid var(--line-2); border-radius: 14px; overflow: hidden; }
+  .blind .bh { padding: 12px 20px; background: var(--slate-bg); border-bottom: 2px solid var(--line-2); display: flex; align-items: baseline; gap: 14px; }
+  .blind .bh .t { font-size: 21px; font-weight: 800; color: var(--ink-2); letter-spacing: -0.02em; }
+  .blind .bh .s { font-size: 15px; color: var(--muted); }
+  .blind .bb { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 14px 16px 16px; }
+  .blind .d { background: #fff; }
 </style>
 </head>
 <body>
@@ -57,7 +63,7 @@
   <div class="eyebrow">Record layer</div>
   <h1>One writer. It refuses rather than warns.</h1>
   <p class="lede">
-    Every work unit keeps exactly two required files. Current phase and next action are never
+    Every work record keeps exactly two required files. Current phase and next action are never
     remembered — they are derived from the record, so a session that starts cold picks up from disk.
   </p>
 
@@ -65,12 +71,12 @@
 
   <div class="two">
     <section class="box">
-      <div class="h"><div class="t">The work folder</div><div class="s"><code>.as-usual/&lt;unit&gt;/yyyy-MM-dd-&lt;slug&gt;/</code></div></div>
+      <div class="h"><div class="t">The work folder</div><div class="s"><code>.as-usual/work/yyyy-MM-dd-&lt;slug&gt;/</code></div></div>
       <div class="b">
-        <div class="n2" style="margin-bottom:10px"><b>contexts.md</b> — one document holding every decision agreed with you. Frontmatter (<code>unit</code>, <code>slug</code>, <code>created</code>, written by the helper), then three bands, three rules:</div>
+        <div class="n2" style="margin-bottom:10px"><b>contexts.md</b> — one document holding every decision agreed with you. Frontmatter written by the helper, then three bands, three rules:</div>
         <div class="band b-fixed">
           <div class="bt">Top · near-fixed</div>
-          <div class="bd">the initial request verbatim, the in/out boundary, links to other units</div>
+          <div class="bd">the initial request verbatim, the in/out boundary, links to other work</div>
         </div>
         <div class="band b-live">
           <div class="bt">Middle · updated freely</div>
@@ -89,27 +95,40 @@
     <section class="box b-write">
       <div class="h"><div class="t">The only writer</div><div class="s"><code>scripts/as-usual-record.py</code> · schema <code>as-usual.record.v1</code></div></div>
       <div class="b">
-        <div class="cmds"><span>init</span><span>add</span><span>move</span><span>link</span><span>status</span><span>validate</span></div>
+        <div class="cmds"><span>init</span><span>add</span><span>link</span><span>status</span><span>validate</span></div>
         <div class="n2"><b>Never hand-edited.</b> If the helper cannot express a transition, the agent stops and reports the missing capability instead of writing the file itself.</div>
-        <div class="n2"><b>A closed vocabulary.</b> Units, event kinds, actors, statuses, phases, and next actions are all fixed sets. An event kind exists only when a gate enforces something with it.</div>
-        <div class="n2"><b><code>phase</code> is the name of the skill that owns the work</b>, so there is no mapping table to drift. Each unit may use only its own subset.</div>
+        <div class="n2"><b>A closed vocabulary.</b> Event kinds, actors, statuses, phases, next actions, verdicts, and approval actions are all fixed sets. An event kind exists only when a gate enforces something with it.</div>
+        <div class="n2"><b><code>phase</code> is the name of the skill that owns the work</b>, so there is no mapping table to drift. <code>nextAction</code> is a phase, <code>awaiting-user</code>, or <code>none</code>.</div>
         <div class="n2"><b>Recorded as you go</b>, not batched at the end.</div>
       </div>
     </section>
   </div>
 
   <section class="refuse">
-    <div class="rh"><div class="t">What it refuses</div><div class="s">guaranteed by the script, not by agent goodwill</div></div>
+    <div class="rh"><div class="t">What it refuses</div><div class="s">judged by what the record holds — guaranteed by the script, not by agent goodwill</div></div>
     <div class="rb">
+      <div class="it"><b>Execution approval</b> without <code>plan.md</code> on disk, or without a successful <code>write-plan</code> review <b>newer than the previous execution approval</b> — a <code>review-execution</code> or <code>cleanup-code</code> review does not count</div>
+      <div class="it">Any <b>approval</b> — <code>execution</code>, <code>high-risk</code>, <code>reproduction</code>, <code>git-action</code> — not recorded as the user's own: <code>--actor user --status success</code></div>
+      <div class="it"><b>Finalizing</b> a record that holds <b>neither</b> an approved execution <b>nor</b> a <code>conclusion.md</code> — there is nothing to finalize</div>
+      <div class="it"><b>Finalizing</b> an approved execution with <b>no verification</b> recorded, or with <code>requirements.md</code> but no <code>verification.md</code></div>
+      <div class="it"><b>Finalizing</b> while an <code>INCONCLUSIVE</code> or <code>FAIL</code> is still open — unless the user accepts the gap with <code>--reason</code> as <code>--actor user</code></div>
+      <div class="it"><b>Finalizing</b> a <code>conclusion.md</code> when <b>nothing on the record is confirmed</b> — a conclusion needs something it rests on</div>
       <div class="it">A <b>verification</b> with no verdict — and an unverifiable result is <code>INCONCLUSIVE</code>, never <code>PASS</code></div>
-      <div class="it"><b>Finalizing</b> a <code>topic</code>/<code>direct-work</code> with no verification on the record — and while an <code>INCONCLUSIVE</code> or <code>FAIL</code> is still open, only with an explicit reason kept on the closing event</div>
-      <div class="it"><b>Execution approval</b> for a <code>topic</code> or <code>direct-work</code> with no plan review newer than the previous approval</div>
-      <div class="it"><b>Finalizing</b> an <code>issue</code> with no <code>conclusion.md</code>, or nothing confirmed</div>
-      <div class="it"><b>Confirming</b> a hypothesis with no evidence, or cancelling one with no reason</div>
-      <div class="it"><b>Initializing</b> over a folder that already holds a record — re-init would reset sealing and the move restriction together</div>
-      <div class="it"><b>Moving</b> a folder that already produced its own output</div>
-      <div class="it">Any <b>append to a sealed record</b> — a closed unit accepts only a link to another unit</div>
+      <div class="it"><code>--resolves</code> on anything but a verification or blocker, on a target that is not open, or on one <b>already resolved</b></div>
+      <div class="it"><b>Confirming</b> a hypothesis or other reasoning entry with no <code>--evidence</code>, or cancelling one with no <code>--reason</code></div>
+      <div class="it"><b>Initializing</b> over a folder that already holds <code>contexts.md</code> or <code>audit.jsonl</code> — re-init would reset its sealing</div>
+      <div class="it">Any <b>append to a sealed record</b> — a finalized or cancelled record accepts only a link to other work</div>
       <div class="it">Anything <b>outside the closed vocabulary</b></div>
+    </div>
+  </section>
+
+  <section class="blind">
+    <div class="bh"><div class="t">What it cannot see</div><div class="s">where a rule holds only as a prompt — knowing which is which is the point</div></div>
+    <div class="bb">
+      <div class="d"><b>Completion without finalize</b>Work that simply ends after a passing verification records no completion transition.</div>
+      <div class="d"><b>The quality of a <code>PASS</code></b>It checks that <code>verification.md</code> exists, not whether the evidence matches the surface.</div>
+      <div class="d"><b>A pointer <code>plan.md</code></b>When the plan lives in the project's own location, the script sees only the pointer.</div>
+      <div class="d"><b>A git action after sealing</b>Finalize seals first, so that choice leaves no approval event.</div>
     </div>
   </section>
 
@@ -120,7 +139,7 @@
     </div>
     <div class="d">
       <b>Work folders are not committed</b>
-      Nothing under <code>.as-usual/</code> is committed by default. Each unit remains a local evidence record.
+      Nothing under <code>.as-usual/</code> is committed by default. Each record remains a local evidence trail.
     </div>
     <div class="d">
       <b>Rules are never copied into your project</b>

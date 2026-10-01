@@ -6,12 +6,12 @@
   },
   "metadata": {
     "description": "AsUsual controlled agent workflow harness marketplace",
-    "version": "1.2.0"
+    "version": "2.1.0"
   },
   "plugins": [
     {
       "name": "as-usual",
-      "description": "An agent harness that routes each request into one of three recorded work units \u2014 topic, direct-work, or issue \u2014 and keeps the decisions, plan, and verification evidence in files so a later session can resume from disk.",
+      "description": "An agent harness that keeps one recorded work folder per piece of work — its decisions, request boundary, plan, investigation evidence, and verification — in files, so a later session can resume from disk.",
       "source": "./",
       "author": {
         "name": "Happy Hsryu"

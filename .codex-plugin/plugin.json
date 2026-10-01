@@ -1,7 +1,7 @@
 {
   "name": "as-usual",
-  "version": "2.0.0",
-  "description": "An agent harness that routes each request into one of three recorded work units — topic, direct-work, or issue — and keeps the decisions, plan, and verification evidence in files so a later session can resume from disk.",
+  "version": "2.1.0",
+  "description": "An agent harness that keeps one recorded work folder per piece of work — its decisions, request boundary, plan, investigation evidence, and verification — in files, so a later session can resume from disk.",
   "author": {
     "name": "Happy Hsryu"
   },
@@ -20,8 +20,8 @@
   "hooks": "./hooks/hooks-codex.json",
   "interface": {
     "displayName": "AsUsual",
-    "shortDescription": "Route work into one of three recorded units — topic, direct-work, or issue — and keep the evidence in files.",
-    "longDescription": "AsUsual adds a session-start hook and artifact templates. Work that the harness picks up is classified once into a topic (requirements agreed first), direct-work (already settled, still recorded), or issue (confirm a cause or direction without changing code). Each unit keeps contexts.md and an append-only audit.jsonl, so decisions, approvals, and verification evidence survive the session.",
+    "shortDescription": "Keep one recorded work folder per piece of work, with its decisions and evidence in files.",
+    "longDescription": "AsUsual adds a session-start hook and artifact templates. Work that the harness picks up gets one work folder; only its request boundary — investigation only, plan only, or execute — is recorded up front, and what the folder produces follows from the request. Each record keeps contexts.md and an append-only audit.jsonl, so decisions, approvals, and verification evidence survive the session.",
     "developerName": "Happy Hsryu",
     "category": "Developer Tools",
     "capabilities": [

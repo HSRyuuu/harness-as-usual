@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — the work folder</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .eyebrow { color: var(--green); }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  .box { border: 2px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .box .h { padding: 13px 18px; background: var(--panel); border-bottom: 2px solid var(--line); }
+  .box .h .t { font-size: 21px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; }
+  .box .h .s { margin-top: 2px; font-size: 15px; color: var(--muted); }
+
+  .needs { width: 100%; border-collapse: collapse; }
+  .needs th { text-align: left; font-size: 12.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); padding: 11px 18px 6px; }
+  .needs td { padding: 12px 18px; font-size: 16px; color: var(--ink-2); line-height: 1.4; border-top: 1px solid var(--line); vertical-align: top; }
+  .needs td:first-child { border-left: 6px solid var(--line-2); width: 52%; }
+  .needs tr.r-req td:first-child { border-left-color: var(--blue); }
+  .needs tr.r-inv td:first-child { border-left-color: var(--violet); }
+  .needs tr.r-chg td:first-child { border-left-color: var(--green); }
+  .needs td b { color: var(--ink); }
+  .needs code { font-weight: 700; }
+
+  .line { margin: 0 18px 16px; padding: 11px 14px; border-radius: 10px; background: var(--slate-bg); font-size: 15.5px; color: var(--ink-2); line-height: 1.45; }
+  .line b { color: var(--ink); }
+
+  .tree { padding: 14px 18px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15.5px; color: var(--ink-2); }
+  .tree .root { font-weight: 800; color: var(--green); font-size: 16px; margin-bottom: 8px; word-break: break-all; }
+  .grp { border-left: 4px solid var(--line-2); padding: 6px 0 6px 14px; margin: 6px 0 6px 6px; }
+  .grp .when { font-family: -apple-system, sans-serif; font-size: 12.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-bottom: 3px; }
+  .grp .f { line-height: 1.6; }
+  .grp .f span { font-family: -apple-system, sans-serif; color: var(--muted); font-size: 14.5px; margin-left: 6px; }
+  .g-always { border-left-color: var(--green); }
+  .g-always .when { color: var(--green); }
+  .g-need { border-left-color: var(--blue); }
+  .g-inv { border-left-color: var(--violet); }
+  .g-close { border-left-color: var(--ink-2); }
+
+  .wt { margin-top: 18px; display: grid; grid-template-columns: 1fr 44px 1fr; align-items: stretch; }
+  .wt .ar { display: flex; align-items: center; justify-content: center; color: var(--line-2); font-size: 30px; }
+  .wt .n { border: 2px solid var(--line-2); border-radius: 12px; padding: 13px 17px; background: var(--panel); }
+  .wt .n.main { border-color: var(--green); background: var(--green-bg); }
+  .wt .n .k { font-size: 12.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+  .wt .n.main .k { color: var(--green); }
+  .wt .n .t { margin-top: 3px; font-size: 17px; font-weight: 700; color: var(--ink); }
+  .wt .n .dd { margin-top: 3px; font-size: 15.5px; color: var(--muted); line-height: 1.4; }
+
+  .cmd { margin-top: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; background: var(--ink); color: #e2e8f0; border-radius: 10px; padding: 11px 16px; }
+  .cmd i { color: #94a3b8; font-style: normal; }
+
+  .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+  .d { border: 2px solid var(--line); border-radius: 12px; padding: 13px 17px; background: var(--panel); font-size: 15.5px; color: var(--ink-2); line-height: 1.45; }
+  .d b { display: block; color: var(--ink); font-size: 16.5px; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Work folder</div>
+  <h1>One kind of record. What it holds follows the request.</h1>
+  <p class="lede">
+    No label is chosen up front. Every record keeps the same two files; everything else appears only when
+    the work needs it — and one record can hold all three outcomes, as when an investigation confirms a cause
+    and then fixes it.
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="two">
+    <section class="box">
+      <div class="h"><div class="t">The work needs → it produces</div><div class="s">core rules §1</div></div>
+      <table class="needs">
+        <tr><th>The work needs</th><th>It produces</th></tr>
+        <tr class="r-req"><td><b>requirements agreed first</b> — ambiguous or risky work</td><td><code>requirements.md</code></td></tr>
+        <tr class="r-inv"><td><b>a cause, direction, or feasibility</b> established from code, logs, or an experiment</td><td><code>conclusion.md</code>, or it carries straight on into the change</td></tr>
+        <tr class="r-chg"><td><b>a code change</b></td><td><code>plan.md</code>, the change, and its verification</td></tr>
+      </table>
+      <div class="line"><b>Requirements or investigation?</b> If you know and the agent can just ask, it is requirements.
+        If it has to be found in code, logs, or an experiment, it is investigation.</div>
+      <div class="line"><b>Size is not a criterion.</b> Ambiguity and risk call for agreed requirements. A question
+        answered by reading, or a single typo, needs no record at all.</div>
+    </section>
+
+    <section class="box">
+      <div class="h"><div class="t">The folder</div><div class="s">one per piece of work · the slug is lowercase kebab-case</div></div>
+      <div class="tree">
+        <div class="root">&lt;project-root&gt;/.as-usual/work/yyyy-MM-dd-&lt;slug&gt;/</div>
+        <div class="grp g-always"><div class="when">always</div>
+          <div class="f">contexts.md<span>every agreed decision, in three bands</span></div>
+          <div class="f">audit.jsonl<span>append-only, script-written</span></div>
+        </div>
+        <div class="grp g-need"><div class="when">as the work needs them</div>
+          <div class="f">requirements.md · plan.md</div>
+          <div class="f">verification.md · review.md</div>
+        </div>
+        <div class="grp g-inv"><div class="when">when something was investigated</div>
+          <div class="f">evidence/ · conclusion.md</div>
+        </div>
+        <div class="grp g-close"><div class="when">at close</div>
+          <div class="f">report.md<span>when finalize writes one</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="wt">
+    <div class="n">
+      <div class="k">Working in a git worktree</div>
+      <div class="t">The change happens in the worktree…</div>
+      <div class="dd">…which can be removed once the work is done.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="n main">
+      <div class="k">The project root is the main checkout</div>
+      <div class="t">…the record lives in the main checkout</div>
+      <div class="dd">so it outlives the worktree.</div>
+    </div>
+  </div>
+  <div class="cmd"><i>$</i> dirname "$(git rev-parse --path-format=absolute --git-common-dir)" &nbsp;<i># the project root</i></div>
+
+  <div class="notes">
+    <div class="d">
+      <b>Your plan convention wins</b>
+      When the project has its own place for plans, the plan is written there and <code>plan.md</code> in the folder
+      is a pointer to it.
+    </div>
+    <div class="d">
+      <b>Nothing here is committed</b>
+      <code>.as-usual/</code> holds work records only. A deliverable for other readers — an API spec, a handoff
+      note — goes where its audience looks.
+    </div>
+    <div class="d">
+      <b>No project-wide state</b>
+      No shared <code>state.md</code>, no shared <code>audit.jsonl</code>. Current state is derived per record
+      with <code>status --json</code>.
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>Follow-up work:</b> an investigation that carries on into the change stays in this folder. Work that is
+    genuinely separate — a wider scope, a second deliverable, another repository — gets its own folder,
+    <b>linked both ways</b>. If a linked record already exists, go back to it.
+  </div>
+
+</div>
+</body>
+</html>

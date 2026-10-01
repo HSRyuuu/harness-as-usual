@@ -1,6 +1,6 @@
 /* Shared style for AsUsual README diagrams.
-   Designed at 1120px wide so type stays legible when GitHub renders the image
-   at ~900px. Captured full-page at 2x, then downscaled to 1680px. */
+   Designed at 1300px wide so type stays legible when GitHub renders the image
+   at ~900px. Captured full-page at 2x, so each PNG is 2600px wide. */
 
 :root {
   --ink: #0f172a;

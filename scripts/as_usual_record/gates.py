@@ -13,7 +13,6 @@ from .constants import (
     APPROVAL_ACTIONS,
     CLOSING_LIFECYCLE_EVENTS,
     KINDS,
-    AUDITABLE_UNITS,
     LIFECYCLE_EVENTS,
     NEXT_ACTION_SPECIALS,
     OPEN_VERDICTS,
@@ -22,6 +21,7 @@ from .constants import (
     RESOLVES_KINDS,
     STATUS_CHANGE_STATES,
     STATUSES,
+    UNITS,
     VERDICTS,
     JsonObject,
 )
@@ -50,7 +50,7 @@ def validate_vocabulary(
     phase: str,
     next_action: str,
 ) -> None:
-    validate_enum("unit", unit, AUDITABLE_UNITS)
+    validate_enum("unit", unit, UNITS)
     validate_enum("kind", kind, KINDS)
     validate_enum("actor", actor, ACTORS)
     validate_enum("status", status, STATUSES)
@@ -210,9 +210,7 @@ def _check_approval(
         "note or a decision instead",
     )
 
-    # A legacy issue's `execution` was a reproduction script (see
-    # authorizes_code_change); everywhere else it executes a plan.
-    if action == "execution" and unit != "issue":
+    if action == "execution":
         _check_plan_review(work_dir, events)
 
 
@@ -314,7 +312,7 @@ def _check_finalize(
     status: str,
     data: JsonObject,
 ) -> None:
-    executed = authorizes_code_change(events, unit)
+    executed = authorizes_code_change(events)
     concluded = (work_dir / "conclusion.md").exists()
     if not executed and not concluded:
         raise RecordError(
@@ -323,7 +321,7 @@ def _check_finalize(
             "work, or close with the cancelled event"
         )
     if executed:
-        _check_completion_evidence(events, work_dir, unit, actor, status, data)
+        _check_completion_evidence(events, work_dir, actor, status, data)
     if concluded:
         _check_conclusion_rests_on_something(events)
 
@@ -331,7 +329,6 @@ def _check_finalize(
 def _check_completion_evidence(
     events: list[JsonObject],
     work_dir: Path,
-    unit: str,
     actor: str,
     status: str,
     data: JsonObject,
@@ -372,7 +369,7 @@ def _check_completion_evidence(
             "re-verify and close it with --resolves, or leave the record open "
             "until they decide",
         )
-    if needs_verification_doc(work_dir, unit) and not (work_dir / "verification.md").is_file():
+    if needs_verification_doc(work_dir) and not (work_dir / "verification.md").is_file():
         raise RecordError(
             f"cannot finalize without verification.md in {work_dir}: agreed requirements "
             "are verified criterion by criterion, and the record points at evidence that "

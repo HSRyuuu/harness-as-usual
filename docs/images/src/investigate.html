@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AsUsual — the investigation loop</title>
+<link rel="stylesheet" href="_style.css">
+<style>
+  .eyebrow { color: var(--violet); }
+  h1 .u { color: var(--violet); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .step { border-color: var(--violet-line); }
+
+  .loopbox {
+    flex: 2.2 1 0;
+    border: 2px solid var(--violet);
+    background: var(--violet-bg);
+    border-radius: 14px;
+    padding: 15px 18px 16px;
+  }
+  .loopbox .tagline {
+    display: inline-block; margin-bottom: 7px;
+    font-size: 12.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--violet);
+  }
+  .loopbox .nm {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--violet);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .cycle { display: flex; align-items: center; gap: 10px; margin-top: 11px; }
+  .cycle .c {
+    flex: 1 1 0;
+    background: #fff; border: 1.5px solid var(--violet-line); border-radius: 9px;
+    padding: 8px 10px; text-align: center;
+    font-size: 15.5px; font-weight: 700; color: #5b21b6;
+  }
+  .cycle .c small { display: block; font-weight: 500; font-size: 13.5px; color: var(--muted); }
+  .cycle .cc { color: var(--violet); font-size: 20px; }
+
+  .freebar { display: flex; gap: 12px; margin-top: 12px; }
+  .freebar div { flex: 1 1 0; border-radius: 9px; padding: 9px 13px; font-size: 15.5px; line-height: 1.35; }
+  .freebar .free { background: var(--green-bg); border: 1.5px solid var(--green-line); color: #065f46; }
+  .freebar .ask  { background: var(--amber-bg); border: 1.5px solid var(--amber-line); color: #92400e; }
+  .freebar .no   { background: #fef2f2;         border: 1.5px solid #fecaca;          color: #991b1b; }
+  .freebar b { display: block; font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+
+  .ends-h { display: flex; align-items: baseline; gap: 14px; margin: 18px 0 10px; }
+  .ends-h .t { font-size: 17px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--violet); }
+  .ends-h .c { font-size: 15.5px; color: var(--muted); }
+
+  .ends { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .end { border: 2px solid var(--violet-line); border-radius: 13px; overflow: hidden; display: flex; flex-direction: column; }
+  .end .eh { padding: 12px 17px; background: var(--violet-bg); border-bottom: 2px solid var(--violet-line); }
+  .end .eh .n { font-size: 12.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--violet); }
+  .end .eh .t { margin-top: 2px; font-size: 20px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; }
+  .end .eh .s { margin-top: 2px; font-size: 15px; color: var(--muted); }
+  .end ul { list-style: none; padding: 8px 17px 12px; }
+  .end li { position: relative; padding: 7px 0 7px 20px; font-size: 15.5px; color: var(--ink-2); line-height: 1.4; border-bottom: 1px dashed var(--line); }
+  .end li:last-child { border-bottom: 0; }
+  .end li::before { content: "▪"; position: absolute; left: 0; top: 7px; color: var(--violet); }
+  .end li b { color: var(--ink); }
+  .end.rec { border-color: var(--violet); }
+  .end.rec .eh { border-bottom-color: var(--violet); }
+  .end .badge {
+    display: inline-block; margin-left: 6px; font-size: 11.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 3px 9px; border-radius: 999px; vertical-align: 3px;
+    background: var(--violet); color: #fff;
+  }
+
+  .endsbar {
+    margin-top: 16px;
+    display: flex; align-items: center; gap: 18px;
+    background: var(--ink); color: #e2e8f0;
+    border-radius: 13px; padding: 16px 22px;
+  }
+  .endsbar .k { font-size: 13px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #c4b5fd; white-space: nowrap; }
+  .endsbar .v { font-size: 18px; color: #fff; font-weight: 500; line-height: 1.45; }
+  .endsbar .v code { color: #ddd6fe; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="eyebrow">Step skill</div>
+  <h1><span class="u">investigate</span> — find what is actually true</h1>
+  <p class="lede">
+    A root cause, a solution direction, or whether an approach is viable — established before anything
+    changes. <b>If you know and the agent can just ask, that is requirements. If it has to be found in
+    code, logs, or an experiment, that is investigation.</b>
+  </p>
+
+  <div class="rule"></div>
+
+  <div class="row">
+    <div class="step">
+      <div class="tagline">Before · gathering-context</div>
+      <div class="nm">the question</div>
+      <div class="dt">Symptoms, impact, reproduction conditions, and the boundary of the investigation.</div>
+    </div>
+    <div class="ar">→</div>
+    <div class="loopbox">
+      <div class="tagline">The loop · events, not stages</div>
+      <div class="nm">investigate &nbsp;↻</div>
+      <div class="cycle">
+        <div class="c">form a hypothesis<small><code>--kind hypothesis</code></small></div>
+        <div class="cc">→</div>
+        <div class="c">gather evidence<small>into <code>evidence/</code></small></div>
+        <div class="cc">→</div>
+        <div class="c">confirm <i>or</i> retract<small><code>--kind status-change</code></small></div>
+      </div>
+      <div class="freebar">
+        <div class="free"><b>Free</b>read code · run the app · analyze logs</div>
+        <div class="ask"><b>Needs your approval</b>a reproduction test or script (<code>--action reproduction</code>)</div>
+        <div class="no"><b>Never</b>modifying production code</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gateband">
+    <div class="g">🔒 Gate</div>
+    <div class="x">A confirmation <b>requires <code>--evidence</code></b> for that specific claim; a retraction requires the contradicting <b><code>--reason</code></b>. Both are appended, never edited.</div>
+  </div>
+
+  <div class="ends-h"><div class="t">Three endings</div><div class="c">offered once, with the one the evidence points at marked — an investigation-only boundary already means ending 1</div></div>
+
+  <div class="ends">
+    <section class="end rec">
+      <div class="eh">
+        <div class="n">Ending 1<span class="badge">a normal ending</span></div>
+        <div class="t">conclusion only</div>
+        <div class="s">The question is answered. Nothing gets built now.</div>
+      </div>
+      <ul>
+        <li><code>conclusion.md</code>, citing <code>#&lt;seq&gt;</code> for what backs each claim</li>
+        <li>Handed to <b>finalize</b> — refused unless the record holds <b>something confirmed</b></li>
+        <li>"Nothing is wrong" is an answer too: it still gets a <code>conclusion.md</code></li>
+      </ul>
+    </section>
+    <section class="end">
+      <div class="eh">
+        <div class="n">Ending 2</div>
+        <div class="t">carry on</div>
+        <div class="s">The same scope becomes the change — in this folder.</div>
+      </div>
+      <ul>
+        <li>A <code>decision</code> records the handoff to <code>write-requirements</code> or <code>write-plan</code></li>
+        <li>The boundary is extended <b>only on your explicit request</b></li>
+        <li>The fix still goes through <code>write-plan</code> and <b>execution approval</b>; a kept reproduction is the failure seen before the fix</li>
+      </ul>
+    </section>
+    <section class="end">
+      <div class="eh">
+        <div class="n">Ending 3</div>
+        <div class="t">split</div>
+        <div class="s">The finding opens several separate pieces of work.</div>
+      </div>
+      <ul>
+        <li>Ending 1 first, with its <b>Decomposition</b> table filled in — every finding in exactly one row</li>
+        <li>After the close, each row you want becomes <b>its own work folder</b></li>
+        <li>Each follow-up is <b>linked both ways</b>; declined rows stay in the table with the reason</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="endsbar">
+    <div class="k">Every ending</div>
+    <div class="v">If reproduction code exists, you are asked: <b>delete it</b>, or <b>keep it</b> as a regression-test seed.</div>
+  </div>
+
+  <div class="foot">
+    <b>Record before the turn ends:</b> a turn that produced a finding, hypothesis, confirmation, or retraction appends
+    at least one event. &nbsp;·&nbsp;
+    <b>An unknown cause met mid-change</b> is investigated in the same folder while it stays inside the boundary;
+    one that needs its own scope gets its own linked folder. &nbsp;·&nbsp;
+    <code>cancelled</code> is for an investigation you abandon, not one that reached an unexciting answer.
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,8 +1,4 @@
-"""Sanitized history scenarios; replay instructions live in docs/DEVELOPMENT.md.
-
-The histories were recorded under the legacy units, so they replay on legacy
-folders: those must stay resumable and valid after the move to one unit.
-"""
+"""Sanitized history scenarios; replay instructions live in docs/DEVELOPMENT.md."""
 
 from __future__ import annotations
 
@@ -11,8 +7,8 @@ import pytest
 from as_usual_record.status import derive_status
 
 
-def test_history_review_is_not_execution_approval(make_legacy, run, events):
-    work_dir = make_legacy("topic")
+def test_history_review_is_not_execution_approval(make_work, run, events):
+    work_dir = make_work()
     args = ("add", "--dir", str(work_dir))
     (work_dir / "plan.md").write_text("# Plan\n\nBound the scan and verify access control.\n")
     assert run(*args, "--kind", "review", "--phase", "write-plan",
@@ -32,9 +28,9 @@ def test_history_review_is_not_execution_approval(make_legacy, run, events):
 
 @pytest.mark.parametrize("gap", ["FAIL", "INCONCLUSIVE"])
 def test_history_focused_pass_does_not_clear_another_surface(
-    make_legacy, run, events, approve_execution, gap
+    make_work, run, events, approve_execution, gap
 ):
-    work_dir = make_legacy("topic")
+    work_dir = make_work()
     approve_execution(work_dir)
     args = ("add", "--dir", str(work_dir))
     (work_dir / "verification.md").write_text("# Verification\n\nIntegration gap remains.\n")
@@ -61,9 +57,9 @@ def test_history_focused_pass_does_not_clear_another_surface(
 
 
 def test_history_cancelled_work_stays_sealed_when_successor_links(
-    make_legacy, make_work, run, events
+    make_work, run, events
 ):
-    source = make_legacy("topic", slug="2026-01-01-source")
+    source = make_work(slug="2026-01-01-source")
     args = ("add", "--dir", str(source))
     assert run(*args, "--kind", "lifecycle", "--event", "cancelled",
                "--actor", "user", "--reason", "scope replaced",
@@ -82,12 +78,11 @@ def test_history_cancelled_work_stays_sealed_when_successor_links(
     assert run("validate", "--dir", str(successor)) == 0
 
 
-@pytest.mark.parametrize("unit", ["topic", "direct-work"])
 def test_history_changed_surface_requires_resolving_the_new_gap(
-    make_legacy, run, events, approve_execution, unit
+    make_work, run, events, approve_execution
 ):
     """The controller detects stale evidence; the helper enforces the recorded gap."""
-    work_dir = make_legacy(unit)
+    work_dir = make_work()
     approve_execution(work_dir)
     args = ("add", "--dir", str(work_dir))
     (work_dir / "verification.md").write_text("# Verification\n\nCurrent-state recheck.\n")

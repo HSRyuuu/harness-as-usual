@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Manage AsUsual work-unit records (contexts.md + audit.jsonl).
 
-One helper serves all three work units — topic, direct-work, and issue. This
-public entrypoint delegates to the internal as_usual_record package while
+This public entrypoint delegates to the internal as_usual_record package while
 preserving the CLI contract.
 """
 
